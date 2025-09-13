@@ -11,7 +11,8 @@ export function generateStaticParams() {
 }
 export const dynamicParams = false;
 
-export default function CountryPage({ params }: { params: { vertical: Vertical; country: string } }) {
+export default async function CountryPage(props: { params: Promise<{ vertical: Vertical; country: string }> }) {
+  const params = await props.params;
   const { vertical, country } = params;
   const docs = getAllContentCached();
 

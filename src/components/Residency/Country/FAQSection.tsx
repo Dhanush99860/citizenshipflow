@@ -1,12 +1,4 @@
 // src/components/Residency/Country/FAQSection.tsx
-// Elegant, accessible FAQ accordion for an immigration site.
-// - "use client" + plain React (Next 14 friendly)
-// - Clean UI, neutral accents (no unexpected blue rings on refresh)
-// - Deep-linkable (#faq-your-question) and hash-sync
-// - Smooth height animation (CSS grid rows)
-// - SEO: schema.org FAQPage JSON-LD
-// - Works in light & dark themes; mobile-first
-
 "use client";
 
 import * as React from "react";
@@ -18,15 +10,14 @@ export default function FAQSection({ faqs }: { faqs?: FAQ[] }) {
 
   const [openIndex, setOpenIndex] = React.useState<number | null>(null);
 
-  // Stable slugs for #hash deep links
+  // Stable slugs used for deep links
   const slugs = React.useMemo(() => faqs.map((f) => slugify(f.q)), [faqs]);
 
-  // Open the item matching the hash on load / hash change (no programmatic focus = no visible ring)
+  // Open on initial #hash or when hash changes (no history writes here)
   React.useEffect(() => {
     const applyHash = () => {
-      const hash = decodeURIComponent(
-        (typeof window !== "undefined" ? window.location.hash : "").replace("#", "")
-      );
+      if (typeof window === "undefined") return;
+      const hash = decodeURIComponent(window.location.hash.replace("#", ""));
       if (!hash) return;
       const idx = slugs.indexOf(hash);
       if (idx >= 0) setOpenIndex(idx);
@@ -36,29 +27,37 @@ export default function FAQSection({ faqs }: { faqs?: FAQ[] }) {
     return () => window.removeEventListener("hashchange", applyHash);
   }, [slugs]);
 
+  // Defer URL update until after React commits to avoid Router setState-in-render
+  const setHashDeferred = React.useCallback((next: number | null) => {
+    if (typeof window === "undefined") return;
+
+    const nextHash = next === null ? "" : `#${slugs[next]}`;
+    const url = nextHash
+      ? `${window.location.pathname}${window.location.search}${nextHash}`
+      : `${window.location.pathname}${window.location.search}`;
+
+    // Defer to next microtask (or task) – either avoids the Router warning
+    (typeof queueMicrotask === "function"
+      ? queueMicrotask
+      : (cb: () => void) => setTimeout(cb, 0))(() => {
+      try {
+        window.history.replaceState(null, "", url);
+      } catch {
+        /* no-op */
+      }
+    });
+  }, [slugs]);
+
   const onToggle = (idx: number) => {
     setOpenIndex((cur) => {
       const next = cur === idx ? null : idx;
-      // Update hash without adding history entries
-      if (typeof window !== "undefined" && window.history?.replaceState) {
-        const nextHash = next === null ? "" : `#${slugs[next]}`;
-        const url = nextHash
-          ? `${window.location.pathname}${window.location.search}${nextHash}`
-          : `${window.location.pathname}${window.location.search}`;
-        window.history.replaceState(null, "", url);
-      }
+      setHashDeferred(next);
       return next;
     });
   };
 
   return (
-    <section
-      id="faq"
-      role="region"
-      aria-label="Frequently asked questions"
-      className="mt-5"
-    >
-      {/* Card container */}
+    <section id="faq" role="region" aria-label="Frequently asked questions" className="mt-5">
       <div
         className="
           overflow-visible rounded-2xl
@@ -69,12 +68,12 @@ export default function FAQSection({ faqs }: { faqs?: FAQ[] }) {
       >
         {faqs.map((f, i) => {
           const isOpen = openIndex === i;
-          const panelId = `faq-panel-${i}-${slugs[i]}`;
-          const buttonId = `faq-button-${i}-${slugs[i]}`;
+          const id = slugify(f.q);
+          const panelId = `faq-panel-${i}-${id}`;
+          const buttonId = `faq-button-${i}-${id}`;
 
           return (
             <div key={panelId} className="px-4 sm:px-5">
-              {/* Question row */}
               <h3 className="m-0">
                 <button
                   id={buttonId}
@@ -84,12 +83,10 @@ export default function FAQSection({ faqs }: { faqs?: FAQ[] }) {
                   onClick={() => onToggle(i)}
                   className="
                     group flex w-full items-center justify-between gap-3 py-4 sm:py-5 text-left
-                    text-[15px] sm:text-base font-semibold
-                    rounded-lg
+                    text-[15px] sm:text-base font-semibold rounded-lg
                     hover:bg-white/60 dark:hover:bg-neutral-900/60
                     focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500/60
-                    text-neutral-900 dark:text-neutral-100
-                    transition
+                    text-neutral-900 dark:text-neutral-100 transition
                   "
                 >
                   <span className="pr-2">{f.q}</span>
@@ -102,13 +99,11 @@ export default function FAQSection({ faqs }: { faqs?: FAQ[] }) {
                 </button>
               </h3>
 
-              {/* Answer (animated height) */}
               <div
                 id={panelId}
                 role="region"
                 aria-labelledby={buttonId}
                 className={[
-                  // use grid rows so height animates smoothly
                   "grid transition-all duration-300 ease-out motion-reduce:transition-none",
                   isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
                 ].join(" ")}
@@ -124,10 +119,8 @@ export default function FAQSection({ faqs }: { faqs?: FAQ[] }) {
         })}
       </div>
 
-      {/* JSON-LD for FAQ rich results */}
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(buildFaqLd(faqs)) }}
       />
     </section>
@@ -147,16 +140,7 @@ function slugify(s: string) {
 
 function Chevron({ className = "" }: { className?: string }) {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="m6 9 6 6 6-6" />
     </svg>
   );
@@ -169,10 +153,7 @@ function buildFaqLd(faqs: FAQ[]) {
     mainEntity: faqs.map((f) => ({
       "@type": "Question",
       name: f.q,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: f.a,
-      },
+      acceptedAnswer: { "@type": "Answer", text: f.a },
     })),
   };
 }

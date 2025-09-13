@@ -73,7 +73,7 @@ function SquareThumb({ item }: { item: CompareItem }) {
 }
 
 /* focus trap util */
-function useFocusTrap(enabled: boolean, containerRef: React.RefObject<HTMLElement>) {
+function useFocusTrap(enabled: boolean, containerRef: React.RefObject<HTMLElement | null>) {
   React.useEffect(() => {
     if (!enabled) return;
     const el = containerRef.current;

@@ -10,7 +10,8 @@ import type { Metadata } from "next";
 import { User, Calendar, Clock } from "lucide-react";
 
 // ✅ 1. Metadata
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const article = await getArticleBySlug(params.slug);
   if (!article) return { title: "Article Not Found" };
 
@@ -46,7 +47,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 // ✅ 2. Page Component
-export default async function ArticlePage({ params }: { params: { slug: string } }) {
+export default async function ArticlePage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const article = await getArticleBySlug(params.slug);
   if (!article) return notFound();
 

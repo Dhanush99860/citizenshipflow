@@ -18,6 +18,20 @@ brochure: ""
 routeType: points-tested
 lastUpdated: "2025-09-13"
 
+# Quick-facts wiring (NEW)
+points:
+  max: 65
+  gridUrl: "https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/skilled-independent-189/points-tested"
+languageMin:
+  test: "IELTS"
+  overall: 6
+  bands:
+    listening: 6
+    reading: 6
+    writing: 6
+    speaking: 6
+occupationListUrl: "https://immi.homeaffairs.gov.au/visas/working-in-australia/skill-occupation-list"
+
 # Price blocks (program-staged + gov fees)
 prices:
   - label: "Visa application charge (primary applicant)"
@@ -36,10 +50,16 @@ governmentFees:
   - label: "Subclass 189 — primary applicant VAC (from)"
     amount: 4910
     currency: AUD
+    sourceLabel: "Home Affairs — 189 (points-tested)"
+    sourceUrl: "https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/skilled-independent-189/points-tested"
   - label: "Additional applicant charges (18+ / <18) — see official pricing table"
     currency: AUD
+    sourceLabel: "Current Visa Pricing Table"
+    sourceUrl: "https://immi.homeaffairs.gov.au/visas/getting-a-visa/fees-and-charges/current-visa-pricing"
   - label: "Possible 2nd instalment (certain low-English cases) — if applicable"
     currency: AUD
+    sourceLabel: "English levels & second instalment policy"
+    sourceUrl: "https://immi.homeaffairs.gov.au/help-support/meeting-our-requirements/english-language/competent-english"
 
 benefits:
   - "Permanent residency on grant; live and work anywhere in Australia."

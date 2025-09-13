@@ -1,33 +1,25 @@
-// src/components/EligibilityRequirements.tsx
-// Immigration-site–ready requirements list.
-//
-// UX
-// - Clear visual hierarchy with subtle brand accents (blue/emerald/amber)
-// - Readable at all sizes; long text wraps & hyphenates; print-friendly
-// - Optional numbered mode; default checklist mode
-//
-// A11y
-// - Proper region semantics, aria-labelledby/aria-describedby
-// - List semantics preserved; screen-reader positions via microdata
-//
-// SEO
-// - schema.org ItemList microdata + JSON-LD (arrays only)
-// - numberOfItems included
-//
-// NOTE: Signature is backward compatible.
-
 import * as React from "react";
 import SectionHeader from "./SectionHeader";
 import { CheckCircle2 } from "lucide-react";
 
 type Props = {
-  items?: string[] | string;
+  items?: string[] | string | unknown; // tolerate non-strings
   className?: string;
   /** Set to true if you prefer 1,2,3… instead of check icons */
   numbered?: boolean;
   /** Max columns for wide screens (1 or 2). Default: 2 */
   columns?: 1 | 2;
 };
+
+// --- NEW: stringify any odd YAML objects like { "Points-tested PR": "189..." } ---
+function toDisplayString(v: unknown): string {
+  if (typeof v === "string") return v;
+  if (v && typeof v === "object") {
+    const [k, val] = Object.entries(v as Record<string, unknown>)[0] ?? [];
+    if (k !== undefined) return `${k}${val !== undefined ? `: ${String(val)}` : ""}`;
+  }
+  return v == null ? "" : String(v);
+}
 
 export default function EligibilityRequirements({
   items,
@@ -37,20 +29,21 @@ export default function EligibilityRequirements({
 }: Props) {
   if (!items) return null;
 
+  // Normalize to a clean string list (keeps your old API)
   const isList = Array.isArray(items);
-  const list: string[] = isList ? (items as string[]).filter(Boolean) : [];
+  const list: string[] = isList
+    ? (items as unknown[]).map(toDisplayString).filter(Boolean)
+    : [];
+
   if (isList && list.length === 0) return null;
 
   const count = isList ? list.length : undefined;
-  const gridCols =
-    columns === 1 ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2";
+  const gridCols = columns === 1 ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2";
 
   // JSON-LD only for arrays
   const jsonLd = isList ? buildItemListLd("Eligibility requirements", list) : null;
 
-  const regionProps = isList
-    ? { itemScope: true, itemType: "https://schema.org/ItemList" }
-    : {};
+  const regionProps = isList ? { itemScope: true, itemType: "https://schema.org/ItemList" } : {};
 
   return (
     <section
@@ -115,21 +108,19 @@ export default function EligibilityRequirements({
           ].join(" ")}
           itemProp="description"
         >
-          {items as string}
+          {toDisplayString(items)}
         </div>
       ) : numbered ? (
         /* -------- Numbered variant -------- */
         <ol
           role="list"
-          className={["relative z-10 mt-2 grid gap-y-3 gap-x-6", gridCols].join(
-            " "
-          )}
+          className={["relative z-10 mt-2 grid gap-y-3 gap-x-6", gridCols].join(" ")}
           aria-label="Eligibility requirements (numbered)"
         >
           <meta itemProp="numberOfItems" content={String(count || 0)} />
-          {list.map((item, idx) => (
+          {list.map((text, idx) => (
             <li
-              key={`${idx}-${item.slice(0, 24)}`}
+              key={`${idx}-${text.slice(0, 24)}`}
               className="relative pl-8 print:break-inside-avoid"
               itemScope
               itemType="https://schema.org/ListItem"
@@ -148,9 +139,9 @@ export default function EligibilityRequirements({
               <p
                 className="text-[15px] leading-7 text-neutral-900 dark:text-neutral-100 break-words hyphens-auto"
                 itemProp="name"
-                title={item}
+                title={text}
               >
-                {item}
+                {text}
               </p>
             </li>
           ))}
@@ -159,15 +150,13 @@ export default function EligibilityRequirements({
         /* -------- Checklist variant (default) -------- */
         <ul
           role="list"
-          className={["relative z-10 mt-2 grid gap-y-3 gap-x-6", gridCols].join(
-            " "
-          )}
+          className={["relative z-10 mt-2 grid gap-y-3 gap-x-6", gridCols].join(" ")}
           aria-label="Eligibility requirements"
         >
           <meta itemProp="numberOfItems" content={String(count || 0)} />
-          {list.map((item, idx) => (
+          {list.map((text, idx) => (
             <li
-              key={`${idx}-${item.slice(0, 24)}`}
+              key={`${idx}-${text.slice(0, 24)}`}
               className="relative print:break-inside-avoid"
               itemScope
               itemType="https://schema.org/ListItem"
@@ -186,9 +175,9 @@ export default function EligibilityRequirements({
                 <p
                   className="text-[15px] leading-7 text-neutral-900 dark:text-neutral-100 break-words hyphens-auto"
                   itemProp="name"
-                  title={item}
+                  title={text}
                 >
-                  {item}
+                  {text}
                 </p>
               </div>
             </li>

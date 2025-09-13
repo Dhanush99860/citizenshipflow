@@ -40,11 +40,12 @@ export async function generateStaticParams() {
   return params;
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { country: string; program: string };
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ country: string; program: string }>;
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   try {
     const { meta } = await loadProgramPageSections(params.country, params.program);
     const heroImage = (meta as any).heroImage as string | undefined;
@@ -116,11 +117,12 @@ type RelatedItem = {
   score: number;
 };
 
-export default async function ProgramPage({
-  params,
-}: {
-  params: { country: string; program: string };
-}) {
+export default async function ProgramPage(
+  props: {
+    params: Promise<{ country: string; program: string }>;
+  }
+) {
+  const params = await props.params;
   try {
     const { meta, sections } = await loadProgramPageSections(
       params.country,
@@ -307,7 +309,6 @@ export default async function ProgramPage({
         {howToLdData ? <JsonLd data={{ ...howToLdData, "@id": "#application-howto" }} /> : null}
         <JsonLd data={webPageLd} />
         {offerLd ? <JsonLd data={offerLd} /> : null}
-
         {/* HERO */}
         <div className="pt-4 pb-4">
           <div className="rounded-3xl bg-white/80 dark:bg-dark_bg/80 shadow-lg backdrop-blur">
@@ -325,9 +326,7 @@ export default async function ProgramPage({
           </div>
           <Breadcrumb />
         </div>
-
         <ProgramQuickNav sections={sectionsForNav} />
-
         {/* BODY */}
         <div className="flex flex-col gap-8 pt-5 pb-16 sm:px-6 lg:grid lg:grid-cols-12 lg:gap-8 lg:px-8">
           {/* MAIN */}
@@ -546,11 +545,11 @@ export default async function ProgramPage({
                           <div className="relative aspect-[16/9] overflow-hidden">
                             {hasImg ? (
                               // eslint-disable-next-line @next/next/no-img-element
-                              <img
+                              (<img
                                 src={r.heroImage!}
                                 alt=""
                                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                              />
+                              />)
                             ) : (
                               <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-100 dark:from-neutral-800 dark:to-neutral-700 grid place-items-center">
                                 <span className="text-xs opacity-70">
@@ -630,7 +629,6 @@ export default async function ProgramPage({
             </div>
           </aside>
         </div>
-
         <div className="border-t border-border dark:border-dark_border bg-gradient-to-tr from-primary/5 via-transparent to-secondary/5 py-10">
           <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 sm:px-6 lg:px-8">
             <h3 className="text-center text-xl font-semibold">

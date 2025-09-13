@@ -32,11 +32,12 @@ export async function generateStaticParams() {
 }
 
 /** SEO */
-export async function generateMetadata({
-  params,
-}: {
-  params: { country: string };
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ country: string }>;
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   const meta = getCountryFrontmatter(params.country);
   const heroImage = (meta as any).heroImage as string | undefined;
   const title = (meta as any).seo?.title ?? meta.title;
@@ -54,11 +55,12 @@ export async function generateMetadata({
 }
 
 /** Page */
-export default async function CountryPage({
-  params,
-}: {
-  params: { country: string };
-}) {
+export default async function CountryPage(
+  props: {
+    params: Promise<{ country: string }>;
+  }
+) {
+  const params = await props.params;
   const { meta, content } = await loadCountryPage(params.country);
   const programs = getResidencyPrograms(params.country);
 

@@ -33,11 +33,12 @@ export async function generateStaticParams() {
 }
 
 /** SEO metadata */
-export async function generateMetadata({
-  params,
-}: {
-  params: { country: string; program: string };
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ country: string; program: string }>;
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   try {
     const { meta } = await loadProgramPageSections(params.country, params.program);
     const heroImage = (meta as any).heroImage as string | undefined;
@@ -93,11 +94,12 @@ function similarityScore(
 }
 
 /** Page */
-export default async function ProgramPage({
-  params,
-}: {
-  params: { country: string; program: string };
-}) {
+export default async function ProgramPage(
+  props: {
+    params: Promise<{ country: string; program: string }>;
+  }
+) {
+  const params = await props.params;
   try {
     const { meta, sections } = await loadProgramPageSections(
       params.country,
@@ -178,17 +180,24 @@ export default async function ProgramPage({
     const relatedRaw = (await Promise.all(candidateTasks)).filter(
       Boolean
     ) as NonNullable<Awaited<(typeof candidateTasks)[number]>>[];
-    const relatedPrograms = relatedRaw
-      .sort((a, b) => {
-        if (a.score !== b.score) return b.score - a.score;
-        const ta = a.timelineMonths ?? Number.MAX_SAFE_INTEGER;
-        const tb = b.timelineMonths ?? Number.MAX_SAFE_INTEGER;
-        if (ta !== tb) return ta - tb;
-        const ia = a.minInvestment ?? Number.MAX_SAFE_INTEGER;
-        const ib = b.minInvestment ?? Number.MAX_SAFE_INTEGER;
-        return ia - ib;
-      })
-      .slice(0, 6);
+    
+    // Sort first, then DEDUPE by URL (preserves order), then cap to 6 unique
+    const relatedPrograms = Array.from(
+      new Map(
+        relatedRaw
+          .sort((a, b) => {
+            if (a.score !== b.score) return b.score - a.score;
+            const ta = a.timelineMonths ?? Number.MAX_SAFE_INTEGER;
+            const tb = b.timelineMonths ?? Number.MAX_SAFE_INTEGER;
+            if (ta !== tb) return ta - tb;
+            const ia = a.minInvestment ?? Number.MAX_SAFE_INTEGER;
+            const ib = b.minInvestment ?? Number.MAX_SAFE_INTEGER;
+            return ia - ib;
+          })
+          .map((r) => [r.url, r] as const)
+      ).values()
+    ).slice(0, 6);
+    
 
     /** In-page Quick Nav IDs — FINAL ORDER: mobile & desktop consistent */
     const mdxKey = {
@@ -287,20 +296,20 @@ export default async function ProgramPage({
         <JsonLd data={webPageLd} />
         {offerLd ? <JsonLd data={offerLd} /> : null}
         {relatedPrograms.length ? (
-          <JsonLd
-            data={{
-              "@context": "https://schema.org",
-              "@type": "ItemList",
-              name: `Related programs similar to ${meta.title}`,
-              itemListElement: relatedPrograms.map((r, idx) => ({
-                "@type": "ListItem",
-                position: idx + 1,
-                url: `https://yourdomain.com${r.url}`,
-                name: r.title,
-              })),
-            }}
-          />
-        ) : null}
+  <JsonLd
+    data={{
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: `Related programs similar to ${meta.title}`,
+      itemListElement: relatedPrograms.map((r, idx) => ({
+        "@type": "ListItem",
+        position: idx + 1,
+        url: `https://yourdomain.com${r.url}`,
+        name: r.title,
+      })),
+    }}
+  />
+) : null}
 
         {/* HERO */}
         <div className="pt-4 pb-4">
@@ -319,10 +328,8 @@ export default async function ProgramPage({
           </div>
           <Breadcrumb />
         </div>
-
         {/* IN-PAGE QUICK NAV */}
         <ProgramQuickNav sections={sectionsForNav} />
-
         {/* BODY */}
         <div className="flex flex-col gap-8 pt-5 pb-16 sm:px-6 lg:grid lg:grid-cols-12 lg:gap-8 lg:px-8">
           {/* MAIN */}
@@ -628,106 +635,101 @@ export default async function ProgramPage({
                 </header>
 
                 <ul className="grid gap-5 sm:grid-cols-2">
-                  {relatedPrograms.map((r) => {
-                    const hasImg = !!r.heroImage;
-                    const price =
-                      typeof r.minInvestment === "number"
-                        ? `${r.currency ?? ""} ${r.minInvestment.toLocaleString()}`
-                        : "No minimum";
-                    const time = r.timelineMonths ? `${r.timelineMonths} mo` : "Varies";
-                    return (
-                      <li key={r.url}>
-                        <Link
-                          href={r.url}
-                          className="
-                group block overflow-hidden rounded-2xl
-                ring-1 ring-neutral-200/80 dark:ring-neutral-800/80
-                bg-white/80 dark:bg-neutral-900/40
-                hover:-translate-y-0.5 hover:shadow-md transition
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50
-              "
-                          aria-label={`View ${r.title}`}
-                        >
-                          {/* Media */}
-                          <div className="relative aspect-[16/9] overflow-hidden">
-                            {hasImg ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={r.heroImage!}
-                                alt=""
-                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                              />
-                            ) : (
-                              <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-100 dark:from-neutral-800 dark:to-neutral-700 grid place-items-center">
-                                <span className="text-xs opacity-70">
-                                  {r.country}
-                                </span>
-                              </div>
-                            )}
-                            {/* subtle overlay on hover */}
-                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                          </div>
+  {relatedPrograms.map((r, idx) => {
+    const hasImg = !!r.heroImage;
+    const price =
+      typeof r.minInvestment === "number"
+        ? `${r.currency ?? ""} ${r.minInvestment.toLocaleString()}`
+        : "No minimum";
+    const time = r.timelineMonths ? `${r.timelineMonths} mo` : "Varies";
+    return (
+      <li key={`${r.url}|${idx}`}>
+        <Link
+          href={r.url}
+          className="
+            group block overflow-hidden rounded-2xl
+            ring-1 ring-neutral-200/80 dark:ring-neutral-800/80
+            bg-white/80 dark:bg-neutral-900/40
+            hover:-translate-y-0.5 hover:shadow-md transition
+            focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50
+          "
+          aria-label={`View ${r.title}`}
+        >
+          {/* Media */}
+          <div className="relative aspect-[16/9] overflow-hidden">
+            {hasImg ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={r.heroImage!}
+                alt=""
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+              />
+            ) : (
+              <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-100 dark:from-neutral-800 dark:to-neutral-700 grid place-items-center">
+                <span className="text-xs opacity-70">{r.country}</span>
+              </div>
+            )}
+            {/* subtle overlay on hover */}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
 
-                          {/* Body */}
-                          <div className="p-4 sm:p-5">
-                            <div className="flex items-start justify-between gap-3">
-                              <div>
-                                <h3 className="text-base font-semibold leading-6">
-                                  {r.title}
-                                </h3>
-                                <p className="mt-0.5 text-xs opacity-70">{r.country}</p>
-                              </div>
+          {/* Body */}
+          <div className="p-4 sm:p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-base font-semibold leading-6">{r.title}</h3>
+                <p className="mt-0.5 text-xs opacity-70">{r.country}</p>
+              </div>
 
-                              {/* Tags (top 3) */}
-                              {!!r.tags?.length && (
-                                <div className="hidden md:flex flex-wrap gap-1 max-w-[220px] justify-end">
-                                  {r.tags.slice(0, 3).map((t) => (
-                                    <span
-                                      key={t}
-                                      className="
-                            inline-flex items-center rounded-full
-                            px-2 py-0.5 text-[11px] opacity-80
-                            ring-1 ring-neutral-200 dark:ring-neutral-700
-                          "
-                                    >
-                                      {t}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
+              {/* Tags (top 3) */}
+              {!!r.tags?.length && (
+                <div className="hidden md:flex flex-wrap gap-1 max-w-[220px] justify-end">
+                  {r.tags.slice(0, 3).map((t, ti) => (
+                    <span
+                      key={`${r.url}-tag-${ti}-${t}`}
+                      className="
+                        inline-flex items-center rounded-full
+                        px-2 py-0.5 text-[11px] opacity-80
+                        ring-1 ring-neutral-200 dark:ring-neutral-700
+                      "
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
 
-                            {/* Mini stats */}
-                            <div className="mt-3 grid grid-cols-2 gap-2 text-[13px]">
-                              <div
-                                className="
-                      rounded-xl p-2
-                      bg-black/5 dark:bg-white/10
-                      ring-1 ring-neutral-200 dark:ring-neutral-700
-                    "
-                              >
-                                <div className="font-medium tabular-nums">{price}</div>
-                                <div className="text-[11px] opacity-70">
-                                  Minimum investment
-                                </div>
-                              </div>
-                              <div
-                                className="
-                      rounded-xl p-2
-                      bg-black/5 dark:bg-white/10
-                      ring-1 ring-neutral-200 dark:ring-neutral-700
-                    "
-                              >
-                                <div className="font-medium">{time}</div>
-                                <div className="text-[11px] opacity-70">Timeline</div>
-                              </div>
-                            </div>
-                          </div>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
+            {/* Mini stats */}
+            <div className="mt-3 grid grid-cols-2 gap-2 text-[13px]">
+              <div
+                className="
+                  rounded-xl p-2
+                  bg-black/5 dark:bg-white/10
+                  ring-1 ring-neutral-200 dark:ring-neutral-700
+                "
+              >
+                <div className="font-medium tabular-nums">{price}</div>
+                <div className="text-[11px] opacity-70">Minimum investment</div>
+              </div>
+              <div
+                className="
+                  rounded-xl p-2
+                  bg-black/5 dark:bg-white/10
+                  ring-1 ring-neutral-200 dark:ring-neutral-700
+                "
+              >
+                <div className="font-medium">{time}</div>
+                <div className="text-[11px] opacity-70">Timeline</div>
+              </div>
+            </div>
+          </div>
+        </Link>
+      </li>
+    );
+  })}
+</ul>
+
               </section>
             ) : null}
 
@@ -768,7 +770,6 @@ export default async function ProgramPage({
             </div>
           </aside>
         </div>
-
         {/* FOOTER CTA */}
         <div className="border-t border-border dark:border-dark_border bg-gradient-to-tr from-primary/5 via-transparent to-secondary/5 py-10">
           <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 sm:px-6 lg:px-8">

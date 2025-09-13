@@ -35,11 +35,12 @@ export async function generateStaticParams() {
 }
 
 /** SEO */
-export async function generateMetadata({
-  params,
-}: {
-  params: { country: string };
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ country: string }>;
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   const all = await getSkilledCountrySlugs();
   if (!all.includes(params.country)) return { title: "Skilled country not found" };
 
@@ -75,7 +76,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function CountryPage({ params }: { params: { country: string } }) {
+export default async function CountryPage(props: { params: Promise<{ country: string }> }) {
+  const params = await props.params;
   const slugs = await getSkilledCountrySlugs();
   if (!slugs.includes(params.country)) notFound();
 

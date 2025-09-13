@@ -10,12 +10,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import type { ReactNode } from "react";
 
 /* =========================
- * Shared Types
- * =======================*/
-export type Currency = "USD" | "EUR" | "AED" | "INR" | "CAD" | "GBP" | "AUD";
-
-/* =========================
- * Types (same API as residency; category differs) + Skilled extensions
+ * Types (same API as residency; category differs)
  * =======================*/
 export type CountryMeta = {
   title: string;
@@ -30,7 +25,6 @@ export type CountryMeta = {
   introPoints?: string[];
   tags?: string[];
   seo?: { title?: string; description?: string; keywords?: string[] };
-  lastUpdated?: string; // NEW (optional)
   draft?: boolean;
 };
 
@@ -39,54 +33,21 @@ export type Step = { title: string; description?: string };
 export type PriceRow = {
   label: string;
   amount?: number;
-  currency?: Currency;
+  currency?: "USD" | "EUR" | "AED" | "INR" | "CAD" | "GBP" | "AUD";
   when?: string;
   notes?: string;
-};
-
-export type GovernmentFeeRow = {
-  label: string;
-  amount?: number;
-  currency?: Currency;
-  sourceLabel?: string;
-  sourceUrl?: string;
 };
 
 export type ProofOfFundsRow = {
   label?: string;
   amount: number;
-  currency?: Currency;
+  currency?: "USD" | "EUR" | "AED" | "INR" | "CAD" | "GBP" | "AUD";
   notes?: string;
-};
-
-export type DocumentChecklistGroup = {
-  group: string;
-  documents: string[];
-};
-
-export type FamilyMatrix = {
-  childrenUpTo?: number;
-  parentsFromAge?: number;
-  siblings?: boolean;
-  spouse?: boolean;
-  notes?: string[];
 };
 
 export type QuickCheckConfig = {
   title?: string;
-  questions?: {
-    id: string;
-    label: string;
-    type: "boolean" | "select" | "number" | "text";
-    options?: string[];
-  }[];
-  // NEW (optional CTAs inline with quiz)
-  ctas?: {
-    primaryHref?: string;
-    primaryText?: string;
-    secondaryHref?: string;
-    secondaryText?: string;
-  };
+  questions?: { id: string; label: string; type: "boolean" | "select" | "number" | "text"; options?: string[] }[];
 };
 
 export type ProgramMeta = {
@@ -96,62 +57,22 @@ export type ProgramMeta = {
   countrySlug: string;
   programSlug: string;
   tagline?: string;
-
-  // Reused field (kept for compatibility): can be used for min salary / costs if needed.
-  minInvestment?: number;
-
-  currency?: Currency;
+  minInvestment?: number; // reuse for min salary / costs
+  currency?: "USD" | "EUR" | "AED" | "INR" | "CAD" | "GBP" | "AUD";
   timelineMonths?: number;
-  processingMonths?: number; // NEW alias if you prefer this name
   tags?: string[];
-
   benefits?: string[];
   requirements?: string[];
-  disqualifiers?: string[];
   processSteps?: Step[];
   faq?: { q: string; a: string }[];
-
   brochure?: string;
   prices?: PriceRow[];
-  governmentFees?: GovernmentFeeRow[]; // NEW
   proofOfFunds?: ProofOfFundsRow[];
-
-  // NEW — Skilled-specific quick facts
-  salaryThreshold?: { amount: number; currency: Currency; period: "year" | "month" };
-  languageMin?: { test: "IELTS" | "PTE" | "OET"; overall?: number; bands?: Record<string, number> };
-  occupationListUrl?: string;
-  occupationCodes?: string[];
-  points?: { max?: number; recentCutoff?: number; gridUrl?: string };
-
-  documentChecklist?: DocumentChecklistGroup[]; // NEW
-  riskNotes?: string[]; // NEW
-  complianceNotes?: string[]; // NEW
-  familyMatrix?: FamilyMatrix; // NEW
-
+  disqualifiers?: string[];
   quickCheck?: QuickCheckConfig;
   heroImage?: string;
   heroVideo?: string;
   heroPoster?: string;
-
-  // NEW — route metadata & freshness
-  routeType?:
-    | "points-tested"
-    | "state-nominated"
-    | "employer-sponsored"
-    | "talent"
-    | "provisional"
-    | "other";
-  lastUpdated?: string;
-
-  // Optional interactive estimator (mirrors citizenship style)
-  costEstimator?: {
-    baseOptions: { id: string; label: string; amount: number }[];
-    defaultBaseId?: string;
-    adults?: number;
-    children?: number;
-    addons?: { id: string; label: string; amount: number; per?: "adult" | "child" | "person" | "application" }[];
-  };
-
   seo?: { title?: string; description?: string; keywords?: string[] };
   draft?: boolean;
 };
@@ -164,19 +85,25 @@ export type ProgramSections = Record<string, ReactNode>;
  * =======================*/
 const ROOT = path.join(process.cwd(), "content", "skilled");
 
+// --- NEW: safety helpers (convert YAML objects -> strings) ---
+function toDisplayString(v: unknown): string {
+  if (typeof v === "string") return v;
+  if (v && typeof v === "object") {
+    const [k, val] = Object.entries(v as Record<string, unknown>)[0] ?? [];
+    if (k !== undefined) return `${k}${val !== undefined ? `: ${String(val)}` : ""}`;
+  }
+  return v == null ? "" : String(v);
+}
+function coerceStringArray(a: unknown): string[] {
+  return Array.isArray(a) ? a.map(toDisplayString).filter(Boolean) : [];
+}
+
 const exists = (p: string) => {
   try {
     fs.accessSync(p);
     return true;
   } catch {
     return false;
-  }
-};
-
-const mustExist = (p: string, kind: "file" | "dir") => {
-  if (!exists(p)) {
-    const rel = path.relative(process.cwd(), p);
-    throw new Error(`[skilled-content] ${kind} not found: ${rel}`);
   }
 };
 
@@ -283,14 +210,24 @@ function dirStamp(root: string): number {
 }
 
 /* =========================
- * Normalizers
+ * Normalizers (SANITIZED)
  * =======================*/
-function normalizeCountry(meta: Partial<CountryMeta>, slug: string): CountryMeta {
-  const countrySlug = (meta as any).countrySlug || slug;
-  const country = (meta as any).country || (meta as any).title || toTitle(countrySlug);
-  const title = (meta as any).title || (typeof country === "string" ? country : toTitle(countrySlug));
-  // Use structured fallback aligned with residency assets
-  const heroImage = (meta as any).heroImage || `/images/countries/${countrySlug}-hero-poster.jpg`;
+function normalizeCountry(metaIn: Partial<CountryMeta>, slug: string): CountryMeta {
+  const meta: any = { ...metaIn };
+  const countrySlug = meta.countrySlug || slug;
+  const country = meta.country || meta.title || toTitle(countrySlug);
+  const title = meta.title || (typeof country === "string" ? country : toTitle(countrySlug));
+
+  // Fallback avoids 404s; keep your custom images when present
+  const heroImage =
+    meta.heroImage || `/images/countries/${countrySlug}-hero-poster.jpg` || `/images/countries/default-hero-poster.jpg`;
+
+  // --- sanitize arrays that UI renders as text ---
+  meta.introPoints = coerceStringArray(meta.introPoints);
+  meta.keyPoints = coerceStringArray(meta.keyPoints);
+  meta.requirements = coerceStringArray(meta.requirements);
+  meta.tags = coerceStringArray(meta.tags);
+
   return {
     ...(meta as any),
     title: String(title),
@@ -306,37 +243,24 @@ function normalizeProgram(metaIn: Partial<ProgramMeta>, cSlug: string, pSlug: st
   meta.programSlug = meta.programSlug || pSlug;
   meta.countrySlug = meta.countrySlug || cSlug;
   meta.category = "skilled";
-
   if (meta.minInvestment !== undefined) meta.minInvestment = coerceNum(meta.minInvestment);
   if (meta.timelineMonths !== undefined) meta.timelineMonths = coerceNum(meta.timelineMonths);
-  if (meta.processingMonths !== undefined) meta.processingMonths = coerceNum(meta.processingMonths);
 
   if (Array.isArray(meta.prices)) {
-    meta.prices = meta.prices.map((row: any) => ({
-      ...row,
-      amount: coerceNum(row?.amount),
-    }));
+    meta.prices = meta.prices.map((row: any) => ({ ...row, amount: coerceNum(row?.amount) }));
   }
   if (Array.isArray(meta.proofOfFunds)) {
-    meta.proofOfFunds = meta.proofOfFunds.map((row: any) => ({
-      ...row,
-      amount: coerceNum(row?.amount) ?? 0,
-    }));
-  }
-  if (Array.isArray(meta.governmentFees)) {
-    meta.governmentFees = meta.governmentFees.map((row: any) => ({
-      ...row,
-      amount: coerceNum(row?.amount),
-    }));
+    meta.proofOfFunds = meta.proofOfFunds.map((row: any) => ({ ...row, amount: coerceNum(row?.amount) ?? 0 }));
   }
 
-  // Ensure some string fields are strings if provided
-  if (meta.occupationListUrl && typeof meta.occupationListUrl !== "string") {
-    meta.occupationListUrl = String(meta.occupationListUrl);
-  }
-  if (Array.isArray(meta.occupationCodes)) {
-    meta.occupationCodes = meta.occupationCodes.map((c: any) => String(c));
-  }
+  // --- sanitize arrays that UI renders as text ---
+  meta.benefits = coerceStringArray(meta.benefits);
+  meta.requirements = coerceStringArray(meta.requirements);
+  meta.disqualifiers = coerceStringArray(meta.disqualifiers);
+  meta.riskNotes = coerceStringArray(meta.riskNotes);
+  meta.complianceNotes = coerceStringArray(meta.complianceNotes);
+  meta.tags = coerceStringArray(meta.tags);
+  meta.occupationCodes = coerceStringArray(meta.occupationCodes);
 
   return meta as ProgramMeta;
 }
@@ -344,38 +268,36 @@ function normalizeProgram(metaIn: Partial<ProgramMeta>, cSlug: string, pSlug: st
 /* =========================
  * Lists & slugs (sync, like residency)
  * =======================*/
+const ROOT_DIR = ROOT;
+
 export function getSkilledCountrySlugs(): string[] {
-  if (!exists(ROOT)) return [];
-  const cacheKey = `${ROOT}::countries_dir_mtime`;
-  const stamp = dirStamp(ROOT);
+  if (!exists(ROOT_DIR)) return [];
+  const cacheKey = `${ROOT_DIR}::countries_dir_mtime`;
+  const stamp = dirStamp(ROOT_DIR);
   if (CACHE.countries && CACHE.mtimes?.get(cacheKey) === stamp) {
     return CACHE.countries.map((c) => c.countrySlug);
   }
-
   const slugs = fs
-    .readdirSync(ROOT, { withFileTypes: true })
+    .readdirSync(ROOT_DIR, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => d.name);
-
   CACHE.mtimes?.set(cacheKey, stamp);
   return slugs;
 }
 
 export function getSkilledCountries(): CountryMeta[] {
-  const stamp = dirStamp(ROOT);
-  const cacheKey = `${ROOT}::countries`;
-  const cacheStamp = `${ROOT}::countries_dir_mtime`;
+  const stamp = dirStamp(ROOT_DIR);
+  const cacheKey = `${ROOT_DIR}::countries`;
+  const cacheStamp = `${ROOT_DIR}::countries_dir_mtime`;
 
   if (CACHE.countries && CACHE.mtimes?.get(cacheStamp) === stamp) {
     return CACHE.countries;
   }
 
   const out: CountryMeta[] = [];
-
   for (const slug of getSkilledCountrySlugs()) {
-    const file = path.join(ROOT, slug, "_country.mdx");
+    const file = path.join(ROOT_DIR, slug, "_country.mdx");
     if (!exists(file)) continue;
-
     const { data } = matter(fs.readFileSync(file, "utf8"));
     const meta = normalizeCountry(data as Partial<CountryMeta>, slug);
     if (!meta.draft) out.push(meta);
@@ -389,7 +311,7 @@ export function getSkilledCountries(): CountryMeta[] {
 }
 
 export function getSkilledProgramSlugs(countrySlug: string): string[] {
-  const dir = path.join(ROOT, countrySlug);
+  const dir = path.join(ROOT_DIR, countrySlug);
   if (!exists(dir)) return [];
   return fs
     .readdirSync(dir)
@@ -398,9 +320,9 @@ export function getSkilledProgramSlugs(countrySlug: string): string[] {
 }
 
 export function getSkilledPrograms(countrySlug?: string): ProgramMeta[] {
-  const stamp = dirStamp(ROOT);
-  const cacheKey = `${ROOT}::programsAll`;
-  const cacheStamp = `${ROOT}::programs_dir_mtime`;
+  const stamp = dirStamp(ROOT_DIR);
+  const cacheKey = `${ROOT_DIR}::programsAll`;
+  const cacheStamp = `${ROOT_DIR}::programs_dir_mtime`;
 
   if (!countrySlug && CACHE.programsAll && CACHE.mtimes?.get(cacheStamp) === stamp) {
     return CACHE.programsAll;
@@ -411,7 +333,7 @@ export function getSkilledPrograms(countrySlug?: string): ProgramMeta[] {
 
   for (const c of countries) {
     for (const p of getSkilledProgramSlugs(c)) {
-      const f = path.join(ROOT, c, `${p}.mdx`);
+      const f = path.join(ROOT_DIR, c, `${p}.mdx`);
       const { data } = matter(fs.readFileSync(f, "utf8"));
       const meta = normalizeProgram(data as Partial<ProgramMeta>, c, p);
       if (!meta?.draft) out.push(meta);
@@ -431,8 +353,7 @@ export function getSkilledPrograms(countrySlug?: string): ProgramMeta[] {
  * Renderers
  * =======================*/
 export async function loadCountryPage(countrySlug: string) {
-  const f = path.join(ROOT, countrySlug, "_country.mdx");
-  mustExist(f, "file");
+  const f = path.join(ROOT_DIR, countrySlug, "_country.mdx");
   const source = fs.readFileSync(f, "utf8");
   const { content, frontmatter } = await compileMDX<CountryMeta>({
     source,
@@ -441,14 +362,12 @@ export async function loadCountryPage(countrySlug: string) {
       mdxOptions: baseMdxOptions as any,
     },
   });
-
   const meta = normalizeCountry(frontmatter as Partial<CountryMeta>, countrySlug);
   return { content, meta };
 }
 
 export async function loadProgramPage(countrySlug: string, programSlug: string) {
-  const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
-  mustExist(f, "file");
+  const f = path.join(ROOT_DIR, countrySlug, `${programSlug}.mdx`);
   const source = fs.readFileSync(f, "utf8");
   const { content, frontmatter } = await compileMDX<ProgramMeta>({
     source,
@@ -457,7 +376,6 @@ export async function loadProgramPage(countrySlug: string, programSlug: string) 
       mdxOptions: baseMdxOptions as any,
     },
   });
-
   const meta = normalizeProgram(frontmatter as Partial<ProgramMeta>, countrySlug, programSlug);
   return { content, meta };
 }
@@ -466,9 +384,8 @@ export async function loadProgramPage(countrySlug: string, programSlug: string) 
 export async function loadProgramPageSections(
   countrySlug: string,
   programSlug: string
-): Promise<{ meta: ProgramMeta; sections: ProgramSections }> {
-  const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
-  mustExist(f, "file");
+): Promise<{ meta: ProgramMeta; sections: Record<string, ReactNode> }> {
+  const f = path.join(ROOT_DIR, countrySlug, `${programSlug}.mdx`);
   const raw = fs.readFileSync(f, "utf8");
   const { data, content: body } = matter(raw);
 
@@ -479,16 +396,13 @@ export async function loadProgramPageSections(
     Object.entries(chunks).map(async ([key, md]) => {
       const { content } = await compileMDX({
         source: md,
-        options: {
-          parseFrontmatter: false,
-          mdxOptions: baseMdxOptions as any,
-        },
+        options: { parseFrontmatter: false, mdxOptions: baseMdxOptions as any },
       });
       return [key, content] as const;
     })
   );
 
-  const sections = Object.fromEntries(entries) as ProgramSections;
+  const sections = Object.fromEntries(entries) as Record<string, ReactNode>;
   return { meta, sections };
 }
 
@@ -496,15 +410,13 @@ export async function loadProgramPageSections(
  * Frontmatter-only helpers
  * =======================*/
 export function getProgramFrontmatter(countrySlug: string, programSlug: string) {
-  const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
-  mustExist(f, "file");
+  const f = path.join(ROOT_DIR, countrySlug, `${programSlug}.mdx`);
   const { data } = matter(fs.readFileSync(f, "utf8"));
   return normalizeProgram(data as Partial<ProgramMeta>, countrySlug, programSlug);
 }
 
 export function getCountryFrontmatter(countrySlug: string) {
-  const f = path.join(ROOT, countrySlug, "_country.mdx");
-  mustExist(f, "file");
+  const f = path.join(ROOT_DIR, countrySlug, "_country.mdx");
   const { data } = matter(fs.readFileSync(f, "utf8"));
   return normalizeCountry(data as Partial<CountryMeta>, countrySlug);
 }

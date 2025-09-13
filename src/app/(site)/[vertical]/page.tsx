@@ -7,7 +7,8 @@ export function generateStaticParams() {
 }
 export const dynamicParams = false;
 
-export default function VerticalPage({ params }: { params: { vertical: Vertical } }) {
+export default async function VerticalPage(props: { params: Promise<{ vertical: Vertical }> }) {
+  const params = await props.params;
   const { vertical } = params;
   const docs = getAllContentCached();
 

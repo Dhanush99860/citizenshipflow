@@ -1,4 +1,4 @@
-// src/components/SidebarProgramsList.tsx
+// src/components/Residency/Country/SidebarProgramsList.tsx
 // Polished UI/UX with primary (blue) accents, light/dark support, subtle graphics,
 // accessible semantics, and SEO-friendly ItemList microdata. Renders cleanly on SSR.
 
@@ -53,7 +53,6 @@ function formatInvestment(value?: number, currency?: string) {
   }
 }
 
-// Derive base path from category
 function baseFromCategory(cat?: AnyProgram["category"]) {
   switch (cat) {
     case "citizenship":
@@ -72,7 +71,9 @@ function baseFromCategory(cat?: AnyProgram["category"]) {
 function thumbForProgram(p: AnyProgram) {
   const heroImage = (p as any).heroImage as string | undefined;
   const heroPoster = (p as any).heroPoster as string | undefined;
-  const countryPoster = p.countrySlug ? `/images/countries/${p.countrySlug}-hero-poster.jpg` : undefined;
+  const countryPoster = p.countrySlug
+    ? `/images/countries/${p.countrySlug}-hero-poster.jpg`
+    : undefined;
   return heroImage || heroPoster || countryPoster || "/og.jpg";
 }
 
@@ -86,9 +87,18 @@ export default function SidebarProgramsList({
   activeProgramSlug,
   showThumbnails = true,
 }: SidebarProgramsListProps) {
-  const hasPrograms = Array.isArray(programs) && programs.length > 0;
-  const countrySlug = hasPrograms ? programs[0]?.countrySlug : undefined;
-  const base = baseFromCategory(hasPrograms ? programs[0]?.category : undefined);
+  // 1) de-duplicate by countrySlug + programSlug to avoid duplicate React keys
+  const seen = new Set<string>();
+  const uniquePrograms: AnyProgram[] = (programs ?? []).filter((p) => {
+    const id = `${p.countrySlug}::${(p as any).programSlug ?? ""}`;
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+
+  const hasPrograms = uniquePrograms.length > 0;
+  const countrySlug = hasPrograms ? uniquePrograms[0]?.countrySlug : undefined;
+  const base = baseFromCategory(hasPrograms ? uniquePrograms[0]?.category : undefined);
 
   return (
     <section
@@ -142,27 +152,30 @@ export default function SidebarProgramsList({
           className="mt-4 space-y-2.5"
           role="list"
           aria-describedby="programs-subtext"
-          itemProp="itemListElement"
         >
           <span id="programs-subtext" className="sr-only">
             List of programs in {country}
           </span>
 
-          {programs.map((p, idx) => {
+          {uniquePrograms.map((p, idx) => {
             const isActive = !!activeProgramSlug && p.programSlug === activeProgramSlug;
             const timelineLabel = formatTimeline((p as any).timelineMonths as number | undefined);
             const investmentLabel = formatInvestment(
               (p as any).minInvestment as number | undefined,
               (p as any).currency as string | undefined
             );
-            const metaId = `program-meta-${p.countrySlug}-${p.programSlug}`;
-            const href = `${baseFromCategory(p.category)}/${p.countrySlug}/${p.programSlug}`;
 
+            // 2) Make keys/IDs unambiguously unique and stable
+            const slugSafe = (p as any).programSlug ?? "program";
+            const key = `${p.countrySlug}-${slugSafe}-${idx}`;
+            const metaId = `program-meta-${p.countrySlug}-${slugSafe}-${idx}`;
+
+            const href = `${baseFromCategory(p.category)}/${p.countrySlug}/${slugSafe}`;
             const thumb = showThumbnails ? thumbForProgram(p) : null;
 
             return (
               <li
-                key={`${p.countrySlug}-${p.programSlug}`}
+                key={key}
                 className="min-w-0"
                 itemScope
                 itemType="https://schema.org/ListItem"
@@ -187,7 +200,7 @@ export default function SidebarProgramsList({
                     {/* Thumbnail or accent dot */}
                     {thumb ? (
                       <div className="relative mt-0.5 h-10 w-10 sm:h-11 sm:w-11 overflow-hidden rounded-lg ring-1 ring-neutral-200/70 dark:ring-neutral-800/70 bg-neutral-100 dark:bg-neutral-800/40">
-                        {/* Use plain <img> for resilience (no domain config), with explicit size to avoid CLS */}
+                        {/* plain <img> for resilience (no domain config) */}
                         <img
                           src={thumb}
                           alt={`${p.title} thumbnail`}
@@ -224,7 +237,6 @@ export default function SidebarProgramsList({
                         id={metaId}
                         className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-12 text-neutral-600 dark:text-neutral-300/80"
                       >
-                        {/* timeline badge */}
                         {(p as any).timelineMonths ? (
                           <span
                             className="
@@ -253,8 +265,9 @@ export default function SidebarProgramsList({
                           </span>
                         ) : null}
 
-                        {/* investment badge */}
-                        {typeof (p as any).minInvestment === "number" && (p as any).currency && investmentLabel ? (
+                        {typeof (p as any).minInvestment === "number" &&
+                        (p as any).currency &&
+                        investmentLabel ? (
                           <span
                             className="
                               inline-flex items-center gap-1

@@ -16,9 +16,10 @@ export function generateStaticParams() {
 }
 export const dynamicParams = false;
 
-export default async function ProgramPage({
-  params,
-}: { params: { vertical: Vertical; country: string; program: string } }) {
+export default async function ProgramPage(
+  props: { params: Promise<{ vertical: Vertical; country: string; program: string }> }
+) {
+  const params = await props.params;
   const doc = getAllContentCached().find(
     (d): d is ProgramDoc =>
       d.kind === 'program' &&
