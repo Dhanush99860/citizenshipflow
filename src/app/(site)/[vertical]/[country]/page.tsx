@@ -1,19 +1,28 @@
 import { getAllContentCached } from '@/lib/content';
-import type { Vertical } from '@/lib/content/types';
+import type { Vertical, ProgramDoc, HubDoc } from '@/lib/content/types';
 import Link from 'next/link';
 
 export function generateStaticParams() {
   const docs = getAllContentCached();
-  return docs.filter((d) => d.kind === 'program').map((d) => ({ vertical: d.vertical, country: d.country }));
+  // Narrow to ProgramDoc before mapping so TS knows vertical/country exist
+  return docs
+    .filter((d): d is ProgramDoc => d.kind === 'program')
+    .map((d) => ({ vertical: d.vertical, country: d.country }));
 }
 export const dynamicParams = false;
 
 export default function CountryPage({ params }: { params: { vertical: Vertical; country: string } }) {
   const { vertical, country } = params;
   const docs = getAllContentCached();
-  const programs = docs.filter((d) => d.kind === 'program' && d.vertical === vertical && d.country === country);
+
+  // Narrow AnyDoc -> ProgramDoc so p.country, p.title, p.summary exist without TS errors
+  const programs = docs.filter(
+    (d): d is ProgramDoc => d.kind === 'program' && d.vertical === vertical && d.country === country,
+  );
+
+  // Narrow AnyDoc -> HubDoc for overview lookups
   const overview = docs.find(
-    (d) => d.kind === 'hub' && d.countries?.includes(country) && d.verticals?.includes(vertical),
+    (d): d is HubDoc => d.kind === 'hub' && !!d.countries?.includes(country) && !!d.verticals?.includes(vertical),
   );
 
   return (

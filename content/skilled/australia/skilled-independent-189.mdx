@@ -1,12 +1,194 @@
 ---
-title: Skilled Independent Visa (Subclass 189)
+title: "Skilled Independent (subclass 189) — Points-tested PR"
 country: Australia
 countrySlug: australia
 programSlug: skilled-independent-189
-tagline: Points-tested PR without state nomination or employer sponsorship.
+tagline: "Permanent residency with no employer or state sponsor — invitation via SkillSelect."
+currency: AUD
 timelineMonths: 12
-tags: ["189","points-tested","PR"]
-heroImage: "/images/countries/australia-hero-poster.jpg"
+tags: ["PR", "points-tested", "no sponsor", "family"]
+
+heroImage: "/images/skilled/au-189-hero.jpg"
+heroVideo: ""
+heroPoster: "/images/countries/australia-hero-poster.jpg"
+
+brochure: ""
+
+# Route metadata
+routeType: points-tested
+lastUpdated: "2025-09-13"
+
+# Price blocks (program-staged + gov fees)
+prices:
+  - label: "Visa application charge (primary applicant)"
+    amount: 4910
+  - label: "Skills assessment (typical)"
+    amount: 600
+    notes: "Varies by assessing authority; check your authority’s schedule."
+  - label: "English test (IELTS/PTE typical)"
+    amount: 410
+    notes: "Provider-dependent; book early."
+  - label: "Health exams (typical)"
+    amount: 350
+    notes: "Panel physician pricing varies by city."
+
+governmentFees:
+  - label: "Subclass 189 — primary applicant VAC (from)"
+    amount: 4910
+    currency: AUD
+  - label: "Additional applicant charges (18+ / <18) — see official pricing table"
+    currency: AUD
+  - label: "Possible 2nd instalment (certain low-English cases) — if applicable"
+    currency: AUD
+
+benefits:
+  - "Permanent residency on grant; live and work anywhere in Australia."
+  - "No job offer, sponsor or state nomination required."
+  - "Partner and dependent children can be included."
+  - "Clear, published points test and invitation rounds."
+
+requirements:
+  - "Under 45 **at the time of invitation**."
+  - "Occupation on the **eligible skilled occupation list** and positive skills assessment."
+  - "**Competent English** (e.g., IELTS 6 in each band or accepted equivalents)."
+  - "Submit an **EOI in SkillSelect** and receive an invitation."
+  - "Meet health and character requirements; evidence for all claimed points."
+
+disqualifiers:
+  - "Occupation not on an eligible list or no positive skills assessment."
+  - "Points below invitation cut-offs in recent rounds."
+  - "Age ≥ 45 **on the invitation date** (not eligible for GSM)."
+
+riskNotes:
+  - "Invitation competitiveness varies by occupation; higher points often required than the 65-point pass mark."
+  - "Occupation lists and invitation policies can change; always re-check before paying fees."
+
+complianceNotes:
+  - "Provide documentary proof for each claimed point (education, experience, partner, Australian study, etc.)."
+  - "English evidence must meet **Competent English** or higher as accepted by Home Affairs."
+
+documentChecklist:
+  - group: "Identity & Civil"
+    documents:
+      - "Passports (valid ≥ 6 months)"
+      - "Birth/marriage certificates; name change evidence"
+      - "National IDs, address proofs (if applicable)"
+  - group: "Skills & Education"
+    documents:
+      - "Positive skills assessment (relevant assessing authority)"
+      - "Degree/diploma certificates + transcripts"
+      - "Professional licenses/registrations (if required)"
+  - group: "Employment"
+    documents:
+      - "Reference letters on letterhead with duties & dates"
+      - "Payslips/tax records; contracts"
+      - "Statutory declarations (if applicable)"
+  - group: "English & Tests"
+    documents:
+      - "IELTS/PTE/approved test result meeting **Competent** or higher"
+  - group: "Health & Character"
+    documents:
+      - "Panel physician medicals (after request)"
+      - "Police clearances for all countries lived in (per Home Affairs rules)"
+
+familyMatrix:
+  childrenUpTo: 23
+  parentsFromAge: 0
+  siblings: false
+  spouse: true
+
+quickCheck:
+  title: "Subclass 189 — quick eligibility"
+  questions:
+    - id: "age"
+      label: "Under 45 on the **invitation** date?"
+      type: boolean
+    - id: "points"
+      label: "Indicative **65+ points** on the GSM points test?"
+      type: boolean
+    - id: "occupation"
+      label: "Nominated occupation is on the eligible skilled list and you can get a positive skills assessment?"
+      type: boolean
+    - id: "english"
+      label: "**Competent English** (IELTS 6 each / accepted equivalents)?"
+      type: boolean
+    - id: "eoi"
+      label: "Ready to submit an EOI in SkillSelect with evidence for all points?"
+      type: boolean
+  ctas:
+    primaryHref: "/PersonalBooking"
+    primaryText: "Check eligibility with an advisor"
+    secondaryHref: "/skilled/australia"
+    secondaryText: "See all Australia skilled options"
+
+processSteps:
+  - title: "Skills assessment"
+    description: "Apply to the relevant assessing authority for your occupation."
+  - title: "English test"
+    description: "Book IELTS/PTE/OET and meet at least **Competent English**."
+  - title: "Expression of Interest (SkillSelect)"
+    description: "Submit EOI with accurate points claims; monitor invitation rounds."
+  - title: "Invitation & visa lodgement"
+    description: "On invitation, lodge the 189 application and pay the VAC."
+  - title: "Biometrics, health & character"
+    description: "Complete any requested checks; upload police certificates."
+  - title: "Decision"
+    description: "PR grant if approved; activate within visa initial entry period."
+
+faq:
+  - q: "What is the pass mark?"
+    a: "65 points. In practice, recent invitations for many occupations have required higher points."
+  - q: "Do I need a job offer?"
+    a: "No. 189 is independent; no employer or state sponsor is required."
+  - q: "How long does it take?"
+    a: "Home Affairs’ median for **Skilled (Permanent)** sits around ~12 months; cases vary month-to-month."
+  - q: "Can I include family?"
+    a: "Yes — partner and dependent children can be included as secondary applicants."
+  - q: "Where can I check invitation activity?"
+    a: "Home Affairs publishes **SkillSelect invitation rounds** with the date and outcomes."
+
+# Optional interactive estimator (simple)
+costEstimator:
+  baseOptions:
+    - id: "primary"
+      label: "Primary applicant — VAC (from)"
+      amount: 4910
+  defaultBaseId: "primary"
+  adults: 1
+  children: 0
+  addons:
+    - id: "english-test"
+      label: "English test (typical)"
+      amount: 410
+      per: "application"
+    - id: "skills-assessment"
+      label: "Skills assessment (typical)"
+      amount: 600
+      per: "application"
+    - id: "medicals"
+      label: "Health exams (typical)"
+      amount: 350
+      per: "application"
+
+seo:
+  title: "Australia Subclass 189 — Skilled Independent (Points-tested PR)"
+  description: "Permanent residency without sponsorship. Check 189 points, English, occupation list, fees and timeline, then speak to an advisor."
+  keywords:
+    - "subclass 189"
+    - "Skilled Independent"
+    - "Australia PR points"
 ---
+
 ### Overview
-**Subclass 189** grants PR via points and invitations through **SkillSelect**.
+Subclass 189 is a **points-tested permanent residence** visa for invited workers. You must submit an **EOI in SkillSelect**, meet the **65-point pass mark**, be **under 45 at invitation**, have a **positive skills assessment**, and meet at least **Competent English**.
+
+### Why Australia (189)
+- PR on grant; live and work anywhere  
+- No sponsor or state nomination required  
+- Transparent points system and published invitation rounds
+
+### Comparison
+**189 vs 190 (state nominated)** — 189 has no nomination obligations but is often more competitive on points. **190** grants PR as well, and nomination provides **+5 points**, but you must meet state criteria and settlement expectations.
+
+### Notes on Competitiveness
+Recent national invitation rounds show fluctuating volumes by occupation. Higher points and recent experience/English often improve competitiveness.

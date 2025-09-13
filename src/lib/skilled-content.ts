@@ -10,7 +10,12 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import type { ReactNode } from "react";
 
 /* =========================
- * Types (same API as residency; category differs)
+ * Shared Types
+ * =======================*/
+export type Currency = "USD" | "EUR" | "AED" | "INR" | "CAD" | "GBP" | "AUD";
+
+/* =========================
+ * Types (same API as residency; category differs) + Skilled extensions
  * =======================*/
 export type CountryMeta = {
   title: string;
@@ -25,6 +30,7 @@ export type CountryMeta = {
   introPoints?: string[];
   tags?: string[];
   seo?: { title?: string; description?: string; keywords?: string[] };
+  lastUpdated?: string; // NEW (optional)
   draft?: boolean;
 };
 
@@ -33,21 +39,54 @@ export type Step = { title: string; description?: string };
 export type PriceRow = {
   label: string;
   amount?: number;
-  currency?: "USD" | "EUR" | "AED" | "INR" | "CAD" | "GBP" | "AUD";
+  currency?: Currency;
   when?: string;
   notes?: string;
+};
+
+export type GovernmentFeeRow = {
+  label: string;
+  amount?: number;
+  currency?: Currency;
+  sourceLabel?: string;
+  sourceUrl?: string;
 };
 
 export type ProofOfFundsRow = {
   label?: string;
   amount: number;
-  currency?: "USD" | "EUR" | "AED" | "INR" | "CAD" | "GBP" | "AUD";
+  currency?: Currency;
   notes?: string;
+};
+
+export type DocumentChecklistGroup = {
+  group: string;
+  documents: string[];
+};
+
+export type FamilyMatrix = {
+  childrenUpTo?: number;
+  parentsFromAge?: number;
+  siblings?: boolean;
+  spouse?: boolean;
+  notes?: string[];
 };
 
 export type QuickCheckConfig = {
   title?: string;
-  questions?: { id: string; label: string; type: "boolean" | "select" | "number" | "text"; options?: string[] }[];
+  questions?: {
+    id: string;
+    label: string;
+    type: "boolean" | "select" | "number" | "text";
+    options?: string[];
+  }[];
+  // NEW (optional CTAs inline with quiz)
+  ctas?: {
+    primaryHref?: string;
+    primaryText?: string;
+    secondaryHref?: string;
+    secondaryText?: string;
+  };
 };
 
 export type ProgramMeta = {
@@ -57,22 +96,62 @@ export type ProgramMeta = {
   countrySlug: string;
   programSlug: string;
   tagline?: string;
-  minInvestment?: number; // can be reused for min salary / costs
-  currency?: "USD" | "EUR" | "AED" | "INR" | "CAD" | "GBP" | "AUD";
+
+  // Reused field (kept for compatibility): can be used for min salary / costs if needed.
+  minInvestment?: number;
+
+  currency?: Currency;
   timelineMonths?: number;
+  processingMonths?: number; // NEW alias if you prefer this name
   tags?: string[];
+
   benefits?: string[];
   requirements?: string[];
+  disqualifiers?: string[];
   processSteps?: Step[];
   faq?: { q: string; a: string }[];
+
   brochure?: string;
   prices?: PriceRow[];
+  governmentFees?: GovernmentFeeRow[]; // NEW
   proofOfFunds?: ProofOfFundsRow[];
-  disqualifiers?: string[];
+
+  // NEW — Skilled-specific quick facts
+  salaryThreshold?: { amount: number; currency: Currency; period: "year" | "month" };
+  languageMin?: { test: "IELTS" | "PTE" | "OET"; overall?: number; bands?: Record<string, number> };
+  occupationListUrl?: string;
+  occupationCodes?: string[];
+  points?: { max?: number; recentCutoff?: number; gridUrl?: string };
+
+  documentChecklist?: DocumentChecklistGroup[]; // NEW
+  riskNotes?: string[]; // NEW
+  complianceNotes?: string[]; // NEW
+  familyMatrix?: FamilyMatrix; // NEW
+
   quickCheck?: QuickCheckConfig;
   heroImage?: string;
   heroVideo?: string;
   heroPoster?: string;
+
+  // NEW — route metadata & freshness
+  routeType?:
+    | "points-tested"
+    | "state-nominated"
+    | "employer-sponsored"
+    | "talent"
+    | "provisional"
+    | "other";
+  lastUpdated?: string;
+
+  // Optional interactive estimator (mirrors citizenship style)
+  costEstimator?: {
+    baseOptions: { id: string; label: string; amount: number }[];
+    defaultBaseId?: string;
+    adults?: number;
+    children?: number;
+    addons?: { id: string; label: string; amount: number; per?: "adult" | "child" | "person" | "application" }[];
+  };
+
   seo?: { title?: string; description?: string; keywords?: string[] };
   draft?: boolean;
 };
@@ -91,6 +170,13 @@ const exists = (p: string) => {
     return true;
   } catch {
     return false;
+  }
+};
+
+const mustExist = (p: string, kind: "file" | "dir") => {
+  if (!exists(p)) {
+    const rel = path.relative(process.cwd(), p);
+    throw new Error(`[skilled-content] ${kind} not found: ${rel}`);
   }
 };
 
@@ -220,8 +306,10 @@ function normalizeProgram(metaIn: Partial<ProgramMeta>, cSlug: string, pSlug: st
   meta.programSlug = meta.programSlug || pSlug;
   meta.countrySlug = meta.countrySlug || cSlug;
   meta.category = "skilled";
+
   if (meta.minInvestment !== undefined) meta.minInvestment = coerceNum(meta.minInvestment);
   if (meta.timelineMonths !== undefined) meta.timelineMonths = coerceNum(meta.timelineMonths);
+  if (meta.processingMonths !== undefined) meta.processingMonths = coerceNum(meta.processingMonths);
 
   if (Array.isArray(meta.prices)) {
     meta.prices = meta.prices.map((row: any) => ({
@@ -234,6 +322,20 @@ function normalizeProgram(metaIn: Partial<ProgramMeta>, cSlug: string, pSlug: st
       ...row,
       amount: coerceNum(row?.amount) ?? 0,
     }));
+  }
+  if (Array.isArray(meta.governmentFees)) {
+    meta.governmentFees = meta.governmentFees.map((row: any) => ({
+      ...row,
+      amount: coerceNum(row?.amount),
+    }));
+  }
+
+  // Ensure some string fields are strings if provided
+  if (meta.occupationListUrl && typeof meta.occupationListUrl !== "string") {
+    meta.occupationListUrl = String(meta.occupationListUrl);
+  }
+  if (Array.isArray(meta.occupationCodes)) {
+    meta.occupationCodes = meta.occupationCodes.map((c: any) => String(c));
   }
 
   return meta as ProgramMeta;
@@ -330,6 +432,7 @@ export function getSkilledPrograms(countrySlug?: string): ProgramMeta[] {
  * =======================*/
 export async function loadCountryPage(countrySlug: string) {
   const f = path.join(ROOT, countrySlug, "_country.mdx");
+  mustExist(f, "file");
   const source = fs.readFileSync(f, "utf8");
   const { content, frontmatter } = await compileMDX<CountryMeta>({
     source,
@@ -345,6 +448,7 @@ export async function loadCountryPage(countrySlug: string) {
 
 export async function loadProgramPage(countrySlug: string, programSlug: string) {
   const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
+  mustExist(f, "file");
   const source = fs.readFileSync(f, "utf8");
   const { content, frontmatter } = await compileMDX<ProgramMeta>({
     source,
@@ -364,6 +468,7 @@ export async function loadProgramPageSections(
   programSlug: string
 ): Promise<{ meta: ProgramMeta; sections: ProgramSections }> {
   const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
+  mustExist(f, "file");
   const raw = fs.readFileSync(f, "utf8");
   const { data, content: body } = matter(raw);
 
@@ -392,12 +497,14 @@ export async function loadProgramPageSections(
  * =======================*/
 export function getProgramFrontmatter(countrySlug: string, programSlug: string) {
   const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
+  mustExist(f, "file");
   const { data } = matter(fs.readFileSync(f, "utf8"));
   return normalizeProgram(data as Partial<ProgramMeta>, countrySlug, programSlug);
 }
 
 export function getCountryFrontmatter(countrySlug: string) {
   const f = path.join(ROOT, countrySlug, "_country.mdx");
+  mustExist(f, "file");
   const { data } = matter(fs.readFileSync(f, "utf8"));
   return normalizeCountry(data as Partial<CountryMeta>, countrySlug);
 }
