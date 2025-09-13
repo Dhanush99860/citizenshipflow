@@ -1,0 +1,38 @@
+{
+  "title": "Residency Eligibility",
+  "steps": [
+    {
+      "id": "profile",
+      "title": "Your Profile",
+      "fields": [
+        { "id": "age", "label": "Age", "type": "number", "required": true },
+        { "id": "education", "label": "Education", "type": "select", "options": ["High School", "Bachelor", "Master", "PhD"], "required": true },
+        { "id": "english", "label": "English (IELTS)", "type": "number", "required": true }
+      ]
+    },
+    {
+      "id": "funds",
+      "title": "Funds & Investment",
+      "fields": [
+        { "id": "liquid_funds", "label": "Liquid funds (USD)", "type": "number", "required": true },
+        { "id": "willing_invest", "label": "Willing to invest?", "type": "boolean" }
+      ]
+    }
+  ],
+  "scoring": [
+    { "if": { "age_lt": 40 }, "add": 10 },
+    { "if": { "education_in": ["Master", "PhD"] }, "add": 10 },
+    { "if": { "english_gte": 7 }, "add": 10 },
+    { "if": { "liquid_funds_gte": 150000 }, "add": 10 },
+    { "if": { "willing_invest": true }, "add": 10 }
+  ],
+  "bands": [
+    { "min": 35, "label": "Strong candidate", "color": "green" },
+    { "min": 20, "label": "Potentially eligible", "color": "amber" },
+    { "min": 0,  "label": "Needs improvement", "color": "red" }
+  ],
+  "recommendations": [
+    { "when_min": 35, "programs": [["residency","canada","startupvisa"]] },
+    { "when_min": 20, "programs": [["residency","greece","golden-visa"]] }
+  ]
+}
