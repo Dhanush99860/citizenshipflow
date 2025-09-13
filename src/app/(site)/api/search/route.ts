@@ -42,18 +42,21 @@ export async function GET() {
     });
   });
 
-  // articles (optional; tag by country/program if your meta provides it)
+  // articles
   try {
     const articles = getAllArticlesMeta();
     for (const a of articles) {
       items.push({
         title: a.title,
         type: "Article",
-        url: a.url || `/articles/${a.slug}`,
+        url: `/articles/${a.slug}`,   // ✅ removed `a.url`
         tags: a.tags || [],
       });
     }
   } catch {}
 
-  return NextResponse.json({ items }, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
+  return NextResponse.json(
+    { items },
+    { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } }
+  );
 }
