@@ -1,5 +1,5 @@
 import { getAllContentCached } from '@/lib/content';
-import type { Vertical } from '@/lib/content/types';
+import type { Vertical, ProgramDoc } from '@/lib/content/types';
 import Link from 'next/link';
 
 export function generateStaticParams() {
@@ -10,7 +10,12 @@ export const dynamicParams = false;
 export default function VerticalPage({ params }: { params: { vertical: Vertical } }) {
   const { vertical } = params;
   const docs = getAllContentCached();
-  const programs = docs.filter((d) => d.kind === 'program' && d.vertical === vertical);
+
+  // Narrow AnyDoc -> ProgramDoc using a type guard so TS knows `vertical`/`country` exist
+  const programs = docs.filter(
+    (d): d is ProgramDoc => d.kind === 'program' && d.vertical === vertical,
+  );
+
   const byCountry = new Map<string, number>();
   for (const p of programs) byCountry.set(p.country, (byCountry.get(p.country) || 0) + 1);
 
@@ -19,7 +24,11 @@ export default function VerticalPage({ params }: { params: { vertical: Vertical 
       <h1 className="text-3xl font-semibold capitalize">{vertical}</h1>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[...byCountry.entries()].map(([country, count]) => (
-          <Link key={country} href={`/${vertical}/${country}`} className="rounded-2xl border p-5 hover:bg-gray-50">
+          <Link
+            key={country}
+            href={`/${vertical}/${country}`}
+            className="rounded-2xl border p-5 hover:bg-gray-50"
+          >
             <div className="text-xl font-medium capitalize">{country}</div>
             <div className="opacity-70 text-sm">{count} programs</div>
           </Link>

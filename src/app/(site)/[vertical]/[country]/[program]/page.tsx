@@ -4,14 +4,14 @@ import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import { getAllContentCached } from '@/lib/content';
 import { getRelated } from '@/lib/content/related';
-import type { Vertical } from '@/lib/content/types';
+import type { Vertical, ProgramDoc } from '@/lib/content/types';
 import { JsonLd } from '@/lib/seo';
 import Link from 'next/link';
 
 export function generateStaticParams() {
   const docs = getAllContentCached();
   return docs
-    .filter((d) => d.kind === 'program')
+    .filter((d): d is ProgramDoc => d.kind === 'program')
     .map((d) => ({ vertical: d.vertical, country: d.country, program: d.program }));
 }
 export const dynamicParams = false;
@@ -20,7 +20,11 @@ export default async function ProgramPage({
   params,
 }: { params: { vertical: Vertical; country: string; program: string } }) {
   const doc = getAllContentCached().find(
-    (d) => d.kind === 'program' && d.vertical === params.vertical && d.country === params.country && d.program === params.program,
+    (d): d is ProgramDoc =>
+      d.kind === 'program' &&
+      d.vertical === params.vertical &&
+      d.country === params.country &&
+      d.program === params.program,
   );
   if (!doc) return <div className="p-6">Not found</div>;
 
@@ -51,7 +55,12 @@ export default async function ProgramPage({
         </header>
         <div className="prose max-w-none">{mdx.content}</div>
         {doc.brochure && (
-          <a className="inline-block rounded-xl border px-4 py-2 hover:bg-gray-50" href={doc.brochure} target="_blank">
+          <a
+            className="inline-block rounded-xl border px-4 py-2 hover:bg-gray-50"
+            href={doc.brochure}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Download brochure
           </a>
         )}
@@ -78,7 +87,9 @@ export default async function ProgramPage({
           <ul className="space-y-2">
             {related.map((it) => (
               <li key={it.url}>
-                <Link className="hover:underline" href={it.url}>{it.title}</Link>
+                <Link className="hover:underline" href={it.url}>
+                  {it.title}
+                </Link>
               </li>
             ))}
           </ul>
