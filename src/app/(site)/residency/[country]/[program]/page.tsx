@@ -772,29 +772,7 @@ export default async function ProgramPage(
             </div>
           </aside>
         </div>
-        {/* FOOTER CTA */}
-        <div className="border-t border-border dark:border-dark_border bg-gradient-to-tr from-primary/5 via-transparent to-secondary/5 py-10">
-          <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 sm:px-6 lg:px-8">
-            <h3 className="text-center text-xl font-semibold">
-              Ready to start your {meta.country} residency journey?
-            </h3>
-            <div className="flex flex-wrap justify-center gap-3">
-              <a
-                href="/PersonalBooking"
-                className="rounded-xl bg-primary px-5 py-3 text-white shadow-sm"
-              >
-                Book a Free Consultation
-              </a>
-              <a
-                href={brochure}
-                download
-                className="rounded-xl ring-1 ring-neutral-300 dark:ring-neutral-700 bg-white/80 dark:bg-dark_bg/80 px-5 py-3 shadow-sm"
-              >
-                Download Brochure
-              </a>
-            </div>
-          </div>
-        </div>
+        
       </main>
     );
   } catch (e) {
