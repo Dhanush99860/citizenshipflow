@@ -69,22 +69,18 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
       </head>
-      <body className={`${font.className} antialiased`}>
+      // src/app/layout.tsx
+      <body className={`${font.className} antialiased pt-14 lg:pt-20`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+      
           <Aoscompo>
-            {/* <Header /> */}
             <MDXProviders>{children}</MDXProviders>
             <Footer />
             <ScrollToTop />
           </Aoscompo>
         </ThemeProvider>
-
-        {/* JSON-LD script */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
-        />
       </body>
+
     </html>
   );
 }
