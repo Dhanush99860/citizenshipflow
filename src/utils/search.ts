@@ -1,60 +1,77 @@
 // src/utils/search.ts
-export type SearchItem = { title: string; type: string; url: string; tags?: string[] };
 
-let CACHE: SearchItem[] | null = null;
-let loading = false;
+export type UIItem = {
+  title: string;
+  type: string;
+  url: string;
+  snippet?: string;
+};
 
-async function loadIndexOnce() {
-  if (CACHE || loading) return;
-  loading = true;
-  try {
-    const res = await fetch("/api/search-index", { cache: "no-store" });
-    const json = await res.json();
-    CACHE = (json?.items || []) as SearchItem[];
-  } catch {
-    CACHE = [];
-  } finally {
-    loading = false;
-  }
-}
+type ApiSearchResult = {
+  id: string;
+  url: string;
+  type: "country" | "program" | "article" | "news" | "page";
+  title: string;
+  subtitle?: string;
+  tags?: string[];
+  snippet?: string;
+  hero?: string;
+  date?: string;
+  updated?: string;
+  countries?: string[];
+  programs?: string[];
+  score: number;
+};
 
-/** Call this when the overlay opens to warm the cache. */
-export function preloadIndex() {
-  // fire-and-forget
-  void loadIndexOnce();
-}
+type ApiSearchResponse = {
+  query: string;
+  tookMs: number;
+  count: number;
+  items: ApiSearchResult[];
+};
 
-/** Synchronous search; returns [] until the index loads. */
-export function searchItems(q: string, limit = 20): SearchItem[] {
-  const query = q.trim().toLowerCase();
-  // kick off a background load the first time it's used
-  void loadIndexOnce();
-
-  if (!CACHE || !query) return [];
-
-  // tiny scoring heuristic
-  const scored = CACHE.map((it) => {
-    const t = it.title.toLowerCase();
-    const ty = it.type.toLowerCase();
-    const tags = (it.tags || []).join(" ").toLowerCase();
-
-    let score = 0;
-    if (t.includes(query)) score += 5;
-    if (t.startsWith(query)) score += 3;
-    if (ty.includes(query)) score += 1;
-    if (tags.includes(query)) score += 1;
-    return { it, score };
-  }).filter(x => x.score > 0);
-
-  scored.sort((a, b) => b.score - a.score || a.it.title.localeCompare(b.it.title));
-  return scored.slice(0, limit).map(x => x.it);
-}
-
-/** Small utility so components can import { debounce } from "@/utils/search" */
-export function debounce<T extends (...args: any[]) => void>(fn: T, wait = 250) {
-  let t: ReturnType<typeof setTimeout> | undefined;
-  return (...args: Parameters<T>) => {
+// Small, framework-agnostic debounce that returns a callable
+export function debounce<F extends (...args: any[]) => void>(fn: F, wait = 200) {
+  let t: ReturnType<typeof setTimeout> | null = null;
+  return (...args: Parameters<F>) => {
     if (t) clearTimeout(t);
     t = setTimeout(() => fn(...args), wait);
   };
+}
+
+// Warm up the static JSON so the first search is snappy.
+// Safe to call from the client when the overlay opens.
+export async function preloadIndex(): Promise<void> {
+  try {
+    await fetch("/search-index.json", { cache: "force-cache" });
+  } catch {
+    // ignore — not critical
+  }
+}
+
+// Call the server API and map results to your UI’s Item shape
+export async function searchItems(query: string, limit = 12, types?: string[]): Promise<UIItem[]> {
+  const q = query.trim();
+  if (!q) return [];
+
+  const params = new URLSearchParams({ q, limit: String(limit) });
+  if (types?.length) params.set("types", types.join(","));
+
+  const res = await fetch(`/api/search?${params.toString()}`, {
+    cache: "no-store",
+    headers: { accept: "application/json" },
+  });
+
+  if (!res.ok) return [];
+
+  const data = (await res.json()) as ApiSearchResponse;
+
+  // Map API docs to your Item shape (title/type/url)
+  return (data.items || []).map((d) => ({
+    title: d.title,
+    // capitalize type for nicer display, e.g., "country" -> "Country"
+    type: d.type.charAt(0).toUpperCase() + d.type.slice(1),
+    url: d.url,
+    snippet: d.snippet,
+  }));
 }
