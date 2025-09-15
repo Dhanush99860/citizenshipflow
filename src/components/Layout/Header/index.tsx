@@ -44,7 +44,7 @@ const Header: React.FC = () => {
     };
   }, [navbarOpen]);
 
-  // ✅ Lock scroll only when navbar is open
+  // Lock scroll only when navbar is open
   useEffect(() => {
     document.body.style.overflow = navbarOpen ? "hidden" : "";
     document.documentElement.style.overflow = navbarOpen ? "hidden" : "";
@@ -52,19 +52,26 @@ const Header: React.FC = () => {
 
   return (
     <header
-      className={`fixed top-0 z-50 w-full pb-5 transition-all duration-300 ${
+      className={`fixed top-0 z-50 w-full transition-all duration-300 supports-[env(safe-area-inset-top)]:pt-[env(safe-area-inset-top)] ${
         sticky
-          ? "shadow-lg bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-500 dark:from-blue-900 dark:via-indigo-800 dark:to-black backdrop-blur-md pt-5"
-          : "shadow-none bg-blue-500/70 dark:bg-blue-700/60 backdrop-blur-md pt-6"
+          ? "shadow-lg bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-500 dark:from-blue-900 dark:via-indigo-800 dark:to-black backdrop-blur-md"
+          : "shadow-none bg-blue-500/70 dark:bg-blue-700/60 backdrop-blur-md"
       }`}
     >
-      <TopBar />
+      {/* Desktop top bar only (hide on small to save height) */}
+      <div className="hidden lg:block">
+        <TopBar />
+      </div>
 
-      <div className="lg:py-0 py-2">
-        <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md flex items-center justify-between px-4">
-          <LogoWhite />
+      {/* Main row: compact on mobile */}
+      <div className="py-0">
+        <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md flex items-center justify-between px-3 lg:px-4 h-14 lg:h-20">
+          {/* Scaled logo on mobile to avoid oversized header */}
+          <div className="shrink-0 origin-left scale-90 sm:scale-100 lg:scale-100">
+            <LogoWhite />
+          </div>
 
-          {/* ✅ Desktop Navigation with landmark label */}
+          {/* Desktop Navigation */}
           <nav
             className="hidden lg:flex flex-grow items-center gap-8 justify-center"
             aria-label="Main navigation"
@@ -74,12 +81,12 @@ const Header: React.FC = () => {
             ))}
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 lg:gap-4">
             {/* Theme Toggle */}
             <button
               aria-label="Toggle theme"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-300 ${
+              className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-300 ${
                 !sticky && pathUrl === "/"
                   ? "text-white dark:text-secondary"
                   : "text-white dark:text-white"
@@ -88,21 +95,16 @@ const Header: React.FC = () => {
               {theme === "dark" ? (
                 <Icon
                   icon="mdi:white-balance-sunny"
-                  className="h-6 w-6 text-yellow-400"
+                  className="h-5 w-5 text-yellow-400"
                 />
               ) : (
-                <Icon
-                  icon="mdi:moon-waning-crescent"
-                  className="h-6 w-6 text-white-800"
-                />
+                <Icon icon="mdi:moon-waning-crescent" className="h-5 w-5" />
               )}
             </button>
 
-            {/* Mobile Search */}
-            <div className="block lg:hidden w-full px-2">
-              <div className="flex-1">
-                <Search />
-              </div>
+            {/* Mobile Search (kept compact) */}
+            <div className="block lg:hidden w-[48vw] max-w-[260px]">
+              <Search />
             </div>
 
             {/* Desktop Book Button */}
@@ -117,8 +119,9 @@ const Header: React.FC = () => {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setNavbarOpen(!navbarOpen)}
-              className="block lg:hidden p-2 rounded-lg"
+              className="block lg:hidden p-2 rounded-lg aria-expanded"
               aria-label="Toggle mobile menu"
+              aria-expanded={navbarOpen}
             >
               <span className="block w-6 h-0.5 bg-white dark:bg-white"></span>
               <span className="block w-6 h-0.5 bg-white dark:bg-white mt-1.5"></span>
@@ -141,12 +144,15 @@ const Header: React.FC = () => {
         {/* Mobile Menu Drawer */}
         <div
           ref={mobileMenuRef}
-          className={`lg:hidden fixed top-0 right-0 h-full w-[80%] max-w-xs bg-white dark:bg-darklight shadow-xl rounded-l-2xl transform transition-transform duration-300 ${
+          className={`lg:hidden fixed top-0 right-0 h-[100dvh] w-[80%] max-w-xs bg-white dark:bg-darklight shadow-xl rounded-l-2xl transform transition-transform duration-300 ${
             navbarOpen ? "translate-x-0" : "translate-x-full"
           } z-50`}
         >
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-            <Logo />
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 pt-[max(1rem,env(safe-area-inset-top))]">
+            {/* Slightly smaller logo in the drawer header */}
+            <div className="shrink-0 scale-90">
+              <Logo />
+            </div>
 
             <button
               onClick={() => setNavbarOpen(false)}
@@ -160,16 +166,16 @@ const Header: React.FC = () => {
             </button>
           </div>
 
-          {/* Scrollable mobile nav */}
+          {/* Scrollable mobile nav (height accounts for header) */}
           <nav
-            className="flex flex-col items-start p-4 text-black dark:text-white bg-white dark:bg-darklight overflow-y-auto h-[calc(100vh-64px)] space-y-4"
+            className="flex flex-col items-start p-4 text-black dark:text-white bg-white dark:bg-darklight overflow-y-auto h-[calc(100dvh-64px)] space-y-3"
             aria-label="Mobile navigation"
           >
             {headerData.map((item, index) => (
               <MobileHeaderLink key={index} item={item} />
             ))}
 
-            <div className="mt-4 flex flex-col space-y-4 w-full">
+            <div className="pt-2 flex flex-col space-y-3 w-full">
               <Link
                 href="/PersonalBooking"
                 aria-label="Book a personal consultation"
@@ -180,8 +186,8 @@ const Header: React.FC = () => {
               </Link>
             </div>
 
-            {/* ✅ Contact info as real links */}
-            <div className="flex flex-col items-start gap-3 mt-[25px]">
+            {/* Contact info */}
+            <div className="flex flex-col items-start gap-3 mt-4">
               <div className="flex items-center gap-2 group">
                 <span className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-secondary group-hover:bg-secondary group-hover:text-white transition-all duration-300 shadow-sm">
                   <HiMiniPhone className="text-lg" />
@@ -206,9 +212,9 @@ const Header: React.FC = () => {
               </div>
             </div>
 
-            {/* ✅ Social Icons with real links */}
+            {/* Social + Login */}
             <div className="flex flex-col items-start">
-              <div className="flex items-center gap-3 mt-[25px]">
+              <div className="flex items-center gap-3 mt-4">
                 <Link
                   href="https://facebook.com/xiphiasimmigration"
                   aria-label="Visit our Facebook page"
@@ -238,10 +244,9 @@ const Header: React.FC = () => {
                 </Link>
               </div>
 
-              {/* ✅ Login Button with aria-label */}
               <button
                 aria-label="Login to your account"
-                className="flex items-center gap-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-16 font-medium text-gray-800 dark:text-white hover:bg-gray-800 dark:hover:bg-primary hover:text-white py-1 px-4 mt-[20px] transition-all duration-300 shadow-sm hover:shadow-lg"
+                className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-[15px] font-medium text-gray-800 dark:text-white hover:bg-gray-800 dark:hover:bg-primary hover:text-white py-1.5 px-3 mt-4 transition-all duration-300 shadow-sm hover:shadow-lg"
               >
                 <FiLogIn className="text-lg" />
                 Login
