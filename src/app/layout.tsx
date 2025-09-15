@@ -1,14 +1,12 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
-import { Lato } from "next/font/google";
+import { Lato, Inter, Sora } from "next/font/google";
 import "./globals.css";
-// import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
 import { ThemeProvider } from "next-themes";
 import ScrollToTop from "@/components/ScrollToTop";
 import Aoscompo from "@/utils/aos";
 import MDXProviders from "@/components/Common/ArticlesSection/MDXProviders";
-import { Inter, Sora } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const sora = Sora({ subsets: ["latin"], variable: "--font-sora" });
@@ -19,7 +17,6 @@ const font = Lato({
   display: "swap",
 });
 
-// ---- SEO: site-wide defaults (can be overridden per page) ----
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.xiphiasimmigration.com"),
   title: {
@@ -37,7 +34,7 @@ export const metadata: Metadata = {
     siteName: "XIPHIAS Immigration",
     locale: "en_US",
     type: "website",
-    images: ["/og.jpg"], // put 1200x630 image at /public/og.jpg
+    images: ["/og.jpg"],
   },
   twitter: {
     card: "summary_large_image",
@@ -51,7 +48,6 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  // Inline JSON-LD (Organization + LegalService)
   const orgJsonLd = {
     "@context": "https://schema.org",
     "@type": ["Organization", "LegalService"],
@@ -59,28 +55,33 @@ export default function RootLayout({
     url: "https://www.xiphiasimmigration.com",
     areaServed: "Worldwide",
     serviceType: ["Residency", "Citizenship", "Skilled", "Corporate"],
-    logo: "https://www.xiphiasimmigration.com/logo.png", // update if different
+    logo: "https://www.xiphiasimmigration.com/logo.png",
   };
 
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
-        {/* Preconnect improves font load */}
+        {/* Preconnect improves font loading */}
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
       </head>
-      // src/app/layout.tsx
-      <body className={`${font.className} antialiased pt-14 lg:pt-20`}>
+      <body className={`${font.className} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-      
           <Aoscompo>
             <MDXProviders>{children}</MDXProviders>
             <Footer />
             <ScrollToTop />
           </Aoscompo>
         </ThemeProvider>
-      </body>
 
+        {/* JSON-LD */}
+        <script
+          id="org-jsonld"
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
+      </body>
     </html>
   );
 }

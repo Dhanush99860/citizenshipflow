@@ -3,7 +3,6 @@ import React from "react";
 import type { Metadata } from "next";
 
 import Header from "@/components/Layout/Header";
-import Footer from "@/components/Layout/Footer";
 
 import Hero from "@/components/Home/Hero";
 import WhyChooseUs from "@/components/Home/whychooseus";
@@ -72,8 +71,6 @@ export default function Home() {
         <Perks />
         <BottomContactBar />
       </main>
-
-      <Footer />
     </>
   );
 }

@@ -60,7 +60,7 @@ const HeaderLink: React.FC<{ item: HeaderItem }> = ({ item }) => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="fixed inset-x-0 top-[190px] bg-grey dark:bg-darklight/95 
+          className="fixed inset-x-0 top-[150px] bg-grey dark:bg-darklight/95 
                      backdrop-blur-md shadow-2xl z-50 
                      overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600"
           role="menu"
