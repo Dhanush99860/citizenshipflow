@@ -27,11 +27,11 @@ export default function AwardSection() {
           <div>
             <h2
               id="awards-heading"
-              className="text-2xl md:text-3xl font-extrabold 
-              text-neutral-900 dark:text-neutral-100 tracking-tight"
+              className="text-2xl md:text-3xl font-extrabold text-neutral-900 dark:text-neutral-100 tracking-tight"
             >
-              Awards & Recognition
+              Awards &amp; Recognition
             </h2>
+
             <p className="mt-4 max-w-2xl text-lg text-neutral-600 dark:text-neutral-400 leading-relaxed">
               We are proud to be recognized for our commitment to excellence,
               leadership, and trusted client service worldwide.

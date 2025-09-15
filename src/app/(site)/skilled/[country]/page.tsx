@@ -26,7 +26,12 @@ import FAQSection from "@/components/Residency/Country/FAQSection";
 import MDXDetailsSection from "@/components/Residency/Country/MDXDetailsSection";
 import RelatedCountriesSection from "@/components/Residency/Country/RelatedCountriesSection";
 
-export const revalidate = 86400;
+// Only include what you actually need. Examples:
+export const runtime = 'nodejs';          // or 'edge'
+export const dynamic = 'force-static';    // or 'force-dynamic'
+export const revalidate = 86400;          // 24h — must be a literal number
+// export const preferredRegion = ['iad1'];  // if you used it before
+
 
 /** SSG params */
 export async function generateStaticParams() {

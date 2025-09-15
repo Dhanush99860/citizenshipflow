@@ -6,7 +6,10 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm run lint && npm run build",
+    "clean": "node -e \"try{require('fs').rmSync('.next',{recursive:true,force:true});require('fs').rmSync('node_modules/.cache',{recursive:true,force:true});}catch(e){}\""
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^7.0.1",
@@ -24,12 +27,12 @@
     "framer-motion": "^11.18.2",
     "gray-matter": "^4.0.3",
     "keen-slider": "^6.8.6",
-    "lucide-react": "^0.539.0",
+    "lucide-react": "^0.462.0",
     "minisearch": "^7.1.2",
     "next": "15.5.3",
     "next-auth": "^4.24.7",
     "next-mdx-remote": "^5.0.0",
-    "next-themes": "^0.3.0",
+    "next-themes": "^0.4.6",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "react-fast-marquee": "^1.6.5",
@@ -48,15 +51,25 @@
     "swiper": "^11.2.10"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.35.0",
+    "@next/eslint-plugin-next": "^15.5.3",
     "@types/aos": "^3.0.7",
-    "@types/node": "^20.19.11",
+    "@types/node": "^20.19.14",
     "@types/react": "19.1.13",
     "@types/react-dom": "19.1.9",
     "@types/react-slick": "^0.23.13",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
+    "eslint": "^9.35.0",
     "eslint-config-next": "^15.5.3",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^15.15.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.43.0"
   },
   "overrides": {
     "@types/react": "19.1.13",

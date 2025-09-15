@@ -1,4 +1,4 @@
-import { compileMDX } from 'next-mdx-remote/rsc';
+import compileMDX from "next-mdx-remote/rsc";
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
