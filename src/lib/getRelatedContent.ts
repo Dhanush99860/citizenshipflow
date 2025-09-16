@@ -31,7 +31,7 @@ export async function getRelatedContent({
   const docs = await loadIndex();
 
   // Filter to articles/news first
-  let pool = docs.filter((d) => includeTypes.includes(d.type));
+  const pool = docs.filter((d) => includeTypes.includes(d.type));
 
   // Score function: country match >> program match >> tag and text hints
   const scoreDoc = (d: SearchDoc) => {
