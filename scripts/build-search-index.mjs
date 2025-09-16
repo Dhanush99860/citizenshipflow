@@ -1,74 +1,77 @@
-// scripts/build-search-index.mjs
-// Node ESM script. No TS needed. Runs before `next build`.
-// Scans content & articles/news, extracts frontmatter + snippet, writes /public/search-index.json
+// Node ESM script. Runs before `next build`.
+// Walks MDX content, extracts frontmatter + snippet, writes /public/search-index.json
 
 import fs from "node:fs/promises";
 import path from "node:path";
 import fg from "fast-glob";
 import matter from "gray-matter";
 
-// Optional, but keeps snippets clean enough without heavy remark pipeline
+// Keep snippets readable without a full remark pipeline
 function stripToText(input) {
   if (!input) return "";
   let s = input;
-  // remove fenced code blocks
+  // fenced code blocks
   s = s.replace(/```[\s\S]*?```/g, " ");
-  // remove MDX components/JSX blocks <Component ...>...</Component> and self-closing
+  // MDX/JSX tags (block + self-closing)
   s = s.replace(/<[^>]+>/g, " ");
-  // remove markdown images/links
+  // images
   s = s.replace(/!\[[^\]]*\]\([^)]+\)/g, " ");
-  s = s.replace(/\[[^\]]*\]\([^)]+\)/g, (m) => m.match(/\[([^\]]*)\]/)?.[1] ?? " ");
-  // remove inline code
+  // links -> keep link text
+  s = s.replace(/\[([^\]]*)\]\([^)]+\)/g, "$1");
+  // inline code
   s = s.replace(/`([^`]+)`/g, "$1");
   // collapse whitespace
   s = s.replace(/\s+/g, " ").trim();
   return s;
 }
 
-function firstChars(s, n = 180) {
+function firstChars(s, n = 200) {
+  if (!s) return "";
   if (s.length <= n) return s;
   const cut = s.slice(0, n);
   const lastSpace = cut.lastIndexOf(" ");
   return (lastSpace > 40 ? cut.slice(0, lastSpace) : cut) + "…";
 }
 
-function guessTypeAndUrl(abs, repoRoot) {
-  // Normalize to POSIX-like separators for matching
+function ensureArray(x) {
+  if (!x) return [];
+  return Array.isArray(x) ? x : [x];
+}
+
+// Guess doc "type" and canonical URL from absolute path
+function guessTypeAndUrl(abs, repoRoot, fm) {
   const rel = abs.split(path.sep).join("/");
   const baseRel = rel.replace(repoRoot.split(path.sep).join("/") + "/", "");
 
   // content/<section>/<country>/_country.mdx => /<section>/<country>
   // content/<section>/<country>/<program>.mdx => /<section>/<country>/<program>
-  // articles/<slug>.mdx => /articles/<slug>
-  // news/<slug>.mdx => /news/<slug>
-  const contentMatch = baseRel.match(/^content\/(citizenship|residency|corporate)\/([^/]+)\/([^/]+)\.mdx$/i);
+  // Supported sections: citizenship, residency, corporate, skilled
+  const contentMatch = baseRel.match(
+    /^content\/(citizenship|residency|corporate|skilled)\/([^/]+)\/([^/]+)\.mdx$/i
+  );
   if (contentMatch) {
     const [, section, country, leaf] = contentMatch;
     if (leaf === "_country") {
       return { type: "country", url: `/${section}/${country}`, section, country, program: null };
     }
-    return { type: "program", url: `/${section}/${country}/${leaf}`, section, country, program: leaf };
+    const program = (fm?.programSlug || leaf).toString();
+    return { type: "program", url: `/${section}/${country}/${program}`, section, country, program };
   }
 
-  const articleMatch = baseRel.match(/^articles\/([^/]+)\.mdx$/i);
-  if (articleMatch) {
-    const slug = articleMatch[1];
-    return { type: "article", url: `/articles/${slug}`, section: null, country: null, program: null };
+  // content/<kind>/<slug>.mdx for insights buckets
+  // -> pretty routes: /articles/<slug>, /news/<slug>, /media/<slug>, /blog/<slug>
+  const insightMatch = baseRel.match(/^content\/(articles|news|media|blog)\/([^/]+)\.mdx$/i);
+  if (insightMatch) {
+    const [, kind, leaf] = insightMatch;
+    const slug = (fm?.slug || leaf).toString();
+    /** @type {"article"|"news"|"media"|"blog"} */
+    let type = kind === "articles" ? "article" : /** @type any */ (kind);
+    const prettySegment = kind === "articles" ? "articles" : kind;
+    return { type, url: `/${prettySegment}/${slug}`, section: null, country: null, program: null };
   }
 
-  const newsMatch = baseRel.match(/^news\/([^/]+)\.mdx$/i);
-  if (newsMatch) {
-    const slug = newsMatch[1];
-    return { type: "news", url: `/news/${slug}`, section: null, country: null, program: null };
-  }
-
+  // fallback (should rarely happen)
   return { type: "page", url: "/", section: null, country: null, program: null };
-}
-
-function ensureArray(x) {
-  if (!x) return [];
-  if (Array.isArray(x)) return x;
-  return [x];
 }
 
 async function main() {
@@ -76,19 +79,19 @@ async function main() {
   const publicDir = path.join(repoRoot, "public");
   const outputFile = path.join(publicDir, "search-index.json");
 
+  // IMPORTANT: Only scan under /content/** per project structure
   const patterns = [
     "content/citizenship/**/*.mdx",
     "content/residency/**/*.mdx",
     "content/corporate/**/*.mdx",
-    "articles/**/*.mdx",
-    "news/**/*.mdx",
+    "content/skilled/**/*.mdx",
+    "content/articles/**/*.mdx",
+    "content/news/**/*.mdx",
+    "content/media/**/*.mdx",
+    "content/blog/**/*.mdx",
   ];
 
-  const files = await fg(patterns, {
-    cwd: repoRoot,
-    absolute: true,
-    dot: false,
-  });
+  const files = await fg(patterns, { cwd: repoRoot, absolute: true, dot: false });
 
   /** @type {Array<any>} */
   const docs = [];
@@ -97,16 +100,19 @@ async function main() {
     const raw = await fs.readFile(abs, "utf8");
     const { data: fm, content } = matter(raw);
 
-    const meta = guessTypeAndUrl(abs, repoRoot);
+    // skip drafts in production
+    if ((fm?.draft === true || fm?.draft === "true") && process.env.NODE_ENV === "production") continue;
 
-    // Frontmatter fields we care about (with fallbacks)
+    const meta = guessTypeAndUrl(abs, repoRoot, fm);
+
+    // Frontmatter fields (with fallbacks)
     const title = (fm.title ?? "").toString().trim() || path.basename(abs, ".mdx");
     const subtitle =
       meta.type === "program"
         ? (fm.country ?? fm.countryName ?? meta.country ?? "").toString()
         : (fm.subtitle ?? fm.section ?? meta.section ?? "").toString();
 
-    const tags = ensureArray(fm.tags).map(String);
+    const tags = ensureArray(fm.tags).map((t) => t.toString().trim()).filter(Boolean);
     const summary = (fm.summary ?? fm.description ?? "").toString().trim();
     const hero = (fm.hero ?? fm.heroImage ?? fm.image ?? "").toString();
     const date = (fm.date ?? "").toString();
@@ -115,17 +121,24 @@ async function main() {
     const text = stripToText(content);
     const snippet = summary || firstChars(text, 200);
 
-    const countries = ensureArray(fm.countries?.length ? fm.countries : (meta.country ? [meta.country] : []))
-      .map((s) => s.toString().toLowerCase());
-    const programs = ensureArray(fm.programs?.length ? fm.programs : (meta.program ? [meta.program] : []))
-      .map((s) => s.toString().toLowerCase());
+    const countries = ensureArray(
+      (fm.countries && fm.countries.length ? fm.countries : (meta.country ? [meta.country] : []))
+    )
+      .map((s) => s.toString().toLowerCase())
+      .filter(Boolean);
+
+    const programs = ensureArray(
+      (fm.programs && fm.programs.length ? fm.programs : (meta.program ? [meta.program] : []))
+    )
+      .map((s) => s.toString().toLowerCase())
+      .filter(Boolean);
 
     const id = `${meta.type}:${meta.url}`;
 
     docs.push({
       id,
       url: meta.url,
-      type: meta.type, // "country" | "program" | "article" | "news" | "page"
+      type: meta.type, // "country" | "program" | "article" | "news" | "media" | "blog" | "page"
       title,
       subtitle: subtitle || undefined,
       tags: tags.length ? tags : undefined,
@@ -138,7 +151,13 @@ async function main() {
     });
   }
 
-  // Ensure public/ exists
+  // Stable ordering: updated || date desc
+  docs.sort((a, b) => {
+    const da = new Date(a.updated || a.date || 0).getTime();
+    const db = new Date(b.updated || b.date || 0).getTime();
+    return db - da;
+  });
+
   await fs.mkdir(publicDir, { recursive: true });
   const payload = {
     version: 1,

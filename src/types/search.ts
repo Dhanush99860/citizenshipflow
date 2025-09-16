@@ -1,5 +1,11 @@
-// src/types/search.ts
-export type SearchDocType = "country" | "program" | "article" | "news" | "page";
+export type SearchDocType =
+  | "country"
+  | "program"
+  | "article"
+  | "news"
+  | "media"
+  | "blog"
+  | "page";
 
 export type SearchDoc = {
   id: string;

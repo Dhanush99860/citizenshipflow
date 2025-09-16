@@ -10,8 +10,7 @@ import Platform from "@/components/Home/platform";
 import Perks from "@/components/Home/perks";
 import BottomContactBar from "@/components/Common/BottomContactBar";
 
-import ArticlesPreview from "@/components/Common/ArticlesSection/ArticlesPreview";
-import { getAllArticlesMeta } from "@/lib/getArticles";
+import InsightsPreview from "@/components/Insights/InsightsPreview";
 
 import ResidencyPreview from "@/components/Residency/ResidencyPreview";
 import SkilledPreview from "@/components/Skilled/SkilledPreview";
@@ -50,9 +49,7 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
-  // If getAllArticlesMeta() is async in your project, change this file to `export default async function Home()`
-  // and `const articles = await getAllArticlesMeta();`
-  const articles = getAllArticlesMeta();
+
 
   return (
     <>
@@ -67,7 +64,7 @@ export default function Home() {
         <SkilledPreview />
       <CorporatePreview />
         <Platform />
-        <ArticlesPreview articles={articles} limit={6} />
+        <InsightsPreview limit={6} />
         <Perks />
         <BottomContactBar />
       </main>

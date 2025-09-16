@@ -10,8 +10,7 @@ import {
 import HeroPremium from "@/components/Citizenship/HeroPremium";
 import OurOffer from "@/components/Citizenship/OurOffer";
 import TestimonialCarousel from "@/components/Citizenship/TestimonialCarousel";
-import ArticlesPreview from "@/components/Common/ArticlesSection/ArticlesPreview";
-import { getAllArticlesMeta } from "@/lib/getArticles";
+import InsightsPreview from "@/components/Insights/InsightsPreview";
 // import Footer from "@/components/Layout/Footer";
 import { JsonLd } from "@/lib/seo";
 import ExploreGrid from "@/components/Citizenship/ExploreGrid";
@@ -45,7 +44,6 @@ export default function CitizenshipPage() {
   const countries: CountryMeta[] = getCitizenshipCountries();
   const programs: ProgramMeta[] = getCitizenshipPrograms();
   const top5 = pickTopProgramsForLd(programs, 5);
-  const articles = getAllArticlesMeta();
 
   const webPageLd = {
     "@context": "https://schema.org",
@@ -100,7 +98,7 @@ export default function CitizenshipPage() {
         </div>
       </main>
 
-      <ArticlesPreview articles={articles} limit={6} />
+      <InsightsPreview limit={6} />
       {/* <Footer /> */}
     </>
   );

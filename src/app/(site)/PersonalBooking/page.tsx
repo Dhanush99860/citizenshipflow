@@ -1,13 +1,14 @@
 import Hero from "@/components/PersonalBooking/Hero";
 import Details from "@/components/PersonalBooking/Details";
-import { getAllArticlesMeta } from "@/lib/getArticles";
 import PressReleased from "@/components/Common/PressReleased";
 import FAQSection from "@/components/Common/FAQSection";
 
-
+// ✅ NEW: use the server-only insights loader instead of old getArticles
+import { getAllInsights } from "@/lib/insights-content";
 
 import type { Metadata } from "next";
 
+export const revalidate = 86400; // 1 day
 
 export const metadata: Metadata = {
   title: "Book a Private Consultation | XIPHIAS Immigration",
@@ -46,36 +47,44 @@ export const metadata: Metadata = {
       "Book your personal consultation with XIPHIAS Immigration. Trusted by 10K+ clients across 25+ global programs.",
     images: ["https://www.xiphiasimmigration.com/images/og-personal-booking.jpg"],
   },
-  alternates: {
-    canonical: "https://www.xiphiasimmigration.com/personal-booking",
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  alternates: { canonical: "https://www.xiphiasimmigration.com/personal-booking" },
+  robots: { index: true, follow: true },
 };
 
 // -------------------------------
-// Page Component
+// Page Component (SERVER) ✅
 // -------------------------------
-export default function PersonalBookingPage() {
-  const articles = getAllArticlesMeta();
+export default async function PersonalBookingPage() {
+  // Pull latest 6 articles from /content/articles/**
+  const { items } = await getAllInsights({ kind: "article", pageSize: 6 });
+
+  // Map to a simple shape the client component can render
+  const articles = items.map((i) => ({
+    title: i.title,
+    url: `/articles/${i.slug}`, // pretty detail URL
+    date: i.date,
+    summary: i.summary,
+    hero: i.hero,
+    tags: i.tags,
+  }));
 
   return (
     <main className="bg-light_bg dark:bg-dark_bg text-light_text dark:text-dark_text">
-      {/* Hero Section */}
       <Hero />
 
-      {/* Details Sections */}
+      {/* Pass plain data to the client component */}
       <Details articles={articles} />
-      
+
       <PressReleased />
       <FAQSection />
-      {/* JSON-LD Structured Data */}
+
+      {/* JSON-LD (your existing data) */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({ /* ...same as yours... */ }),
+          __html: JSON.stringify({
+            /* ...same as yours... */
+          }),
         }}
       />
     </main>

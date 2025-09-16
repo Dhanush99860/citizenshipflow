@@ -9,8 +9,8 @@ import {
 import ResidencyHero from "@/components/Residency/ResidencyHero";
 import ResidencyLanding from "@/components/Residency/ResidencyLanding";
 
-import ArticlesPreview from "@/components/Common/ArticlesSection/ArticlesPreview";
-import { getAllArticlesMeta } from "@/lib/getArticles";
+import InsightsPreview from "@/components/Insights/InsightsPreview";
+
 import Footer from "@/components/Layout/Footer";
 
 export const revalidate = 86400;
@@ -43,16 +43,13 @@ export default function SkilledPage() {
   const programs: ProgramMeta[] = getSkilledPrograms();
   const top10 = pickTopPrograms(programs, 10);
 
-  const articles = getAllArticlesMeta();
-
   return (
     <>
       <main className="max-w-screen-2xl mx-auto px-4 py-10">
         <ResidencyHero />
         <ResidencyLanding countries={countries} topPrograms={top10} />
       </main>
-
-      <ArticlesPreview articles={articles} limit={6} />
+      <InsightsPreview limit={6} />
       <Footer />
     </>
   );

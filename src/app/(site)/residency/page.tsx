@@ -7,8 +7,7 @@ import {
 } from "@/lib/residency-content";
 import ResidencyHero from "@/components/Residency/ResidencyHero";
 import ResidencyLanding from "@/components/Residency/ResidencyLanding";
-import ArticlesPreview from "@/components/Common/ArticlesSection/ArticlesPreview";
-import { getAllArticlesMeta } from "@/lib/getArticles";
+import InsightsPreview from "@/components/Insights/InsightsPreview";
 import TestimonialCarousel from "@/components/Citizenship/TestimonialCarousel";
 import OurOffer from "@/components/Citizenship/OurOffer";
 
@@ -42,8 +41,6 @@ export default function ResidencyPage() {
   const programs = getResidencyPrograms();
   const top10 = pickTopPrograms(programs, 10);
 
-  const articles = getAllArticlesMeta(); // same as Home
-
   return (
     <>
       <main className="max-w-screen-2xl mx-auto px-4 py-10">
@@ -60,7 +57,7 @@ export default function ResidencyPage() {
             ]}
           />
         </div>
-      <ArticlesPreview articles={articles} limit={6} />    
+        <InsightsPreview limit={6} />  
       <Footer />
     </>
   );
