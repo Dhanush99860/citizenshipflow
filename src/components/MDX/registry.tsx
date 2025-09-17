@@ -1,24 +1,19 @@
-/**
- * MDX components registry for compileMDX.
- * Exports BOTH named and default `mdxComponents`.
- */
+// src/components/MDX/registry.tsx
+import type { MDXComponents } from 'mdx/types';
 
-import Section from "./Section";
-import Callout from "./Callout";
-import ContentImage from "./ContentImage";
-import { Steps, Step } from "./Steps";
-import { FAQ, FAQItem } from "./FAQ";
-import Video from "./Video";
+import Section from '@/components/MDX/Section';
+import ContentImage from '@/components/MDX/ContentImage';
+import { Steps, Step } from '@/components/MDX/Steps';
+import Video from '@/components/MDX/Video';
+import FAQSection from '@/components/Insights/FAQSection';
 
-export const mdxComponents = {
+const mdxComponents = {
   Section,
-  Callout,
   ContentImage,
   Steps,
   Step,
-  FAQ,
-  FAQItem,
   Video,
-};
+  FAQSection,
+} satisfies MDXComponents;
 
 export default mdxComponents;

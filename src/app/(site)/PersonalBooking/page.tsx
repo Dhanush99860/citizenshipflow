@@ -1,11 +1,9 @@
+// src/app/PersonalBooking/page.tsx
 import Hero from "@/components/PersonalBooking/Hero";
 import Details from "@/components/PersonalBooking/Details";
 import PressReleased from "@/components/Common/PressReleased";
 import FAQSection from "@/components/Common/FAQSection";
-
-// ✅ NEW: use the server-only insights loader instead of old getArticles
 import { getAllInsights } from "@/lib/insights-content";
-
 import type { Metadata } from "next";
 
 export const revalidate = 86400; // 1 day
@@ -51,18 +49,15 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-// -------------------------------
-// Page Component (SERVER) ✅
-// -------------------------------
 export default async function PersonalBookingPage() {
-  // Pull latest 6 articles from /content/articles/**
-  const { items } = await getAllInsights({ kind: "article", pageSize: 6 });
+  // ✅ FIX: kind must be "articles" (plural). Or omit `kind` to get from all kinds.
+  const { items } = await getAllInsights({ kind: "articles", pageSize: 6 });
 
-  // Map to a simple shape the client component can render
+  // Use canonical URL computed by the loader, and show `updated` if present
   const articles = items.map((i) => ({
     title: i.title,
-    url: `/articles/${i.slug}`, // pretty detail URL
-    date: i.date,
+    url: i.url, // already /articles/{slug}
+    date: i.updated ?? i.date,
     summary: i.summary,
     hero: i.hero,
     tags: i.tags,
@@ -71,19 +66,15 @@ export default async function PersonalBookingPage() {
   return (
     <main className="bg-light_bg dark:bg-dark_bg text-light_text dark:text-dark_text">
       <Hero />
-
-      {/* Pass plain data to the client component */}
       <Details articles={articles} />
-
       <PressReleased />
       <FAQSection />
 
-      {/* JSON-LD (your existing data) */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
-            /* ...same as yours... */
+            // your existing structured data …
           }),
         }}
       />

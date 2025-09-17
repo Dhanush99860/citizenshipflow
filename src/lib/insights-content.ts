@@ -1,3 +1,4 @@
+// src/lib/insights-content.ts
 "use server";
 import "server-only";
 
@@ -10,7 +11,7 @@ import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 
-import mdxComponentsDefault, { mdxComponents as mdxNamed } from "@/components/MDX/registry";
+import mdxComponents from "@/components/MDX/registry";
 
 import type {
   Facets,
@@ -21,8 +22,16 @@ import type {
   InsightRecord,
 } from "@/types/insights";
 
+/* ────────────────────────────────────────────────────────────────────────── */
+/* constants                                                                 */
+/* ────────────────────────────────────────────────────────────────────────── */
+
 const INSIGHT_KINDS: InsightKind[] = ["articles", "news", "media", "blog"];
-const CONTENT_ROOT = path.join(process.cwd(), "content");
+const DEV = process.env.NODE_ENV !== "production";
+
+/* ────────────────────────────────────────────────────────────────────────── */
+/* types                                                                     */
+/* ────────────────────────────────────────────────────────────────────────── */
 
 type RawDoc = {
   kind: InsightKind;
@@ -31,6 +40,10 @@ type RawDoc = {
   source: string;
   data: Record<string, unknown>;
 };
+
+/* ────────────────────────────────────────────────────────────────────────── */
+/* helpers                                                                   */
+/* ────────────────────────────────────────────────────────────────────────── */
 
 function assertKind(kind: string): kind is InsightKind {
   return INSIGHT_KINDS.includes(kind as InsightKind);
@@ -98,8 +111,11 @@ function extractHeadingsForToc(source: string): Heading[] {
   return res;
 }
 
+/* ────────────────────────────────────────────────────────────────────────── */
+/* disk scan                                                                 */
+/* ────────────────────────────────────────────────────────────────────────── */
+
 async function loadRawDocs(): Promise<RawDoc[]> {
-  // POSIX patterns + cwd — works on Windows
   const patterns = [
     "content/articles/**/*.mdx",
     "content/news/**/*.mdx",
@@ -114,18 +130,15 @@ async function loadRawDocs(): Promise<RawDoc[]> {
     dot: false,
   });
 
-  if (process.env.NODE_ENV !== "production") {
-    console.log(`[insights] matched files: ${files.length}`);
-  }
+  if (DEV) console.log(`[insights] matched files: ${files.length}`);
 
   const out: RawDoc[] = [];
   for (const filePath of files) {
     const file = await fs.readFile(filePath, "utf8");
     const { content, data } = matter(file);
 
-    // figure out kind from path *after* /content/
     const relFromContent = path.relative(path.join(process.cwd(), "content"), filePath);
-    const kindDir = relFromContent.split(path.sep)[0]; // "articles" | "news" | "media" | "blog"
+    const kindDir = relFromContent.split(path.sep)[0];
     if (!assertKind(kindDir)) continue;
 
     const slug = path.basename(filePath, ".mdx");
@@ -135,15 +148,20 @@ async function loadRawDocs(): Promise<RawDoc[]> {
   return out;
 }
 
+/* ────────────────────────────────────────────────────────────────────────── */
+/* meta + sort                                                               */
+/* ────────────────────────────────────────────────────────────────────────── */
+
 function metaFromRaw(raw: RawDoc): InsightMeta {
   const title = coerceString(raw.data.title) ?? raw.slug;
   const summary = coerceString(raw.data.summary);
-  const author = coerceString(raw.data.author);
 
-  // normalize to arrays (never string unions)
+  // Support string or { name: string }
+  const author =
+    coerceString(raw.data.author) ?? coerceString((raw.data as any).author?.name);
+
   const country = normalizeArray(raw.data.country) ?? normalizeArray((raw.data as any).countries);
   const program = normalizeArray(raw.data.program) ?? normalizeArray((raw.data as any).programs);
-
   const tags = normalizeArray(raw.data.tags) ?? [];
 
   const hero =
@@ -152,9 +170,20 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
     coerceString((raw.data as any).image);
 
   const heroAlt = coerceString((raw.data as any).heroAlt) || title;
+
+  // Detail hero video/poster (optional)
+  const heroVideo =
+    coerceString((raw.data as any).heroVideo) ||
+    coerceString((raw.data as any).video) ||
+    coerceString((raw.data as any).videoSrc);
+
+  const heroPoster =
+    coerceString((raw.data as any).heroPoster) ||
+    coerceString((raw.data as any).poster) ||
+    undefined;
+
   const date = coerceString(raw.data.date);
-  const updated =
-    coerceString((raw.data as any).updated) || coerceString((raw.data as any).lastmod);
+  const updated = coerceString((raw.data as any).updated) || coerceString((raw.data as any).lastmod);
   const url = toUrl(raw.kind, raw.slug);
   const readingTime = readingTimeMins(raw.source);
 
@@ -169,6 +198,8 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
     tags,
     hero: hero || undefined,
     heroAlt,
+    heroVideo,
+    heroPoster,
     date,
     updated,
     readingTimeMins: readingTime,
@@ -182,15 +213,25 @@ function sortByDateDesc(a: InsightMeta, b: InsightMeta) {
   return db - da;
 }
 
+/* ────────────────────────────────────────────────────────────────────────── */
+/* cache                                                                      */
+/* ────────────────────────────────────────────────────────────────────────── */
+
 let _cache: { metas: InsightMeta[]; raw: RawDoc[]; loadedAt: number } | null = null;
 
 async function ensureCache() {
-  if (_cache) return _cache;
+  if (!DEV && _cache) return _cache; // reuse in prod
+
   const raw = await loadRawDocs();
   const metas = raw.map(metaFromRaw).sort(sortByDateDesc);
-  _cache = { metas, raw, loadedAt: Date.now() };
-  return _cache;
+  const next = { metas, raw, loadedAt: Date.now() };
+  if (!DEV) _cache = next;
+  return next;
 }
+
+/* ────────────────────────────────────────────────────────────────────────── */
+/* queries                                                                    */
+/* ────────────────────────────────────────────────────────────────────────── */
 
 export async function getAllInsights(params: GetAllInsightsParams = {}) {
   const { metas } = await ensureCache();
@@ -264,29 +305,32 @@ export async function getInsightBySlug(
 
   const headings = extractHeadingsForToc(entry.source);
 
-  // Resolve components robustly: named OR default
-  const componentsMap =
-    (mdxNamed as any) && Object.keys(mdxNamed).length
-      ? (mdxNamed as any)
-      : ((mdxComponentsDefault as any) || {});
+  // MDX components registry (must include FAQSection)
+  const componentsMap = (mdxComponents as Record<string, unknown>) || {};
+  if (DEV) console.log("[mdx components keys]", Object.keys(componentsMap));
 
-  if (process.env.NODE_ENV !== "production") {
-    console.log("[mdx components keys]", Object.keys(componentsMap));
-  }
-
-  // Pass components BOTH at top-level and inside options to satisfy all versions
-  const args: any = {
+  // IMPORTANT: components at TOP LEVEL (runtime needs this on your version).
+  // Cast to satisfy TS if local type definition doesn’t include `components`.
+  const args = {
     source: entry.source,
-    components: componentsMap, // ⬅️ top-level (some versions require this)
+    components: componentsMap as Record<string, any>,
     options: {
       parseFrontmatter: false,
       mdxOptions: {
-        remarkPlugins: [remarkGfm],
-        rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: "wrap" }]],
+        remarkPlugins: [remarkGfm] as any,
+        rehypePlugins: [
+          rehypeSlug,
+          [
+            rehypeAutolinkHeadings,
+            {
+              behavior: "wrap",
+              properties: { className: ["anchor"] },
+            },
+          ],
+        ] as any,
       },
-      components: componentsMap, // ⬅️ also inside options (safe)
     },
-  };
+  } as unknown as Parameters<typeof compileMDX>[0];
 
   const { content } = await compileMDX(args);
 
@@ -294,10 +338,7 @@ export async function getInsightBySlug(
   return { ...meta, headings, content };
 }
 
-export async function getRelatedContent(
-  current: InsightMeta,
-  limit = 3
-): Promise<InsightMeta[]> {
+export async function getRelatedContent(current: InsightMeta, limit = 3): Promise<InsightMeta[]> {
   const { metas } = await ensureCache();
   const curTags = new Set((current.tags ?? []).map((t: string) => t.toLowerCase()));
   const curCountries = new Set((current.country ?? []).map((c: string) => c.toLowerCase()));
