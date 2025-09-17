@@ -10,28 +10,42 @@ import { JsonLd } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import path from "node:path";
+import fg from "fast-glob";
+
 const VERTICALS: Vertical[] = ["residency", "citizenship", "skilled", "corporate"];
 
-export function generateStaticParams() {
-  const docs = getAllContentCached();
+export async function generateStaticParams() {
+  // derive params from folder structure, skip files starting with "_"
+  const root = path.join(process.cwd(), "content");
+  const files = await fg(
+    [
+      "residency/*/*.mdx",
+      "citizenship/*/*.mdx",
+      "skilled/*/*.mdx",
+      "corporate/*/*.mdx",
+    ],
+    { cwd: root, onlyFiles: true, dot: false }
+  );
 
-  // Only return params when all segments are non-empty strings.
-  return docs
-    .filter((d): d is ProgramDoc => d.kind === "program")
+  return files
+    .map((rel) => rel.replace(/\\/g, "/")) // windows-safe
+    .map((rel) => {
+      const [vertical, country, file] = rel.split("/");
+      const program = path.posix.basename(file, ".mdx");
+      return { vertical, country, program } as {
+        vertical: string;
+        country: string;
+        program: string;
+      };
+    })
     .filter(
-      (d) =>
-        typeof d.vertical === "string" &&
-        VERTICALS.includes(d.vertical as Vertical) &&
-        typeof d.country === "string" &&
-        d.country &&
-        typeof d.program === "string" &&
-        d.program
-    )
-    .map((d) => ({
-      vertical: d.vertical as Vertical,
-      country: String(d.country),
-      program: String(d.program),
-    }));
+      (p) =>
+        VERTICALS.includes(p.vertical as Vertical) &&
+        p.country &&
+        p.program &&
+        !p.program.startsWith("_")
+    );
 }
 
 export const dynamicParams = false;
@@ -43,7 +57,6 @@ export default async function ProgramPage({
 }) {
   const { vertical, country, program } = params;
 
-  // Guard against bad params reaching the page in preview/dev.
   if (!VERTICALS.includes(vertical) || !country || !program) return notFound();
 
   const doc = getAllContentCached().find(
@@ -53,7 +66,6 @@ export default async function ProgramPage({
       d.country === country &&
       d.program === program
   );
-
   if (!doc) return notFound();
 
   const mdx = await compileMDX({
