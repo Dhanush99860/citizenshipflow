@@ -1,7 +1,7 @@
 // FILE: src/components/Insights/FiltersBar.tsx
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Facets, InsightKind } from "@/types/insights";
 import {
@@ -50,9 +50,6 @@ export default function FiltersBar({
   const [tag, setTag] = useState(initialTag || "");
 
   const [showSheet, setShowSheet] = useState(false); // mobile bottom sheet
-  const [showMore, setShowMore] = useState(false); // desktop popover for advanced
-  const moreBtnRef = useRef<HTMLButtonElement | null>(null);
-  const popoverRef = useRef<HTMLDivElement | null>(null);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -93,32 +90,9 @@ export default function FiltersBar({
     setCountry("");
     setProgram("");
     setTag("");
-    setShowMore(false);
     setShowSheet(false);
     router.replace(pathname, { scroll: false });
   }
-
-  // desktop "More" popover behaviour
-  useEffect(() => {
-    function onClickAway(e: MouseEvent) {
-      if (
-        popoverRef.current &&
-        !popoverRef.current.contains(e.target as Node) &&
-        !moreBtnRef.current?.contains(e.target as Node)
-      ) {
-        setShowMore(false);
-      }
-    }
-    function onEsc(e: KeyboardEvent) {
-      if (e.key === "Escape") setShowMore(false);
-    }
-    document.addEventListener("mousedown", onClickAway);
-    document.addEventListener("keydown", onEsc);
-    return () => {
-      document.removeEventListener("mousedown", onClickAway);
-      document.removeEventListener("keydown", onEsc);
-    };
-  }, []);
 
   /* ------------------------------ shared styles ----------------------------- */
   const inputBase =
@@ -137,7 +111,7 @@ export default function FiltersBar({
   /* --------------------------------- render -------------------------------- */
   return (
     <>
-      {/* Toolbar (desktop/tablet ≥ sm): single-row compact filter bar */}
+      {/* Toolbar (desktop/tablet ≥ sm) */}
       <section
         aria-label="Filters"
         className="
@@ -151,6 +125,7 @@ export default function FiltersBar({
             aria-hidden
             className="pointer-events-none absolute -left-12 top-0 hidden h-full w-24 -skew-x-12 rounded-3xl bg-[radial-gradient(60%_100%_at_0%_50%,rgba(59,130,246,.15),transparent)] sm:block"
           />
+
           {/* Left: label */}
           <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-800 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100">
             <FilterIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" aria-hidden="true" />
@@ -231,113 +206,8 @@ export default function FiltersBar({
             </div>
           </div>
 
-          {/* More (popover) */}
-          {/* <div className="relative">
-            <button
-              ref={moreBtnRef}
-              type="button"
-              onClick={() => setShowMore((v) => !v)}
-              className="inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-[13px] font-medium text-neutral-800 hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800/60"
-              aria-expanded={showMore}
-              aria-controls="filters-popover"
-            >
-              <ChevronDown
-                className={`h-4 w-4 transition-transform ${showMore ? "rotate-180" : ""}`}
-                aria-hidden="true"
-              />
-              More
-            </button>
-
-            {showMore && (
-              <div
-                ref={popoverRef}
-                id="filters-popover"
-                className="absolute right-0 top-[calc(100%+8px)] z-20 w-[520px] max-w-[calc(100vw-2rem)] rounded-2xl border border-neutral-200 bg-white p-3 shadow-lg dark:border-neutral-800 dark:bg-neutral-900"
-              >
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="mb-1 block text-[12px] font-medium text-neutral-600 dark:text-neutral-300">
-                      Program
-                    </label>
-                    <div className="relative">
-                      <Layers3 className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 dark:text-neutral-500" />
-                      <select
-                        value={program}
-                        onChange={(e) => {
-                          setProgram(e.target.value);
-                          apply({ program: e.target.value });
-                        }}
-                        className={selectBase}
-                      >
-                        <option value="">All programs</option>
-                        {facets.programs.map((p) => (
-                          <option key={p} value={p}>
-                            {p}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 dark:text-neutral-500" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="mb-1 block text-[12px] font-medium text-neutral-600 dark:text-neutral-300">
-                      Tag
-                    </label>
-                    <div className="relative">
-                      <TagsIcon className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 dark:text-neutral-500" />
-                      <select
-                        value={tag}
-                        onChange={(e) => {
-                          setTag(e.target.value);
-                          apply({ tag: e.target.value });
-                        }}
-                        className={selectBase}
-                      >
-                        <option value="">All tags</option>
-                        {facets.tags.map((t) => (
-                          <option key={t} value={t}>
-                            {t}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 dark:text-neutral-500" />
-                    </div>
-                  </div>
-                </div>
-
-                {hasActive && (
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    {chips.map((c) => (
-                      <button
-                        key={`popover-${c.key}`}
-                        onClick={() => {
-                          c.onClear();
-                          // keep popover open so user sees change
-                        }}
-                        type="button"
-                        className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-[12px] font-medium text-blue-700 ring-1 ring-blue-100 hover:bg-blue-100/80 dark:bg-blue-500/10 dark:text-blue-300 dark:ring-blue-500/30"
-                      >
-                        {c.label}
-                        <X className="h-3.5 w-3.5" aria-hidden="true" />
-                      </button>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={clearAll}
-                      className="ml-auto inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-[12.5px] font-medium text-neutral-700 underline decoration-neutral-300 underline-offset-4 hover:text-neutral-900 dark:text-neutral-300 dark:decoration-neutral-700 dark:hover:text-white"
-                    >
-                      <X className="h-4 w-4" aria-hidden="true" />
-                      Clear all
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div> */}
-
           {/* Clear on far right */}
-          {!showMore && hasActive && (
+          {hasActive && (
             <button
               type="button"
               onClick={clearAll}
