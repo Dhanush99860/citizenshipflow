@@ -3,43 +3,35 @@ import { compileMDX } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
-
 import { getAllContentCached } from "@/lib/content";
 import { getRelated } from "@/lib/content/related";
 import type { Vertical, ProgramDoc } from "@/lib/content/types";
 import { JsonLd } from "@/lib/seo";
-
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-/**
- * Build static params safely. If any program doc is missing
- * vertical/country/program, we skip it and log a warning.
- */
+const VERTICALS: Vertical[] = ["residency", "citizenship", "skilled", "corporate"];
+
 export function generateStaticParams() {
   const docs = getAllContentCached();
 
-  const params = docs
+  // Only return params when all segments are non-empty strings.
+  return docs
+    .filter((d): d is ProgramDoc => d.kind === "program")
     .filter(
-      (d): d is ProgramDoc =>
-        d.kind === "program" &&
+      (d) =>
         typeof d.vertical === "string" &&
+        VERTICALS.includes(d.vertical as Vertical) &&
         typeof d.country === "string" &&
+        d.country &&
         typeof d.program === "string" &&
-        d.vertical.length > 0 &&
-        d.country.length > 0 &&
-        d.program.length > 0
+        d.program
     )
     .map((d) => ({
       vertical: d.vertical as Vertical,
-      country: d.country,
-      program: d.program,
+      country: String(d.country),
+      program: String(d.program),
     }));
-
-  // Helpful in Vercel build logs
-  console.log(`[program route] static params generated: ${params.length}`);
-
-  return params;
 }
 
 export const dynamicParams = false;
@@ -51,6 +43,9 @@ export default async function ProgramPage({
 }) {
   const { vertical, country, program } = params;
 
+  // Guard against bad params reaching the page in preview/dev.
+  if (!VERTICALS.includes(vertical) || !country || !program) return notFound();
+
   const doc = getAllContentCached().find(
     (d): d is ProgramDoc =>
       d.kind === "program" &&
@@ -59,17 +54,14 @@ export default async function ProgramPage({
       d.program === program
   );
 
-  if (!doc) {
-    // Ensures proper 404 handling instead of rendering partial HTML
-    return notFound();
-  }
+  if (!doc) return notFound();
 
-  const { content } = await compileMDX({
+  const mdx = await compileMDX({
     source: doc.body,
     options: {
       mdxOptions: {
         remarkPlugins: [remarkGfm],
-        rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: "wrap" }]],
+        rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
       },
     },
   });
@@ -94,12 +86,12 @@ export default async function ProgramPage({
       <article className="space-y-6">
         <header className="space-y-3">
           <h1 className="text-3xl font-semibold">{doc.title}</h1>
-          {doc.summary ? <p className="opacity-80">{doc.summary}</p> : null}
+          {doc.summary && <p className="opacity-80">{doc.summary}</p>}
         </header>
 
-        <div className="prose max-w-none">{content}</div>
+        <div className="prose max-w-none">{mdx.content}</div>
 
-        {doc.brochure ? (
+        {doc.brochure && (
           <a
             className="inline-block rounded-xl border px-4 py-2 hover:bg-gray-50"
             href={doc.brochure}
@@ -108,7 +100,7 @@ export default async function ProgramPage({
           >
             Download brochure
           </a>
-        ) : null}
+        )}
 
         {doc.faq?.length ? (
           <section className="mt-8">
