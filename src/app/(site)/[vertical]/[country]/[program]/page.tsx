@@ -1,5 +1,5 @@
 // src/app/(site)/[vertical]/[country]/[program]/page.tsx
-import { compileMDX } from "next-mdx-remote/rsc";
+import compileMDX from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
@@ -10,42 +10,46 @@ import { JsonLd } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import fs from "node:fs/promises";
 import path from "node:path";
-import fg from "fast-glob";
 
 const VERTICALS: Vertical[] = ["residency", "citizenship", "skilled", "corporate"];
 
+/** Build params ONLY from folder names; ignore front-matter completely. */
 export async function generateStaticParams() {
-  // derive params from folder structure, skip files starting with "_"
   const root = path.join(process.cwd(), "content");
-  const files = await fg(
-    [
-      "residency/*/*.mdx",
-      "citizenship/*/*.mdx",
-      "skilled/*/*.mdx",
-      "corporate/*/*.mdx",
-    ],
-    { cwd: root, onlyFiles: true, dot: false }
-  );
+  const out: Array<{ vertical: string; country: string; program: string }> = [];
 
-  return files
-    .map((rel) => rel.replace(/\\/g, "/")) // windows-safe
-    .map((rel) => {
-      const [vertical, country, file] = rel.split("/");
-      const program = path.posix.basename(file, ".mdx");
-      return { vertical, country, program } as {
-        vertical: string;
-        country: string;
-        program: string;
-      };
-    })
-    .filter(
-      (p) =>
-        VERTICALS.includes(p.vertical as Vertical) &&
-        p.country &&
-        p.program &&
-        !p.program.startsWith("_")
-    );
+  for (const vertical of VERTICALS) {
+    const vDir = path.join(root, vertical);
+
+    // Skip missing vertical directories cleanly
+    let countryDirs: string[] = [];
+    try {
+      const entries = await fs.readdir(vDir, { withFileTypes: true });
+      countryDirs = entries.filter((e) => e.isDirectory()).map((e) => e.name);
+    } catch {
+      continue;
+    }
+
+    for (const country of countryDirs) {
+      const cDir = path.join(vDir, country);
+      let files: string[] = [];
+      try {
+        files = (await fs.readdir(cDir)).filter((f) => f.endsWith(".mdx"));
+      } catch {
+        continue;
+      }
+
+      for (const file of files) {
+        const base = path.basename(file, ".mdx");
+        if (!base || base.startsWith("_")) continue; // ignore partials like _country.mdx
+        out.push({ vertical, country, program: base });
+      }
+    }
+  }
+
+  return out;
 }
 
 export const dynamicParams = false;
@@ -68,7 +72,7 @@ export default async function ProgramPage({
   );
   if (!doc) return notFound();
 
-  const mdx = await compileMDX({
+  const { content } = await compileMDX({
     source: doc.body,
     options: {
       mdxOptions: {
@@ -92,7 +96,7 @@ export default async function ProgramPage({
   };
 
   return (
-    <main className="mx-auto grid max-w-6xl gap-8 p-6 lg:grid-cols-[2fr_1fr]">
+    <main className="mx-auto max-w-6xl p-6 grid lg:grid-cols-[2fr_1fr] gap-8">
       <JsonLd data={breadcrumbLd} />
 
       <article className="space-y-6">
@@ -101,7 +105,7 @@ export default async function ProgramPage({
           {doc.summary && <p className="opacity-80">{doc.summary}</p>}
         </header>
 
-        <div className="prose max-w-none">{mdx.content}</div>
+        <div className="prose max-w-none">{content}</div>
 
         {doc.brochure && (
           <a
@@ -122,7 +126,7 @@ export default async function ProgramPage({
                 <li key={i}>
                   <details>
                     <summary className="font-medium">{f.q}</summary>
-                    <div className="mt-1 opacity-80">{f.a}</div>
+                    <div className="opacity-80 mt-1">{f.a}</div>
                   </details>
                 </li>
               ))}
@@ -133,7 +137,7 @@ export default async function ProgramPage({
 
       <aside className="space-y-4">
         <div className="rounded-2xl border p-4">
-          <h3 className="mb-3 font-semibold">Related</h3>
+          <h3 className="font-semibold mb-3">Related</h3>
           <ul className="space-y-2">
             {related.map((it) => (
               <li key={it.url}>
