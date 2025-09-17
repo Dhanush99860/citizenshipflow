@@ -90,9 +90,19 @@ export default function CitizenshipPage() {
           <OurOffer className="lg:col-span-2" />
           <TestimonialCarousel
             items={[
-              { quote: "Flawless execution from due diligence to passport delivery.", author: "Family Office, Dubai" },
-              { quote: "Transparent costs and genuinely vetted projects.", author: "HNWI, Singapore" },
-              { quote: "Impressive compliance depth—exactly what we needed.", author: "Private Banker, Zurich" },
+              {
+                quote:
+                  "Flawless execution from due diligence to passport delivery.",
+                author: "Family Office, Dubai",
+              },
+              {
+                quote: "Transparent costs and genuinely vetted projects.",
+                author: "HNWI, Singapore",
+              },
+              {
+                quote: "Impressive compliance depth—exactly what we needed.",
+                author: "Private Banker, Zurich",
+              },
             ]}
           />
         </div>

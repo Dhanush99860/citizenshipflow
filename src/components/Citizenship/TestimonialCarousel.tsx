@@ -68,9 +68,12 @@ export default function TestimonialCarousel({
   // Autoplay
   React.useEffect(() => {
     if (paused || reduceMotion || length <= 1) return;
-    const id = setInterval(() => {
-      setIndex((v) => (v + 1) % length);
-    }, Math.max(intervalMs, 2000));
+    const id = setInterval(
+      () => {
+        setIndex((v) => (v + 1) % length);
+      },
+      Math.max(intervalMs, 2000),
+    );
     return () => clearInterval(id);
   }, [paused, reduceMotion, intervalMs, length]);
 
@@ -95,7 +98,9 @@ export default function TestimonialCarousel({
         author: {
           "@type": "Person",
           name: it.author,
-          ...(it.organization ? { worksFor: { "@type": "Organization", name: it.organization } } : {}),
+          ...(it.organization
+            ? { worksFor: { "@type": "Organization", name: it.organization } }
+            : {}),
           ...(it.role ? { jobTitle: it.role } : {}),
         },
       },
@@ -176,7 +181,10 @@ export default function TestimonialCarousel({
         {length > 1 && (
           <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             {/* Dots */}
-            <nav className="flex flex-wrap gap-1.5" aria-label="Select testimonial">
+            <nav
+              className="flex flex-wrap gap-1.5"
+              aria-label="Select testimonial"
+            >
               {safeItems.map((_, idx) => (
                 <button
                   key={idx}
@@ -187,7 +195,9 @@ export default function TestimonialCarousel({
                   onClick={() => goTo(idx)}
                   className={[
                     "h-1.5 rounded-full transition-all",
-                    idx === index ? "w-8 bg-blue-600" : "w-4 bg-zinc-300 dark:bg-zinc-700 hover:bg-zinc-400 dark:hover:bg-zinc-600",
+                    idx === index
+                      ? "w-8 bg-blue-600"
+                      : "w-4 bg-zinc-300 dark:bg-zinc-700 hover:bg-zinc-400 dark:hover:bg-zinc-600",
                   ].join(" ")}
                 />
               ))}
@@ -196,7 +206,11 @@ export default function TestimonialCarousel({
             {/* Prev / Next */}
             <div className="flex items-center gap-2">
               <CarouselButton onClick={prev} ariaLabel="Previous testimonial" />
-              <CarouselButton onClick={next} ariaLabel="Next testimonial" direction="next" />
+              <CarouselButton
+                onClick={next}
+                ariaLabel="Next testimonial"
+                direction="next"
+              />
               <span className="ml-1 text-xs text-zinc-500 dark:text-zinc-400 tabular-nums">
                 {index + 1}/{length}
               </span>
@@ -290,7 +304,12 @@ function CarouselButton({
         "transition",
       ].join(" ")}
     >
-      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+      <svg
+        viewBox="0 0 24 24"
+        className="h-4 w-4"
+        fill="currentColor"
+        aria-hidden="true"
+      >
         {isNext ? (
           <path d="M5 12.75h11.19l-3.72 3.72a.75.75 0 1 0 1.06 1.06l5.25-5.25a.75.75 0 0 0 0-1.06L13.53 5.97a.75.75 0 1 0-1.06 1.06l3.72 3.72H5a.75.75 0 0 0 0 1.5z" />
         ) : (

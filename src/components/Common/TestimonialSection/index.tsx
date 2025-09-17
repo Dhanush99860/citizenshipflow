@@ -49,17 +49,18 @@ const testimonials: Testimonial[] = [
 export default function TestimonialSlider() {
   return (
     <section className="w-full min-h-[60vh]  bg-white dark:bg-darklight py-10 md:py-16">
-
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-12 max-w-7xl w-full mx-auto px-6">
-          <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-800 dark:text-gray-100 leading-tight">
-            Our{" "}
-            <span className="bg-gradient-to-r from-primary/70 to-primary/90 bg-clip-text text-transparent">unique approach</span>{" "}
-            to wealth management
-          </h2>
-          <button className="bg-primary text-white px-6 py-3 rounded-full font-medium shadow hover:opacity-90 transition">
-            Schedule an expert call
-          </button>
-        </div>
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-12 max-w-7xl w-full mx-auto px-6">
+        <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-800 dark:text-gray-100 leading-tight">
+          Our{" "}
+          <span className="bg-gradient-to-r from-primary/70 to-primary/90 bg-clip-text text-transparent">
+            unique approach
+          </span>{" "}
+          to wealth management
+        </h2>
+        <button className="bg-primary text-white px-6 py-3 rounded-full font-medium shadow hover:opacity-90 transition">
+          Schedule an expert call
+        </button>
+      </div>
       <Swiper
         modules={[FreeMode]}
         freeMode={true}

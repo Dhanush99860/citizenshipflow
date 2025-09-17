@@ -43,19 +43,20 @@ export default function RelatedCompare({
           <span className="inline-flex items-center rounded-md bg-blue-600/10 px-2 py-1 text-xs font-semibold text-blue-700 dark:text-blue-300">
             Related
           </span>
-          <h2 id={`${sectionId}-title`} className="text-xl font-semibold tracking-tight">
+          <h2
+            id={`${sectionId}-title`}
+            className="text-xl font-semibold tracking-tight"
+          >
             {title}
           </h2>
         </div>
         <p className="sr-only">
-          {items.length} similar programs listed. Use arrow keys to navigate cards.
+          {items.length} similar programs listed. Use arrow keys to navigate
+          cards.
         </p>
       </header>
 
-      <ul
-        role="list"
-        className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
-      >
+      <ul role="list" className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((r, idx) => {
           const price = isNum(r.minInvestment)
             ? fmtCurrency(r.minInvestment!, r.currency)
@@ -89,7 +90,10 @@ export default function RelatedCompare({
                       itemScope
                       itemType="https://schema.org/Offer"
                     >
-                      <meta itemProp="price" content={String(r.minInvestment)} />
+                      <meta
+                        itemProp="price"
+                        content={String(r.minInvestment)}
+                      />
                       <meta
                         itemProp="priceCurrency"
                         content={(r.currency || "USD").toUpperCase()}
@@ -127,7 +131,10 @@ export default function RelatedCompare({
                     {/* subtle overlays */}
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-black/5 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
                     <div className="pointer-events-none absolute left-3 top-3 inline-flex items-center gap-1 rounded-md bg-white/85 px-2 py-1 text-[11px] font-medium text-neutral-900 ring-1 ring-neutral-200 backdrop-blur dark:bg-neutral-900/70 dark:text-neutral-100 dark:ring-neutral-700">
-                      <span className="h-1.5 w-1.5 rounded-full bg-blue-600" aria-hidden />
+                      <span
+                        className="h-1.5 w-1.5 rounded-full bg-blue-600"
+                        aria-hidden
+                      />
                       {r.country}
                     </div>
                   </div>
@@ -194,7 +201,10 @@ export default function RelatedCompare({
                                        bg-white text-neutral-900 ring-1 ring-neutral-200
                                        dark:bg-neutral-900 dark:text-neutral-100 dark:ring-neutral-700"
                           >
-                            <span className="h-1.5 w-1.5 rounded-full bg-blue-600" aria-hidden />
+                            <span
+                              className="h-1.5 w-1.5 rounded-full bg-blue-600"
+                              aria-hidden
+                            />
                             {t}
                           </span>
                         ))}

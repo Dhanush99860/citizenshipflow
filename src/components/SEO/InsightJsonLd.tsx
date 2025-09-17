@@ -8,10 +8,10 @@ export default function InsightJsonLd({ record }: { record: InsightRecord }) {
     record.kind === "news"
       ? "NewsArticle"
       : record.kind === "blog"
-      ? "BlogPosting"
-      : record.kind === "media"
-      ? "VideoObject"
-      : "Article";
+        ? "BlogPosting"
+        : record.kind === "media"
+          ? "VideoObject"
+          : "Article";
 
   const data: Record<string, any> = {
     "@context": "https://schema.org",
@@ -19,7 +19,9 @@ export default function InsightJsonLd({ record }: { record: InsightRecord }) {
     headline: record.title,
     datePublished: record.date,
     dateModified: record.updated || record.date,
-    author: record.author ? { "@type": "Person", name: record.author } : undefined,
+    author: record.author
+      ? { "@type": "Person", name: record.author }
+      : undefined,
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": record.url,

@@ -105,8 +105,10 @@ function extractHeadingsForToc(source: string): Heading[] {
   for (const line of lines) {
     const h2 = /^##\s+(.*)$/.exec(line);
     const h3 = /^###\s+(.*)$/.exec(line);
-    if (h2) res.push({ id: slugify(h2[1], seen), text: h2[1].trim(), depth: 2 });
-    else if (h3) res.push({ id: slugify(h3[1], seen), text: h3[1].trim(), depth: 3 });
+    if (h2)
+      res.push({ id: slugify(h2[1], seen), text: h2[1].trim(), depth: 2 });
+    else if (h3)
+      res.push({ id: slugify(h3[1], seen), text: h3[1].trim(), depth: 3 });
   }
   return res;
 }
@@ -137,12 +139,21 @@ async function loadRawDocs(): Promise<RawDoc[]> {
     const file = await fs.readFile(filePath, "utf8");
     const { content, data } = matter(file);
 
-    const relFromContent = path.relative(path.join(process.cwd(), "content"), filePath);
+    const relFromContent = path.relative(
+      path.join(process.cwd(), "content"),
+      filePath,
+    );
     const kindDir = relFromContent.split(path.sep)[0];
     if (!assertKind(kindDir)) continue;
 
     const slug = path.basename(filePath, ".mdx");
-    out.push({ kind: kindDir as InsightKind, slug, filePath, source: content, data });
+    out.push({
+      kind: kindDir as InsightKind,
+      slug,
+      filePath,
+      source: content,
+      data,
+    });
   }
 
   return out;
@@ -158,10 +169,15 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
 
   // Support string or { name: string }
   const author =
-    coerceString(raw.data.author) ?? coerceString((raw.data as any).author?.name);
+    coerceString(raw.data.author) ??
+    coerceString((raw.data as any).author?.name);
 
-  const country = normalizeArray(raw.data.country) ?? normalizeArray((raw.data as any).countries);
-  const program = normalizeArray(raw.data.program) ?? normalizeArray((raw.data as any).programs);
+  const country =
+    normalizeArray(raw.data.country) ??
+    normalizeArray((raw.data as any).countries);
+  const program =
+    normalizeArray(raw.data.program) ??
+    normalizeArray((raw.data as any).programs);
   const tags = normalizeArray(raw.data.tags) ?? [];
 
   const hero =
@@ -183,7 +199,9 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
     undefined;
 
   const date = coerceString(raw.data.date);
-  const updated = coerceString((raw.data as any).updated) || coerceString((raw.data as any).lastmod);
+  const updated =
+    coerceString((raw.data as any).updated) ||
+    coerceString((raw.data as any).lastmod);
   const url = toUrl(raw.kind, raw.slug);
   const readingTime = readingTimeMins(raw.source);
 
@@ -217,7 +235,8 @@ function sortByDateDesc(a: InsightMeta, b: InsightMeta) {
 /* cache                                                                      */
 /* ────────────────────────────────────────────────────────────────────────── */
 
-let _cache: { metas: InsightMeta[]; raw: RawDoc[]; loadedAt: number } | null = null;
+let _cache: { metas: InsightMeta[]; raw: RawDoc[]; loadedAt: number } | null =
+  null;
 
 async function ensureCache() {
   if (!DEV && _cache) return _cache; // reuse in prod
@@ -242,15 +261,21 @@ export async function getAllInsights(params: GetAllInsightsParams = {}) {
   if (kind) filtered = filtered.filter((m) => m.kind === kind);
   if (country)
     filtered = filtered.filter((m) =>
-      (m.country ?? []).map((c: string) => c.toLowerCase()).includes(country.toLowerCase())
+      (m.country ?? [])
+        .map((c: string) => c.toLowerCase())
+        .includes(country.toLowerCase()),
     );
   if (program)
     filtered = filtered.filter((m) =>
-      (m.program ?? []).map((p: string) => p.toLowerCase()).includes(program.toLowerCase())
+      (m.program ?? [])
+        .map((p: string) => p.toLowerCase())
+        .includes(program.toLowerCase()),
     );
   if (tag)
     filtered = filtered.filter((m) =>
-      (m.tags ?? []).map((t: string) => t.toLowerCase()).includes(tag.toLowerCase())
+      (m.tags ?? [])
+        .map((t: string) => t.toLowerCase())
+        .includes(tag.toLowerCase()),
     );
 
   if (q) {
@@ -282,22 +307,24 @@ export async function getAllInsights(params: GetAllInsightsParams = {}) {
 
 export async function getInsightsFacets(): Promise<Facets> {
   const { metas } = await ensureCache();
-  const kinds: InsightKind[] = Array.from(new Set(metas.map((m) => m.kind))) as InsightKind[];
-  const countries = Array.from(new Set(metas.flatMap((m) => m.country ?? []))).sort((a, b) =>
-    a.localeCompare(b)
-  );
-  const programs = Array.from(new Set(metas.flatMap((m) => m.program ?? []))).sort((a, b) =>
-    a.localeCompare(b)
-  );
-  const tags = Array.from(new Set(metas.flatMap((m) => m.tags ?? []))).sort((a, b) =>
-    a.localeCompare(b)
+  const kinds: InsightKind[] = Array.from(
+    new Set(metas.map((m) => m.kind)),
+  ) as InsightKind[];
+  const countries = Array.from(
+    new Set(metas.flatMap((m) => m.country ?? [])),
+  ).sort((a, b) => a.localeCompare(b));
+  const programs = Array.from(
+    new Set(metas.flatMap((m) => m.program ?? [])),
+  ).sort((a, b) => a.localeCompare(b));
+  const tags = Array.from(new Set(metas.flatMap((m) => m.tags ?? []))).sort(
+    (a, b) => a.localeCompare(b),
   );
   return { kinds, countries, programs, tags };
 }
 
 export async function getInsightBySlug(
   kind: InsightKind,
-  slug: string
+  slug: string,
 ): Promise<InsightRecord | null> {
   const { raw } = await ensureCache();
   const entry = raw.find((r) => r.kind === kind && r.slug === slug);
@@ -338,19 +365,31 @@ export async function getInsightBySlug(
   return { ...meta, headings, content };
 }
 
-export async function getRelatedContent(current: InsightMeta, limit = 3): Promise<InsightMeta[]> {
+export async function getRelatedContent(
+  current: InsightMeta,
+  limit = 3,
+): Promise<InsightMeta[]> {
   const { metas } = await ensureCache();
-  const curTags = new Set((current.tags ?? []).map((t: string) => t.toLowerCase()));
-  const curCountries = new Set((current.country ?? []).map((c: string) => c.toLowerCase()));
-  const curPrograms = new Set((current.program ?? []).map((p: string) => p.toLowerCase()));
+  const curTags = new Set(
+    (current.tags ?? []).map((t: string) => t.toLowerCase()),
+  );
+  const curCountries = new Set(
+    (current.country ?? []).map((c: string) => c.toLowerCase()),
+  );
+  const curPrograms = new Set(
+    (current.program ?? []).map((p: string) => p.toLowerCase()),
+  );
 
   const scored = metas
     .filter((m) => m.url !== current.url)
     .map((m) => {
       let score = 0;
-      for (const t of m.tags ?? []) if (curTags.has(t.toLowerCase())) score += 2;
-      for (const c of m.country ?? []) if (curCountries.has(c.toLowerCase())) score += 1;
-      for (const p of m.program ?? []) if (curPrograms.has(p.toLowerCase())) score += 1;
+      for (const t of m.tags ?? [])
+        if (curTags.has(t.toLowerCase())) score += 2;
+      for (const c of m.country ?? [])
+        if (curCountries.has(c.toLowerCase())) score += 1;
+      for (const p of m.program ?? [])
+        if (curPrograms.has(p.toLowerCase())) score += 1;
       if (m.kind === current.kind) score += 1;
       return { m, score };
     })

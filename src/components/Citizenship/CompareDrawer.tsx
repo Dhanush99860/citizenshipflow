@@ -73,7 +73,10 @@ function SquareThumb({ item }: { item: CompareItem }) {
 }
 
 /* focus trap util */
-function useFocusTrap(enabled: boolean, containerRef: React.RefObject<HTMLElement | null>) {
+function useFocusTrap(
+  enabled: boolean,
+  containerRef: React.RefObject<HTMLElement | null>,
+) {
   React.useEffect(() => {
     if (!enabled) return;
     const el = containerRef.current;
@@ -81,9 +84,11 @@ function useFocusTrap(enabled: boolean, containerRef: React.RefObject<HTMLElemen
     const focusable = () =>
       Array.from(
         el.querySelectorAll<HTMLElement>(
-          'a[href], button, textarea, input, select, details,[tabindex]:not([tabindex="-1"])'
-        )
-      ).filter((n) => !n.hasAttribute("disabled") && !n.getAttribute("aria-hidden"));
+          'a[href], button, textarea, input, select, details,[tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter(
+        (n) => !n.hasAttribute("disabled") && !n.getAttribute("aria-hidden"),
+      );
     const firstFocus = () => focusable()[0];
     const lastFocus = () => {
       const list = focusable();
@@ -209,11 +214,18 @@ export default function CompareDrawer({
         aria-expanded={open}
         aria-controls={`${idBase}-drawer`}
       >
-        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          className="h-4 w-4"
+          fill="currentColor"
+          aria-hidden="true"
+        >
           <path d="M3 5.75A.75.75 0 0 1 3.75 5h16.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 5.75Zm0 6A.75.75 0 0 1 3.75 11h16.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 11.75Zm.75 5.25a.75.75 0 0 0 0 1.5h16.5a.75.75 0 0 0 0-1.5H3.75Z" />
         </svg>
         <span className="font-medium">Compare</span>
-        <span className="ml-1 rounded-full bg-white/20 px-2 py-0.5 text-xs">{items.length}</span>
+        <span className="ml-1 rounded-full bg-white/20 px-2 py-0.5 text-xs">
+          {items.length}
+        </span>
       </button>
 
       {/* ------------------------------ Drawer ------------------------------ */}
@@ -247,14 +259,22 @@ export default function CompareDrawer({
             {/* header */}
             <div className="flex items-center gap-3 border-b border-blue-100/80 dark:border-blue-900/40 px-5 py-4">
               <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white ring-1 ring-blue-700/20">
-                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-4 w-4"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
                   <path d="M3 5.75A.75.75 0 0 1 3.75 5h16.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 5.75Zm0 6A.75.75 0 0 1 3.75 11h16.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 11.75Zm.75 5.25a.75.75 0 0 0 0 1.5h16.5a.75.75 0 0 0 0-1.5H3.75Z" />
                 </svg>
               </div>
               <div className="min-w-0">
-                <h3 className="text-base font-semibold leading-tight">{title}</h3>
+                <h3 className="text-base font-semibold leading-tight">
+                  {title}
+                </h3>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                  Side-by-side overview of timelines, minimum investment, and tags.
+                  Side-by-side overview of timelines, minimum investment, and
+                  tags.
                 </p>
               </div>
               <button
@@ -263,7 +283,12 @@ export default function CompareDrawer({
                 className="ml-auto inline-flex items-center gap-2 rounded-xl bg-white/90 px-3 py-1.5 text-sm ring-1 ring-blue-200 hover:bg-blue-50 dark:bg-white/5 dark:ring-blue-900/40 dark:hover:bg-blue-950/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
               >
                 Close
-                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-4 w-4"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
                   <path d="M6.225 4.811a1 1 0 0 1 1.414 0L12 9.172l4.361-4.36a1 1 0 0 1 1.415 1.413L13.414 10.586l4.362 4.36a1 1 0 0 1-1.415 1.415L12 12l-4.361 4.361a1 1 0 0 1-1.414-1.415l4.36-4.36-4.36-4.362a1 1 0 0 1 0-1.414Z" />
                 </svg>
               </button>
@@ -280,12 +305,19 @@ export default function CompareDrawer({
                     itemScope
                     itemType="https://schema.org/Service"
                   >
-                    <meta itemProp="name" content={`${it.title} – ${it.country}`} />
+                    <meta
+                      itemProp="name"
+                      content={`${it.title} – ${it.country}`}
+                    />
                     <div className="flex items-center gap-3">
                       <SquareThumb item={it} />
                       <div className="min-w-0">
-                        <div className="text-sm font-medium truncate">{it.title}</div>
-                        <div className="text-xs text-zinc-600 dark:text-zinc-300 truncate">{it.country}</div>
+                        <div className="text-sm font-medium truncate">
+                          {it.title}
+                        </div>
+                        <div className="text-xs text-zinc-600 dark:text-zinc-300 truncate">
+                          {it.country}
+                        </div>
                         {!!it.tags?.length && (
                           <div className="mt-1 flex flex-wrap gap-1.5">
                             {it.tags.slice(0, 4).map((t) => (
@@ -305,7 +337,12 @@ export default function CompareDrawer({
                         aria-label={`View ${it.title}`}
                       >
                         View
-                        <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" aria-hidden="true">
+                        <svg
+                          viewBox="0 0 24 24"
+                          className="h-3.5 w-3.5"
+                          fill="currentColor"
+                          aria-hidden="true"
+                        >
                           <path d="M5 12.75h11.19l-3.72 3.72a.75.75 0 1 0 1.06 1.06l5.25-5.25a.75.75 0 0 0 0-1.06L13.53 5.97a.75.75 0 1 0-1.06 1.06l3.72 3.72H5a.75.75 0 0 0 0 1.5z" />
                         </svg>
                       </Link>
@@ -314,12 +351,18 @@ export default function CompareDrawer({
                       <div className="rounded-lg bg-white/90 dark:bg-white/5 px-2 py-1 ring-1 ring-blue-100/80 dark:ring-blue-900/40">
                         <dt className="text-zinc-500">Minimum investment</dt>
                         <dd className="tabular-nums">
-                          {typeof it.minInvestment === "number" ? toCurrency(it.minInvestment, it.currency ?? "USD") : "—"}
+                          {typeof it.minInvestment === "number"
+                            ? toCurrency(it.minInvestment, it.currency ?? "USD")
+                            : "—"}
                         </dd>
                       </div>
                       <div className="rounded-lg bg-white/90 dark:bg-white/5 px-2 py-1 ring-1 ring-blue-100/80 dark:ring-blue-900/40">
                         <dt className="text-zinc-500">Timeline</dt>
-                        <dd className="tabular-nums">{it.timelineMonths ? `${it.timelineMonths} mo` : "Varies"}</dd>
+                        <dd className="tabular-nums">
+                          {it.timelineMonths
+                            ? `${it.timelineMonths} mo`
+                            : "Varies"}
+                        </dd>
                       </div>
                     </dl>
                   </li>
@@ -332,20 +375,29 @@ export default function CompareDrawer({
                   <thead className="sticky top-0 bg-white/90 dark:bg-zinc-950/90 backdrop-blur ring-1 ring-blue-100/80 dark:ring-blue-900/40">
                     <tr className="text-left">
                       <th className="p-2 font-semibold">Program</th>
-                      <th className="p-2 text-right font-semibold">Min investment</th>
+                      <th className="p-2 text-right font-semibold">
+                        Min investment
+                      </th>
                       <th className="p-2 text-right font-semibold">Timeline</th>
                       <th className="p-2 text-right font-semibold">Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {items.map((it) => (
-                      <tr key={it.href} className="border-b border-blue-100/80 dark:border-blue-900/40">
+                      <tr
+                        key={it.href}
+                        className="border-b border-blue-100/80 dark:border-blue-900/40"
+                      >
                         <td className="p-2">
                           <div className="flex items-center gap-3">
                             <SquareThumb item={it} />
                             <div className="min-w-0">
-                              <div className="font-medium truncate">{it.title}</div>
-                              <div className="text-xs text-zinc-600 dark:text-zinc-300 truncate">{it.country}</div>
+                              <div className="font-medium truncate">
+                                {it.title}
+                              </div>
+                              <div className="text-xs text-zinc-600 dark:text-zinc-300 truncate">
+                                {it.country}
+                              </div>
                               {!!it.tags?.length && (
                                 <div className="mt-1 flex flex-wrap gap-1.5">
                                   {it.tags.slice(0, 4).map((t) => (
@@ -362,10 +414,14 @@ export default function CompareDrawer({
                           </div>
                         </td>
                         <td className="p-2 text-right tabular-nums">
-                          {typeof it.minInvestment === "number" ? toCurrency(it.minInvestment, it.currency ?? "USD") : "—"}
+                          {typeof it.minInvestment === "number"
+                            ? toCurrency(it.minInvestment, it.currency ?? "USD")
+                            : "—"}
                         </td>
                         <td className="p-2 text-right tabular-nums">
-                          {it.timelineMonths ? `${it.timelineMonths} mo` : "Varies"}
+                          {it.timelineMonths
+                            ? `${it.timelineMonths} mo`
+                            : "Varies"}
                         </td>
                         <td className="p-2 text-right">
                           <Link
@@ -374,7 +430,12 @@ export default function CompareDrawer({
                             aria-label={`View ${it.title}`}
                           >
                             View
-                            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" aria-hidden="true">
+                            <svg
+                              viewBox="0 0 24 24"
+                              className="h-3.5 w-3.5"
+                              fill="currentColor"
+                              aria-hidden="true"
+                            >
                               <path d="M5 12.75h11.19l-3.72 3.72a.75.75 0 1 0 1.06 1.06l5.25-5.25a.75.75 0 0 0 0-1.06L13.53 5.97a.75.75 0 1 0-1.06 1.06l3.72 3.72H5a.75.75 0 0 0 0 1.5z" />
                             </svg>
                           </Link>
@@ -388,7 +449,8 @@ export default function CompareDrawer({
 
             {/* footer (optional area for notes) */}
             <div className="border-t border-blue-100/80 dark:border-blue-900/40 px-5 py-3 text-xs text-zinc-600 dark:text-zinc-400">
-              Figures are indicative and subject to due diligence outcomes and government updates.
+              Figures are indicative and subject to due diligence outcomes and
+              government updates.
             </div>
           </div>
         </div>

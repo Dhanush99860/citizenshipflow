@@ -1,11 +1,11 @@
 // src/components/MDX/registry.tsx
-import type { MDXComponents } from 'mdx/types';
+import type { MDXComponents } from "mdx/types";
 
-import Section from '@/components/MDX/Section';
-import ContentImage from '@/components/MDX/ContentImage';
-import { Steps, Step } from '@/components/MDX/Steps';
-import Video from '@/components/MDX/Video';
-import FAQSection from '@/components/Insights/FAQSection';
+import Section from "@/components/MDX/Section";
+import ContentImage from "@/components/MDX/ContentImage";
+import { Steps, Step } from "@/components/MDX/Steps";
+import Video from "@/components/MDX/Video";
+import FAQSection from "@/components/Insights/FAQSection";
 
 const mdxComponents = {
   Section,

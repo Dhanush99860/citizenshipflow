@@ -66,10 +66,7 @@ export default function WhyCountrySection({
         {/* Slim brand accent line */}
         <span
           aria-hidden
-          className={[
-            "block h-1 w-16 rounded-full",
-            acc.topline,
-          ].join(" ")}
+          className={["block h-1 w-16 rounded-full", acc.topline].join(" ")}
         />
         <div className="mt-2">
           <SectionHeader
@@ -103,7 +100,10 @@ export default function WhyCountrySection({
                 <BulletIcon accent={acc} />
                 <div className="min-w-0">
                   <h3
-                    className={["font-medium text-neutral-900 dark:text-neutral-100", txtSize].join(" ")}
+                    className={[
+                      "font-medium text-neutral-900 dark:text-neutral-100",
+                      txtSize,
+                    ].join(" ")}
                     title={it.title}
                     itemProp="name"
                   >
@@ -151,7 +151,10 @@ export default function WhyCountrySection({
                     <BulletIcon accent={acc} />
                     <div className="min-w-0">
                       <h3
-                        className={["font-medium text-neutral-900 dark:text-neutral-100", txtSize].join(" ")}
+                        className={[
+                          "font-medium text-neutral-900 dark:text-neutral-100",
+                          txtSize,
+                        ].join(" ")}
                         title={it.title}
                         itemProp="name"
                       >
@@ -189,14 +192,8 @@ export default function WhyCountrySection({
 /* ---------- Decorative background (subtle, professional) ---------- */
 
 function DecorativeBackground({ tone }: { tone: "blue" | "green" }) {
-  const glowA =
-    tone === "blue"
-      ? "bg-sky-400/15"
-      : "bg-emerald-400/15";
-  const glowB =
-    tone === "blue"
-      ? "bg-blue-500/15"
-      : "bg-green-600/15";
+  const glowA = tone === "blue" ? "bg-sky-400/15" : "bg-emerald-400/15";
+  const glowB = tone === "blue" ? "bg-blue-500/15" : "bg-green-600/15";
   const gridColor =
     tone === "blue"
       ? "text-sky-700 dark:text-sky-300"
@@ -217,15 +214,35 @@ function DecorativeBackground({ tone }: { tone: "blue" | "green" }) {
         className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.06] dark:opacity-[0.08]"
       >
         <defs>
-          <pattern id="why-grid" width="24" height="24" patternUnits="userSpaceOnUse">
-            <path d="M24 0H0V24" fill="none" stroke="currentColor" strokeWidth="0.75" />
+          <pattern
+            id="why-grid"
+            width="24"
+            height="24"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M24 0H0V24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="0.75"
+            />
           </pattern>
           {/* minimal checkmark motif, very faint */}
           <symbol id="why-check" viewBox="0 0 24 24">
-            <path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" strokeWidth="2" />
+            <path
+              d="M4 12l5 5L20 6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
           </symbol>
         </defs>
-        <rect width="100%" height="100%" fill="url(#why-grid)" className={gridColor} />
+        <rect
+          width="100%"
+          height="100%"
+          fill="url(#why-grid)"
+          className={gridColor}
+        />
         <g className={gridColor} opacity="0.06">
           <use href="#why-check" x="48" y="36" />
           <use href="#why-check" x="280" y="100" />
@@ -277,7 +294,8 @@ function getAccent(a: "green" | "blue") {
     };
   }
   return {
-    topline: "bg-gradient-to-r from-emerald-500 via-emerald-300/40 to-emerald-500",
+    topline:
+      "bg-gradient-to-r from-emerald-500 via-emerald-300/40 to-emerald-500",
     iconBg: "bg-emerald-100/60 dark:bg-emerald-900/30",
     iconRing: "ring-1 ring-emerald-300/50 dark:ring-emerald-800/60",
     icon: "text-emerald-600 dark:text-emerald-400",
@@ -298,7 +316,7 @@ function slugify(s: string) {
 /** Build schema.org ItemList JSON-LD for SEO */
 function buildItemListLd(
   country: string,
-  items: Array<{ title: string; detail?: string }>
+  items: Array<{ title: string; detail?: string }>,
 ) {
   if (!items.length) return null;
   return {

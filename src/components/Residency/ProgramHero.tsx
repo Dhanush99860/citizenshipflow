@@ -21,7 +21,7 @@ const BLUR_SVG =
       <rect width='400' height='225' fill='#f3f4f6'/>
       <rect id='r' width='400' height='225' fill='url(#g)'/>
       <animate xlink:href='#r' attributeName='x' from='-400' to='400' dur='1.2s' repeatCount='indefinite' />
-    </svg>`
+    </svg>`,
   );
 
 function isHttp(p?: string) {
@@ -44,7 +44,7 @@ function getCountryPoster(countrySlug: string) {
 function useSrcFallback(srcs: (string | undefined)[]) {
   const candidates = useMemo(
     () => srcs.filter(Boolean).map((s) => normalizeAssetPath(s!)),
-    [srcs]
+    [srcs],
   );
   const [idx, setIdx] = useState(0);
   const src = candidates[idx] ?? "";
@@ -115,7 +115,7 @@ export default function ProgramHero({
   const derivedPoster = countrySlug ? getCountryPoster(countrySlug) : undefined;
 
   const finalDataUri = `data:image/svg+xml;utf8,${encodeURIComponent(
-    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'><rect width='1' height='1' fill=\"#f8fafc\"/></svg>"
+    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'><rect width='1' height='1' fill=\"#f8fafc\"/></svg>",
   )}`;
 
   const { src: imgSrc, onError: onImageError } = useSrcFallback([
@@ -203,7 +203,9 @@ export default function ProgramHero({
               {heroVideo ? (
                 <video
                   className="h-full w-full object-cover"
-                  poster={normalizeAssetPath(heroPoster || derivedPoster || "/og.jpg")}
+                  poster={normalizeAssetPath(
+                    heroPoster || derivedPoster || "/og.jpg",
+                  )}
                   controls
                   playsInline
                   muted={shouldAutoplay}

@@ -11,8 +11,8 @@ type Props = {
   visaFreeCount?: number;
   passportRank?: number;
   minInvestment?: number;
-  currency?: string;         // e.g. USD
-  timelineMonths?: number;   // typical processing
+  currency?: string; // e.g. USD
+  timelineMonths?: number; // typical processing
   tags?: string[];
   className?: string;
 };
@@ -54,7 +54,10 @@ export default function CountryCardPro({
   className = "",
 }: Props) {
   const price = fmtCurrency(minInvestment, currency);
-  const time  = typeof timelineMonths === "number" ? plural(timelineMonths, "mo") : "Varies";
+  const time =
+    typeof timelineMonths === "number"
+      ? plural(timelineMonths, "mo")
+      : "Varies";
   const normalized = ensureAbsolute(heroImage);
   const hId = React.useId();
   const dId = React.useId();
@@ -80,7 +83,12 @@ export default function CountryCardPro({
         <meta itemProp="name" content={title} />
         {summary ? <meta itemProp="description" content={summary} /> : null}
         {typeof minInvestment === "number" ? (
-          <div itemProp="offers" itemScope itemType="https://schema.org/Offer" className="hidden">
+          <div
+            itemProp="offers"
+            itemScope
+            itemType="https://schema.org/Offer"
+            className="hidden"
+          >
             <meta itemProp="priceCurrency" content={currency.toUpperCase()} />
             <meta itemProp="price" content={String(minInvestment)} />
             <link itemProp="availability" href="https://schema.org/InStock" />
@@ -104,7 +112,9 @@ export default function CountryCardPro({
             />
           ) : (
             <div className="h-full w-full bg-gradient-to-br from-neutral-200 to-neutral-100 dark:from-neutral-800 dark:to-neutral-700 grid place-items-center">
-              <span className="text-xs text-neutral-700/80 dark:text-neutral-200/80">{country || "Program"}</span>
+              <span className="text-xs text-neutral-700/80 dark:text-neutral-200/80">
+                {country || "Program"}
+              </span>
             </div>
           )}
 
@@ -115,7 +125,10 @@ export default function CountryCardPro({
               className="pointer-events-none absolute left-3 top-3 inline-flex items-center gap-1 rounded-md bg-white/85 px-2 py-1 text-[11px] font-medium text-neutral-900 ring-1 ring-neutral-200 backdrop-blur
                          dark:bg-neutral-900/70 dark:text-neutral-100 dark:ring-neutral-700"
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-blue-600" aria-hidden />
+              <span
+                className="h-1.5 w-1.5 rounded-full bg-blue-600"
+                aria-hidden
+              />
               {country}
             </span>
           ) : null}
@@ -123,11 +136,17 @@ export default function CountryCardPro({
 
         {/* ---------- Body ---------- */}
         <div className="p-4 sm:p-5">
-          <h3 id={hId} className="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+          <h3
+            id={hId}
+            className="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-100"
+          >
             {title}
           </h3>
           {summary ? (
-            <p id={dId} className="mt-1 text-sm text-neutral-700 dark:text-neutral-300 line-clamp-2">
+            <p
+              id={dId}
+              className="mt-1 text-sm text-neutral-700 dark:text-neutral-300 line-clamp-2"
+            >
               {summary}
             </p>
           ) : null}
@@ -135,24 +154,40 @@ export default function CountryCardPro({
           {/* Key metrics */}
           <div className="mt-3 grid grid-cols-2 gap-2 text-[13px]">
             <div className="rounded-xl p-2 bg-neutral-50 dark:bg-neutral-900 ring-1 ring-neutral-200 dark:ring-neutral-800">
-              <div className="font-medium text-neutral-900 dark:text-neutral-100">{price}</div>
-              <div className="text-[11px] text-neutral-600 dark:text-neutral-400">Min investment</div>
+              <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                {price}
+              </div>
+              <div className="text-[11px] text-neutral-600 dark:text-neutral-400">
+                Min investment
+              </div>
             </div>
             <div className="rounded-xl p-2 bg-neutral-50 dark:bg-neutral-900 ring-1 ring-neutral-200 dark:ring-neutral-800">
-              <div className="font-medium text-neutral-900 dark:text-neutral-100">{time}</div>
-              <div className="text-[11px] text-neutral-600 dark:text-neutral-400">Typical timeline</div>
+              <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                {time}
+              </div>
+              <div className="text-[11px] text-neutral-600 dark:text-neutral-400">
+                Typical timeline
+              </div>
             </div>
           </div>
 
-          {(passportRank || visaFreeCount) ? (
+          {passportRank || visaFreeCount ? (
             <div className="mt-2 grid grid-cols-2 gap-2 text-[13px]">
               <div className="rounded-xl p-2 ring-1 ring-neutral-200 dark:ring-neutral-800">
-                <div className="font-medium text-neutral-900 dark:text-neutral-100">{passportRank ?? "—"}</div>
-                <div className="text-[11px] text-neutral-600 dark:text-neutral-400">Passport rank</div>
+                <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                  {passportRank ?? "—"}
+                </div>
+                <div className="text-[11px] text-neutral-600 dark:text-neutral-400">
+                  Passport rank
+                </div>
               </div>
               <div className="rounded-xl p-2 ring-1 ring-neutral-200 dark:ring-neutral-800">
-                <div className="font-medium text-neutral-900 dark:text-neutral-100">{visaFreeCount ?? "—"}</div>
-                <div className="text-[11px] text-neutral-600 dark:text-neutral-400">Visa-free countries</div>
+                <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                  {visaFreeCount ?? "—"}
+                </div>
+                <div className="text-[11px] text-neutral-600 dark:text-neutral-400">
+                  Visa-free countries
+                </div>
               </div>
             </div>
           ) : null}
@@ -167,7 +202,10 @@ export default function CountryCardPro({
                              bg-white text-neutral-900 ring-1 ring-neutral-200
                              dark:bg-neutral-900 dark:text-neutral-100 dark:ring-neutral-700"
                 >
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-600" aria-hidden />
+                  <span
+                    className="h-1.5 w-1.5 rounded-full bg-blue-600"
+                    aria-hidden
+                  />
                   {t}
                 </span>
               ))}

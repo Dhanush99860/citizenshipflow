@@ -36,7 +36,9 @@ export default function GovernmentFees({
         maximumFractionDigits: hasDecimals ? 2 : 0,
       }).format(amt);
     } catch {
-      return hasDecimals ? `${amt.toFixed(2)} ${c}` : `${amt.toLocaleString()} ${c}`;
+      return hasDecimals
+        ? `${amt.toFixed(2)} ${c}`
+        : `${amt.toLocaleString()} ${c}`;
     }
   };
 
@@ -76,7 +78,8 @@ export default function GovernmentFees({
               key={currency}
               className="inline-flex items-center gap-1 rounded-full bg-indigo-50 text-indigo-900 dark:bg-indigo-900/30 dark:text-indigo-200 ring-1 ring-indigo-200/70 dark:ring-indigo-800/60 px-2.5 py-0.5 text-[12px] font-medium"
             >
-              Total ({currency}): <span className="tabular-nums">{fmt(total, currency)}</span>
+              Total ({currency}):{" "}
+              <span className="tabular-nums">{fmt(total, currency)}</span>
             </span>
           ))}
         </div>
@@ -104,7 +107,10 @@ export default function GovernmentFees({
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="text-sm font-medium break-words" title={row.label}>
+                <div
+                  className="text-sm font-medium break-words"
+                  title={row.label}
+                >
                   <span itemProp="name">{row.label}</span>
                 </div>
                 {row.notes ? (
@@ -118,7 +124,9 @@ export default function GovernmentFees({
               <div className="ml-2 shrink-0 text-[15px] font-semibold tabular-nums whitespace-nowrap">
                 {typeof row.amount === "number" ? (
                   <>
-                    <span itemProp="price">{fmt(row.amount, row.currency)}</span>
+                    <span itemProp="price">
+                      {fmt(row.amount, row.currency)}
+                    </span>
                     <meta
                       itemProp="priceCurrency"
                       content={(row.currency || defaultCurrency).toUpperCase()}
@@ -145,7 +153,9 @@ export default function GovernmentFees({
       >
         <div className="px-4 pt-4 sm:px-6 sm:pt-6 flex items-center gap-2">
           <Landmark className="h-4 w-4 opacity-80" aria-hidden />
-          <p className="text-sm font-medium">Official fees (payable to the government)</p>
+          <p className="text-sm font-medium">
+            Official fees (payable to the government)
+          </p>
         </div>
 
         <div className="px-4 sm:px-6 pb-4">
@@ -165,16 +175,23 @@ export default function GovernmentFees({
                   itemScope
                   itemType="https://schema.org/Offer"
                 >
-                  <td className="py-3 pr-4 font-medium align-top break-words" title={row.label}>
+                  <td
+                    className="py-3 pr-4 font-medium align-top break-words"
+                    title={row.label}
+                  >
                     <span itemProp="name">{row.label}</span>
                   </td>
                   <td className="py-3 pr-4 align-top tabular-nums whitespace-nowrap">
                     {typeof row.amount === "number" ? (
                       <>
-                        <span itemProp="price">{fmt(row.amount, row.currency)}</span>
+                        <span itemProp="price">
+                          {fmt(row.amount, row.currency)}
+                        </span>
                         <meta
                           itemProp="priceCurrency"
-                          content={(row.currency || defaultCurrency).toUpperCase()}
+                          content={(
+                            row.currency || defaultCurrency
+                          ).toUpperCase()}
                         />
                       </>
                     ) : (
@@ -192,8 +209,8 @@ export default function GovernmentFees({
           </table>
 
           <p className="mt-3 text-[12px] opacity-70">
-            Government fees are set by the issuing authority and may change without notice. We’ll
-            confirm current rates during onboarding.
+            Government fees are set by the issuing authority and may change
+            without notice. We’ll confirm current rates during onboarding.
           </p>
         </div>
       </div>

@@ -27,11 +27,10 @@ import MDXDetailsSection from "@/components/Residency/Country/MDXDetailsSection"
 import RelatedCountriesSection from "@/components/Residency/Country/RelatedCountriesSection";
 
 // Only include what you actually need. Examples:
-export const runtime = 'nodejs';          // or 'edge'
-export const dynamic = 'force-static';    // or 'force-dynamic'
-export const revalidate = 86400;          // 24h — must be a literal number
+export const runtime = "nodejs"; // or 'edge'
+export const dynamic = "force-static"; // or 'force-dynamic'
+export const revalidate = 86400; // 24h — must be a literal number
 // export const preferredRegion = ['iad1'];  // if you used it before
-
 
 /** SSG params */
 export async function generateStaticParams() {
@@ -40,14 +39,13 @@ export async function generateStaticParams() {
 }
 
 /** SEO */
-export async function generateMetadata(
-  props: {
-    params: Promise<{ country: string }>;
-  }
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ country: string }>;
+}): Promise<Metadata> {
   const params = await props.params;
   const all = await getSkilledCountrySlugs();
-  if (!all.includes(params.country)) return { title: "Skilled country not found" };
+  if (!all.includes(params.country))
+    return { title: "Skilled country not found" };
 
   const { meta } = await loadCountryPage(params.country);
 
@@ -77,11 +75,18 @@ export async function generateMetadata(
     description,
     keywords,
     alternates: { canonical },
-    openGraph: { title, description, url: canonical, images: [heroImage ?? "/og.jpg"] },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      images: [heroImage ?? "/og.jpg"],
+    },
   };
 }
 
-export default async function CountryPage(props: { params: Promise<{ country: string }> }) {
+export default async function CountryPage(props: {
+  params: Promise<{ country: string }>;
+}) {
   const params = await props.params;
   const slugs = await getSkilledCountrySlugs();
   if (!slugs.includes(params.country)) notFound();
@@ -89,7 +94,8 @@ export default async function CountryPage(props: { params: Promise<{ country: st
   const { meta, content } = await loadCountryPage(params.country);
   const programs = await getSkilledPrograms(params.country);
 
-  const countryName = (meta as any).country ?? (meta as any).name ?? params.country;
+  const countryName =
+    (meta as any).country ?? (meta as any).name ?? params.country;
 
   // ---- RANGES (same as residency) ----
   const minInvestments = programs
@@ -102,7 +108,7 @@ export default async function CountryPage(props: { params: Promise<{ country: st
   const minInvestmentRange =
     minInvestments.length && programs[0]?.currency
       ? `${Math.min(...minInvestments).toLocaleString()}–${Math.max(
-          ...minInvestments
+          ...minInvestments,
         ).toLocaleString()} ${programs[0].currency}`
       : "Varies";
 
@@ -111,8 +117,15 @@ export default async function CountryPage(props: { params: Promise<{ country: st
     : "Varies";
 
   // ---- OPTIONAL META FIELDS ----
-  const { overview, keyPoints, facts, applicationProcess, requirements, faq, introPoints } =
-    (meta as any) as Record<string, any>;
+  const {
+    overview,
+    keyPoints,
+    facts,
+    applicationProcess,
+    requirements,
+    faq,
+    introPoints,
+  } = meta as any as Record<string, any>;
 
   // ---- RELATED (match residency logic exactly) ----
   const related = getSkilledCountries()
@@ -130,7 +143,10 @@ export default async function CountryPage(props: { params: Promise<{ country: st
       <JsonLd
         data={breadcrumbLd([
           { name: "Skilled", url: baseFromCategory("skilled") },
-          { name: countryName, url: `${baseFromCategory("skilled")}/${params.country}` },
+          {
+            name: countryName,
+            url: `${baseFromCategory("skilled")}/${params.country}`,
+          },
         ])}
       />
 
@@ -141,7 +157,13 @@ export default async function CountryPage(props: { params: Promise<{ country: st
           videoSrc={videoSrc}
           poster={poster}
           imageSrc={heroImage}
-          actions={[{ href: "/PersonalBooking", label: "Book Consultation", variant: "primary" }]}
+          actions={[
+            {
+              href: "/PersonalBooking",
+              label: "Book Consultation",
+              variant: "primary",
+            },
+          ]}
         />
       </section>
 
@@ -164,7 +186,11 @@ export default async function CountryPage(props: { params: Promise<{ country: st
         </aside>
 
         <div className="md:col-span-8 space-y-8">
-          <AboutCountrySection country={countryName} overview={overview} facts={facts} />
+          <AboutCountrySection
+            country={countryName}
+            overview={overview}
+            facts={facts}
+          />
           <WhyCountrySection country={countryName} points={keyPoints} />
           <ProcessSteps steps={applicationProcess} />
           <EligibilityRequirements items={requirements} />

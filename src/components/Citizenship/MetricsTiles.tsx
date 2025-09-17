@@ -28,10 +28,26 @@ export default function MetricsTiles(props: Props) {
     "items" in props && props.items
       ? props.items
       : [
-          { label: "Minimum investment range", value: (props as any).minInvestmentRange ?? "Varies" },
-          { label: "Typical timeline", value: (props as any).timelineRange ?? "Varies" },
-          { label: "Visa-free countries", value: isNum((props as any).visaFreeCount) ? (props as any).visaFreeCount : "—" },
-          { label: "Passport rank", value: isNum((props as any).passportRank) ? (props as any).passportRank : "—" },
+          {
+            label: "Minimum investment range",
+            value: (props as any).minInvestmentRange ?? "Varies",
+          },
+          {
+            label: "Typical timeline",
+            value: (props as any).timelineRange ?? "Varies",
+          },
+          {
+            label: "Visa-free countries",
+            value: isNum((props as any).visaFreeCount)
+              ? (props as any).visaFreeCount
+              : "—",
+          },
+          {
+            label: "Passport rank",
+            value: isNum((props as any).passportRank)
+              ? (props as any).passportRank
+              : "—",
+          },
         ];
 
   if (!tiles.length) return null;
@@ -39,7 +55,10 @@ export default function MetricsTiles(props: Props) {
   return (
     <section
       aria-label="Key metrics"
-      className={["relative grid gap-3 sm:grid-cols-2 lg:grid-cols-4", className].join(" ")}
+      className={[
+        "relative grid gap-3 sm:grid-cols-2 lg:grid-cols-4",
+        className,
+      ].join(" ")}
     >
       {tiles.map((t, i) => {
         const accent = tokenFromLabel(t.label);
@@ -101,7 +120,9 @@ export default function MetricsTiles(props: Props) {
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(toItemListJsonLd(tiles)) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(toItemListJsonLd(tiles)),
+        }}
       />
     </section>
   );
@@ -165,16 +186,27 @@ function tokenFromLabel(label: string) {
 
 function iconForLabel(label: string) {
   const l = label.toLowerCase();
-  if (/\binvest|donation|amount|price|cost/.test(l)) return <BanknoteIcon className="h-4 w-4" />;
-  if (/\btimeline|time|month|processing/.test(l)) return <CalendarIcon className="h-4 w-4" />;
-  if (/\bvisa|travel|countries/.test(l)) return <GlobeIcon className="h-4 w-4" />;
-  if (/\bpassport|rank|strength/.test(l)) return <ShieldIcon className="h-4 w-4" />;
+  if (/\binvest|donation|amount|price|cost/.test(l))
+    return <BanknoteIcon className="h-4 w-4" />;
+  if (/\btimeline|time|month|processing/.test(l))
+    return <CalendarIcon className="h-4 w-4" />;
+  if (/\bvisa|travel|countries/.test(l))
+    return <GlobeIcon className="h-4 w-4" />;
+  if (/\bpassport|rank|strength/.test(l))
+    return <ShieldIcon className="h-4 w-4" />;
   return <InfoIcon className="h-4 w-4" />;
 }
 
 function BanknoteIcon({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden
+    >
       <rect x="3" y="6" width="18" height="12" rx="2" />
       <circle cx="12" cy="12" r="2.5" />
       <path d="M7 10h.01M17 14h.01" />
@@ -183,7 +215,14 @@ function BanknoteIcon({ className = "" }: { className?: string }) {
 }
 function CalendarIcon({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden
+    >
       <rect x="3" y="4" width="18" height="18" rx="2" />
       <path d="M16 2v4M8 2v4M3 10h18" />
     </svg>
@@ -191,7 +230,14 @@ function CalendarIcon({ className = "" }: { className?: string }) {
 }
 function GlobeIcon({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden
+    >
       <circle cx="12" cy="12" r="9" />
       <path d="M3 12h18M12 3v18M5 8c4 2 10 2 14 0M5 16c4-2 10-2 14 0" />
     </svg>
@@ -199,7 +245,14 @@ function GlobeIcon({ className = "" }: { className?: string }) {
 }
 function ShieldIcon({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden
+    >
       <path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3Z" />
       <path d="M9 12l2 2 4-4" />
     </svg>
@@ -207,7 +260,14 @@ function ShieldIcon({ className = "" }: { className?: string }) {
 }
 function InfoIcon({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 20 20" className={className} fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+    <svg
+      viewBox="0 0 20 20"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden
+    >
       <circle cx="10" cy="10" r="8" />
       <path d="M10 6h.01M9 9h2v5H9z" />
     </svg>

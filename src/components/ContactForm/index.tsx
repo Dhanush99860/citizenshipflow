@@ -45,10 +45,12 @@ export default function ContactForm({
 
   // helpers to read values
   const get = (name: string) =>
-    (formRef.current?.elements.namedItem(name) as
-      | HTMLInputElement
-      | HTMLTextAreaElement
-      | null)?.value || "";
+    (
+      formRef.current?.elements.namedItem(name) as
+        | HTMLInputElement
+        | HTMLTextAreaElement
+        | null
+    )?.value || "";
 
   // simple validators
   const vName = (s: string) => s.trim().length >= 2;
@@ -63,10 +65,12 @@ export default function ContactForm({
     const email = get("email");
     const message = get("message");
 
-    if (touched.name && !vName(name)) e.name = "Please enter at least 2 characters.";
+    if (touched.name && !vName(name))
+      e.name = "Please enter at least 2 characters.";
     if (touched.phone && !vPhone(phone))
       e.phone = "Enter a valid phone number (digits, +, -, () allowed).";
-    if (isFull && touched.email && !vEmail(email)) e.email = "Enter a valid email.";
+    if (isFull && touched.email && !vEmail(email))
+      e.email = "Enter a valid email.";
     if (isFull && touched.message && !vMsg(message))
       e.message = "Please add at least 10 characters.";
     return e;
@@ -112,7 +116,7 @@ export default function ContactForm({
       toast.success(
         isFull
           ? "Your message has been sent. We’ll be in touch soon."
-          : "Callback request received. We’ll call you shortly."
+          : "Callback request received. We’ll call you shortly.",
       );
       onSuccess?.();
       f.reset();
@@ -127,9 +131,7 @@ export default function ContactForm({
 
   const title =
     heading ??
-    (isFull
-      ? "Book a FREE consultation"
-      : "Request a quick callback");
+    (isFull ? "Book a FREE consultation" : "Request a quick callback");
   const desc =
     subheading ??
     (isFull
@@ -267,7 +269,13 @@ export default function ContactForm({
             ].join(" ")}
             aria-live="polite"
           >
-            {loading ? <Loader /> : isFull ? "Send message" : "Request callback"}
+            {loading ? (
+              <Loader />
+            ) : isFull ? (
+              "Send message"
+            ) : (
+              "Request callback"
+            )}
           </button>
           <p className="mt-2 text-[12px] text-neutral-600 dark:text-neutral-400">
             We respond within one business day. By submitting, you accept our{" "}
@@ -378,7 +386,9 @@ function Field({
         <p
           className={[
             "mt-1 text-[12px]",
-            invalid ? "text-red-600 dark:text-red-400" : "text-neutral-500 dark:text-neutral-400",
+            invalid
+              ? "text-red-600 dark:text-red-400"
+              : "text-neutral-500 dark:text-neutral-400",
           ].join(" ")}
           role={invalid ? "alert" : undefined}
         >
@@ -437,7 +447,9 @@ function Textarea({
           defaultValue={defaultValue}
           rows={rows}
           onBlur={onBlur}
-          onInput={(e) => onInput?.((e.target as HTMLTextAreaElement).value.length)}
+          onInput={(e) =>
+            onInput?.((e.target as HTMLTextAreaElement).value.length)
+          }
           className={[
             "peer w-full rounded-xl bg-white dark:bg-neutral-950",
             "ring-1 ring-neutral-300 dark:ring-neutral-700",
@@ -465,7 +477,9 @@ function Textarea({
         <p
           className={[
             "mt-1 text-[12px]",
-            invalid ? "text-red-600 dark:text-red-400" : "text-neutral-500 dark:text-neutral-400",
+            invalid
+              ? "text-red-600 dark:text-red-400"
+              : "text-neutral-500 dark:text-neutral-400",
           ].join(" ")}
           role={invalid ? "alert" : undefined}
         >
@@ -484,11 +498,26 @@ function CardBG() {
       <div className="absolute -bottom-10 -right-10 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
       <svg className="absolute inset-0 h-full w-full opacity-[0.04] dark:opacity-[0.07]">
         <defs>
-          <pattern id="grid-cf" width="24" height="24" patternUnits="userSpaceOnUse">
-            <path d="M24 0H0V24" fill="none" stroke="currentColor" strokeWidth="0.75" />
+          <pattern
+            id="grid-cf"
+            width="24"
+            height="24"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M24 0H0V24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="0.75"
+            />
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#grid-cf)" className="text-primary" />
+        <rect
+          width="100%"
+          height="100%"
+          fill="url(#grid-cf)"
+          className="text-primary"
+        />
       </svg>
     </div>
   );

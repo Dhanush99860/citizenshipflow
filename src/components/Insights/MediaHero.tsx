@@ -27,7 +27,9 @@ function MobileCTABar({ actions }: { actions: Action[] }) {
   if (!mounted) return null;
 
   // Prefer Brochure / Appointment / Consultation; fallback to first two
-  const preferred = actions.filter((a) => /broch|appoint|consult/i.test(a.label));
+  const preferred = actions.filter((a) =>
+    /broch|appoint|consult/i.test(a.label),
+  );
   const mobileActions = (preferred.length ? preferred : actions).slice(0, 2);
   if (mobileActions.length === 0) return null;
 
@@ -60,7 +62,7 @@ function MobileCTABar({ actions }: { actions: Action[] }) {
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }
 
@@ -142,13 +144,11 @@ export default function MediaHero({
       vid.loop = true;
       vid.playsInline = true;
       vid.autoplay = true;
-      vid
-        .play()
-        .catch(() => {
-          // If autoplay fails, just pause and show controls
-          setIsPlaying(false);
-          setShowControls(true);
-        });
+      vid.play().catch(() => {
+        // If autoplay fails, just pause and show controls
+        setIsPlaying(false);
+        setShowControls(true);
+      });
     }
 
     return () => {
@@ -211,7 +211,10 @@ export default function MediaHero({
   const seekBy = (delta: number) => {
     const vid = videoRef.current;
     if (!vid || !Number.isFinite(vid.duration)) return;
-    const next = Math.min(Math.max(0, (vid.currentTime || 0) + delta), vid.duration);
+    const next = Math.min(
+      Math.max(0, (vid.currentTime || 0) + delta),
+      vid.duration,
+    );
     vid.currentTime = next;
     setCurrent(next);
   };
@@ -226,8 +229,11 @@ export default function MediaHero({
   };
 
   const progress = useMemo(
-    () => (duration > 0 ? Math.min(1000, Math.round((current / duration) * 1000)) : 0),
-    [current, duration]
+    () =>
+      duration > 0
+        ? Math.min(1000, Math.round((current / duration) * 1000))
+        : 0,
+    [current, duration],
   );
 
   return (
@@ -262,7 +268,7 @@ export default function MediaHero({
             <div
               className={[
                 "pointer-events-none absolute inset-0 flex flex-col justify-end",
-                (showControls || !isPlaying) ? "opacity-100" : "opacity-0",
+                showControls || !isPlaying ? "opacity-100" : "opacity-0",
                 "transition-opacity duration-200",
               ].join(" ")}
             >
@@ -276,7 +282,13 @@ export default function MediaHero({
                   aria-label="Play video"
                   className="pointer-events-auto mx-auto mb-20 flex items-center justify-center h-16 w-16 rounded-full bg-white/95 text-black shadow-lg hover:scale-105 transition"
                 >
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden
+                  >
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 </button>
@@ -311,11 +323,23 @@ export default function MediaHero({
                     aria-label={isPlaying ? "Pause" : "Play"}
                   >
                     {isPlaying ? (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden
+                      >
                         <path d="M6 4h4v16H6zM14 4h4v16h-4z" />
                       </svg>
                     ) : (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden
+                      >
                         <path d="M8 5v14l11-7z" />
                       </svg>
                     )}
@@ -328,11 +352,23 @@ export default function MediaHero({
                     aria-label={isMuted ? "Unmute" : "Mute"}
                   >
                     {isMuted ? (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden
+                      >
                         <path d="M16.5 12a4.5 4.5 0 0 0-4.5-4.5v-3a7.5 7.5 0 0 1 7.5 7.5h-3zM3 9v6h4l5 5V4L7 9H3z" />
                       </svg>
                     ) : (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden
+                      >
                         <path d="M3 9v6h4l5 5V4L7 9H3z" />
                         <path d="M16.5 12a4.5 4.5 0 0 0-4.5-4.5v3a1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5v3a4.5 4.5 0 0 0 4.5-4.5z" />
                       </svg>
@@ -353,11 +389,23 @@ export default function MediaHero({
                     aria-label={isFs ? "Exit fullscreen" : "Enter fullscreen"}
                   >
                     {isFs ? (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden
+                      >
                         <path d="M14 10V4h6v2h-4v4h-2zm-4 4v6H4v-2h4v-4h2zm8 4h-4v2h6v-6h-2v4zM6 6h4V4H4v6h2V6z" />
                       </svg>
                     ) : (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        aria-hidden
+                      >
                         <path d="M14 4h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm12 6v-2h4v-4h2v6h-6zM4 10V4h6v2H6v4H4z" />
                       </svg>
                     )}

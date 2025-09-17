@@ -39,19 +39,23 @@ export const dynamicParams = true;
 export async function generateStaticParams() {
   const countries = getCitizenshipCountrySlugs();
   return countries.flatMap((c) =>
-    getCitizenshipPrograms(c).map((p) => ({ country: c, program: p.programSlug }))
+    getCitizenshipPrograms(c).map((p) => ({
+      country: c,
+      program: p.programSlug,
+    })),
   );
 }
 
 /** SEO metadata */
-export async function generateMetadata(
-  props: {
-    params: Promise<{ country: string; program: string }>;
-  }
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ country: string; program: string }>;
+}): Promise<Metadata> {
   const params = await props.params;
   try {
-    const { meta } = await loadProgramPageSections(params.country, params.program);
+    const { meta } = await loadProgramPageSections(
+      params.country,
+      params.program,
+    );
     const heroImage = (meta as any).heroImage as string | undefined;
     const title = (meta as any).seo?.title ?? meta.title;
     const description = (meta as any).seo?.description ?? (meta as any).tagline;
@@ -62,7 +66,9 @@ export async function generateMetadata(
       title,
       description,
       keywords,
-      alternates: { canonical: `/citizenship/${params.country}/${params.program}` },
+      alternates: {
+        canonical: `/citizenship/${params.country}/${params.program}`,
+      },
       openGraph: {
         title,
         description,
@@ -86,7 +92,7 @@ export async function generateMetadata(
 /** Similarity score for "Related" (tuned for citizenship) */
 function similarityScore(
   base: { title: string; tags?: string[] },
-  cand: { title: string; tags?: string[] }
+  cand: { title: string; tags?: string[] },
 ) {
   const baseTags = new Set((base.tags ?? []).map((t) => t.toLowerCase()));
   const candTags = new Set((cand.tags ?? []).map((t) => t.toLowerCase()));
@@ -96,23 +102,23 @@ function similarityScore(
   });
   const b = base.title.toLowerCase();
   const c = cand.title.toLowerCase();
-  ["citizenship", "investment", "naturalization", "golden", "visa"].forEach((k) => {
-    if (b.includes(k) && c.includes(k)) score += 1;
-  });
+  ["citizenship", "investment", "naturalization", "golden", "visa"].forEach(
+    (k) => {
+      if (b.includes(k) && c.includes(k)) score += 1;
+    },
+  );
   return score;
 }
 
 /** Page */
-export default async function ProgramPage(
-  props: {
-    params: Promise<{ country: string; program: string }>;
-  }
-) {
+export default async function ProgramPage(props: {
+  params: Promise<{ country: string; program: string }>;
+}) {
   const params = await props.params;
   try {
     const { meta, sections } = await loadProgramPageSections(
       params.country,
-      params.program
+      params.program,
     );
 
     const videoSrc = (meta as any).heroVideo as string | undefined;
@@ -125,7 +131,13 @@ export default async function ProgramPage(
     const processSteps: any[] = (meta as any).processSteps ?? [];
     const quickCheck = (meta as any).quickCheck as any | undefined; // from MDX
     const prices = (meta as any).prices as
-      | { label: string; amount?: number; currency?: string; when?: string; notes?: string }[]
+      | {
+          label: string;
+          amount?: number;
+          currency?: string;
+          when?: string;
+          notes?: string;
+        }[]
       | undefined;
     const proofOfFunds = (meta as any).proofOfFunds as
       | { label?: string; amount: number; currency?: string; notes?: string }[]
@@ -139,15 +151,25 @@ export default async function ProgramPage(
       | "bond"
       | "naturalisation"
       | undefined;
-    const holdingPeriodMonths = (meta as any).holdingPeriodMonths as number | undefined;
+    const holdingPeriodMonths = (meta as any).holdingPeriodMonths as
+      | number
+      | undefined;
     const governmentFees = (meta as any).governmentFees as
       | { label: string; amount?: number; currency?: string }[]
       | undefined;
     const projectList = (meta as any).projectList as
-      | { name: string; minBuyIn: number; holdMonths: number; notes?: string; image?: string }[]
+      | {
+          name: string;
+          minBuyIn: number;
+          holdMonths: number;
+          notes?: string;
+          image?: string;
+        }[]
       | undefined;
     const riskNotes = (meta as any).riskNotes as string[] | undefined;
-    const complianceNotes = (meta as any).complianceNotes as string[] | undefined;
+    const complianceNotes = (meta as any).complianceNotes as
+      | string[]
+      | undefined;
     const lastUpdated = (meta as any).lastUpdated as string | undefined;
 
     // Optional: document checklist + family matrix data (if present)
@@ -155,12 +177,17 @@ export default async function ProgramPage(
       | { group: string; documents: string[] }[]
       | undefined;
     const familyMatrix = (meta as any).familyMatrix as
-      | { childrenUpTo?: number; parentsFromAge?: number; siblings?: boolean; spouse?: boolean }
+      | {
+          childrenUpTo?: number;
+          parentsFromAge?: number;
+          siblings?: boolean;
+          spouse?: boolean;
+        }
       | undefined;
 
     /** Programs in same country */
     const otherPrograms = getCitizenshipPrograms(params.country).filter(
-      (p) => p.programSlug !== params.program
+      (p) => p.programSlug !== params.program,
     );
 
     /** RELATED (parallelized + capped) */
@@ -180,17 +207,18 @@ export default async function ProgramPage(
     for (const ctry of allCountrySlugs) {
       const progs = getCitizenshipPrograms(ctry);
       for (const p of progs) {
-        if (ctry === params.country && p.programSlug === params.program) continue;
+        if (ctry === params.country && p.programSlug === params.program)
+          continue;
         candidateTasks.push(
           (async () => {
             try {
               const { meta: candMeta } = await loadProgramPageSections(
                 ctry,
-                p.programSlug
+                p.programSlug,
               );
               const score = similarityScore(
                 { title: meta.title, tags: (meta as any).tags },
-                { title: candMeta.title, tags: (candMeta as any).tags }
+                { title: candMeta.title, tags: (candMeta as any).tags },
               );
               if (score <= 0) return null;
               return {
@@ -207,14 +235,14 @@ export default async function ProgramPage(
             } catch {
               return null;
             }
-          })()
+          })(),
         );
       }
     }
 
-    const relatedRaw = (await Promise.all(candidateTasks)).filter(Boolean) as NonNullable<
-      Awaited<(typeof candidateTasks)[number]>
-    >[];
+    const relatedRaw = (await Promise.all(candidateTasks)).filter(
+      Boolean,
+    ) as NonNullable<Awaited<(typeof candidateTasks)[number]>>[];
     const relatedPrograms = relatedRaw
       .sort((a, b) => {
         if (a.score !== b.score) return b.score - a.score;
@@ -236,7 +264,11 @@ export default async function ProgramPage(
       whyUs: "why-choose-us",
     } as const;
 
-    const hasSpecifics = !!(routeType || typeof holdingPeriodMonths === "number" || lastUpdated);
+    const hasSpecifics = !!(
+      routeType ||
+      typeof holdingPeriodMonths === "number" ||
+      lastUpdated
+    );
     const hasPrices = !!(prices?.length || proofOfFunds?.length);
     const hasGovFees = !!governmentFees?.length;
     const hasRequirements = !!(meta as any).requirements?.length;
@@ -255,22 +287,38 @@ export default async function ProgramPage(
 
     const sectionsForNav: { id: string; label: string }[] = [
       { id: "quick-facts", label: "Quick facts" },
-      ...(hasSpecifics ? [{ id: "specifics", label: "Program specifics" }] : []),
-      ...(sections[mdxKey.overview] ? [{ id: "overview", label: "Overview" }] : []),
-      ...(sections[mdxKey.investment] ? [{ id: "investment", label: "Investment" }] : []),
+      ...(hasSpecifics
+        ? [{ id: "specifics", label: "Program specifics" }]
+        : []),
+      ...(sections[mdxKey.overview]
+        ? [{ id: "overview", label: "Overview" }]
+        : []),
+      ...(sections[mdxKey.investment]
+        ? [{ id: "investment", label: "Investment" }]
+        : []),
       ...(hasPrices ? [{ id: "prices", label: "Costs & funds" }] : []),
       ...(hasGovFees ? [{ id: "gov-fees", label: "Government fees" }] : []),
-      ...(hasRequirements ? [{ id: "requirements", label: "Eligibility" }] : []),
+      ...(hasRequirements
+        ? [{ id: "requirements", label: "Eligibility" }]
+        : []),
       ...(hasBenefits ? [{ id: "benefits", label: "Benefits" }] : []),
       ...(hasDocs ? [{ id: "documents", label: "Documents" }] : []),
       ...(hasDeps ? [{ id: "dependents", label: "Dependents" }] : []),
       ...(hasProcess ? [{ id: "process", label: "Process" }] : []),
-      ...(hasCompliance ? [{ id: "compliance", label: "Risk & compliance" }] : []),
+      ...(hasCompliance
+        ? [{ id: "compliance", label: "Risk & compliance" }]
+        : []),
       ...(hasComparison ? [{ id: "comparison", label: "Comparison" }] : []),
-      ...(hasWhyCountry ? [{ id: "why-country", label: `Why ${meta.country}` }] : []),
+      ...(hasWhyCountry
+        ? [{ id: "why-country", label: `Why ${meta.country}` }]
+        : []),
       ...(hasProjects ? [{ id: "projects", label: "Approved projects" }] : []),
-      ...(hasEstimator ? [{ id: "cost-estimator", label: "Cost estimator" }] : []),
-      ...(disqualifiers.length ? [{ id: "not-a-fit", label: "Not a fit?" }] : []),
+      ...(hasEstimator
+        ? [{ id: "cost-estimator", label: "Cost estimator" }]
+        : []),
+      ...(disqualifiers.length
+        ? [{ id: "not-a-fit", label: "Not a fit?" }]
+        : []),
       ...(hasFAQ ? [{ id: "faq", label: "FAQ" }] : []),
       ...(hasOther ? [{ id: "other-programs", label: "Other programs" }] : []),
       ...(hasRelated ? [{ id: "related", label: "Related" }] : []),
@@ -284,7 +332,8 @@ export default async function ProgramPage(
             "@context": "https://schema.org",
             "@type": "HowTo",
             name: `${meta.title} Application Process`,
-            description: (meta as any).seo?.description ?? (meta as any).tagline,
+            description:
+              (meta as any).seo?.description ?? (meta as any).tagline,
             step: processSteps.map((step: any, index: number) => ({
               "@type": "HowToStep",
               position: index + 1,
@@ -335,11 +384,18 @@ export default async function ProgramPage(
           data={breadcrumbLd([
             { name: "Citizenship", url: "/citizenship" },
             { name: meta.country, url: `/citizenship/${params.country}` },
-            { name: meta.title, url: `/citizenship/${params.country}/${params.program}` },
+            {
+              name: meta.title,
+              url: `/citizenship/${params.country}/${params.program}`,
+            },
           ])}
         />
-        {(meta as any).faq?.length ? <JsonLd data={faqLd((meta as any).faq)!} /> : null}
-        {howToLdData ? <JsonLd data={{ ...howToLdData, "@id": "#application-howto" }} /> : null}
+        {(meta as any).faq?.length ? (
+          <JsonLd data={faqLd((meta as any).faq)!} />
+        ) : null}
+        {howToLdData ? (
+          <JsonLd data={{ ...howToLdData, "@id": "#application-howto" }} />
+        ) : null}
         <JsonLd data={webPageLd} />
         {offerLd ? <JsonLd data={offerLd} /> : null}
         {/* HERO */}
@@ -352,8 +408,17 @@ export default async function ProgramPage(
               poster={poster}
               imageSrc={heroImage}
               actions={[
-                { href: "/PersonalBooking", label: "Book a Free Consultation", variant: "primary" },
-                { href: brochure, label: "Download Brochure", variant: "ghost", download: true },
+                {
+                  href: "/PersonalBooking",
+                  label: "Book a Free Consultation",
+                  variant: "primary",
+                },
+                {
+                  href: brochure,
+                  label: "Download Brochure",
+                  variant: "ghost",
+                  download: true,
+                },
               ]}
             />
           </div>
@@ -377,13 +442,20 @@ export default async function ProgramPage(
 
             {/* Program specifics (improved) */}
             {hasSpecifics ? (
-              <section id="specifics" className="scroll-mt-28" aria-labelledby="specifics-heading">
+              <section
+                id="specifics"
+                className="scroll-mt-28"
+                aria-labelledby="specifics-heading"
+              >
                 {/* Eyebrow + Title */}
                 <div className="mb-2 flex items-center gap-2">
                   <span className="inline-flex items-center rounded-md bg-sky-600/10 px-2 py-1 text-xs font-semibold text-sky-700 dark:text-sky-300">
                     Program
                   </span>
-                  <h2 id="specifics-heading" className="text-sm font-semibold opacity-80">
+                  <h2
+                    id="specifics-heading"
+                    className="text-sm font-semibold opacity-80"
+                  >
                     Program specifics
                   </h2>
                 </div>
@@ -401,8 +473,14 @@ export default async function ProgramPage(
                   aria-label="Key program parameters"
                 >
                   {/* subtle “passport” glow accents */}
-                  <span aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full bg-sky-500/5 blur-2xl" />
-                  <span aria-hidden className="pointer-events-none absolute -left-10 -bottom-12 h-40 w-40 rounded-full bg-indigo-500/5 blur-2xl" />
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full bg-sky-500/5 blur-2xl"
+                  />
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute -left-10 -bottom-12 h-40 w-40 rounded-full bg-indigo-500/5 blur-2xl"
+                  />
 
                   <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
                     {/* Route type */}
@@ -410,7 +488,10 @@ export default async function ProgramPage(
                       <dl className="grid gap-1.5">
                         <dt className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
                           <span className="inline-grid h-6 w-6 place-items-center rounded-md bg-white ring-1 ring-neutral-200 dark:bg-white/10 dark:ring-neutral-700">
-                            <FileSignature className="h-4 w-4 text-sky-700 dark:text-sky-300" aria-hidden />
+                            <FileSignature
+                              className="h-4 w-4 text-sky-700 dark:text-sky-300"
+                              aria-hidden
+                            />
                           </span>
                           Route type
                         </dt>
@@ -428,13 +509,19 @@ export default async function ProgramPage(
                       <dl className="grid gap-1.5 sm:border-l sm:border-neutral-200/70 sm:dark:border-neutral-800/70 sm:pl-4">
                         <dt className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
                           <span className="inline-grid h-6 w-6 place-items-center rounded-md bg-white ring-1 ring-neutral-200 dark:bg-white/10 dark:ring-neutral-700">
-                            <Hourglass className="h-4 w-4 text-emerald-700 dark:text-emerald-300" aria-hidden />
+                            <Hourglass
+                              className="h-4 w-4 text-emerald-700 dark:text-emerald-300"
+                              aria-hidden
+                            />
                           </span>
                           Holding period
                         </dt>
                         <dd className="text-[15px] sm:text-base font-semibold leading-6">
-                          <time dateTime={toISOMonthDuration(holdingPeriodMonths)}>
-                            {holdingPeriodMonths} {holdingPeriodMonths === 1 ? "month" : "months"}
+                          <time
+                            dateTime={toISOMonthDuration(holdingPeriodMonths)}
+                          >
+                            {holdingPeriodMonths}{" "}
+                            {holdingPeriodMonths === 1 ? "month" : "months"}
                           </time>
                           {holdingPeriodMonths >= 12 ? (
                             <span className="ml-2 text-sm font-normal opacity-80">
@@ -442,7 +529,9 @@ export default async function ProgramPage(
                             </span>
                           ) : null}
                         </dd>
-                        <dd className="text-xs opacity-70">Minimum asset retention</dd>
+                        <dd className="text-xs opacity-70">
+                          Minimum asset retention
+                        </dd>
                       </dl>
                     ) : null}
 
@@ -451,23 +540,32 @@ export default async function ProgramPage(
                       <dl className="grid gap-1.5 sm:border-l sm:border-neutral-200/70 sm:dark:border-neutral-800/70 sm:pl-4">
                         <dt className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
                           <span className="inline-grid h-6 w-6 place-items-center rounded-md bg-white ring-1 ring-neutral-200 dark:bg-white/10 dark:ring-neutral-700">
-                            <CalendarClock className="h-4 w-4 text-indigo-700 dark:text-indigo-300" aria-hidden />
+                            <CalendarClock
+                              className="h-4 w-4 text-indigo-700 dark:text-indigo-300"
+                              aria-hidden
+                            />
                           </span>
                           Last updated
                         </dt>
                         <dd className="text-[15px] sm:text-base font-semibold leading-6">
-                          <time dateTime={toISO(lastUpdated)} title={toISO(lastUpdated)}>
+                          <time
+                            dateTime={toISO(lastUpdated)}
+                            title={toISO(lastUpdated)}
+                          >
                             {toNiceDate(lastUpdated)}
                           </time>
                         </dd>
-                        <dd className="text-xs opacity-70">Subject to regulatory change</dd>
+                        <dd className="text-xs opacity-70">
+                          Subject to regulatory change
+                        </dd>
                       </dl>
                     ) : null}
                   </div>
 
                   {/* tiny disclaimer only when we show any data */}
                   <p className="mt-3 text-[11px] text-neutral-500 dark:text-neutral-400">
-                    Information is indicative and may change; confirm current terms with an advisor.
+                    Information is indicative and may change; confirm current
+                    terms with an advisor.
                   </p>
                 </div>
               </section>
@@ -507,10 +605,16 @@ export default async function ProgramPage(
             {hasPrices ? (
               <section id="prices" className="scroll-mt-28 overflow-visible">
                 <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Costs & proof of funds</h2>
+                  <h2 className="text-xl font-semibold">
+                    Costs & proof of funds
+                  </h2>
                 </header>
                 <div className="w-full overflow-visible">
-                  <Prices items={prices ?? []} proofOfFunds={proofOfFunds ?? []} defaultCurrency={(meta as any).currency} />
+                  <Prices
+                    items={prices ?? []}
+                    proofOfFunds={proofOfFunds ?? []}
+                    defaultCurrency={(meta as any).currency}
+                  />
                 </div>
               </section>
             ) : null}
@@ -523,7 +627,7 @@ export default async function ProgramPage(
             ) : null}
 
             {/* === Eligibility + Benefits (one row on desktop, separate anchors kept) === */}
-            {(hasRequirements || hasBenefits) ? (
+            {hasRequirements || hasBenefits ? (
               <div className="grid gap-6 lg:grid-cols-2">
                 {hasRequirements ? (
                   <section
@@ -532,10 +636,17 @@ export default async function ProgramPage(
                     className="scroll-mt-28 rounded-2xl bg-sky-50 dark:bg-sky-950/30 ring-1 ring-sky-200/60 dark:ring-sky-900/50 p-6"
                   >
                     <header className="mb-3">
-                      <h2 id="eligibility-title" className="text-xl font-semibold">Eligibility</h2>
+                      <h2
+                        id="eligibility-title"
+                        className="text-xl font-semibold"
+                      >
+                        Eligibility
+                      </h2>
                     </header>
                     <ul className="list-disc pl-5 space-y-2 text-[15px] leading-7">
-                      {(meta as any).requirements.map((r: string) => <li key={r}>{r}</li>)}
+                      {(meta as any).requirements.map((r: string) => (
+                        <li key={r}>{r}</li>
+                      ))}
                     </ul>
                   </section>
                 ) : null}
@@ -547,10 +658,14 @@ export default async function ProgramPage(
                     className="scroll-mt-28 rounded-2xl bg-emerald-50 dark:bg-emerald-950/25 ring-1 ring-emerald-200/60 dark:ring-emerald-900/40 p-6"
                   >
                     <header className="mb-3">
-                      <h2 id="benefits-title" className="text-xl font-semibold">Key benefits</h2>
+                      <h2 id="benefits-title" className="text-xl font-semibold">
+                        Key benefits
+                      </h2>
                     </header>
                     <ul className="list-disc pl-5 space-y-2 text-[15px] leading-7">
-                      {(meta as any).benefits.map((b: string) => <li key={b}>{b}</li>)}
+                      {(meta as any).benefits.map((b: string) => (
+                        <li key={b}>{b}</li>
+                      ))}
                     </ul>
                   </section>
                 ) : null}
@@ -560,7 +675,10 @@ export default async function ProgramPage(
             {/* Optional: Document checklist & Dependents */}
             {documentChecklist?.length ? (
               <section id="documents" className="scroll-mt-28">
-                <DocumentChecklist groups={documentChecklist} note="Documents vary by family profile; we’ll tailor your list." />
+                <DocumentChecklist
+                  groups={documentChecklist}
+                  note="Documents vary by family profile; we’ll tailor your list."
+                />
               </section>
             ) : null}
             {familyMatrix ? (
@@ -582,7 +700,10 @@ export default async function ProgramPage(
             {/* Risk & Compliance */}
             {hasCompliance ? (
               <section id="compliance" className="scroll-mt-28">
-                <RiskCompliance riskNotes={riskNotes ?? []} complianceNotes={complianceNotes ?? []} />
+                <RiskCompliance
+                  riskNotes={riskNotes ?? []}
+                  complianceNotes={complianceNotes ?? []}
+                />
               </section>
             ) : null}
 
@@ -611,18 +732,30 @@ export default async function ProgramPage(
               <section id="projects" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">Approved projects</h2>
-                  <p className="text-sm opacity-80">Government-approved developments vetted for eligibility and exit horizons.</p>
+                  <p className="text-sm opacity-80">
+                    Government-approved developments vetted for eligibility and
+                    exit horizons.
+                  </p>
                 </header>
                 <ul className="grid gap-4 sm:grid-cols-2">
                   {projectList!.map((p) => (
-                    <li key={p.name} className="overflow-hidden rounded-2xl ring-1 ring-neutral-200/80 dark:ring-neutral-800/80 bg-white/80 dark:bg-neutral-900/40">
+                    <li
+                      key={p.name}
+                      className="overflow-hidden rounded-2xl ring-1 ring-neutral-200/80 dark:ring-neutral-800/80 bg-white/80 dark:bg-neutral-900/40"
+                    >
                       <div className="relative aspect-[16/9] overflow-hidden">
                         {p.image ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          (<img src={p.image} alt="" className="h-full w-full object-cover" />)
+                          <img
+                            src={p.image}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
                         ) : (
                           <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-100 dark:from-neutral-800 dark:to-neutral-700 grid place-items-center">
-                            <span className="text-xs opacity-70">{meta.country}</span>
+                            <span className="text-xs opacity-70">
+                              {meta.country}
+                            </span>
                           </div>
                         )}
                       </div>
@@ -630,25 +763,39 @@ export default async function ProgramPage(
                         <h3 className="text-base font-semibold">{p.name}</h3>
                         <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
                           <div className="rounded-lg bg-black/5 dark:bg-white/10 ring-1 ring-neutral-200 dark:ring-neutral-700 p-2">
-                            <div className="opacity-70 text-[11px]">Min buy-in</div>
+                            <div className="opacity-70 text-[11px]">
+                              Min buy-in
+                            </div>
                             <div className="font-medium tabular-nums">
-                              {typeof p.minBuyIn === "number" ? p.minBuyIn.toLocaleString() : "—"} {(meta as any).currency || ""}
+                              {typeof p.minBuyIn === "number"
+                                ? p.minBuyIn.toLocaleString()
+                                : "—"}{" "}
+                              {(meta as any).currency || ""}
                             </div>
                           </div>
                           <div className="rounded-lg bg-black/5 dark:bg-white/10 ring-1 ring-neutral-200 dark:ring-neutral-700 p-2">
-                            <div className="opacity-70 text-[11px]">Hold period</div>
+                            <div className="opacity-70 text-[11px]">
+                              Hold period
+                            </div>
                             <div className="font-medium tabular-nums">
-                              {typeof p.holdMonths === "number" ? `${p.holdMonths} mo` : "—"}
+                              {typeof p.holdMonths === "number"
+                                ? `${p.holdMonths} mo`
+                                : "—"}
                             </div>
                           </div>
                         </div>
-                        {p.notes ? <p className="mt-2 text-sm opacity-80">{p.notes}</p> : null}
+                        {p.notes ? (
+                          <p className="mt-2 text-sm opacity-80">{p.notes}</p>
+                        ) : null}
                       </div>
                     </li>
                   ))}
                 </ul>
                 <div className="mt-4">
-                  <a href="/PersonalBooking" className="inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700">
+                  <a
+                    href="/PersonalBooking"
+                    className="inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
+                  >
                     Discuss vetted projects
                   </a>
                 </div>
@@ -674,18 +821,29 @@ export default async function ProgramPage(
 
             {/* NOT A FIT? */}
             {disqualifiers.length ? (
-              <section id="not-a-fit" className="scroll-mt-28 rounded-2xl bg-amber-50 dark:bg-amber-950/20 ring-1 ring-amber-200/60 dark:ring-amber-900/40 p-6">
+              <section
+                id="not-a-fit"
+                className="scroll-mt-28 rounded-2xl bg-amber-50 dark:bg-amber-950/20 ring-1 ring-amber-200/60 dark:ring-amber-900/40 p-6"
+              >
                 <header className="mb-2">
-                  <h2 className="text-lg font-semibold text-amber-900 dark:text-amber-300">Who this program is NOT for</h2>
+                  <h2 className="text-lg font-semibold text-amber-900 dark:text-amber-300">
+                    Who this program is NOT for
+                  </h2>
                 </header>
                 <ul className="list-disc pl-5 text-[15px] leading-7 text-amber-900/90 dark:text-amber-100/90">
-                  {disqualifiers.map((d) => <li key={d}>{d}</li>)}
+                  {disqualifiers.map((d) => (
+                    <li key={d}>{d}</li>
+                  ))}
                 </ul>
                 <p className="mt-3 text-[14px]">
                   Not a match? Explore{" "}
-                  <Link href={`/citizenship/${params.country}`} className="underline">
+                  <Link
+                    href={`/citizenship/${params.country}`}
+                    className="underline"
+                  >
                     other programs in {meta.country}
-                  </Link>.
+                  </Link>
+                  .
                 </p>
               </section>
             ) : null}
@@ -694,7 +852,9 @@ export default async function ProgramPage(
             {hasFAQ ? (
               <section id="faq" className="scroll-mt-28">
                 <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Frequently asked questions</h2>
+                  <h2 className="text-xl font-semibold">
+                    Frequently asked questions
+                  </h2>
                 </header>
                 <FAQAccordion faqs={(meta as any).faq} />
               </section>
@@ -707,7 +867,9 @@ export default async function ProgramPage(
                   <span className="inline-flex items-center rounded-md bg-slate-600/10 px-2 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Explore
                   </span>
-                  <h2 className="text-xl font-semibold">Other programs in {meta.country}</h2>
+                  <h2 className="text-xl font-semibold">
+                    Other programs in {meta.country}
+                  </h2>
                 </header>
                 <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {otherPrograms.map((prog) => (
@@ -719,11 +881,26 @@ export default async function ProgramPage(
                       >
                         <div className="flex items-center justify-between gap-3">
                           <div>
-                            <h3 className="text-base font-semibold leading-6">{prog.title}</h3>
-                            <p className="mt-0.5 text-xs opacity-70">{meta.country} · same country</p>
+                            <h3 className="text-base font-semibold leading-6">
+                              {prog.title}
+                            </h3>
+                            <p className="mt-0.5 text-xs opacity-70">
+                              {meta.country} · same country
+                            </p>
                           </div>
-                          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full ring-1 ring-neutral-200 dark:ring-neutral-700 bg-black/5 dark:bg-white/10 transition group-hover:bg-black/10 group-hover:dark:bg-white/15" aria-hidden>
-                            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <span
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-full ring-1 ring-neutral-200 dark:ring-neutral-700 bg-black/5 dark:bg-white/10 transition group-hover:bg-black/10 group-hover:dark:bg-white/15"
+                            aria-hidden
+                          >
+                            <svg
+                              viewBox="0 0 24 24"
+                              className="h-4 w-4"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
                               <path d="M5 12h14M13 5l7 7-7 7" />
                             </svg>
                           </span>
@@ -742,13 +919,20 @@ export default async function ProgramPage(
                   <span className="inline-flex items-center rounded-md bg-indigo-600/10 px-2 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
                     Related
                   </span>
-                  <h2 className="text-xl font-semibold">Programs similar to {meta.title}</h2>
+                  <h2 className="text-xl font-semibold">
+                    Programs similar to {meta.title}
+                  </h2>
                 </header>
                 <ul className="grid gap-5 sm:grid-cols-2">
                   {relatedPrograms.map((r) => {
                     const hasImg = !!r.heroImage;
-                    const price = typeof r.minInvestment === "number" ? `${r.currency ?? ""} ${r.minInvestment.toLocaleString()}` : "No minimum";
-                    const time = r.timelineMonths ? `${r.timelineMonths} mo` : "Varies";
+                    const price =
+                      typeof r.minInvestment === "number"
+                        ? `${r.currency ?? ""} ${r.minInvestment.toLocaleString()}`
+                        : "No minimum";
+                    const time = r.timelineMonths
+                      ? `${r.timelineMonths} mo`
+                      : "Varies";
                     return (
                       <li key={r.url}>
                         <Link
@@ -759,10 +943,16 @@ export default async function ProgramPage(
                           <div className="relative aspect-[16/9] overflow-hidden">
                             {hasImg ? (
                               // eslint-disable-next-line @next/next/no-img-element
-                              (<img src={r.heroImage!} alt="" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />)
+                              <img
+                                src={r.heroImage!}
+                                alt=""
+                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                              />
                             ) : (
                               <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-100 dark:from-neutral-800 dark:to-neutral-700 grid place-items-center">
-                                <span className="text-xs opacity-70">{r.country}</span>
+                                <span className="text-xs opacity-70">
+                                  {r.country}
+                                </span>
                               </div>
                             )}
                             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -770,13 +960,20 @@ export default async function ProgramPage(
                           <div className="p-4 sm:p-5">
                             <div className="flex items-start justify-between gap-3">
                               <div>
-                                <h3 className="text-base font-semibold leading-6">{r.title}</h3>
-                                <p className="mt-0.5 text-xs opacity-70">{r.country}</p>
+                                <h3 className="text-base font-semibold leading-6">
+                                  {r.title}
+                                </h3>
+                                <p className="mt-0.5 text-xs opacity-70">
+                                  {r.country}
+                                </p>
                               </div>
                               {!!r.tags?.length && (
                                 <div className="hidden md:flex flex-wrap gap-1 max-w-[220px] justify-end">
                                   {r.tags.slice(0, 3).map((t) => (
-                                    <span key={t} className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] opacity-80 ring-1 ring-neutral-200 dark:ring-neutral-700">
+                                    <span
+                                      key={t}
+                                      className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] opacity-80 ring-1 ring-neutral-200 dark:ring-neutral-700"
+                                    >
                                       {t}
                                     </span>
                                   ))}
@@ -785,12 +982,18 @@ export default async function ProgramPage(
                             </div>
                             <div className="mt-3 grid grid-cols-2 gap-2 text-[13px]">
                               <div className="rounded-xl p-2 bg-black/5 dark:bg-white/10 ring-1 ring-neutral-200 dark:ring-neutral-700">
-                                <div className="font-medium tabular-nums">{price}</div>
-                                <div className="text-[11px] opacity-70">Minimum investment</div>
+                                <div className="font-medium tabular-nums">
+                                  {price}
+                                </div>
+                                <div className="text-[11px] opacity-70">
+                                  Minimum investment
+                                </div>
                               </div>
                               <div className="rounded-xl p-2 bg-black/5 dark:bg-white/10 ring-1 ring-neutral-200 dark:ring-neutral-700">
                                 <div className="font-medium">{time}</div>
-                                <div className="text-[11px] opacity-70">Timeline</div>
+                                <div className="text-[11px] opacity-70">
+                                  Timeline
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -825,8 +1028,14 @@ export default async function ProgramPage(
 
             <div className="hidden lg:block rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 ring-1 ring-neutral-200/70 dark:ring-neutral-800/70 p-6">
               <h3 className="text-base font-semibold">Brochure</h3>
-              <p className="text-sm opacity-80 mt-1">Full details, requirements, and timelines.</p>
-              <a href={brochure} download className="mt-4 inline-flex rounded-xl ring-1 ring-neutral-300 dark:ring-neutral-700 px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800">
+              <p className="text-sm opacity-80 mt-1">
+                Full details, requirements, and timelines.
+              </p>
+              <a
+                href={brochure}
+                download
+                className="mt-4 inline-flex rounded-xl ring-1 ring-neutral-300 dark:ring-neutral-700 px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              >
                 Download PDF
               </a>
             </div>
@@ -838,7 +1047,6 @@ export default async function ProgramPage(
         </div>
         {/* Sticky inquiry dock for mobile/desktop */}
         <StickyInquiryDock brochureUrl={brochure} />
-        
       </main>
     );
   } catch (e) {
@@ -865,7 +1073,11 @@ function toNiceDate(d: string) {
   const date = new Date(d);
   return isNaN(date.getTime())
     ? d
-    : new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "numeric" }).format(date);
+    : new Intl.DateTimeFormat(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }).format(date);
 }
 function prettyRouteType(rt: string) {
   return rt.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());

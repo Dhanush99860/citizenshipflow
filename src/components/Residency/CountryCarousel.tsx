@@ -92,11 +92,9 @@ export default function CountryCarousel({
   const railRef = useRef<HTMLDivElement>(null);
 
   // Normalize both shapes into one list the card can render
-  const list = (
-    (countries && countries.filter(Boolean)) ||
+  const list = ((countries && countries.filter(Boolean)) ||
     (items && items.filter(Boolean)) ||
-    []
-  ) as (AnyCountry | OldItem)[];
+    []) as (AnyCountry | OldItem)[];
 
   if (!list.length) return null;
 
@@ -109,7 +107,11 @@ export default function CountryCarousel({
 
   // preset sizes per variant (image height only; cards equalize via layout below)
   const imgHeight =
-    variant === "compact" ? "h-40 sm:h-44" : variant === "plush" ? "h-56 sm:h-60" : "h-48 sm:h-52";
+    variant === "compact"
+      ? "h-40 sm:h-44"
+      : variant === "plush"
+        ? "h-56 sm:h-60"
+        : "h-48 sm:h-52";
 
   const scrollOne = (dir: -1 | 1) => {
     const rail = railRef.current;
@@ -169,7 +171,8 @@ export default function CountryCarousel({
         {list.map((raw, idx) => {
           // unify fields whether it's AnyCountry or OldItem
           const isNew = "category" in (raw as any);
-          const country = (raw as any).country || (raw as any).title || "Country";
+          const country =
+            (raw as any).country || (raw as any).title || "Country";
           const countrySlug = (raw as any).countrySlug || "country";
           const heroImage =
             (raw as any).heroImage ||
@@ -183,7 +186,9 @@ export default function CountryCarousel({
 
           const href = `${base}/${countrySlug}`;
           const chips = (introPoints as string[]).slice(0, 2);
-          const ctaNoun = isNew ? nounFromCategory((raw as any).category) : "Residency";
+          const ctaNoun = isNew
+            ? nounFromCategory((raw as any).category)
+            : "Residency";
 
           return (
             <div
@@ -194,9 +199,14 @@ export default function CountryCarousel({
               <article className="h-full flex flex-col rounded-2xl border border-border dark:border-dark_border bg-light_bg dark:bg-dark_bg shadow-sm hover:shadow-md transition">
                 {/* Image (fixed height per variant) */}
                 <Link href={href} aria-label={`${country} ${ctaNoun}`}>
-                  <div className={`relative ${imgHeight} rounded-t-2xl overflow-hidden`}>
+                  <div
+                    className={`relative ${imgHeight} rounded-t-2xl overflow-hidden`}
+                  >
                     <Image
-                      src={normalizeImageSrc(heroImage, `/images/${countrySlug}.jpg`)}
+                      src={normalizeImageSrc(
+                        heroImage,
+                        `/images/${countrySlug}.jpg`,
+                      )}
                       alt={`${country} image`}
                       fill
                       className="object-cover"
@@ -222,7 +232,7 @@ export default function CountryCarousel({
                   <p className="mt-1 text-sm text-light_grey dark:text-dark_border leading-6 line-clamp-2 min-h-[44px]">
                     {truncateWords(
                       summary || `${ctaNoun} pathways in ${country}.`,
-                      20
+                      20,
                     )}
                   </p>
 
@@ -249,7 +259,9 @@ export default function CountryCarousel({
                       className="group w-full flex items-center text-base font-bold tracking-wide 
                       text-primary dark:text-neutral-100 transition-all duration-300"
                     >
-                      <span>Explore {country} {ctaNoun}</span>
+                      <span>
+                        Explore {country} {ctaNoun}
+                      </span>
                       <span className="ml-2 inline-block transform transition-transform duration-300 group-hover:translate-x-1">
                         →
                       </span>

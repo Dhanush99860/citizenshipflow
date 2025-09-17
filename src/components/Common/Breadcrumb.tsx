@@ -6,9 +6,7 @@ import { useMemo } from "react";
 import { ChevronRight } from "lucide-react"; // ✅ modern icon
 
 const formatSegment = (segment: string) => {
-  return segment
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return segment.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 };
 
 export default function Breadcrumb() {
@@ -20,10 +18,7 @@ export default function Breadcrumb() {
   }, [pathname]);
 
   return (
-    <nav
-      className="w-full"
-      aria-label="Breadcrumb"
-    >
+    <nav className="w-full" aria-label="Breadcrumb">
       <div className="container mx-auto px-4 py-3">
         <ol className="flex items-center flex-wrap gap-2 text-sm md:text-base text-gray-600 dark:text-gray-300">
           {/* Home link */}
@@ -75,7 +70,7 @@ export function useBreadcrumbSEO(pathname: string) {
 
   const title = `${formatSegment(last)} | XIPHIAS Immigration`;
   const description = `Explore ${formatSegment(
-    last
+    last,
   )} insights and resources with XIPHIAS Immigration. Stay updated with guides, tips, and expert advice.`;
 
   return { title, description };

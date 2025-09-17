@@ -14,9 +14,10 @@ const TopBar = () => {
   return (
     <div className="hidden lg:block mb-[12px]">
       <div className="pb-5 text-sm border-b border-white/20 container mx-auto lg:max-w-screen-xl md:max-w-screen-md flex items-center justify-between px-4 gap-6">
-
         {/* Left - Contact Info */}
-        <div className={`flex items-center gap-6 text-16 font-medium ${textColor}`}>
+        <div
+          className={`flex items-center gap-6 text-16 font-medium ${textColor}`}
+        >
           <a
             href="tel:+919876543210"
             className="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-lg px-1"
@@ -52,9 +53,17 @@ const TopBar = () => {
         {/* Right - Social Icons + Login */}
         <div className="flex items-center gap-3">
           {[
-            { Icon: FaFacebookF, label: "Facebook", href: "https://facebook.com" },
+            {
+              Icon: FaFacebookF,
+              label: "Facebook",
+              href: "https://facebook.com",
+            },
             { Icon: FaTwitter, label: "Twitter", href: "https://twitter.com" },
-            { Icon: FaInstagram, label: "Instagram", href: "https://instagram.com" },
+            {
+              Icon: FaInstagram,
+              label: "Instagram",
+              href: "https://instagram.com",
+            },
           ].map(({ Icon, label, href }, idx) => (
             <a
               key={idx}

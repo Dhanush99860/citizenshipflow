@@ -17,19 +17,22 @@ const Solutions = () => {
     {
       label: "Solution-2",
       number: "02",
-      title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet.",
+      title:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet.",
       image: "/images/solutions/recommended.svg",
     },
     {
       label: "Solution-3",
       number: "03",
-      title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet.",
+      title:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet.",
       image: "/images/solutions/recommended.svg",
     },
     {
       label: "Solution-4",
       number: "04",
-      title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet.",
+      title:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet.",
       image: "/images/solutions/recommended.svg",
     },
   ];
@@ -48,11 +51,13 @@ const Solutions = () => {
       <div className="max-w-7xl w-full mx-auto py-20 px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-12">
-        <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-800 dark:text-gray-100 leading-tight">
-  Dolor{" "}
-  <span className="bg-gradient-to-r from-primary/70 to-primary/90 bg-clip-text text-transparent">sit amet</span>{" "}
-  consectetur adipiscing
-</h2>
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-800 dark:text-gray-100 leading-tight">
+            Dolor{" "}
+            <span className="bg-gradient-to-r from-primary/70 to-primary/90 bg-clip-text text-transparent">
+              sit amet
+            </span>{" "}
+            consectetur adipiscing
+          </h2>
 
           <button className="bg-primary text-white px-6 py-3 rounded-full font-medium shadow hover:opacity-90 transition">
             Schedule an expert call

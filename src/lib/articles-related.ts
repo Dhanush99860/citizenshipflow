@@ -1,26 +1,36 @@
-import { getAllArticlesMeta } from "@/lib/getArticles";
+// FILE: src/lib/articles-related.ts
+import { getAllInsights } from "@/lib/insights-content";
+import type { InsightMeta } from "@/types/insights";
 
-export function getRelatedArticlesForProgram(opts: {
-  vertical: "residency" | "citizenship" | "skilled" | "corporate";
-  country: string;
-  tags?: string[];
-  limit?: number;
-}) {
-  const { vertical, country, tags = [], limit = 6 } = opts;
-  const tagSet = new Set(tags.map((t) => t.toLowerCase()));
-  const arts = getAllArticlesMeta();
+/**
+ * Very simple related-articles scorer by tag overlap.
+ * Call with the current article meta; returns up to `limit` related.
+ */
+export async function getRelatedArticles(
+  current: InsightMeta,
+  limit = 3,
+): Promise<InsightMeta[]> {
+  const { items } = await getAllInsights({ kind: "articles", pageSize: 500 });
 
-  const scored = arts.map((a: any) => {
-    let s = 0;
-    if (Array.isArray(a.verticals) && a.verticals.includes(vertical)) s += 2;
-    if (Array.isArray(a.countries) && a.countries.includes(country)) s += 2;
-    if (Array.isArray(a.tags)) for (const t of a.tags) if (tagSet.has(String(t).toLowerCase())) s += 1;
-    return [a, s] as const;
-  });
+  const curTags = new Set((current.tags ?? []).map((t) => t.toLowerCase()));
+  const scored = items
+    .filter((m) => m.slug !== current.slug)
+    .map((m) => {
+      let score = 0;
+      for (const t of m.tags ?? [])
+        if (curTags.has(t.toLowerCase())) score += 2;
+      if (
+        m.country?.some((c) =>
+          current.country
+            ?.map((x) => x.toLowerCase())
+            .includes(c.toLowerCase()),
+        )
+      )
+        score += 1;
+      return { m, score };
+    })
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score);
 
-  return scored
-    .filter(([, s]) => s > 0)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, limit)
-    .map(([a]) => a);
+  return scored.slice(0, limit).map((x) => x.m);
 }

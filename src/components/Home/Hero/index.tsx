@@ -129,7 +129,10 @@ const Hero = () => {
           </motion.div>
 
           {/* ✅ Right Side (lazy ContactForm) */}
-          <motion.div {...rightAnimation} className="col-span-7 lg:block hidden">
+          <motion.div
+            {...rightAnimation}
+            className="col-span-7 lg:block hidden"
+          >
             <div className="ml-12 -mr-[13rem] p-[200px]">
               <ContactForm />
             </div>

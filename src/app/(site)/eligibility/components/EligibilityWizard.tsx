@@ -1,10 +1,16 @@
-'use client';
-import React from 'react';
+"use client";
+import React from "react";
 
 type Field =
-  | { id: string; label: string; type: 'text' | 'number'; required?: boolean }
-  | { id: string; label: string; type: 'boolean'; required?: boolean }
-  | { id: string; label: string; type: 'select'; options: string[]; required?: boolean };
+  | { id: string; label: string; type: "text" | "number"; required?: boolean }
+  | { id: string; label: string; type: "boolean"; required?: boolean }
+  | {
+      id: string;
+      label: string;
+      type: "select";
+      options: string[];
+      required?: boolean;
+    };
 
 type Step = { id: string; title: string; fields: Field[] };
 type Rule = {
@@ -18,7 +24,10 @@ type Rule = {
   add: number;
 };
 type Band = { min: number; label: string; color: string };
-type Recommendation = { when_min: number; programs: [string, string, string][] };
+type Recommendation = {
+  when_min: number;
+  programs: [string, string, string][];
+};
 type Schema = {
   title: string;
   steps: Step[];
@@ -101,34 +110,36 @@ export default function EligibilityWizard({ schema }: { schema: Schema }) {
           <div key={f.id} className="grid gap-2">
             <label className="font-medium">
               {f.label}
-              {f.required && ' *'}
+              {f.required && " *"}
             </label>
 
-            {f.type === 'text' || f.type === 'number' ? (
+            {f.type === "text" || f.type === "number" ? (
               <input
                 type={f.type}
                 className="rounded-xl border p-3"
-                value={values[f.id] ?? ''}
+                value={values[f.id] ?? ""}
                 onChange={(e) =>
                   setField(
                     f.id,
-                    f.type === 'number' ? Number(e.target.value) : e.target.value
+                    f.type === "number"
+                      ? Number(e.target.value)
+                      : e.target.value,
                   )
                 }
               />
-            ) : f.type === 'boolean' ? (
+            ) : f.type === "boolean" ? (
               <select
                 className="rounded-xl border p-3"
-                value={String(values[f.id] ?? 'false')}
-                onChange={(e) => setField(f.id, e.target.value === 'true')}
+                value={String(values[f.id] ?? "false")}
+                onChange={(e) => setField(f.id, e.target.value === "true")}
               >
                 <option value="false">No</option>
                 <option value="true">Yes</option>
               </select>
-            ) : f.type === 'select' ? (
+            ) : f.type === "select" ? (
               <select
                 className="rounded-xl border p-3"
-                value={values[f.id] ?? ''}
+                value={values[f.id] ?? ""}
                 onChange={(e) => setField(f.id, e.target.value)}
               >
                 <option value="" disabled>

@@ -26,11 +26,10 @@ import MDXDetailsSection from "@/components/Residency/Country/MDXDetailsSection"
 import RelatedCountriesSection from "@/components/Residency/Country/RelatedCountriesSection";
 
 // Only include what you actually need. Examples:
-export const runtime = 'nodejs';          // or 'edge'
-export const dynamic = 'force-static';    // or 'force-dynamic'
-export const revalidate = 86400;          // 24h — must be a literal number
+export const runtime = "nodejs"; // or 'edge'
+export const dynamic = "force-static"; // or 'force-dynamic'
+export const revalidate = 86400; // 24h — must be a literal number
 // export const preferredRegion = ['iad1'];  // if you used it before
-
 
 /** SSG params */
 export async function generateStaticParams() {
@@ -38,11 +37,9 @@ export async function generateStaticParams() {
 }
 
 /** SEO */
-export async function generateMetadata(
-  props: {
-    params: Promise<{ country: string }>;
-  }
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ country: string }>;
+}): Promise<Metadata> {
   const params = await props.params;
   const meta = getCountryFrontmatter(params.country);
   const heroImage = (meta as any).heroImage as string | undefined;
@@ -79,11 +76,9 @@ export async function generateMetadata(
 }
 
 /** Page */
-export default async function CountryPage(
-  props: {
-    params: Promise<{ country: string }>;
-  }
-) {
+export default async function CountryPage(props: {
+  params: Promise<{ country: string }>;
+}) {
   const params = await props.params;
   const { meta, content } = await loadCountryPage(params.country);
   const programs = getCitizenshipPrograms(params.country);
@@ -108,7 +103,7 @@ export default async function CountryPage(
   const minInvestmentRange =
     minInvestments.length && programs[0]?.currency
       ? `${Math.min(...minInvestments).toLocaleString()}–${Math.max(
-          ...minInvestments
+          ...minInvestments,
         ).toLocaleString()} ${programs[0].currency}`
       : "Varies";
 
@@ -165,8 +160,6 @@ export default async function CountryPage(
         <Breadcrumb />
       </div>
 
-
-
       {/* LAYOUT */}
       <div className="mt-6 grid gap-8 md:grid-cols-12">
         {/* Sidebar */}
@@ -208,7 +201,6 @@ export default async function CountryPage(
       </div>
 
       <RelatedCountriesSection related={related} />
-
     </main>
   );
 }

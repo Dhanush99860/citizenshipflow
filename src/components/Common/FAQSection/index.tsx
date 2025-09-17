@@ -63,9 +63,10 @@ export default function FAQWithForm() {
         >
           <h2
             id="faq-heading"
-             className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-800 dark:text-gray-100 leading-tight mb-8"
+            className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-800 dark:text-gray-100 leading-tight mb-8"
           >
-            Still got questions? <span className="text-primary">We're here to help.</span>
+            Still got questions?{" "}
+            <span className="text-primary">We're here to help.</span>
           </h2>
 
           <div className="space-y-4">

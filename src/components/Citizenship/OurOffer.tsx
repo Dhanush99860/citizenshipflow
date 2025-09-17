@@ -46,7 +46,9 @@ export default function OurOffer({
   align = "left",
   seo = {},
 }: Props) {
-  const isPdf = typeof secondaryHref === "string" && secondaryHref.toLowerCase().endsWith(".pdf");
+  const isPdf =
+    typeof secondaryHref === "string" &&
+    secondaryHref.toLowerCase().endsWith(".pdf");
   const headingId = "our-offer-heading";
 
   // --- SEO defaults ---
@@ -85,7 +87,8 @@ export default function OurOffer({
     },
   };
 
-  const alignCls = align === "center" ? "text-center md:max-w-3xl mx-auto" : "text-left";
+  const alignCls =
+    align === "center" ? "text-center md:max-w-3xl mx-auto" : "text-left";
 
   return (
     <section
@@ -124,12 +127,18 @@ export default function OurOffer({
       <meta itemProp="description" content={serviceDescription} />
 
       <div className={`relative ${alignCls}`}>
-        <h2 id={headingId} className="text-xl md:text-2xl font-semibold tracking-tight">
+        <h2
+          id={headingId}
+          className="text-xl md:text-2xl font-semibold tracking-tight"
+        >
           {title}
         </h2>
 
         {subtitle ? (
-          <p className="mt-2 text-[15px] leading-7 text-zinc-700 dark:text-zinc-300" itemProp="description">
+          <p
+            className="mt-2 text-[15px] leading-7 text-zinc-700 dark:text-zinc-300"
+            itemProp="description"
+          >
             {subtitle}
           </p>
         ) : null}
@@ -159,7 +168,9 @@ export default function OurOffer({
         </ol>
 
         {/* CTAs */}
-        <div className={`mt-5 flex flex-wrap items-center gap-3 ${align === "center" ? "justify-center" : ""}`}>
+        <div
+          className={`mt-5 flex flex-wrap items-center gap-3 ${align === "center" ? "justify-center" : ""}`}
+        >
           <Link
             href={primaryHref}
             prefetch={false}
@@ -171,7 +182,10 @@ export default function OurOffer({
           >
             <meta itemProp="priceCurrency" content={priceCurrency} />
             <meta itemProp="price" content={String(offerPrice)} />
-            <meta itemProp="availability" content="https://schema.org/InStock" />
+            <meta
+              itemProp="availability"
+              content="https://schema.org/InStock"
+            />
             {primaryText}
             <ArrowRight />
           </Link>
@@ -205,7 +219,9 @@ export default function OurOffer({
         </div>
 
         {/* Trust chips (optional, subtle credibility cues) */}
-        <ul className={`mt-4 flex flex-wrap gap-2 ${align === "center" ? "justify-center" : ""}`}>
+        <ul
+          className={`mt-4 flex flex-wrap gap-2 ${align === "center" ? "justify-center" : ""}`}
+        >
           <Chip>Licensed local agents</Chip>
           <Chip>KYC/AML workflows</Chip>
           <Chip>Transparent fee schedule</Chip>
@@ -227,7 +243,11 @@ function Chip({ children }: { children: React.ReactNode }) {
 
 function CheckIcon() {
   return (
-    <svg aria-hidden="true" viewBox="0 0 20 20" className="mt-1 h-4 w-4 shrink-0 fill-blue-600 dark:fill-blue-400">
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 20 20"
+      className="mt-1 h-4 w-4 shrink-0 fill-blue-600 dark:fill-blue-400"
+    >
       <path d="M16.707 5.293a1 1 0 0 1 0 1.414l-7.25 7.25a1 1 0 0 1-1.414 0l-4-4A1 1 0 0 1 5.457 8.543l3.293 3.293 6.543-6.543a1 1 0 0 1 1.414 0z" />
     </svg>
   );
@@ -235,22 +255,34 @@ function CheckIcon() {
 function ArrowRight() {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4">
-      <path fill="currentColor" d="M5 12.75h11.19l-3.72 3.72a.75.75 0 1 0 1.06 1.06l5.25-5.25a.75.75 0 0 0 0-1.06L13.53 5.97a.75.75 0 1 0-1.06 1.06l3.72 3.72H5a.75.75 0 0 0 0 1.5z" />
+      <path
+        fill="currentColor"
+        d="M5 12.75h11.19l-3.72 3.72a.75.75 0 1 0 1.06 1.06l5.25-5.25a.75.75 0 0 0 0-1.06L13.53 5.97a.75.75 0 1 0-1.06 1.06l3.72 3.72H5a.75.75 0 0 0 0 1.5z"
+      />
     </svg>
   );
 }
 function Download() {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4">
-      <path fill="currentColor" d="M12 3.75a.75.75 0 0 1 .75.75v8.19l2.72-2.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L6.97 11.03a.75.75 0 0 1 1.06-1.06l2.72 2.72V4.5A.75.75 0 0 1 12 3.75zM4.5 18a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5v-2a.75.75 0 0 1 1.5 0v2A3 3 0 0 1 18 21H6a3 3 0 0 1-3-3v-2a.75.75 0 0 1 1.5 0v2z" />
+      <path
+        fill="currentColor"
+        d="M12 3.75a.75.75 0 0 1 .75.75v8.19l2.72-2.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L6.97 11.03a.75.75 0 0 1 1.06-1.06l2.72 2.72V4.5A.75.75 0 0 1 12 3.75zM4.5 18a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5v-2a.75.75 0 0 1 1.5 0v2A3 3 0 0 1 18 21H6a3 3 0 0 1-3-3v-2a.75.75 0 0 1 1.5 0v2z"
+      />
     </svg>
   );
 }
 function Open() {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4">
-      <path fill="currentColor" d="M14 3a1 1 0 0 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L19 6.414V10a1 1 0 1 0 2 0V4a1 1 0 0 0-1-1h-6z" />
-      <path fill="currentColor" d="M5 6a3 3 0 0 0-3 3v9a3 3 0 0 0 3 3h9a3 3 0 0 0 3-3v-4a1 1 0 1 0-2 0v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h4a1 1 0 1 0 0-2H5z" />
+      <path
+        fill="currentColor"
+        d="M14 3a1 1 0 0 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L19 6.414V10a1 1 0 1 0 2 0V4a1 1 0 0 0-1-1h-6z"
+      />
+      <path
+        fill="currentColor"
+        d="M5 6a3 3 0 0 0-3 3v9a3 3 0 0 0 3 3h9a3 3 0 0 0 3-3v-4a1 1 0 1 0-2 0v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h4a1 1 0 1 0 0-2H5z"
+      />
     </svg>
   );
 }

@@ -31,7 +31,10 @@ type ApiSearchResponse = {
 };
 
 // Small, framework-agnostic debounce that returns a callable
-export function debounce<F extends (...args: any[]) => void>(fn: F, wait = 200) {
+export function debounce<F extends (...args: any[]) => void>(
+  fn: F,
+  wait = 200,
+) {
   let t: ReturnType<typeof setTimeout> | null = null;
   return (...args: Parameters<F>) => {
     if (t) clearTimeout(t);
@@ -50,7 +53,11 @@ export async function preloadIndex(): Promise<void> {
 }
 
 // Call the server API and map results to your UI’s Item shape
-export async function searchItems(query: string, limit = 12, types?: string[]): Promise<UIItem[]> {
+export async function searchItems(
+  query: string,
+  limit = 12,
+  types?: string[],
+): Promise<UIItem[]> {
   const q = query.trim();
   if (!q) return [];
 

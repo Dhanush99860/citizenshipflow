@@ -24,11 +24,10 @@ import MDXDetailsSection from "@/components/Residency/Country/MDXDetailsSection"
 import RelatedCountriesSection from "@/components/Residency/Country/RelatedCountriesSection";
 
 // Only include what you actually need. Examples:
-export const runtime = 'nodejs';          // or 'edge'
-export const dynamic = 'force-static';    // or 'force-dynamic'
-export const revalidate = 86400;          // 24h — must be a literal number
+export const runtime = "nodejs"; // or 'edge'
+export const dynamic = "force-static"; // or 'force-dynamic'
+export const revalidate = 86400; // 24h — must be a literal number
 // export const preferredRegion = ['iad1'];  // if you used it before
-
 
 /** SSG params */
 export async function generateStaticParams() {
@@ -36,11 +35,9 @@ export async function generateStaticParams() {
 }
 
 /** SEO */
-export async function generateMetadata(
-  props: {
-    params: Promise<{ country: string }>;
-  }
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ country: string }>;
+}): Promise<Metadata> {
   const params = await props.params;
   const meta = getCountryFrontmatter(params.country);
   const heroImage = (meta as any).heroImage as string | undefined;
@@ -54,16 +51,19 @@ export async function generateMetadata(
     keywords,
     alternates: { canonical: `/corporate/${params.country}` },
     openGraph: { title, description, images: [heroImage ?? "/og.jpg"] },
-    twitter: { card: "summary_large_image", title, description, images: [heroImage ?? "/og.jpg"] },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [heroImage ?? "/og.jpg"],
+    },
   };
 }
 
 /** Page */
-export default async function CountryPage(
-  props: {
-    params: Promise<{ country: string }>;
-  }
-) {
+export default async function CountryPage(props: {
+  params: Promise<{ country: string }>;
+}) {
   const params = await props.params;
   const { meta, content } = await loadCountryPage(params.country);
   const programs = getCorporatePrograms(params.country);
@@ -84,7 +84,7 @@ export default async function CountryPage(
   const minInvestmentRange =
     minInvestments.length && programs[0]?.currency
       ? `${Math.min(...minInvestments).toLocaleString()}–${Math.max(
-          ...minInvestments
+          ...minInvestments,
         ).toLocaleString()} ${programs[0].currency}`
       : "Varies";
 
@@ -93,7 +93,15 @@ export default async function CountryPage(
     : "Varies";
 
   // Optional fields from frontmatter
-  const { overview, keyPoints, facts, applicationProcess, requirements, faq, introPoints } = meta as any;
+  const {
+    overview,
+    keyPoints,
+    facts,
+    applicationProcess,
+    requirements,
+    faq,
+    introPoints,
+  } = meta as any;
 
   // Related countries (simple: any other 2)
   const related = getCorporateCountries()
@@ -119,7 +127,13 @@ export default async function CountryPage(
           videoSrc={videoSrc}
           poster={poster}
           imageSrc={heroImage}
-          actions={[{ href: "/PersonalBooking", label: "Book Consultation", variant: "primary" }]}
+          actions={[
+            {
+              href: "/PersonalBooking",
+              label: "Book Consultation",
+              variant: "primary",
+            },
+          ]}
         />
       </section>
 
@@ -145,7 +159,11 @@ export default async function CountryPage(
 
         {/* Main content */}
         <div className="md:col-span-8 space-y-8">
-          <AboutCountrySection country={meta.country} overview={overview} facts={facts} />
+          <AboutCountrySection
+            country={meta.country}
+            overview={overview}
+            facts={facts}
+          />
           <WhyCountrySection country={meta.country} points={keyPoints} />
           <ProcessSteps steps={applicationProcess} />
           <EligibilityRequirements items={requirements} />

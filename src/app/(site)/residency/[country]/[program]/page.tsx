@@ -30,19 +30,23 @@ export const dynamicParams = true;
 export async function generateStaticParams() {
   const countries = getResidencyCountrySlugs();
   return countries.flatMap((c) =>
-    getResidencyPrograms(c).map((p) => ({ country: c, program: p.programSlug }))
+    getResidencyPrograms(c).map((p) => ({
+      country: c,
+      program: p.programSlug,
+    })),
   );
 }
 
 /** SEO metadata */
-export async function generateMetadata(
-  props: {
-    params: Promise<{ country: string; program: string }>;
-  }
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ country: string; program: string }>;
+}): Promise<Metadata> {
   const params = await props.params;
   try {
-    const { meta } = await loadProgramPageSections(params.country, params.program);
+    const { meta } = await loadProgramPageSections(
+      params.country,
+      params.program,
+    );
     const heroImage = (meta as any).heroImage as string | undefined;
     const title = (meta as any).seo?.title ?? meta.title;
     const description = (meta as any).seo?.description ?? (meta as any).tagline;
@@ -53,7 +57,9 @@ export async function generateMetadata(
       title,
       description,
       keywords,
-      alternates: { canonical: `/residency/${params.country}/${params.program}` },
+      alternates: {
+        canonical: `/residency/${params.country}/${params.program}`,
+      },
       openGraph: {
         title,
         description,
@@ -77,7 +83,7 @@ export async function generateMetadata(
 /** Similarity score for "Related" */
 function similarityScore(
   base: { title: string; tags?: string[] },
-  cand: { title: string; tags?: string[] }
+  cand: { title: string; tags?: string[] },
 ) {
   const baseTags = new Set((base.tags ?? []).map((t) => t.toLowerCase()));
   const candTags = new Set((cand.tags ?? []).map((t) => t.toLowerCase()));
@@ -87,25 +93,28 @@ function similarityScore(
   });
   const b = base.title.toLowerCase();
   const c = cand.title.toLowerCase();
-  ["startup", "investor", "entrepreneur", "golden", "visa", "residency"].forEach(
-    (k) => {
-      if (b.includes(k) && c.includes(k)) score += 1;
-    }
-  );
+  [
+    "startup",
+    "investor",
+    "entrepreneur",
+    "golden",
+    "visa",
+    "residency",
+  ].forEach((k) => {
+    if (b.includes(k) && c.includes(k)) score += 1;
+  });
   return score;
 }
 
 /** Page */
-export default async function ProgramPage(
-  props: {
-    params: Promise<{ country: string; program: string }>;
-  }
-) {
+export default async function ProgramPage(props: {
+  params: Promise<{ country: string; program: string }>;
+}) {
   const params = await props.params;
   try {
     const { meta, sections } = await loadProgramPageSections(
       params.country,
-      params.program
+      params.program,
     );
 
     const videoSrc = (meta as any).heroVideo as string | undefined;
@@ -118,7 +127,13 @@ export default async function ProgramPage(
     const processSteps: any[] = (meta as any).processSteps ?? [];
     const quickCheck = (meta as any).quickCheck as any | undefined; // from MDX
     const prices = (meta as any).prices as
-      | { label: string; amount?: number; currency?: string; when?: string; notes?: string }[]
+      | {
+          label: string;
+          amount?: number;
+          currency?: string;
+          when?: string;
+          notes?: string;
+        }[]
       | undefined;
     const proofOfFunds = (meta as any).proofOfFunds as
       | { label?: string; amount: number; currency?: string; notes?: string }[]
@@ -127,7 +142,7 @@ export default async function ProgramPage(
 
     /** Programs in same country */
     const otherPrograms = getResidencyPrograms(params.country).filter(
-      (p) => p.programSlug !== params.program
+      (p) => p.programSlug !== params.program,
     );
 
     /** RELATED (parallelized + capped) */
@@ -147,17 +162,18 @@ export default async function ProgramPage(
     for (const ctry of allCountrySlugs) {
       const progs = getResidencyPrograms(ctry);
       for (const p of progs) {
-        if (ctry === params.country && p.programSlug === params.program) continue;
+        if (ctry === params.country && p.programSlug === params.program)
+          continue;
         candidateTasks.push(
           (async () => {
             try {
               const { meta: candMeta } = await loadProgramPageSections(
                 ctry,
-                p.programSlug
+                p.programSlug,
               );
               const score = similarityScore(
                 { title: meta.title, tags: (meta as any).tags },
-                { title: candMeta.title, tags: (candMeta as any).tags }
+                { title: candMeta.title, tags: (candMeta as any).tags },
               );
               if (score <= 0) return null;
               return {
@@ -174,15 +190,15 @@ export default async function ProgramPage(
             } catch {
               return null;
             }
-          })()
+          })(),
         );
       }
     }
 
     const relatedRaw = (await Promise.all(candidateTasks)).filter(
-      Boolean
+      Boolean,
     ) as NonNullable<Awaited<(typeof candidateTasks)[number]>>[];
-    
+
     // Sort first, then DEDUPE by URL (preserves order), then cap to 6 unique
     const relatedPrograms = Array.from(
       new Map(
@@ -196,10 +212,9 @@ export default async function ProgramPage(
             const ib = b.minInvestment ?? Number.MAX_SAFE_INTEGER;
             return ia - ib;
           })
-          .map((r) => [r.url, r] as const)
-      ).values()
+          .map((r) => [r.url, r] as const),
+      ).values(),
     ).slice(0, 6);
-    
 
     /** In-page Quick Nav IDs — FINAL ORDER: mobile & desktop consistent */
     const mdxKey = {
@@ -214,15 +229,27 @@ export default async function ProgramPage(
       { id: "quick-facts", label: "Quick Facts" },
       { id: "overview", label: "Overview" },
       { id: "investment", label: "Investment" },
-      ...(prices?.length || proofOfFunds?.length ? [{ id: "prices", label: "Costs & Funds" }] : []),
-      ...(((meta as any).requirements?.length ?? 0) ? [{ id: "requirements", label: "Eligibility" }] : []),
-      ...(((meta as any).benefits?.length ?? 0) ? [{ id: "benefits", label: "Benefits" }] : []),
+      ...(prices?.length || proofOfFunds?.length
+        ? [{ id: "prices", label: "Costs & Funds" }]
+        : []),
+      ...(((meta as any).requirements?.length ?? 0)
+        ? [{ id: "requirements", label: "Eligibility" }]
+        : []),
+      ...(((meta as any).benefits?.length ?? 0)
+        ? [{ id: "benefits", label: "Benefits" }]
+        : []),
       ...(processSteps.length ? [{ id: "process", label: "Process" }] : []),
       { id: "comparison", label: "Comparison" },
-      ...(sections[mdxKey.whyCountry] ? [{ id: "why-country", label: `Why ${meta.country}` }] : []),
+      ...(sections[mdxKey.whyCountry]
+        ? [{ id: "why-country", label: `Why ${meta.country}` }]
+        : []),
       { id: "faq", label: "FAQ" },
-      ...(disqualifiers.length ? [{ id: "not-a-fit", label: "Not a fit?" }] : []),
-      ...(otherPrograms.length ? [{ id: "other-programs", label: "Other Programs" }] : []),
+      ...(disqualifiers.length
+        ? [{ id: "not-a-fit", label: "Not a fit?" }]
+        : []),
+      ...(otherPrograms.length
+        ? [{ id: "other-programs", label: "Other Programs" }]
+        : []),
       ...(relatedPrograms.length ? [{ id: "related", label: "Related" }] : []),
     ];
 
@@ -230,40 +257,41 @@ export default async function ProgramPage(
     const howToLdData =
       processSteps.length > 0
         ? {
-          "@context": "https://schema.org",
-          "@type": "HowTo",
-          name: `${meta.title} Application Process`,
-          description: (meta as any).seo?.description ?? (meta as any).tagline,
-          step: processSteps.map((step: any, index: number) => ({
-            "@type": "HowToStep",
-            position: index + 1,
-            name: step.title,
-            text: step.description,
-          })),
-        }
+            "@context": "https://schema.org",
+            "@type": "HowTo",
+            name: `${meta.title} Application Process`,
+            description:
+              (meta as any).seo?.description ?? (meta as any).tagline,
+            step: processSteps.map((step: any, index: number) => ({
+              "@type": "HowToStep",
+              position: index + 1,
+              name: step.title,
+              text: step.description,
+            })),
+          }
         : null;
 
     const offerLd =
       prices && prices.length
         ? {
-          "@context": "https://schema.org",
-          "@type": "AggregateOffer",
-          priceCurrency:
-            prices.find((p) => p.currency)?.currency ||
-            (meta as any).currency ||
-            "USD",
-          offers: prices
-            .filter((p) => typeof p.amount === "number")
-            .map((p) => ({
-              "@type": "Offer",
-              name: p.label,
-              price: p.amount,
-              priceCurrency: p.currency || (meta as any).currency || "USD",
-              category: p.when || undefined,
-              description: p.notes || undefined,
-              availability: "https://schema.org/InStock",
-            })),
-        }
+            "@context": "https://schema.org",
+            "@type": "AggregateOffer",
+            priceCurrency:
+              prices.find((p) => p.currency)?.currency ||
+              (meta as any).currency ||
+              "USD",
+            offers: prices
+              .filter((p) => typeof p.amount === "number")
+              .map((p) => ({
+                "@type": "Offer",
+                name: p.label,
+                price: p.amount,
+                priceCurrency: p.currency || (meta as any).currency || "USD",
+                category: p.when || undefined,
+                description: p.notes || undefined,
+                availability: "https://schema.org/InStock",
+              })),
+          }
         : null;
 
     const webPageLd = {
@@ -290,28 +318,35 @@ export default async function ProgramPage(
           data={breadcrumbLd([
             { name: "Residency", url: "/residency" },
             { name: meta.country, url: `/residency/${params.country}` },
-            { name: meta.title, url: `/residency/${params.country}/${params.program}` },
+            {
+              name: meta.title,
+              url: `/residency/${params.country}/${params.program}`,
+            },
           ])}
         />
-        {(meta as any).faq?.length ? <JsonLd data={faqLd((meta as any).faq)!} /> : null}
-        {howToLdData ? <JsonLd data={{ ...howToLdData, "@id": "#application-howto" }} /> : null}
+        {(meta as any).faq?.length ? (
+          <JsonLd data={faqLd((meta as any).faq)!} />
+        ) : null}
+        {howToLdData ? (
+          <JsonLd data={{ ...howToLdData, "@id": "#application-howto" }} />
+        ) : null}
         <JsonLd data={webPageLd} />
         {offerLd ? <JsonLd data={offerLd} /> : null}
         {relatedPrograms.length ? (
-  <JsonLd
-    data={{
-      "@context": "https://schema.org",
-      "@type": "ItemList",
-      name: `Related programs similar to ${meta.title}`,
-      itemListElement: relatedPrograms.map((r, idx) => ({
-        "@type": "ListItem",
-        position: idx + 1,
-        url: `https://yourdomain.com${r.url}`,
-        name: r.title,
-      })),
-    }}
-  />
-) : null}
+          <JsonLd
+            data={{
+              "@context": "https://schema.org",
+              "@type": "ItemList",
+              name: `Related programs similar to ${meta.title}`,
+              itemListElement: relatedPrograms.map((r, idx) => ({
+                "@type": "ListItem",
+                position: idx + 1,
+                url: `https://yourdomain.com${r.url}`,
+                name: r.title,
+              })),
+            }}
+          />
+        ) : null}
 
         {/* HERO */}
         <div className="pt-4 pb-4">
@@ -323,8 +358,17 @@ export default async function ProgramPage(
               poster={poster}
               imageSrc={heroImage}
               actions={[
-                { href: "/PersonalBooking", label: "Book a Free Consultation", variant: "primary" },
-                { href: brochure, label: "Download Brochure", variant: "ghost", download: true },
+                {
+                  href: "/PersonalBooking",
+                  label: "Book a Free Consultation",
+                  variant: "primary",
+                },
+                {
+                  href: brochure,
+                  label: "Download Brochure",
+                  variant: "ghost",
+                  download: true,
+                },
               ]}
             />
           </div>
@@ -361,7 +405,6 @@ export default async function ProgramPage(
                   p-4
                 "
               >
-
                 <EligibilityQuickCheck config={quickCheck} />
               </section>
             ) : null}
@@ -397,7 +440,7 @@ export default async function ProgramPage(
             )}
 
             {/* COSTS & FUNDS (rose tint) */}
-            {(prices?.length || proofOfFunds?.length) ? (
+            {prices?.length || proofOfFunds?.length ? (
               <section
                 id="prices"
                 className="
@@ -405,7 +448,9 @@ export default async function ProgramPage(
                 "
               >
                 <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Costs & proof of funds</h2>
+                  <h2 className="text-xl font-semibold">
+                    Costs & proof of funds
+                  </h2>
                 </header>
                 <div className="w-full overflow-visible">
                   <Prices
@@ -528,7 +573,10 @@ export default async function ProgramPage(
                 </ul>
                 <p className="mt-3 text-[14px]">
                   Not a match? Explore{" "}
-                  <Link href={`/residency/${params.country}`} className="underline">
+                  <Link
+                    href={`/residency/${params.country}`}
+                    className="underline"
+                  >
                     other programs in {meta.country}
                   </Link>
                   .
@@ -545,7 +593,9 @@ export default async function ProgramPage(
                 "
               >
                 <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Frequently asked questions</h2>
+                  <h2 className="text-xl font-semibold">
+                    Frequently asked questions
+                  </h2>
                 </header>
                 <FAQAccordion faqs={(meta as any).faq} />
               </section>
@@ -623,10 +673,7 @@ export default async function ProgramPage(
 
             {/* RELATED — richer cards with optional image, tags, and key stats */}
             {relatedPrograms.length ? (
-              <section
-                id="related"
-                className=" scroll-mt-28 "
-              >
+              <section id="related" className=" scroll-mt-28 ">
                 <header className="mb-4 flex items-center gap-2">
                   <span className="inline-flex items-center rounded-md bg-indigo-600/10 px-2 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
                     Related
@@ -637,104 +684,116 @@ export default async function ProgramPage(
                 </header>
 
                 <ul className="grid gap-5 sm:grid-cols-2">
-  {relatedPrograms.map((r, idx) => {
-    const hasImg = !!r.heroImage;
-    const price =
-      typeof r.minInvestment === "number"
-        ? `${r.currency ?? ""} ${r.minInvestment.toLocaleString()}`
-        : "No minimum";
-    const time = r.timelineMonths ? `${r.timelineMonths} mo` : "Varies";
-    return (
-      <li key={`${r.url}|${idx}`}>
-        <Link
-          href={r.url}
-          className="
+                  {relatedPrograms.map((r, idx) => {
+                    const hasImg = !!r.heroImage;
+                    const price =
+                      typeof r.minInvestment === "number"
+                        ? `${r.currency ?? ""} ${r.minInvestment.toLocaleString()}`
+                        : "No minimum";
+                    const time = r.timelineMonths
+                      ? `${r.timelineMonths} mo`
+                      : "Varies";
+                    return (
+                      <li key={`${r.url}|${idx}`}>
+                        <Link
+                          href={r.url}
+                          className="
             group block overflow-hidden rounded-2xl
             ring-1 ring-neutral-200/80 dark:ring-neutral-800/80
             bg-white/80 dark:bg-neutral-900/40
             hover:-translate-y-0.5 hover:shadow-md transition
             focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50
           "
-          aria-label={`View ${r.title}`}
-        >
-          {/* Media */}
-          <div className="relative aspect-[16/9] overflow-hidden">
-            {hasImg ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={r.heroImage!}
-                alt=""
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-              />
-            ) : (
-              <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-100 dark:from-neutral-800 dark:to-neutral-700 grid place-items-center">
-                <span className="text-xs opacity-70">{r.country}</span>
-              </div>
-            )}
-            {/* subtle overlay on hover */}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-          </div>
+                          aria-label={`View ${r.title}`}
+                        >
+                          {/* Media */}
+                          <div className="relative aspect-[16/9] overflow-hidden">
+                            {hasImg ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={r.heroImage!}
+                                alt=""
+                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                              />
+                            ) : (
+                              <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-100 dark:from-neutral-800 dark:to-neutral-700 grid place-items-center">
+                                <span className="text-xs opacity-70">
+                                  {r.country}
+                                </span>
+                              </div>
+                            )}
+                            {/* subtle overlay on hover */}
+                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
 
-          {/* Body */}
-          <div className="p-4 sm:p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h3 className="text-base font-semibold leading-6">{r.title}</h3>
-                <p className="mt-0.5 text-xs opacity-70">{r.country}</p>
-              </div>
+                          {/* Body */}
+                          <div className="p-4 sm:p-5">
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <h3 className="text-base font-semibold leading-6">
+                                  {r.title}
+                                </h3>
+                                <p className="mt-0.5 text-xs opacity-70">
+                                  {r.country}
+                                </p>
+                              </div>
 
-              {/* Tags (top 3) */}
-              {!!r.tags?.length && (
-                <div className="hidden md:flex flex-wrap gap-1 max-w-[220px] justify-end">
-                  {r.tags.slice(0, 3).map((t, ti) => (
-                    <span
-                      key={`${r.url}-tag-${ti}-${t}`}
-                      className="
+                              {/* Tags (top 3) */}
+                              {!!r.tags?.length && (
+                                <div className="hidden md:flex flex-wrap gap-1 max-w-[220px] justify-end">
+                                  {r.tags.slice(0, 3).map((t, ti) => (
+                                    <span
+                                      key={`${r.url}-tag-${ti}-${t}`}
+                                      className="
                         inline-flex items-center rounded-full
                         px-2 py-0.5 text-[11px] opacity-80
                         ring-1 ring-neutral-200 dark:ring-neutral-700
                       "
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
+                                    >
+                                      {t}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
 
-            {/* Mini stats */}
-            <div className="mt-3 grid grid-cols-2 gap-2 text-[13px]">
-              <div
-                className="
+                            {/* Mini stats */}
+                            <div className="mt-3 grid grid-cols-2 gap-2 text-[13px]">
+                              <div
+                                className="
                   rounded-xl p-2
                   bg-black/5 dark:bg-white/10
                   ring-1 ring-neutral-200 dark:ring-neutral-700
                 "
-              >
-                <div className="font-medium tabular-nums">{price}</div>
-                <div className="text-[11px] opacity-70">Minimum investment</div>
-              </div>
-              <div
-                className="
+                              >
+                                <div className="font-medium tabular-nums">
+                                  {price}
+                                </div>
+                                <div className="text-[11px] opacity-70">
+                                  Minimum investment
+                                </div>
+                              </div>
+                              <div
+                                className="
                   rounded-xl p-2
                   bg-black/5 dark:bg-white/10
                   ring-1 ring-neutral-200 dark:ring-neutral-700
                 "
-              >
-                <div className="font-medium">{time}</div>
-                <div className="text-[11px] opacity-70">Timeline</div>
-              </div>
-            </div>
-          </div>
-        </Link>
-      </li>
-    );
-  })}
-</ul>
-
+                              >
+                                <div className="font-medium">{time}</div>
+                                <div className="text-[11px] opacity-70">
+                                  Timeline
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
               </section>
             ) : null}
-
 
             {/* spacer so mobile floating nav never hides last section */}
             <div className="sm:hidden h-24" aria-hidden="true" />
@@ -744,7 +803,6 @@ export default async function ProgramPage(
           <aside className="order-1 lg:order-2 lg:col-span-4 xl:col-span-4 space-y-6 self-start lg:sticky lg:top-24">
             {quickCheck?.questions?.length ? (
               <div className="hidden lg:block">
-
                 <EligibilityQuickCheck config={quickCheck} />
               </div>
             ) : null}
@@ -772,7 +830,6 @@ export default async function ProgramPage(
             </div>
           </aside>
         </div>
-        
       </main>
     );
   } catch (e) {

@@ -74,8 +74,14 @@ export default function RelatedCountriesSection({
                 </div>
 
                 <div className="p-4 sm:p-5">
-                  <h3 className="text-base font-semibold leading-6">{c.title || c.country}</h3>
-                  {c.summary ? <p className="mt-1 text-sm opacity-70 line-clamp-2">{c.summary}</p> : null}
+                  <h3 className="text-base font-semibold leading-6">
+                    {c.title || c.country}
+                  </h3>
+                  {c.summary ? (
+                    <p className="mt-1 text-sm opacity-70 line-clamp-2">
+                      {c.summary}
+                    </p>
+                  ) : null}
                 </div>
               </Link>
             </li>

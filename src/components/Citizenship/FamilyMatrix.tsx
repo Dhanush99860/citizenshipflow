@@ -15,8 +15,8 @@ export type FamilyMatrixProps = {
   siblings?: boolean;
   spouse?: boolean;
   className?: string;
-  title?: string;         // default: "Eligible dependents"
-  note?: string;          // MDX text allowed
+  title?: string; // default: "Eligible dependents"
+  note?: string; // MDX text allowed
   renderJsonLd?: boolean; // default: true
 };
 
@@ -31,7 +31,11 @@ export default function FamilyMatrixNeo({
   renderJsonLd = true,
 }: FamilyMatrixProps) {
   const slug = (s: string) =>
-    s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "").slice(0, 64);
+    s
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "")
+      .slice(0, 64);
 
   const sectionId = slug(title) || "eligible-dependents";
   const noteId = note ? `${sectionId}-note` : undefined;
@@ -48,7 +52,9 @@ export default function FamilyMatrixNeo({
       key: "children",
       label: "Children",
       valueText:
-        typeof childrenUpTo === "number" ? `Up to ${childrenUpTo} years` : "Not included",
+        typeof childrenUpTo === "number"
+          ? `Up to ${childrenUpTo} years`
+          : "Not included",
       included: typeof childrenUpTo === "number",
       chip: typeof childrenUpTo === "number" ? `${childrenUpTo}` : undefined,
       icon: ChildIcon,
@@ -57,9 +63,12 @@ export default function FamilyMatrixNeo({
       key: "parents",
       label: "Parents",
       valueText:
-        typeof parentsFromAge === "number" ? `From ${parentsFromAge}+ years` : "Not included",
+        typeof parentsFromAge === "number"
+          ? `From ${parentsFromAge}+ years`
+          : "Not included",
       included: typeof parentsFromAge === "number",
-      chip: typeof parentsFromAge === "number" ? `${parentsFromAge}+` : undefined,
+      chip:
+        typeof parentsFromAge === "number" ? `${parentsFromAge}+` : undefined,
       icon: ParentIcon,
     },
     {
@@ -126,7 +135,10 @@ export default function FamilyMatrixNeo({
         <p className="sr-only">{srSummary}</p>
 
         {note ? (
-          <p id={noteId} className="mt-2 text-sm md:text-[15px] leading-relaxed text-neutral-700 dark:text-neutral-300 max-w-3xl">
+          <p
+            id={noteId}
+            className="mt-2 text-sm md:text-[15px] leading-relaxed text-neutral-700 dark:text-neutral-300 max-w-3xl"
+          >
             {note}
           </p>
         ) : null}
@@ -197,7 +209,11 @@ export default function FamilyMatrixNeo({
                     ? "bg-blue-50 ring-blue-100 text-blue-800 dark:bg-blue-950/30 dark:ring-blue-900/40 dark:text-blue-200"
                     : "bg-neutral-100 ring-neutral-200 text-neutral-700 dark:bg-neutral-800/60 dark:ring-neutral-700 dark:text-neutral-300",
                 ].join(" ")}
-                aria-label={tile.included ? `${tile.label} eligible` : `${tile.label} not eligible`}
+                aria-label={
+                  tile.included
+                    ? `${tile.label} eligible`
+                    : `${tile.label} not eligible`
+                }
               >
                 {tile.included ? "Yes" : "No"}
               </span>
@@ -211,7 +227,9 @@ export default function FamilyMatrixNeo({
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(toJsonLd(title, note, tiles)) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(toJsonLd(title, note, tiles)),
+          }}
         />
       ) : null}
     </section>
@@ -237,7 +255,11 @@ function toJsonLd(title: string, note: string | undefined, tiles: TileData[]) {
       "@type": "PropertyValue",
       name: t.label,
       value: t.valueText,
-      additionalProperty: { "@type": "PropertyValue", name: "included", value: t.included },
+      additionalProperty: {
+        "@type": "PropertyValue",
+        name: "included",
+        value: t.included,
+      },
       description: note || undefined,
     },
   }));
@@ -252,15 +274,31 @@ function toJsonLd(title: string, note: string | undefined, tiles: TileData[]) {
 /* ---------------- Background graphics (white-first) ---------------- */
 function BackgroundGraphics() {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 print:hidden">
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 print:hidden"
+    >
       {/* soft neutral glows */}
       <div className="absolute -top-24 -left-20 h-56 w-56 rounded-full bg-neutral-300/15 blur-3xl" />
       <div className="absolute -bottom-24 -right-20 h-64 w-64 rounded-full bg-neutral-400/10 blur-3xl" />
       {/* ultra-faint grid */}
-      <svg className="absolute inset-0 w-full h-full opacity-[0.03] dark:opacity-[0.05]" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        className="absolute inset-0 w-full h-full opacity-[0.03] dark:opacity-[0.05]"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <defs>
-          <pattern id="fmneo-grid" width="24" height="24" patternUnits="userSpaceOnUse">
-            <path d="M24 0H0v24" fill="none" stroke="#111827" strokeWidth="0.75" />
+          <pattern
+            id="fmneo-grid"
+            width="24"
+            height="24"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M24 0H0v24"
+              fill="none"
+              stroke="#111827"
+              strokeWidth="0.75"
+            />
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#fmneo-grid)" />
@@ -275,7 +313,16 @@ function BackgroundGraphics() {
 
 function FamilyIcon(props: { className?: string }) {
   return (
-    <svg aria-hidden viewBox="0 0 24 24" className={props.className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      className={props.className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <circle cx="9" cy="7" r="3" />
       <path d="M2 21v-2a4 4 0 0 1 4-4h6" />
       <circle cx="17" cy="7" r="3" />
@@ -285,7 +332,16 @@ function FamilyIcon(props: { className?: string }) {
 }
 function SpouseIcon(props: { className?: string }) {
   return (
-    <svg aria-hidden viewBox="0 0 24 24" className={props.className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      className={props.className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M20 21v-2a4 4 0 0 0-4-4h-1" />
       <circle cx="15" cy="7" r="3" />
       <path d="M10 21v-2a4 4 0 0 1 4-4H8a4 4 0 0 0-4 4v2" />
@@ -295,7 +351,16 @@ function SpouseIcon(props: { className?: string }) {
 }
 function ChildIcon(props: { className?: string }) {
   return (
-    <svg aria-hidden viewBox="0 0 24 24" className={props.className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      className={props.className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <circle cx="12" cy="7" r="3" />
       <path d="M5 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2" />
     </svg>
@@ -303,7 +368,16 @@ function ChildIcon(props: { className?: string }) {
 }
 function ParentIcon(props: { className?: string }) {
   return (
-    <svg aria-hidden viewBox="0 0 24 24" className={props.className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      className={props.className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M8 21v-2a4 4 0 0 1 4-4h0a4 4 0 0 1 4 4v2" />
       <circle cx="12" cy="7" r="3" />
       <path d="M4 21v-2a4 4 0 0 1 4-4H6" />
@@ -313,7 +387,16 @@ function ParentIcon(props: { className?: string }) {
 }
 function SiblingIcon(props: { className?: string }) {
   return (
-    <svg aria-hidden viewBox="0 0 24 24" className={props.className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      className={props.className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <circle cx="8" cy="7" r="3" />
       <circle cx="16" cy="7" r="3" />
       <path d="M2 21v-2a4 4 0 0 1 4-4h6M22 21v-2a4 4 0 0 0-4-4h-6" />

@@ -14,9 +14,10 @@ export default function FAQSection({ faqs }: { faqs?: FAQ[] }) {
   // Sync with hash (and open if matches)
   React.useEffect(() => {
     const applyHash = () => {
-      const hash = typeof window !== "undefined"
-        ? decodeURIComponent(window.location.hash.replace(/^#/, ""))
-        : "";
+      const hash =
+        typeof window !== "undefined"
+          ? decodeURIComponent(window.location.hash.replace(/^#/, ""))
+          : "";
       if (!hash) {
         setOpenIndex(null);
         return;
@@ -29,19 +30,22 @@ export default function FAQSection({ faqs }: { faqs?: FAQ[] }) {
     return () => window.removeEventListener("hashchange", applyHash);
   }, [slugs]);
 
-  const onToggle = React.useCallback((idx: number) => {
-    setOpenIndex((cur) => {
-      const next = cur === idx ? null : idx;
-      if (typeof window !== "undefined") {
-        const nextHash = next === null ? "" : `#${slugs[next]}`;
-        const url = nextHash
-          ? `${window.location.pathname}${window.location.search}${nextHash}`
-          : `${window.location.pathname}${window.location.search}`;
-        window.history.replaceState(null, "", url);
-      }
-      return next;
-    });
-  }, [slugs]);
+  const onToggle = React.useCallback(
+    (idx: number) => {
+      setOpenIndex((cur) => {
+        const next = cur === idx ? null : idx;
+        if (typeof window !== "undefined") {
+          const nextHash = next === null ? "" : `#${slugs[next]}`;
+          const url = nextHash
+            ? `${window.location.pathname}${window.location.search}${nextHash}`
+            : `${window.location.pathname}${window.location.search}`;
+          window.history.replaceState(null, "", url);
+        }
+        return next;
+      });
+    },
+    [slugs],
+  );
 
   // Early return AFTER hooks
   if (!hasFaqs) return null;
@@ -64,7 +68,9 @@ export default function FAQSection({ faqs }: { faqs?: FAQ[] }) {
 
           return (
             <div key={panelId} className="px-3 sm:px-4">
-              <h3 className="sr-only" id={`${panelId}-title`}>Question {i + 1}</h3>
+              <h3 className="sr-only" id={`${panelId}-title`}>
+                Question {i + 1}
+              </h3>
               <h4>
                 <button
                   id={buttonId}
@@ -93,7 +99,9 @@ export default function FAQSection({ faqs }: { faqs?: FAQ[] }) {
                 role="region"
                 aria-labelledby={buttonId}
                 className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
-                  isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-90"
+                  isOpen
+                    ? "grid-rows-[1fr] opacity-100"
+                    : "grid-rows-[0fr] opacity-90"
                 }`}
               >
                 <div className="min-h-0 overflow-hidden">

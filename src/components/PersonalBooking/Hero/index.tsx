@@ -44,7 +44,10 @@ const Counter = ({ end, suffix = "", duration = 2000 }: CounterProps) => {
 
           const step = (timestamp: number) => {
             if (!startTimestamp) startTimestamp = timestamp;
-            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            const progress = Math.min(
+              (timestamp - startTimestamp) / duration,
+              1,
+            );
 
             // easing: easeOutCubic
             const easedProgress = 1 - Math.pow(1 - progress, 3);
@@ -62,7 +65,7 @@ const Counter = ({ end, suffix = "", duration = 2000 }: CounterProps) => {
           requestAnimationFrame(step);
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.5 },
     );
 
     if (ref.current) observer.observe(ref.current);
@@ -83,7 +86,7 @@ const Counter = ({ end, suffix = "", duration = 2000 }: CounterProps) => {
 export default function PersonalHero() {
   const [chartData, setChartData] = useState(initialData);
   const [dateText, setDateText] = useState(
-    new Date().toLocaleString("en-US", { month: "short", year: "numeric" })
+    new Date().toLocaleString("en-US", { month: "short", year: "numeric" }),
   );
 
   // Animate chart when visible
@@ -92,7 +95,7 @@ export default function PersonalHero() {
       ([entry]) => {
         if (entry.isIntersecting) setChartData(finalData);
       },
-      { threshold: 0.4 }
+      { threshold: 0.4 },
     );
     const chart = document.getElementById("chart-box");
     if (chart) observer.observe(chart);
@@ -101,13 +104,16 @@ export default function PersonalHero() {
 
   // Auto-update month/year
   useEffect(() => {
-    const interval = setInterval(() => {
-      const current = new Date().toLocaleString("en-US", {
-        month: "short",
-        year: "numeric",
-      });
-      setDateText(current);
-    }, 1000 * 60 * 60);
+    const interval = setInterval(
+      () => {
+        const current = new Date().toLocaleString("en-US", {
+          month: "short",
+          year: "numeric",
+        });
+        setDateText(current);
+      },
+      1000 * 60 * 60,
+    );
     return () => clearInterval(interval);
   }, []);
 
@@ -150,8 +156,10 @@ export default function PersonalHero() {
           overflow-hidden group"
         >
           {/* Glossy Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent 
-            dark:from-slateGray/40 dark:to-transparent rounded-3xl pointer-events-none" />
+          <div
+            className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent 
+            dark:from-slateGray/40 dark:to-transparent rounded-3xl pointer-events-none"
+          />
 
           {/* Header */}
           <div className="relative mb-6 text-center lg:text-left animate-fadeInUp">
@@ -248,7 +256,8 @@ export default function PersonalHero() {
 
           {/* Disclaimer */}
           <p className="relative text-xs text-light_grey dark:text-dark_border mt-4 text-center lg:text-left animate-fadeInUp delay-300">
-            *As of {dateText}. Past performance does not guarantee future outcomes.
+            *As of {dateText}. Past performance does not guarantee future
+            outcomes.
           </p>
 
           {/* ✅ Key Stats with Smooth Animated Counters */}

@@ -15,7 +15,8 @@ const Perks = () => {
             Always By <span className="text-primary">your side</span>
           </p>
           <h2 className="text-white sm:text-40 text-30 font-medium">
-            Be the first to use our Cryo<span className="text-primary">go</span>!
+            Be the first to use our Cryo<span className="text-primary">go</span>
+            !
           </h2>
 
           {/* Perks Grid */}

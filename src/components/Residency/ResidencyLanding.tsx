@@ -41,7 +41,7 @@ import { ca } from "date-fns/locale"; // (tree-shaken; safe if unused)
 
 // ---------------- helpers ----------------
 function baseFromCategory(
-  cat?: AnyCountry["category"] | AnyProgram["category"]
+  cat?: AnyCountry["category"] | AnyProgram["category"],
 ) {
   switch (cat) {
     case "citizenship":
@@ -106,7 +106,9 @@ export default function ResidencyLanding({
       const country = norm(c.country || "");
       const summary = norm(c.summary || "");
       return (
-        title.includes(s) || country.includes(s) || (summary && summary.includes(s))
+        title.includes(s) ||
+        country.includes(s) ||
+        (summary && summary.includes(s))
       );
     });
   }, [countries, q]);
@@ -225,8 +227,8 @@ export default function ResidencyLanding({
             </div>
             <CountBar current={filtered.length} total={countries.length} />
             <p className="mt-2 text-[12px] text-neutral-600 dark:text-neutral-400">
-              Tip: press <kbd className="rounded border px-1">/</kbd> to focus the
-              search.
+              Tip: press <kbd className="rounded border px-1">/</kbd> to focus
+              the search.
             </p>
           </div>
 
@@ -332,7 +334,13 @@ function CountBar({ current, total }: { current: number; total: number }) {
   );
 }
 
-function EmptyState({ query, onClear }: { query: string; onClear: () => void }) {
+function EmptyState({
+  query,
+  onClear,
+}: {
+  query: string;
+  onClear: () => void;
+}) {
   return (
     <div className="rounded-2xl bg-white dark:bg-neutral-950 ring-1 ring-neutral-200 dark:ring-neutral-800 p-6 text-center">
       <p className="text-sm text-neutral-700 dark:text-neutral-300">
@@ -367,8 +375,18 @@ function Background() {
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          <pattern id="grid-bw" width="24" height="24" patternUnits="userSpaceOnUse">
-            <path d="M24 0H0V24" fill="none" stroke="currentColor" strokeWidth="0.75" />
+          <pattern
+            id="grid-bw"
+            width="24"
+            height="24"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M24 0H0V24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="0.75"
+            />
           </pattern>
         </defs>
         <rect

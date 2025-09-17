@@ -84,15 +84,33 @@ export default function StickyInquiryDock({
         ].join(" ")}
       >
         {/* subtle grid + glow */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 rounded-2xl overflow-hidden">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-2xl overflow-hidden"
+        >
           <div className="absolute -top-10 -right-10 h-28 w-28 rounded-full bg-blue-400/10 blur-2xl" />
           <svg className="absolute inset-0 h-full w-full opacity-[0.04] dark:opacity-[0.06]">
             <defs>
-              <pattern id="dock-grid" width="24" height="24" patternUnits="userSpaceOnUse">
-                <path d="M24 0H0v24" fill="none" stroke="currentColor" strokeWidth="0.75" />
+              <pattern
+                id="dock-grid"
+                width="24"
+                height="24"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M24 0H0v24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.75"
+                />
               </pattern>
             </defs>
-            <rect width="100%" height="100%" fill="url(#dock-grid)" className="text-neutral-700 dark:text-neutral-300" />
+            <rect
+              width="100%"
+              height="100%"
+              fill="url(#dock-grid)"
+              className="text-neutral-700 dark:text-neutral-300"
+            />
           </svg>
         </div>
 
@@ -114,7 +132,10 @@ export default function StickyInquiryDock({
               ].join(" ")}
               ariaLabel="Book a call"
             >
-              <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-white/90" aria-hidden />
+              <span
+                className="mr-1.5 inline-block h-2 w-2 rounded-full bg-white/90"
+                aria-hidden
+              />
               Book a call
             </SmartLink>
 
@@ -130,8 +151,19 @@ export default function StickyInquiryDock({
               aria-label="Download program guide PDF"
               rel={isExternal(brochureUrl) ? "noopener" : undefined}
             >
-              <svg viewBox="0 0 20 20" className="mr-2 h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                <path d="M10 4v8m0 0l-3-3m3 3l3-3" strokeLinecap="round" strokeLinejoin="round" />
+              <svg
+                viewBox="0 0 20 20"
+                className="mr-2 h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden
+              >
+                <path
+                  d="M10 4v8m0 0l-3-3m3 3l3-3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
                 <path d="M4 14v2a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-2" />
               </svg>
               Download guide
@@ -143,7 +175,14 @@ export default function StickyInquiryDock({
               className="ml-0 sm:ml-1 inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70"
               aria-label={`Hide this bar for ${hideForDays} day${hideForDays === 1 ? "" : "s"}`}
             >
-              <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+              <svg
+                viewBox="0 0 20 20"
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden
+              >
                 <path d="M15 5L5 15M5 5l10 10" strokeLinecap="round" />
               </svg>
               Hide
@@ -164,8 +203,14 @@ export default function StickyInquiryDock({
       {/* keyframes (scoped) */}
       <style jsx>{`
         @keyframes dockIn {
-          from { transform: translateY(0.5rem); opacity: 0; }
-          to   { transform: translateY(0);       opacity: 1; }
+          from {
+            transform: translateY(0.5rem);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
         }
       `}</style>
     </div>

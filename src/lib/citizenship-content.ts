@@ -41,7 +41,7 @@ export type CountryMeta = {
 
   /** Optional, used by Citizenship pages */
   visaFreeCount?: number; // total visa-free/VOA/eTA
-  passportRank?: number;  // lower is stronger
+  passportRank?: number; // lower is stronger
   passportNotes?: string;
 
   // Additional optional metadata (safe to ignore where unused)
@@ -115,7 +115,11 @@ export type ProgramMeta = {
   /** Program specifics used on program pages & filters */
   routeType?: "donation" | "real-estate" | "bond" | "naturalisation";
   holdingPeriodMonths?: number;
-  governmentFees?: { label: string; amount?: number; currency?: CurrencyCode }[];
+  governmentFees?: {
+    label: string;
+    amount?: number;
+    currency?: CurrencyCode;
+  }[];
   projectList?: {
     name: string;
     minBuyIn: number;
@@ -153,7 +157,8 @@ const toTitle = (slug: string) =>
 
 const coerceNum = (v: unknown): number | undefined => {
   if (typeof v === "number" && Number.isFinite(v)) return v;
-  if (typeof v === "string" && v.trim() !== "" && !isNaN(Number(v))) return Number(v);
+  if (typeof v === "string" && v.trim() !== "" && !isNaN(Number(v)))
+    return Number(v);
   return undefined;
 };
 
@@ -234,7 +239,8 @@ type Cache = {
   mtimes?: Map<string, number>;
 };
 const _g = globalThis as any;
-if (!_g.__CITIZENSHIP_CACHE__) _g.__CITIZENSHIP_CACHE__ = { mtimes: new Map() } as Cache;
+if (!_g.__CITIZENSHIP_CACHE__)
+  _g.__CITIZENSHIP_CACHE__ = { mtimes: new Map() } as Cache;
 const CACHE: Cache = _g.__CITIZENSHIP_CACHE__;
 
 /** Recursively get the newest mtime under the citizenship content tree. */
@@ -271,7 +277,7 @@ function sanitizeStringArray(a?: unknown): string[] | undefined {
         if (v && typeof v === "object") {
           // Convert accidental YAML mapping/object into a readable string
           const entries = Object.entries(v as Record<string, unknown>).map(
-            ([k, val]) => `${k}: ${String(val)}`
+            ([k, val]) => `${k}: ${String(val)}`,
           );
           return entries.join(", ");
         }
@@ -283,15 +289,22 @@ function sanitizeStringArray(a?: unknown): string[] | undefined {
   return undefined;
 }
 
-function normalizeCountry(metaIn: Partial<CountryMeta>, slug: string): CountryMeta {
+function normalizeCountry(
+  metaIn: Partial<CountryMeta>,
+  slug: string,
+): CountryMeta {
   const meta: any = { ...metaIn };
   const countrySlug = meta.countrySlug || slug;
   const country = meta.country || meta.title || toTitle(countrySlug);
-  const title = meta.title || (typeof country === "string" ? country : toTitle(countrySlug));
+  const title =
+    meta.title ||
+    (typeof country === "string" ? country : toTitle(countrySlug));
 
   // Coerce new citizenship fields
-  if (meta.visaFreeCount !== undefined) meta.visaFreeCount = coerceNum(meta.visaFreeCount);
-  if (meta.passportRank !== undefined) meta.passportRank = coerceNum(meta.passportRank);
+  if (meta.visaFreeCount !== undefined)
+    meta.visaFreeCount = coerceNum(meta.visaFreeCount);
+  if (meta.passportRank !== undefined)
+    meta.passportRank = coerceNum(meta.passportRank);
   if (meta.allowsDualCitizenship !== undefined)
     meta.allowsDualCitizenship = coerceBool(meta.allowsDualCitizenship);
   if (meta.interviewRequired !== undefined)
@@ -300,8 +313,10 @@ function normalizeCountry(metaIn: Partial<CountryMeta>, slug: string): CountryMe
   if (meta.dependents && typeof meta.dependents === "object") {
     const d = meta.dependents as CountryMeta["dependents"];
     if (d) {
-      if (d.childrenUpTo !== undefined) d.childrenUpTo = coerceNum(d.childrenUpTo);
-      if (d.parentsFromAge !== undefined) d.parentsFromAge = coerceNum(d.parentsFromAge);
+      if (d.childrenUpTo !== undefined)
+        d.childrenUpTo = coerceNum(d.childrenUpTo);
+      if (d.parentsFromAge !== undefined)
+        d.parentsFromAge = coerceNum(d.parentsFromAge);
       if (d.siblings !== undefined) d.siblings = coerceBool(d.siblings);
     }
   }
@@ -313,11 +328,10 @@ function normalizeCountry(metaIn: Partial<CountryMeta>, slug: string): CountryMe
 
   // Images: enforce root-absolute; fallback to a sensible poster path
   const fallbackPoster = `/images/countries/${countrySlug}-hero-poster.jpg`;
-meta.heroImage  = toAbsolute(meta.heroImage,  fallbackPoster);
-// before: if (meta.heroPoster) meta.heroPoster = ...
-// after (unconditional):
-meta.heroPoster = toAbsolute(meta.heroPoster, fallbackPoster);
-
+  meta.heroImage = toAbsolute(meta.heroImage, fallbackPoster);
+  // before: if (meta.heroPoster) meta.heroPoster = ...
+  // after (unconditional):
+  meta.heroPoster = toAbsolute(meta.heroPoster, fallbackPoster);
 
   return {
     ...meta,
@@ -328,14 +342,20 @@ meta.heroPoster = toAbsolute(meta.heroPoster, fallbackPoster);
   } as CountryMeta;
 }
 
-function normalizeProgram(metaIn: Partial<ProgramMeta>, cSlug: string, pSlug: string): ProgramMeta {
+function normalizeProgram(
+  metaIn: Partial<ProgramMeta>,
+  cSlug: string,
+  pSlug: string,
+): ProgramMeta {
   const meta: any = { ...metaIn };
   meta.programSlug = meta.programSlug || pSlug;
   meta.countrySlug = meta.countrySlug || cSlug;
   meta.category = "citizenship";
 
-  if (meta.minInvestment !== undefined) meta.minInvestment = coerceNum(meta.minInvestment);
-  if (meta.timelineMonths !== undefined) meta.timelineMonths = coerceNum(meta.timelineMonths);
+  if (meta.minInvestment !== undefined)
+    meta.minInvestment = coerceNum(meta.minInvestment);
+  if (meta.timelineMonths !== undefined)
+    meta.timelineMonths = coerceNum(meta.timelineMonths);
   if (meta.holdingPeriodMonths !== undefined)
     meta.holdingPeriodMonths = coerceNum(meta.holdingPeriodMonths);
 
@@ -381,7 +401,8 @@ function normalizeProgram(metaIn: Partial<ProgramMeta>, cSlug: string, pSlug: st
   // Images: enforce root-absolute; fallback to country poster
   const fallbackPoster = `/images/countries/${cSlug}-hero-poster.jpg`;
   meta.heroImage = toAbsolute(meta.heroImage, fallbackPoster);
-  if (meta.heroPoster) meta.heroPoster = toAbsolute(meta.heroPoster, fallbackPoster);
+  if (meta.heroPoster)
+    meta.heroPoster = toAbsolute(meta.heroPoster, fallbackPoster);
 
   return meta as ProgramMeta;
 }
@@ -445,7 +466,11 @@ export function getCitizenshipPrograms(countrySlug?: string): ProgramMeta[] {
   const cacheKey = `${ROOT}::programsAll`;
 
   const stamp = dirStamp(ROOT);
-  if (!countrySlug && CACHE.programsAll && CACHE.mtimes?.get(stampKey) === stamp) {
+  if (
+    !countrySlug &&
+    CACHE.programsAll &&
+    CACHE.mtimes?.get(stampKey) === stamp
+  ) {
     return CACHE.programsAll;
   }
 
@@ -462,7 +487,7 @@ export function getCitizenshipPrograms(countrySlug?: string): ProgramMeta[] {
   }
 
   const sorted = out.sort((a, b) =>
-    (a.countrySlug + a.title).localeCompare(b.countrySlug + b.title)
+    (a.countrySlug + a.title).localeCompare(b.countrySlug + b.title),
   );
 
   if (!countrySlug) {
@@ -487,11 +512,17 @@ export async function loadCountryPage(countrySlug: string) {
     },
   });
 
-  const meta = normalizeCountry(frontmatter as Partial<CountryMeta>, countrySlug);
+  const meta = normalizeCountry(
+    frontmatter as Partial<CountryMeta>,
+    countrySlug,
+  );
   return { content, meta };
 }
 
-export async function loadProgramPage(countrySlug: string, programSlug: string) {
+export async function loadProgramPage(
+  countrySlug: string,
+  programSlug: string,
+) {
   const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
   const source = fs.readFileSync(f, "utf8");
   const { content, frontmatter } = await compileMDX<ProgramMeta>({
@@ -502,20 +533,28 @@ export async function loadProgramPage(countrySlug: string, programSlug: string) 
     },
   });
 
-  const meta = normalizeProgram(frontmatter as Partial<ProgramMeta>, countrySlug, programSlug);
+  const meta = normalizeProgram(
+    frontmatter as Partial<ProgramMeta>,
+    countrySlug,
+    programSlug,
+  );
   return { content, meta };
 }
 
 /* ========= Section-by-section renderer (non-breaking) ========= */
 export async function loadProgramPageSections(
   countrySlug: string,
-  programSlug: string
+  programSlug: string,
 ): Promise<{ meta: ProgramMeta; sections: ProgramSections }> {
   const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
   const raw = fs.readFileSync(f, "utf8");
   const { data, content: body } = matter(raw);
 
-  const meta = normalizeProgram(data as Partial<ProgramMeta>, countrySlug, programSlug);
+  const meta = normalizeProgram(
+    data as Partial<ProgramMeta>,
+    countrySlug,
+    programSlug,
+  );
   const chunks = splitByH3(body);
 
   const entries = await Promise.all(
@@ -528,7 +567,7 @@ export async function loadProgramPageSections(
         },
       });
       return [key, content] as const;
-    })
+    }),
   );
 
   const sections = Object.fromEntries(entries) as ProgramSections;
@@ -538,10 +577,17 @@ export async function loadProgramPageSections(
 /* =========================
  * Frontmatter-only helpers
  * =======================*/
-export function getProgramFrontmatter(countrySlug: string, programSlug: string) {
+export function getProgramFrontmatter(
+  countrySlug: string,
+  programSlug: string,
+) {
   const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
   const { data } = matter(fs.readFileSync(f, "utf8"));
-  return normalizeProgram(data as Partial<ProgramMeta>, countrySlug, programSlug);
+  return normalizeProgram(
+    data as Partial<ProgramMeta>,
+    countrySlug,
+    programSlug,
+  );
 }
 
 export function getCountryFrontmatter(countrySlug: string) {

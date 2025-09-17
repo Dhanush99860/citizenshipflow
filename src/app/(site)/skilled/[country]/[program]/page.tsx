@@ -10,7 +10,11 @@ import {
   getSkilledPrograms,
   loadProgramPageSections,
 } from "@/lib/skilled-content";
-import { baseFromCategory, pickSectionKey, investmentLabel } from "@/lib/section-helpers";
+import {
+  baseFromCategory,
+  pickSectionKey,
+  investmentLabel,
+} from "@/lib/section-helpers";
 
 import MediaHero from "@/components/Residency/MediaHero";
 import QuickFacts from "@/components/Residency/QuickFacts";
@@ -42,14 +46,15 @@ export async function generateStaticParams() {
   return params;
 }
 
-export async function generateMetadata(
-  props: {
-    params: Promise<{ country: string; program: string }>;
-  }
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ country: string; program: string }>;
+}): Promise<Metadata> {
   const params = await props.params;
   try {
-    const { meta } = await loadProgramPageSections(params.country, params.program);
+    const { meta } = await loadProgramPageSections(
+      params.country,
+      params.program,
+    );
     const heroImage = (meta as any).heroImage as string | undefined;
     const title =
       (meta as any).seo?.title ??
@@ -63,7 +68,8 @@ export async function generateMetadata(
       (meta as any).description;
     const tags: string[] = (meta as any).tags ?? [];
     const keywords =
-      (meta as any).seo?.keywords ?? [title, (meta as any).country ?? params.country, ...tags].join(", ");
+      (meta as any).seo?.keywords ??
+      [title, (meta as any).country ?? params.country, ...tags].join(", ");
 
     const canonical = `${baseFromCategory("skilled")}/${params.country}/${params.program}`;
 
@@ -93,7 +99,7 @@ export async function generateMetadata(
 
 function similarityScore(
   base: { title: string; tags?: string[] },
-  cand: { title: string; tags?: string[] }
+  cand: { title: string; tags?: string[] },
 ) {
   const baseTags = new Set((base.tags ?? []).map((t) => t.toLowerCase()));
   const candTags = new Set((cand.tags ?? []).map((t) => t.toLowerCase()));
@@ -102,7 +108,7 @@ function similarityScore(
   const b = base.title.toLowerCase();
   const c = cand.title.toLowerCase();
   ["skilled", "talent", "work", "permit", "visa", "points"].forEach(
-    (k) => b.includes(k) && c.includes(k) && (score += 1)
+    (k) => b.includes(k) && c.includes(k) && (score += 1),
   );
   return score;
 }
@@ -119,16 +125,14 @@ type RelatedItem = {
   score: number;
 };
 
-export default async function ProgramPage(
-  props: {
-    params: Promise<{ country: string; program: string }>;
-  }
-) {
+export default async function ProgramPage(props: {
+  params: Promise<{ country: string; program: string }>;
+}) {
   const params = await props.params;
   try {
     const { meta, sections } = await loadProgramPageSections(
       params.country,
-      params.program
+      params.program,
     );
 
     const videoSrc = (meta as any).heroVideo as string | undefined;
@@ -141,7 +145,13 @@ export default async function ProgramPage(
     const processSteps: any[] = (meta as any).processSteps ?? [];
     const quickCheck = (meta as any).quickCheck as any | undefined;
     const prices = (meta as any).prices as
-      | { label: string; amount?: number; currency?: string; when?: string; notes?: string }[]
+      | {
+          label: string;
+          amount?: number;
+          currency?: string;
+          when?: string;
+          notes?: string;
+        }[]
       | undefined;
     const proofOfFunds = (meta as any).proofOfFunds as
       | { label?: string; amount: number; currency?: string; notes?: string }[]
@@ -166,21 +176,31 @@ export default async function ProgramPage(
         candidateTasks.push(
           (async () => {
             try {
-              const { meta: candMeta } = await loadProgramPageSections(ctry, progSlug);
+              const { meta: candMeta } = await loadProgramPageSections(
+                ctry,
+                progSlug,
+              );
               const candTitle =
                 (candMeta as any).title ?? (candMeta as any).name ?? progSlug;
               const score = similarityScore(
-                { title: (meta as any).title ?? params.program, tags: (meta as any).tags },
-                { title: candTitle, tags: (candMeta as any).tags }
+                {
+                  title: (meta as any).title ?? params.program,
+                  tags: (meta as any).tags,
+                },
+                { title: candTitle, tags: (candMeta as any).tags },
               );
               if (score <= 0) return null;
               return {
                 url: `${baseFromCategory("skilled")}/${ctry}/${progSlug}`,
                 title: candTitle as string,
                 country: (candMeta as any).country ?? ctry,
-                minInvestment: (candMeta as any).minInvestment as number | undefined,
+                minInvestment: (candMeta as any).minInvestment as
+                  | number
+                  | undefined,
                 currency: (candMeta as any).currency as string | undefined,
-                timelineMonths: (candMeta as any).timelineMonths as number | undefined,
+                timelineMonths: (candMeta as any).timelineMonths as
+                  | number
+                  | undefined,
                 tags: ((candMeta as any).tags ?? []) as string[],
                 heroImage: (candMeta as any).heroImage as string | undefined,
                 score,
@@ -188,12 +208,14 @@ export default async function ProgramPage(
             } catch {
               return null;
             }
-          })()
+          })(),
         );
       }
     }
 
-    const relatedRaw = (await Promise.all(candidateTasks)).filter(Boolean) as RelatedItem[];
+    const relatedRaw = (await Promise.all(candidateTasks)).filter(
+      Boolean,
+    ) as RelatedItem[];
     const relatedPrograms = relatedRaw
       .sort((a, b) => {
         if (a.score !== b.score) return b.score - a.score;
@@ -228,15 +250,32 @@ export default async function ProgramPage(
       { id: "quick-facts", label: "Quick Facts" },
       { id: "overview", label: "Overview" },
       { id: "investment", label: compLabel },
-      ...(prices?.length || proofOfFunds?.length ? [{ id: "prices", label: "Costs & Funds" }] : []),
-      ...(((meta as any).requirements?.length ?? 0) ? [{ id: "requirements", label: "Eligibility" }] : []),
-      ...(((meta as any).benefits?.length ?? 0) ? [{ id: "benefits", label: "Benefits" }] : []),
+      ...(prices?.length || proofOfFunds?.length
+        ? [{ id: "prices", label: "Costs & Funds" }]
+        : []),
+      ...(((meta as any).requirements?.length ?? 0)
+        ? [{ id: "requirements", label: "Eligibility" }]
+        : []),
+      ...(((meta as any).benefits?.length ?? 0)
+        ? [{ id: "benefits", label: "Benefits" }]
+        : []),
       ...(processSteps.length ? [{ id: "process", label: "Process" }] : []),
       { id: "comparison", label: "Comparison" },
-      ...(whyCountryKey ? [{ id: "why-country", label: `Why ${(meta as any).country ?? params.country}` }] : []),
+      ...(whyCountryKey
+        ? [
+            {
+              id: "why-country",
+              label: `Why ${(meta as any).country ?? params.country}`,
+            },
+          ]
+        : []),
       { id: "faq", label: "FAQ" },
-      ...(disqualifiers.length ? [{ id: "not-a-fit", label: "Not a fit?" }] : []),
-      ...(otherPrograms.length ? [{ id: "other-programs", label: "Other Programs" }] : []),
+      ...(disqualifiers.length
+        ? [{ id: "not-a-fit", label: "Not a fit?" }]
+        : []),
+      ...(otherPrograms.length
+        ? [{ id: "other-programs", label: "Other Programs" }]
+        : []),
       ...(relatedPrograms.length ? [{ id: "related", label: "Related" }] : []),
     ];
 
@@ -246,7 +285,8 @@ export default async function ProgramPage(
             "@context": "https://schema.org",
             "@type": "HowTo",
             name: `${(meta as any).title ?? params.program} Application Process`,
-            description: (meta as any).seo?.description ?? (meta as any).tagline,
+            description:
+              (meta as any).seo?.description ?? (meta as any).tagline,
             step: processSteps.map((step: any, index: number) => ({
               "@type": "HowToStep",
               position: index + 1,
@@ -300,15 +340,22 @@ export default async function ProgramPage(
         <JsonLd
           data={breadcrumbLd([
             { name: "Skilled", url: baseFromCategory("skilled") },
-            { name: (meta as any).country ?? params.country, url: `${baseFromCategory("skilled")}/${params.country}` },
+            {
+              name: (meta as any).country ?? params.country,
+              url: `${baseFromCategory("skilled")}/${params.country}`,
+            },
             {
               name: (meta as any).title ?? params.program,
               url: `${baseFromCategory("skilled")}/${params.country}/${params.program}`,
             },
           ])}
         />
-        {(meta as any).faq?.length ? <JsonLd data={faqLd((meta as any).faq)!} /> : null}
-        {howToLdData ? <JsonLd data={{ ...howToLdData, "@id": "#application-howto" }} /> : null}
+        {(meta as any).faq?.length ? (
+          <JsonLd data={faqLd((meta as any).faq)!} />
+        ) : null}
+        {howToLdData ? (
+          <JsonLd data={{ ...howToLdData, "@id": "#application-howto" }} />
+        ) : null}
         <JsonLd data={webPageLd} />
         {offerLd ? <JsonLd data={offerLd} /> : null}
         {/* HERO */}
@@ -321,8 +368,17 @@ export default async function ProgramPage(
               poster={poster}
               imageSrc={heroImage}
               actions={[
-                { href: "/PersonalBooking", label: "Book a Free Consultation", variant: "primary" },
-                { href: brochure, label: "Download Brochure", variant: "ghost", download: true },
+                {
+                  href: "/PersonalBooking",
+                  label: "Book a Free Consultation",
+                  variant: "primary",
+                },
+                {
+                  href: brochure,
+                  label: "Download Brochure",
+                  variant: "ghost",
+                  download: true,
+                },
               ]}
             />
           </div>
@@ -363,16 +419,20 @@ export default async function ProgramPage(
             {compensationKey && sections[compensationKey] && (
               <section id="investment" className="scroll-mt-28">
                 <header className="mb-3">
-                  <h2 className="text-xl font-semibold">{investmentLabel["skilled"]} overview</h2>
+                  <h2 className="text-xl font-semibold">
+                    {investmentLabel["skilled"]} overview
+                  </h2>
                 </header>
                 <Prose>{sections[compensationKey]}</Prose>
               </section>
             )}
 
-            {(prices?.length || proofOfFunds?.length) ? (
+            {prices?.length || proofOfFunds?.length ? (
               <section id="prices" className="scroll-mt-28 overflow-visible">
                 <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Costs & proof of funds</h2>
+                  <h2 className="text-xl font-semibold">
+                    Costs & proof of funds
+                  </h2>
                 </header>
                 <div className="w-full overflow-visible">
                   <Prices
@@ -437,7 +497,9 @@ export default async function ProgramPage(
             {whyCountryKey && sections[whyCountryKey] && (
               <section id="why-country" className="scroll-mt-28">
                 <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Why {(meta as any).country ?? params.country}</h2>
+                  <h2 className="text-xl font-semibold">
+                    Why {(meta as any).country ?? params.country}
+                  </h2>
                 </header>
                 <Prose>{sections[whyCountryKey]}</Prose>
               </section>
@@ -460,7 +522,10 @@ export default async function ProgramPage(
                 </ul>
                 <p className="mt-3 text-[14px]">
                   Not a match? Explore{" "}
-                  <Link href={`${baseFromCategory("skilled")}/${params.country}`} className="underline">
+                  <Link
+                    href={`${baseFromCategory("skilled")}/${params.country}`}
+                    className="underline"
+                  >
                     other programs in {(meta as any).country ?? params.country}
                   </Link>
                   .
@@ -471,7 +536,9 @@ export default async function ProgramPage(
             {(meta as any).faq?.length ? (
               <section id="faq" className="scroll-mt-28">
                 <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Frequently asked questions</h2>
+                  <h2 className="text-xl font-semibold">
+                    Frequently asked questions
+                  </h2>
                 </header>
                 <FAQAccordion faqs={(meta as any).faq} />
               </section>
@@ -502,11 +569,23 @@ export default async function ProgramPage(
                               {prog.title}
                             </h3>
                             <p className="mt-0.5 text-xs opacity-70">
-                              {(meta as any).country ?? params.country} · same country
+                              {(meta as any).country ?? params.country} · same
+                              country
                             </p>
                           </div>
-                          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full ring-1 ring-neutral-200 dark:ring-neutral-700 bg-black/5 dark:bg-white/10 transition group-hover:bg-black/10 group-hover:dark:bg-white/15" aria-hidden>
-                            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <span
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-full ring-1 ring-neutral-200 dark:ring-neutral-700 bg-black/5 dark:bg-white/10 transition group-hover:bg-black/10 group-hover:dark:bg-white/15"
+                            aria-hidden
+                          >
+                            <svg
+                              viewBox="0 0 24 24"
+                              className="h-4 w-4"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
                               <path d="M5 12h14M13 5l7 7-7 7" />
                             </svg>
                           </span>
@@ -536,7 +615,9 @@ export default async function ProgramPage(
                       typeof r.minInvestment === "number"
                         ? `${r.currency ?? ""} ${r.minInvestment.toLocaleString()}`
                         : "No minimum";
-                    const time = r.timelineMonths ? `${r.timelineMonths} mo` : "Varies";
+                    const time = r.timelineMonths
+                      ? `${r.timelineMonths} mo`
+                      : "Varies";
                     return (
                       <li key={r.url}>
                         <Link
@@ -547,11 +628,11 @@ export default async function ProgramPage(
                           <div className="relative aspect-[16/9] overflow-hidden">
                             {hasImg ? (
                               // eslint-disable-next-line @next/next/no-img-element
-                              (<img
+                              <img
                                 src={r.heroImage!}
                                 alt=""
                                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                              />)
+                              />
                             ) : (
                               <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-100 dark:from-neutral-800 dark:to-neutral-700 grid place-items-center">
                                 <span className="text-xs opacity-70">
@@ -567,12 +648,17 @@ export default async function ProgramPage(
                                 <h3 className="text-base font-semibold leading-6">
                                   {r.title}
                                 </h3>
-                                <p className="mt-0.5 text-xs opacity-70">{r.country}</p>
+                                <p className="mt-0.5 text-xs opacity-70">
+                                  {r.country}
+                                </p>
                               </div>
                               {!!r.tags?.length && (
                                 <div className="hidden md:flex flex-wrap gap-1 max-w-[220px] justify-end">
                                   {r.tags.slice(0, 3).map((t) => (
-                                    <span key={t} className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] opacity-80 ring-1 ring-neutral-200 dark:ring-neutral-700">
+                                    <span
+                                      key={t}
+                                      className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] opacity-80 ring-1 ring-neutral-200 dark:ring-neutral-700"
+                                    >
                                       {t}
                                     </span>
                                   ))}
@@ -581,12 +667,18 @@ export default async function ProgramPage(
                             </div>
                             <div className="mt-3 grid grid-cols-2 gap-2 text-[13px]">
                               <div className="rounded-xl p-2 bg-black/5 dark:bg-white/10 ring-1 ring-neutral-200 dark:ring-neutral-700">
-                                <div className="font-medium tabular-nums">{price}</div>
-                                <div className="text-[11px] opacity-70">Minimum investment</div>
+                                <div className="font-medium tabular-nums">
+                                  {price}
+                                </div>
+                                <div className="text-[11px] opacity-70">
+                                  Minimum investment
+                                </div>
                               </div>
                               <div className="rounded-xl p-2 bg-black/5 dark:bg-white/10 ring-1 ring-neutral-200 dark:ring-neutral-700">
                                 <div className="font-medium">{time}</div>
-                                <div className="text-[11px] opacity-70">Timeline</div>
+                                <div className="text-[11px] opacity-70">
+                                  Timeline
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -631,7 +723,6 @@ export default async function ProgramPage(
             </div>
           </aside>
         </div>
-        
       </main>
     );
   } catch (e) {

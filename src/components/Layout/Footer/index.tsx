@@ -117,7 +117,6 @@ export default function Footer() {
                 Subscribe
               </button>
             </form>
-
           </div>
 
           {/* Right – desktop grid / mobile accordion */}
@@ -164,15 +163,17 @@ export default function Footer() {
                         <Icon
                           icon="mdi:chevron-down"
                           width="16"
-                          className={`transition-transform ${isOpen ? "rotate-180" : ""
-                            }`}
+                          className={`transition-transform ${
+                            isOpen ? "rotate-180" : ""
+                          }`}
                         />
                       </span>
                     </button>
 
                     <div
-                      className={`overflow-hidden transition-[max-height] duration-300 ${isOpen ? "max-h-80" : "max-h-0"
-                        }`}
+                      className={`overflow-hidden transition-[max-height] duration-300 ${
+                        isOpen ? "max-h-80" : "max-h-0"
+                      }`}
                     >
                       <ul className="pb-4 space-y-2">
                         {sec.links.map((l) => (
@@ -198,18 +199,43 @@ export default function Footer() {
         <div className="py-8 border-b border-white/20">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold text-white">
-              You are building India’s future,{" "}
-              <br className="md:hidden" /> we are building yours.
+              You are building India’s future, <br className="md:hidden" /> we
+              are building yours.
             </h2>
 
             {/* Social icons row */}
             <div className="flex items-center gap-5 [&>a>svg]:w-8 [&>a>svg]:h-8">
               {[
-                { href: "#", label: "YouTube", icon: "mdi:youtube", hover: "hover:text-red-400" },
-                { href: "#", label: "LinkedIn", icon: "mdi:linkedin", hover: "hover:text-blue-400" },
-                { href: "#", label: "Facebook", icon: "mdi:facebook", hover: "hover:text-blue-500" },
-                { href: "#", label: "Instagram", icon: "mdi:instagram", hover: "hover:text-pink-400" },
-                { href: "#", label: "Twitter / X", icon: "mdi:twitter", hover: "hover:text-sky-400" },
+                {
+                  href: "#",
+                  label: "YouTube",
+                  icon: "mdi:youtube",
+                  hover: "hover:text-red-400",
+                },
+                {
+                  href: "#",
+                  label: "LinkedIn",
+                  icon: "mdi:linkedin",
+                  hover: "hover:text-blue-400",
+                },
+                {
+                  href: "#",
+                  label: "Facebook",
+                  icon: "mdi:facebook",
+                  hover: "hover:text-blue-500",
+                },
+                {
+                  href: "#",
+                  label: "Instagram",
+                  icon: "mdi:instagram",
+                  hover: "hover:text-pink-400",
+                },
+                {
+                  href: "#",
+                  label: "Twitter / X",
+                  icon: "mdi:twitter",
+                  hover: "hover:text-sky-400",
+                },
               ].map(({ href, label, icon, hover }) => (
                 <Link key={label} href={href} aria-label={label}>
                   <Icon
@@ -222,12 +248,14 @@ export default function Footer() {
           </div>
         </div>
 
-
         {/* ------- Payment Icons ------- */}
         <div className="py-6 flex flex-wrap items-center gap-4 justify-center md:justify-start">
           {[
             { src: "/images/footer/PaymentMethod/Amex.png", alt: "Amex" },
-            { src: "/images/footer/PaymentMethod/GooglePay.png", alt: "GooglePay" },
+            {
+              src: "/images/footer/PaymentMethod/GooglePay.png",
+              alt: "GooglePay",
+            },
             { src: "/images/footer/PaymentMethod/Maestro.png", alt: "Maestro" },
             { src: "/images/footer/PaymentMethod/PayPal.png", alt: "PayPal" },
             { src: "/images/footer/PaymentMethod/Stripe.png", alt: "Stripe" },
@@ -256,10 +284,7 @@ export default function Footer() {
             Investments in the securities market are subject to market risks and
             investors should read all the related documents carefully before
             investing. Terms and conditions of the website are applicable.{" "}
-            <Link
-              href="#"
-              className="underline hover:text-white transition"
-            >
+            <Link href="#" className="underline hover:text-white transition">
               Privacy Policy
             </Link>{" "}
             of the website is applicable.

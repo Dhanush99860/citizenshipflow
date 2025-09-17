@@ -7,7 +7,9 @@ export const revalidate = 86400;
 
 type PageProps = { params: { slug: string } };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const record = await getInsightBySlug("media", params.slug);
   if (!record) return { title: "Not Found" };
   const description = record.summary || `Media: ${record.title}`;

@@ -16,7 +16,11 @@ interface MobileSubMenuItemProps {
   level: number;
 }
 
-const MobileSubMenuItem: React.FC<MobileSubMenuItemProps> = ({ item, closeMenu, level }) => {
+const MobileSubMenuItem: React.FC<MobileSubMenuItemProps> = ({
+  item,
+  closeMenu,
+  level,
+}) => {
   const [open, setOpen] = useState(false);
 
   const handleSubClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -29,9 +33,9 @@ const MobileSubMenuItem: React.FC<MobileSubMenuItemProps> = ({ item, closeMenu, 
   };
 
   const colors = [
-    "text-gray-800 dark:text-white",     // level 1
-    "text-gray-700 dark:text-gray-200",  // level 2
-    "text-gray-600 dark:text-gray-400",  // level 3+
+    "text-gray-800 dark:text-white", // level 1
+    "text-gray-700 dark:text-gray-200", // level 2
+    "text-gray-600 dark:text-gray-400", // level 3+
   ];
 
   const padding = 8 + level * 4;
@@ -49,8 +53,8 @@ const MobileSubMenuItem: React.FC<MobileSubMenuItemProps> = ({ item, closeMenu, 
           hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg 
           transition-colors duration-200 focus-visible:outline-none 
           focus-visible:ring-2 focus-visible:ring-secondary ${
-          colors[level - 1] || colors[2]
-        }`}
+            colors[level - 1] || colors[2]
+          }`}
       >
         {item.label}
         {item.submenu && (
@@ -65,7 +69,11 @@ const MobileSubMenuItem: React.FC<MobileSubMenuItemProps> = ({ item, closeMenu, 
             strokeWidth={2}
             aria-hidden="true"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 9l6 6 6-6"
+            />
           </svg>
         )}
       </Link>
@@ -101,7 +109,11 @@ const MobileSubMenuItem: React.FC<MobileSubMenuItemProps> = ({ item, closeMenu, 
   );
 };
 
-const MobileHeaderLink: React.FC<MobileHeaderLinkProps> = ({ item, closeMenu, level = 1 }) => {
+const MobileHeaderLink: React.FC<MobileHeaderLinkProps> = ({
+  item,
+  closeMenu,
+  level = 1,
+}) => {
   const [submenuOpen, setSubmenuOpen] = useState(false);
 
   const handleToggle = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -125,16 +137,18 @@ const MobileHeaderLink: React.FC<MobileHeaderLinkProps> = ({ item, closeMenu, le
           className={`flex items-center justify-between w-full py-3 px-4 rounded-lg 
             transition-colors duration-200 focus-visible:outline-none 
             focus-visible:ring-2 focus-visible:ring-secondary ${
-            level === 1
-              ? "text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-              : ""
-          }`}
+              level === 1
+                ? "text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                : ""
+            }`}
         >
           {item.label}
           {item.submenu && (
             <svg
               className={`w-5 h-5 ml-2 transition-transform duration-300 ${
-                submenuOpen ? "rotate-180 text-blue-500" : "rotate-0 text-gray-400"
+                submenuOpen
+                  ? "rotate-180 text-blue-500"
+                  : "rotate-0 text-gray-400"
               }`}
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -143,7 +157,11 @@ const MobileHeaderLink: React.FC<MobileHeaderLinkProps> = ({ item, closeMenu, le
               strokeWidth={2}
               aria-hidden="true"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 9l6 6 6-6"
+              />
             </svg>
           )}
         </Link>

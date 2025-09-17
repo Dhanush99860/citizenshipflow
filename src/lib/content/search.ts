@@ -1,12 +1,12 @@
-import 'server-only';
-import MiniSearch from 'minisearch';
-import { getAllContentCached } from './index';
+import "server-only";
+import MiniSearch from "minisearch";
+import { getAllContentCached } from "./index";
 
 type SDoc = {
   id: string;
   title: string;
   summary?: string;
-  kind: 'program' | 'hub';
+  kind: "program" | "hub";
   url: string;
   verticals?: string[];
   countries?: string[];
@@ -22,7 +22,7 @@ export function getSearch() {
 
   const all = getAllContentCached();
   const docs: SDoc[] = all.map((d, i) =>
-    d.kind === 'program'
+    d.kind === "program"
       ? {
           id: `p_${i}`,
           title: d.title,
@@ -50,9 +50,30 @@ export function getSearch() {
   );
 
   mini = new MiniSearch<SDoc>({
-    fields: ['title', 'summary', 'tags', 'verticals', 'countries', 'programs', 'body'],
-    storeFields: ['title', 'summary', 'kind', 'url', 'verticals', 'countries', 'programs', 'tags'],
-    searchOptions: { boost: { title: 4, tags: 2, summary: 1.5 }, prefix: true, fuzzy: 0.1 },
+    fields: [
+      "title",
+      "summary",
+      "tags",
+      "verticals",
+      "countries",
+      "programs",
+      "body",
+    ],
+    storeFields: [
+      "title",
+      "summary",
+      "kind",
+      "url",
+      "verticals",
+      "countries",
+      "programs",
+      "tags",
+    ],
+    searchOptions: {
+      boost: { title: 4, tags: 2, summary: 1.5 },
+      prefix: true,
+      fuzzy: 0.1,
+    },
   });
 
   mini.addAll(docs);

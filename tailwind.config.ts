@@ -13,14 +13,16 @@ const config: Config = {
     // was "./markdown/**/*.{md,mdx}" — your MDX actually lives in /content
     "./content/**/*.{md,mdx}",
   ],
-  
 
   future: { hoverOnlyWhenSupported: true },
 
   safelist: [
     "prose",
     "prose-invert",
-    { pattern: /(bg|text|border|ring)-(primary|secondary|success|warning|error)/ },
+    {
+      pattern:
+        /(bg|text|border|ring)-(primary|secondary|success|warning|error)/,
+    },
     { pattern: /(bg|text|border)-(darkmode|dark_border|dark_bg|dark_text)/ },
   ],
 
@@ -127,7 +129,10 @@ const config: Config = {
       },
       keyframes: {
         fadeIn: { "0%": { opacity: "0" }, "100%": { opacity: "1" } },
-        shine: { "0%": { transform: "translateX(-100%)" }, "100%": { transform: "translateX(100%)" } },
+        shine: {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
       },
       animation: {
         fadeIn: "fadeIn 0.5s ease-in-out",

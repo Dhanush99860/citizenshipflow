@@ -27,7 +27,7 @@ export default function Section({
         "w-full",
         padded && "py-6 sm:py-8",
         "text-gray-900 dark:text-gray-100",
-        className
+        className,
       )}
     >
       {(title || subtitle) && (

@@ -160,20 +160,35 @@ export default function InsightCard({
           {/* Meta row (12px) */}
           <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-neutral-500 dark:text-neutral-400">
             {displayDate && (
-              <time dateTime={(item.updated || item.date)!} className="whitespace-nowrap">
+              <time
+                dateTime={(item.updated || item.date)!}
+                className="whitespace-nowrap"
+              >
                 {displayDate}
               </time>
             )}
             {author && (
               <>
-                <span aria-hidden className="text-neutral-300 dark:text-neutral-600">•</span>
+                <span
+                  aria-hidden
+                  className="text-neutral-300 dark:text-neutral-600"
+                >
+                  •
+                </span>
                 <span className="truncate">{author}</span>
               </>
             )}
             {typeof item.readingTimeMins === "number" && (
               <>
-                <span aria-hidden className="text-neutral-300 dark:text-neutral-600">•</span>
-                <span className="whitespace-nowrap">{item.readingTimeMins} min read</span>
+                <span
+                  aria-hidden
+                  className="text-neutral-300 dark:text-neutral-600"
+                >
+                  •
+                </span>
+                <span className="whitespace-nowrap">
+                  {item.readingTimeMins} min read
+                </span>
               </>
             )}
           </div>

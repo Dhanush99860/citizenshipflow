@@ -1,13 +1,13 @@
-export type Vertical = 'residency' | 'citizenship' | 'skilled' | 'corporate';
+export type Vertical = "residency" | "citizenship" | "skilled" | "corporate";
 
 export type QuickFact = { label: string; value: string };
 
 export type ProgramDoc = {
-  kind: 'program';
+  kind: "program";
   title: string;
   vertical: Vertical;
-  country: string;     // slug
-  program: string;     // slug
+  country: string; // slug
+  program: string; // slug
   summary?: string;
   updatedAt?: string;
   heroImage?: string;
@@ -17,14 +17,14 @@ export type ProgramDoc = {
   tags?: string[];
   quickFacts?: QuickFact[];
   faq?: { q: string; a: string }[];
-  body: string;        // MDX raw
-  path: string;        // fs path
-  url: string;         // canonical url
+  body: string; // MDX raw
+  path: string; // fs path
+  url: string; // canonical url
 };
 
-export type HubKind = 'blog' | 'news' | 'article';
+export type HubKind = "blog" | "news" | "article";
 export type HubDoc = {
-  kind: 'hub';
+  kind: "hub";
   type: HubKind;
   title: string;
   summary?: string;

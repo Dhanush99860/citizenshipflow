@@ -25,12 +25,14 @@ export default function ExpertBooking() {
         <div className="space-y-6">
           <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-800 dark:text-gray-100 leading-tight">
             Schedule a Personal{" "}
-            <span className="bg-gradient-to-r from-primary/70 to-primary/90 bg-clip-text text-transparent">Consultation</span>
+            <span className="bg-gradient-to-r from-primary/70 to-primary/90 bg-clip-text text-transparent">
+              Consultation
+            </span>
           </h2>
           <p className="text-lg text-slate-600 dark:text-slate-300 max-w-lg">
             Get one-on-one guidance with our{" "}
-            <span className="font-semibold">Senior Expert</span>. Learn how our proven
-            strategies can help you achieve your goals with confidence.
+            <span className="font-semibold">Senior Expert</span>. Learn how our
+            proven strategies can help you achieve your goals with confidence.
           </p>
 
           <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
@@ -44,25 +46,50 @@ export default function ExpertBooking() {
                 icon: (
                   <CheckCircle className="w-5 h-5 text-blue-600 dark:text-white relative z-10" />
                 ),
-                text: <>Direct call with <span className="font-semibold">MD / Senior Consultant</span></>,
+                text: (
+                  <>
+                    Direct call with{" "}
+                    <span className="font-semibold">
+                      MD / Senior Consultant
+                    </span>
+                  </>
+                ),
               },
               {
                 icon: (
                   <User className="w-5 h-5 text-blue-600 dark:text-white relative z-10" />
                 ),
-                text: <>Personalized strategy built for <span className="font-semibold">your profile</span></>,
+                text: (
+                  <>
+                    Personalized strategy built for{" "}
+                    <span className="font-semibold">your profile</span>
+                  </>
+                ),
               },
               {
                 icon: (
                   <Briefcase className="w-5 h-5 text-blue-600 dark:text-white relative z-10" />
                 ),
-                text: <>In-depth review of <span className="font-semibold">opportunities & programs</span></>,
+                text: (
+                  <>
+                    In-depth review of{" "}
+                    <span className="font-semibold">
+                      opportunities & programs
+                    </span>
+                  </>
+                ),
               },
               {
                 icon: (
                   <Globe className="w-5 h-5 text-blue-600 dark:text-white relative z-10" />
                 ),
-                text: <>Access to <span className="font-semibold">global expertise</span> & legal clarity</>,
+                text: (
+                  <>
+                    Access to{" "}
+                    <span className="font-semibold">global expertise</span> &
+                    legal clarity
+                  </>
+                ),
               },
             ].map((item, i) => (
               <div
@@ -88,7 +115,6 @@ export default function ExpertBooking() {
 
         {/* RIGHT CONTENT - VIDEO */}
         <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-[16/9] md:aspect-auto md:h-full border-[6px] border-blue-50">
-
           {/* Glossy Border Effect */}
           <div className="absolute inset-0 rounded-3xl pointer-events-none border-[6px] border-blue-100 bg-gradient-to-tr from-white/40 via-white/10 to-transparent backdrop-blur-2xl" />
 
@@ -111,17 +137,38 @@ export default function ExpertBooking() {
             className="absolute bottom-5 right-5 bg-white/90 dark:bg-slate-800/90 rounded-full p-3 shadow-lg backdrop-blur hover:scale-105 transition"
           >
             {isPlaying ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 text-blue-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 9v6m4-6v6"
+                />
               </svg>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-5.197-3.027A1 1 0 008 9.027v5.946a1 1 0 001.555.832l5.197-3.027a1 1 0 000-1.664z" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 text-blue-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M14.752 11.168l-5.197-3.027A1 1 0 008 9.027v5.946a1 1 0 001.555.832l5.197-3.027a1 1 0 000-1.664z"
+                />
               </svg>
             )}
           </button>
         </div>
-
       </div>
     </section>
   );

@@ -42,7 +42,7 @@ export default async function InsightsPage({ searchParams }: PageProps) {
     if (p > 1) params.set("page", String(p));
     const qs = params.toString();
     return `/insights${qs ? `?${qs}` : ""}`;
-    };
+  };
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
@@ -72,7 +72,9 @@ export default async function InsightsPage({ searchParams }: PageProps) {
             href={makePageHref(Math.max(1, page - 1))}
             aria-disabled={page <= 1}
             className={`px-3 py-1.5 rounded border ${
-              page <= 1 ? "pointer-events-none opacity-50" : "hover:bg-gray-50 dark:hover:bg-gray-800"
+              page <= 1
+                ? "pointer-events-none opacity-50"
+                : "hover:bg-gray-50 dark:hover:bg-gray-800"
             }`}
           >
             Previous
@@ -84,7 +86,9 @@ export default async function InsightsPage({ searchParams }: PageProps) {
             href={makePageHref(Math.min(totalPages, page + 1))}
             aria-disabled={page >= totalPages}
             className={`px-3 py-1.5 rounded border ${
-              page >= totalPages ? "pointer-events-none opacity-50" : "hover:bg-gray-50 dark:hover:bg-gray-800"
+              page >= totalPages
+                ? "pointer-events-none opacity-50"
+                : "hover:bg-gray-50 dark:hover:bg-gray-800"
             }`}
           >
             Next

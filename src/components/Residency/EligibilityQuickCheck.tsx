@@ -8,7 +8,10 @@ import { CheckCircle, AlertTriangle, RefreshCw } from "lucide-react";
 /* ---------------- Types ---------------- */
 type Ans = "yes" | "no" | "";
 type Question = { id: string; label: string; desc?: string };
-type Policy = { type: "all" } | { type: "any" } | { type: "threshold"; minYes: number };
+type Policy =
+  | { type: "all" }
+  | { type: "any" }
+  | { type: "threshold"; minYes: number };
 type VerdictText = {
   successTitle: string;
   successText: string;
@@ -32,7 +35,8 @@ type QuickCheckConfig = {
 const DEFAULT_POLICY: Policy = { type: "all" };
 const DEFAULT_VERDICT: VerdictText = {
   successTitle: "Looks eligible",
-  successText: "You seem to meet the key criteria — talk to an advisor to confirm.",
+  successText:
+    "You seem to meet the key criteria — talk to an advisor to confirm.",
   cautionTitle: "May be eligible",
   cautionText: "Some answers need review. There may be alternative routes.",
 };
@@ -44,7 +48,11 @@ const DEFAULT_CTAS: Required<QuickCheckCTAs> = {
 };
 
 /* ---------------- Component ---------------- */
-export default function EligibilityQuickCheck({ config }: { config?: QuickCheckConfig | null }) {
+export default function EligibilityQuickCheck({
+  config,
+}: {
+  config?: QuickCheckConfig | null;
+}) {
   const reduceMotion = useReducedMotion();
 
   const questions = Array.isArray(config?.questions) ? config!.questions : [];
@@ -57,11 +65,11 @@ export default function EligibilityQuickCheck({ config }: { config?: QuickCheckC
   /* Persist answers per unique question set */
   const storageKey = useMemo(
     () => `eligibility-quickcheck:${questions.map((q) => q.id).join("|")}`,
-    [questions]
+    [questions],
   );
 
   const [answers, setAnswers] = useState<Record<string, Ans>>(
-    Object.fromEntries(questions.map((q) => [q.id, ""])) as Record<string, Ans>
+    Object.fromEntries(questions.map((q) => [q.id, ""])) as Record<string, Ans>,
   );
   const [autoAdvance, setAutoAdvance] = useState(true);
 
@@ -70,10 +78,9 @@ export default function EligibilityQuickCheck({ config }: { config?: QuickCheckC
       const raw = sessionStorage.getItem(storageKey);
       if (raw) {
         const parsed = JSON.parse(raw) as Record<string, Ans>;
-        const filtered = Object.fromEntries(questions.map((q) => [q.id, parsed[q.id] ?? ""])) as Record<
-          string,
-          Ans
-        >;
+        const filtered = Object.fromEntries(
+          questions.map((q) => [q.id, parsed[q.id] ?? ""]),
+        ) as Record<string, Ans>;
         setAnswers(filtered);
       }
     } catch {}
@@ -102,7 +109,9 @@ export default function EligibilityQuickCheck({ config }: { config?: QuickCheckC
   const isPartiallyInView = (el: HTMLElement) => {
     const r = el.getBoundingClientRect();
     const vh = window.innerHeight || document.documentElement.clientHeight;
-    return r.top >= 0 && r.bottom <= vh ? true : r.top < vh - 80 && r.bottom > 80;
+    return r.top >= 0 && r.bottom <= vh
+      ? true
+      : r.top < vh - 80 && r.bottom > 80;
   };
 
   function setAns(id: string, value: "yes" | "no") {
@@ -111,7 +120,9 @@ export default function EligibilityQuickCheck({ config }: { config?: QuickCheckC
 
     const idx = questions.findIndex((q) => q.id === id);
     const next =
-      questions.slice(idx + 1).find((q) => !answers[q.id] || answers[q.id] === "") ||
+      questions
+        .slice(idx + 1)
+        .find((q) => !answers[q.id] || answers[q.id] === "") ||
       questions.find((q) => !answers[q.id] || answers[q.id] === "");
     if (next && next.id !== id) {
       const el = qRefs.current[next.id];
@@ -120,13 +131,19 @@ export default function EligibilityQuickCheck({ config }: { config?: QuickCheckC
           el.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }
         // focus the first radio of the next question (no layout shift)
-        setTimeout(() => el.querySelector<HTMLInputElement>('input[type="radio"]')?.focus(), 32);
+        setTimeout(
+          () =>
+            el.querySelector<HTMLInputElement>('input[type="radio"]')?.focus(),
+          32,
+        );
       }
     }
   }
 
   function reset() {
-    const fresh = Object.fromEntries(questions.map((q) => [q.id, ""])) as Record<string, Ans>;
+    const fresh = Object.fromEntries(
+      questions.map((q) => [q.id, ""]),
+    ) as Record<string, Ans>;
     setAnswers(fresh);
     try {
       sessionStorage.removeItem(storageKey);
@@ -148,7 +165,10 @@ export default function EligibilityQuickCheck({ config }: { config?: QuickCheckC
   }, [ready, yesCount, questions.length, policy]);
 
   /* JSON-LD (SEO) */
-  const jsonLd = useMemo(() => toItemListLd("Quick eligibility questions", questions), [questions]);
+  const jsonLd = useMemo(
+    () => toItemListLd("Quick eligibility questions", questions),
+    [questions],
+  );
 
   /* ---------------- Subcomponent: Radio pill ---------------- */
   function PillRadio({
@@ -177,8 +197,8 @@ export default function EligibilityQuickCheck({ config }: { config?: QuickCheckC
           ? "bg-emerald-600 text-white hover:bg-emerald-600"
           : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300"
         : checked
-        ? "bg-rose-600 text-white hover:bg-rose-600"
-        : "bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-900/20 dark:text-rose-300";
+          ? "bg-rose-600 text-white hover:bg-rose-600"
+          : "bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-900/20 dark:text-rose-300";
 
     return (
       <div className="relative">
@@ -239,7 +259,8 @@ export default function EligibilityQuickCheck({ config }: { config?: QuickCheckC
             Quick eligibility check
           </h3>
           <p className="text-sm opacity-80 mt-1">
-            Answer {questions.length} short question{questions.length > 1 ? "s" : ""}. No data is sent to our servers.
+            Answer {questions.length} short question
+            {questions.length > 1 ? "s" : ""}. No data is sent to our servers.
           </p>
         </div>
 
@@ -280,7 +301,11 @@ export default function EligibilityQuickCheck({ config }: { config?: QuickCheckC
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
-            transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 140, damping: 18 }}
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : { type: "spring", stiffness: 140, damping: 18 }
+            }
             className={`h-2 rounded-full ${progress === 100 ? "bg-sky-600" : "bg-sky-500"}`}
           />
         </div>
@@ -319,7 +344,9 @@ export default function EligibilityQuickCheck({ config }: { config?: QuickCheckC
                 <span className="mr-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-sky-600 text-white text-[11px] align-middle">
                   {idx + 1}
                 </span>
-                <span className="sr-only">Question {idx + 1} of {questions.length} — </span>
+                <span className="sr-only">
+                  Question {idx + 1} of {questions.length} —{" "}
+                </span>
                 {q.label}
               </legend>
               {q.desc ? (
@@ -355,7 +382,11 @@ export default function EligibilityQuickCheck({ config }: { config?: QuickCheckC
       </div>
 
       {/* Result / CTA */}
-      <div id="eligibility-result" className="relative z-10 mt-5" aria-live="polite">
+      <div
+        id="eligibility-result"
+        className="relative z-10 mt-5"
+        aria-live="polite"
+      >
         {ready ? (
           <motion.div
             initial={{ opacity: 0, y: 6 }}
@@ -408,19 +439,23 @@ export default function EligibilityQuickCheck({ config }: { config?: QuickCheckC
             </div>
 
             <p className="mt-2 text-[12px] opacity-70">
-              This is an indicative check only. Final eligibility depends on your full profile and current regulations.
+              This is an indicative check only. Final eligibility depends on
+              your full profile and current regulations.
             </p>
           </motion.div>
         ) : (
           <p className="mt-2 text-sm opacity-80">
-            Select answers above to get an instant indication and tailored next steps.
+            Select answers above to get an instant indication and tailored next
+            steps.
           </p>
         )}
       </div>
 
       {/* Footer */}
       <footer className="relative z-10 mt-4 flex items-center justify-between gap-3">
-        <p className="text-xs opacity-70">We respect your privacy — answers stay in your browser.</p>
+        <p className="text-xs opacity-70">
+          We respect your privacy — answers stay in your browser.
+        </p>
         <Link
           href="/contact"
           className="text-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded"
@@ -443,18 +478,36 @@ export default function EligibilityQuickCheck({ config }: { config?: QuickCheckC
 /* ---------------- Background (subtle, white-first, light grid) ---------------- */
 function BackgroundGraphics() {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 print:hidden">
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 print:hidden"
+    >
       {/* white-first with brand-blue glows */}
       <div className="absolute -top-24 -left-20 h-56 w-56 rounded-full bg-sky-400/12 blur-3xl" />
       <div className="absolute -bottom-24 -right-16 h-64 w-64 rounded-full bg-blue-500/12 blur-3xl" />
       {/* faint grid */}
       <svg className="absolute inset-0 h-full w-full opacity-[0.05] dark:opacity-[0.07]">
         <defs>
-          <pattern id="qc-grid" width="24" height="24" patternUnits="userSpaceOnUse">
-            <path d="M24 0H0v24" fill="none" stroke="currentColor" strokeWidth="0.75" />
+          <pattern
+            id="qc-grid"
+            width="24"
+            height="24"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M24 0H0v24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="0.75"
+            />
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#qc-grid)" className="text-sky-900 dark:text-sky-300" />
+        <rect
+          width="100%"
+          height="100%"
+          fill="url(#qc-grid)"
+          className="text-sky-900 dark:text-sky-300"
+        />
       </svg>
       {/* top gloss for mobile legibility */}
       <div className="absolute left-0 right-0 top-0 h-8 bg-gradient-to-b from-white/60 to-transparent dark:from-white/10" />

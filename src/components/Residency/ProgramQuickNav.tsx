@@ -32,7 +32,8 @@ export default function ProgramQuickNav({ sections }: { sections: Section[] }) {
   const pickActive = () => {
     if (!ids.length) return;
     const offset = getTopOffset();
-    const pos = window.scrollY + offset + Math.min(64, window.innerHeight * 0.15);
+    const pos =
+      window.scrollY + offset + Math.min(64, window.innerHeight * 0.15);
     let current = ids[0];
     for (const id of ids) {
       const top = topsRef.current[id];
@@ -55,18 +56,28 @@ export default function ProgramQuickNav({ sections }: { sections: Section[] }) {
   const scrollToSection = (id: string, smooth = true) => {
     const el = document.getElementById(id);
     if (!el) return;
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const behavior: ScrollBehavior = !smooth || prefersReduced ? "auto" : "smooth";
-    const target = el.getBoundingClientRect().top + window.scrollY - getTopOffset();
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    const behavior: ScrollBehavior =
+      !smooth || prefersReduced ? "auto" : "smooth";
+    const target =
+      el.getBoundingClientRect().top + window.scrollY - getTopOffset();
     window.scrollTo({ top: Math.max(0, target), behavior });
     history.replaceState(null, "", `#${id}`);
   };
 
   const centerActive = (navId: string) => {
     const nav = document.getElementById(navId);
-    const active = nav?.querySelector<HTMLAnchorElement>('a[aria-current="page"]');
+    const active = nav?.querySelector<HTMLAnchorElement>(
+      'a[aria-current="page"]',
+    );
     if (active && nav) {
-      active.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      active.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
     }
   };
 

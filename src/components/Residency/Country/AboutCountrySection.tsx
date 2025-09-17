@@ -100,7 +100,12 @@ export default function AboutCountrySection({
         {chips.length > 0 ? (
           <div className="mt-4 flex flex-wrap items-center gap-2.5">
             {chips.map((c) => (
-              <Chip key={c.label} label={c.label} value={c.value} color={c.color} />
+              <Chip
+                key={c.label}
+                label={c.label}
+                value={c.value}
+                color={c.color}
+              />
             ))}
           </div>
         ) : null}
@@ -140,7 +145,13 @@ export default function AboutCountrySection({
                   ring-1 ring-sky-200/60 dark:ring-sky-900/50 text-sky-700 dark:text-sky-300
                 "
               >
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                >
                   <path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3Z" />
                   <rect x="8" y="9" width="8" height="6" rx="1.5" />
                 </svg>
@@ -150,7 +161,10 @@ export default function AboutCountrySection({
                 <div className="text-[13px] uppercase tracking-wide text-neutral-700/90 dark:text-neutral-300">
                   Official source
                 </div>
-                <div className="mt-0.5 text-[15px] font-semibold leading-6 text-neutral-900 dark:text-neutral-100" itemProp="name">
+                <div
+                  className="mt-0.5 text-[15px] font-semibold leading-6 text-neutral-900 dark:text-neutral-100"
+                  itemProp="name"
+                >
                   {officialAgencyName || "Official government site"}
                 </div>
                 <div className="mt-2">
@@ -169,8 +183,19 @@ export default function AboutCountrySection({
                     itemProp="url"
                   >
                     Visit website
-                    <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                      <path d="M9 5h6m0 0v6m0-6L9 11" strokeLinecap="round" strokeLinejoin="round" />
+                    <svg
+                      viewBox="0 0 20 20"
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      aria-hidden
+                    >
+                      <path
+                        d="M9 5h6m0 0v6m0-6L9 11"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </Link>
                 </div>
@@ -197,30 +222,109 @@ function ImmigrationGraphics() {
   return (
     <>
       {/* Soft radial glows */}
-      <div aria-hidden className="pointer-events-none absolute -top-24 -left-20 h-56 w-56 rounded-full bg-sky-400/15 blur-3xl" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-24 -right-16 h-64 w-64 rounded-full bg-blue-500/15 blur-3xl" />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-24 -left-20 h-56 w-56 rounded-full bg-sky-400/15 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-24 -right-16 h-64 w-64 rounded-full bg-blue-500/15 blur-3xl"
+      />
       {/* Blueprint/grid + subtle motifs */}
-      <svg aria-hidden className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.06] dark:opacity-[0.08]">
+      <svg
+        aria-hidden
+        className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.06] dark:opacity-[0.08]"
+      >
         <defs>
-          <pattern id="imm-grid" width="24" height="24" patternUnits="userSpaceOnUse">
-            <path d="M24 0H0V24" fill="none" stroke="currentColor" strokeWidth="0.75" />
+          <pattern
+            id="imm-grid"
+            width="24"
+            height="24"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M24 0H0V24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="0.75"
+            />
           </pattern>
           <symbol id="visa-stamp" viewBox="0 0 120 80">
-            <rect x="3" y="3" width="114" height="74" rx="10" ry="10" fill="none" stroke="currentColor" strokeWidth="4" />
-            <rect x="18" y="22" width="84" height="16" rx="3" fill="none" stroke="currentColor" strokeWidth="4" />
-            <rect x="18" y="46" width="54" height="14" rx="3" fill="none" stroke="currentColor" strokeWidth="4" />
+            <rect
+              x="3"
+              y="3"
+              width="114"
+              height="74"
+              rx="10"
+              ry="10"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <rect
+              x="18"
+              y="22"
+              width="84"
+              height="16"
+              rx="3"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <rect
+              x="18"
+              y="46"
+              width="54"
+              height="14"
+              rx="3"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
           </symbol>
           <symbol id="passport" viewBox="0 0 96 96">
-            <rect x="14" y="10" width="68" height="76" rx="8" fill="none" stroke="currentColor" strokeWidth="4" />
-            <circle cx="48" cy="42" r="16" fill="none" stroke="currentColor" strokeWidth="4" />
+            <rect
+              x="14"
+              y="10"
+              width="68"
+              height="76"
+              rx="8"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <circle
+              cx="48"
+              cy="42"
+              r="16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
             <path d="M32 68h32" stroke="currentColor" strokeWidth="4" />
           </symbol>
           <symbol id="globe" viewBox="0 0 96 96">
-            <circle cx="48" cy="48" r="30" fill="none" stroke="currentColor" strokeWidth="4" />
-            <path d="M18 48h60M48 18v60M29 29c10 6 28 6 38 0M29 67c10-6 28-6 38 0" stroke="currentColor" strokeWidth="4" />
+            <circle
+              cx="48"
+              cy="48"
+              r="30"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              d="M18 48h60M48 18v60M29 29c10 6 28 6 38 0M29 67c10-6 28-6 38 0"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
           </symbol>
         </defs>
-        <rect width="100%" height="100%" fill="url(#imm-grid)" className="text-sky-700 dark:text-sky-300" />
+        <rect
+          width="100%"
+          height="100%"
+          fill="url(#imm-grid)"
+          className="text-sky-700 dark:text-sky-300"
+        />
         <g className="text-sky-800 dark:text-sky-300" opacity="0.06">
           <use href="#visa-stamp" x="40" y="40" />
           <use href="#passport" x="260" y="120" />
@@ -228,17 +332,35 @@ function ImmigrationGraphics() {
         </g>
       </svg>
       {/* Top gloss for legibility on mobile */}
-      <div aria-hidden className="pointer-events-none absolute left-0 right-0 top-0 h-10 bg-gradient-to-b from-white/60 to-transparent dark:from-white/10" />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-0 right-0 top-0 h-10 bg-gradient-to-b from-white/60 to-transparent dark:from-white/10"
+      />
     </>
   );
 }
 
 /* ----------------- Subcomponents ----------------- */
 
-function Chip({ label, value, color }: { label: string; value: React.ReactNode; color: Accent }) {
+function Chip({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: React.ReactNode;
+  color: Accent;
+}) {
   const c = accent(color);
   return (
-    <span className={["inline-flex items-center gap-2 rounded-full px-3 py-1 text-[12px] ring-1", c.chipBg, c.chipText, c.chipRing].join(" ")}>
+    <span
+      className={[
+        "inline-flex items-center gap-2 rounded-full px-3 py-1 text-[12px] ring-1",
+        c.chipBg,
+        c.chipText,
+        c.chipRing,
+      ].join(" ")}
+    >
       <span className={`h-1.5 w-1.5 rounded-full ${c.dot}`} />
       <span className="font-semibold">{label}:</span>
       <span className="font-medium">{value}</span>
@@ -264,15 +386,26 @@ function StatCard({ item }: { item: FactItem }) {
       itemScope
       itemType="https://schema.org/PropertyValue"
     >
-      <div aria-hidden className={`pointer-events-none absolute -right-12 -top-10 h-28 w-28 rounded-full ${c.accentArc} opacity-10 blur-2xl`} />
+      <div
+        aria-hidden
+        className={`pointer-events-none absolute -right-12 -top-10 h-28 w-28 rounded-full ${c.accentArc} opacity-10 blur-2xl`}
+      />
       <meta itemProp="name" content={item.label} />
       <div className="flex items-start gap-3">
-        <span aria-hidden className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${c.bubbleBg} ${c.iconText} ring-1 ring-inset ${c.bubbleRing}`}>
+        <span
+          aria-hidden
+          className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${c.bubbleBg} ${c.iconText} ring-1 ring-inset ${c.bubbleRing}`}
+        >
           <IconCmp className="h-4 w-4" />
         </span>
         <div className="min-w-0">
-          <dt className="text-[11px] uppercase tracking-wide text-neutral-600 dark:text-neutral-400">{item.label}</dt>
-          <dd className="mt-0.5 text-[15px] font-semibold leading-6 text-neutral-900 dark:text-neutral-100 break-words hyphens-auto" itemProp="value">
+          <dt className="text-[11px] uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+            {item.label}
+          </dt>
+          <dd
+            className="mt-0.5 text-[15px] font-semibold leading-6 text-neutral-900 dark:text-neutral-100 break-words hyphens-auto"
+            itemProp="value"
+          >
             {item.value}
           </dd>
         </div>
@@ -288,13 +421,21 @@ function buildFactItems(f?: CountryFacts) {
   const list: FactItem[] = [
     {
       label: "Population",
-      value: typeof f.population === "number" ? Number(f.population).toLocaleString() : f.population,
+      value:
+        typeof f.population === "number"
+          ? Number(f.population).toLocaleString()
+          : f.population,
       Icon: Users,
       accent: "blue",
     },
     { label: "Capital", value: f.capital, Icon: Landmark, accent: "emerald" },
     { label: "Language", value: f.language, Icon: Languages, accent: "violet" },
-    { label: "Currency", value: f.currency, Icon: BadgeDollarSign, accent: "amber" },
+    {
+      label: "Currency",
+      value: f.currency,
+      Icon: BadgeDollarSign,
+      accent: "amber",
+    },
     { label: "Time zone", value: f.timeZone, Icon: Clock, accent: "sky" },
     { label: "Climate", value: f.climate, Icon: CloudSun, accent: "rose" },
   ];
@@ -303,13 +444,21 @@ function buildFactItems(f?: CountryFacts) {
 
 /** Show up to 3 concise chips when available */
 function buildHighlightChips(f?: CountryFacts) {
-  if (!f) return [] as Array<{ label: string; value: React.ReactNode; color: Accent }>;
-  const pool: Array<{ label: string; value?: React.ReactNode; color: Accent }> = [
-    { label: "Capital", value: f.capital, color: "emerald" },
-    { label: "Language", value: f.language, color: "violet" },
-    { label: "Currency", value: f.currency, color: "amber" },
-  ];
-  return pool.filter((p) => p.value != null && p.value !== "").slice(0, 3) as Array<{
+  if (!f)
+    return [] as Array<{
+      label: string;
+      value: React.ReactNode;
+      color: Accent;
+    }>;
+  const pool: Array<{ label: string; value?: React.ReactNode; color: Accent }> =
+    [
+      { label: "Capital", value: f.capital, color: "emerald" },
+      { label: "Language", value: f.language, color: "violet" },
+      { label: "Currency", value: f.currency, color: "amber" },
+    ];
+  return pool
+    .filter((p) => p.value != null && p.value !== "")
+    .slice(0, 3) as Array<{
     label: string;
     value: React.ReactNode;
     color: Accent;
@@ -319,18 +468,33 @@ function buildHighlightChips(f?: CountryFacts) {
 /* ----------------- SEO JSON-LD ----------------- */
 function factsToLd(country: string, f?: CountryFacts) {
   if (!f) return null;
-  const additionalProperty: Array<{ "@type": "PropertyValue"; name: string; value: string | number }> = [];
+  const additionalProperty: Array<{
+    "@type": "PropertyValue";
+    name: string;
+    value: string | number;
+  }> = [];
   const push = (name: string, value?: string | number) => {
-    if (value !== undefined && value !== "") additionalProperty.push({ "@type": "PropertyValue", name, value });
+    if (value !== undefined && value !== "")
+      additionalProperty.push({ "@type": "PropertyValue", name, value });
   };
-  push("Population", typeof f.population === "number" ? Number(f.population) : (f.population as any));
+  push(
+    "Population",
+    typeof f.population === "number"
+      ? Number(f.population)
+      : (f.population as any),
+  );
   push("Capital", f.capital);
   push("Language", f.language);
   push("Currency", f.currency);
   push("Time zone", f.timeZone);
   push("Climate", f.climate);
   if (!additionalProperty.length) return null;
-  return { "@context": "https://schema.org", "@type": "Country", name: country, additionalProperty };
+  return {
+    "@context": "https://schema.org",
+    "@type": "Country",
+    name: country,
+    additionalProperty,
+  };
 }
 
 /* ----------------- Accent tokens ----------------- */

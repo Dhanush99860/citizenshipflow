@@ -47,7 +47,12 @@ export type ProofOfFundsRow = {
 
 export type QuickCheckConfig = {
   title?: string;
-  questions?: { id: string; label: string; type: "boolean" | "select" | "number" | "text"; options?: string[] }[];
+  questions?: {
+    id: string;
+    label: string;
+    type: "boolean" | "select" | "number" | "text";
+    options?: string[];
+  }[];
 };
 
 export type ProgramMeta = {
@@ -90,7 +95,8 @@ function toDisplayString(v: unknown): string {
   if (typeof v === "string") return v;
   if (v && typeof v === "object") {
     const [k, val] = Object.entries(v as Record<string, unknown>)[0] ?? [];
-    if (k !== undefined) return `${k}${val !== undefined ? `: ${String(val)}` : ""}`;
+    if (k !== undefined)
+      return `${k}${val !== undefined ? `: ${String(val)}` : ""}`;
   }
   return v == null ? "" : String(v);
 }
@@ -115,7 +121,8 @@ const toTitle = (slug: string) =>
 
 const coerceNum = (v: unknown): number | undefined => {
   if (typeof v === "number") return v;
-  if (typeof v === "string" && v.trim() !== "" && !isNaN(Number(v))) return Number(v);
+  if (typeof v === "string" && v.trim() !== "" && !isNaN(Number(v)))
+    return Number(v);
   return undefined;
 };
 
@@ -181,7 +188,8 @@ type Cache = {
   mtimes?: Map<string, number>;
 };
 const _g = globalThis as any;
-if (!_g.__SKILLED_CACHE__) _g.__SKILLED_CACHE__ = { mtimes: new Map() } as Cache;
+if (!_g.__SKILLED_CACHE__)
+  _g.__SKILLED_CACHE__ = { mtimes: new Map() } as Cache;
 const CACHE: Cache = _g.__SKILLED_CACHE__;
 
 function mtime(file: string) {
@@ -200,7 +208,10 @@ function dirStamp(root: string): number {
     const full = path.join(root, ent.name);
     if (ent.isDirectory()) {
       stamp = Math.max(stamp, dirStamp(full));
-    } else if (ent.isFile() && (ent.name.endsWith(".mdx") || ent.name.endsWith(".md"))) {
+    } else if (
+      ent.isFile() &&
+      (ent.name.endsWith(".mdx") || ent.name.endsWith(".md"))
+    ) {
       stamp = Math.max(stamp, mtime(full));
     } else {
       stamp = Math.max(stamp, mtime(full));
@@ -212,15 +223,22 @@ function dirStamp(root: string): number {
 /* =========================
  * Normalizers (SANITIZED)
  * =======================*/
-function normalizeCountry(metaIn: Partial<CountryMeta>, slug: string): CountryMeta {
+function normalizeCountry(
+  metaIn: Partial<CountryMeta>,
+  slug: string,
+): CountryMeta {
   const meta: any = { ...metaIn };
   const countrySlug = meta.countrySlug || slug;
   const country = meta.country || meta.title || toTitle(countrySlug);
-  const title = meta.title || (typeof country === "string" ? country : toTitle(countrySlug));
+  const title =
+    meta.title ||
+    (typeof country === "string" ? country : toTitle(countrySlug));
 
   // Fallback avoids 404s; keep your custom images when present
   const heroImage =
-    meta.heroImage || `/images/countries/${countrySlug}-hero-poster.jpg` || `/images/countries/default-hero-poster.jpg`;
+    meta.heroImage ||
+    `/images/countries/${countrySlug}-hero-poster.jpg` ||
+    `/images/countries/default-hero-poster.jpg`;
 
   // --- sanitize arrays that UI renders as text ---
   meta.introPoints = coerceStringArray(meta.introPoints);
@@ -238,19 +256,31 @@ function normalizeCountry(metaIn: Partial<CountryMeta>, slug: string): CountryMe
   } as CountryMeta;
 }
 
-function normalizeProgram(metaIn: Partial<ProgramMeta>, cSlug: string, pSlug: string): ProgramMeta {
+function normalizeProgram(
+  metaIn: Partial<ProgramMeta>,
+  cSlug: string,
+  pSlug: string,
+): ProgramMeta {
   const meta: any = { ...metaIn };
   meta.programSlug = meta.programSlug || pSlug;
   meta.countrySlug = meta.countrySlug || cSlug;
   meta.category = "skilled";
-  if (meta.minInvestment !== undefined) meta.minInvestment = coerceNum(meta.minInvestment);
-  if (meta.timelineMonths !== undefined) meta.timelineMonths = coerceNum(meta.timelineMonths);
+  if (meta.minInvestment !== undefined)
+    meta.minInvestment = coerceNum(meta.minInvestment);
+  if (meta.timelineMonths !== undefined)
+    meta.timelineMonths = coerceNum(meta.timelineMonths);
 
   if (Array.isArray(meta.prices)) {
-    meta.prices = meta.prices.map((row: any) => ({ ...row, amount: coerceNum(row?.amount) }));
+    meta.prices = meta.prices.map((row: any) => ({
+      ...row,
+      amount: coerceNum(row?.amount),
+    }));
   }
   if (Array.isArray(meta.proofOfFunds)) {
-    meta.proofOfFunds = meta.proofOfFunds.map((row: any) => ({ ...row, amount: coerceNum(row?.amount) ?? 0 }));
+    meta.proofOfFunds = meta.proofOfFunds.map((row: any) => ({
+      ...row,
+      amount: coerceNum(row?.amount) ?? 0,
+    }));
   }
 
   // --- sanitize arrays that UI renders as text ---
@@ -324,7 +354,11 @@ export function getSkilledPrograms(countrySlug?: string): ProgramMeta[] {
   const cacheKey = `${ROOT_DIR}::programsAll`;
   const cacheStamp = `${ROOT_DIR}::programs_dir_mtime`;
 
-  if (!countrySlug && CACHE.programsAll && CACHE.mtimes?.get(cacheStamp) === stamp) {
+  if (
+    !countrySlug &&
+    CACHE.programsAll &&
+    CACHE.mtimes?.get(cacheStamp) === stamp
+  ) {
     return CACHE.programsAll;
   }
 
@@ -340,7 +374,9 @@ export function getSkilledPrograms(countrySlug?: string): ProgramMeta[] {
     }
   }
 
-  const sorted = out.sort((a, b) => (a.countrySlug + a.title).localeCompare(b.countrySlug + b.title));
+  const sorted = out.sort((a, b) =>
+    (a.countrySlug + a.title).localeCompare(b.countrySlug + b.title),
+  );
   if (!countrySlug) {
     CACHE.programsAll = sorted;
     CACHE.mtimes?.set(cacheKey, Date.now());
@@ -362,11 +398,17 @@ export async function loadCountryPage(countrySlug: string) {
       mdxOptions: baseMdxOptions as any,
     },
   });
-  const meta = normalizeCountry(frontmatter as Partial<CountryMeta>, countrySlug);
+  const meta = normalizeCountry(
+    frontmatter as Partial<CountryMeta>,
+    countrySlug,
+  );
   return { content, meta };
 }
 
-export async function loadProgramPage(countrySlug: string, programSlug: string) {
+export async function loadProgramPage(
+  countrySlug: string,
+  programSlug: string,
+) {
   const f = path.join(ROOT_DIR, countrySlug, `${programSlug}.mdx`);
   const source = fs.readFileSync(f, "utf8");
   const { content, frontmatter } = await compileMDX<ProgramMeta>({
@@ -376,20 +418,28 @@ export async function loadProgramPage(countrySlug: string, programSlug: string) 
       mdxOptions: baseMdxOptions as any,
     },
   });
-  const meta = normalizeProgram(frontmatter as Partial<ProgramMeta>, countrySlug, programSlug);
+  const meta = normalizeProgram(
+    frontmatter as Partial<ProgramMeta>,
+    countrySlug,
+    programSlug,
+  );
   return { content, meta };
 }
 
 /** Section-by-section renderer (same as residency) */
 export async function loadProgramPageSections(
   countrySlug: string,
-  programSlug: string
+  programSlug: string,
 ): Promise<{ meta: ProgramMeta; sections: Record<string, ReactNode> }> {
   const f = path.join(ROOT_DIR, countrySlug, `${programSlug}.mdx`);
   const raw = fs.readFileSync(f, "utf8");
   const { data, content: body } = matter(raw);
 
-  const meta = normalizeProgram(data as Partial<ProgramMeta>, countrySlug, programSlug);
+  const meta = normalizeProgram(
+    data as Partial<ProgramMeta>,
+    countrySlug,
+    programSlug,
+  );
   const chunks = splitByH3(body);
 
   const entries = await Promise.all(
@@ -399,7 +449,7 @@ export async function loadProgramPageSections(
         options: { parseFrontmatter: false, mdxOptions: baseMdxOptions as any },
       });
       return [key, content] as const;
-    })
+    }),
   );
 
   const sections = Object.fromEntries(entries) as Record<string, ReactNode>;
@@ -409,10 +459,17 @@ export async function loadProgramPageSections(
 /* =========================
  * Frontmatter-only helpers
  * =======================*/
-export function getProgramFrontmatter(countrySlug: string, programSlug: string) {
+export function getProgramFrontmatter(
+  countrySlug: string,
+  programSlug: string,
+) {
   const f = path.join(ROOT_DIR, countrySlug, `${programSlug}.mdx`);
   const { data } = matter(fs.readFileSync(f, "utf8"));
-  return normalizeProgram(data as Partial<ProgramMeta>, countrySlug, programSlug);
+  return normalizeProgram(
+    data as Partial<ProgramMeta>,
+    countrySlug,
+    programSlug,
+  );
 }
 
 export function getCountryFrontmatter(countrySlug: string) {

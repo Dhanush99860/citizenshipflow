@@ -3,9 +3,20 @@
 import * as React from "react";
 import clsx from "clsx";
 
-export function Steps({ children, className }: { children: React.ReactNode; className?: string }) {
+export function Steps({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <ol className={clsx("relative border-s border-gray-200 dark:border-gray-700 space-y-6", className)}>
+    <ol
+      className={clsx(
+        "relative border-s border-gray-200 dark:border-gray-700 space-y-6",
+        className,
+      )}
+    >
       {children}
     </ol>
   );
@@ -24,7 +35,11 @@ export function Step({ title, children, number }: StepProps) {
         {typeof number === "number" ? number : "•"}
       </span>
       <h3 className="text-lg font-semibold">{title}</h3>
-      {children && <div className="mt-2 text-sm text-gray-700 dark:text-gray-300">{children}</div>}
+      {children && (
+        <div className="mt-2 text-sm text-gray-700 dark:text-gray-300">
+          {children}
+        </div>
+      )}
     </li>
   );
 }

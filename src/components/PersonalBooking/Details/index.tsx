@@ -42,9 +42,13 @@ function ArticleCard({ a }: { a: ArticleMeta }) {
         <img src={a.hero} alt={a.title} className="w-full h-40 object-cover" />
       ) : null}
       <div className="p-4">
-        <h3 className="font-semibold leading-snug group-hover:underline">{a.title}</h3>
+        <h3 className="font-semibold leading-snug group-hover:underline">
+          {a.title}
+        </h3>
         {a.summary ? (
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{a.summary}</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+            {a.summary}
+          </p>
         ) : null}
         <div className="mt-2 text-xs text-gray-500">
           {a.date ? new Date(a.date).toLocaleDateString() : null}
@@ -64,7 +68,7 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
           if (entry.isIntersecting) setActive(entry.target.id);
         });
       },
-      { rootMargin: "-50% 0px -50% 0px" }
+      { rootMargin: "-50% 0px -50% 0px" },
     );
 
     navItems.forEach((item) => {
@@ -143,24 +147,54 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
 
       {/* Sections */}
       <AnimatePresence mode="wait">
-        <motion.section id="expert" key="expert" initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }} transition={{ duration: 0.5, ease: "easeOut" }}>
+        <motion.section
+          id="expert"
+          key="expert"
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 50 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
           <Expert />
         </motion.section>
 
-        <motion.section id="problem" key="problem" initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} transition={{ duration: 0.5, ease: "easeOut" }}>
+        <motion.section
+          id="problem"
+          key="problem"
+          initial={{ opacity: 0, x: 50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -50 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
           <InvestmentStats />
         </motion.section>
 
-        <motion.section id="solution" key="solution" initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} transition={{ duration: 0.5, ease: "easeOut" }}>
+        <motion.section
+          id="solution"
+          key="solution"
+          initial={{ opacity: 0, x: 50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -50 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
           <Solutions />
         </motion.section>
 
         {/* ✅ Latest Articles (from props; no server imports here) */}
-        <motion.section id="articles" key="articles" initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }} transition={{ duration: 0.5, ease: "easeOut" }}>
+        <motion.section
+          id="articles"
+          key="articles"
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 50 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
           <div className="container mx-auto lg:max-w-screen-xl px-4 py-8">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-2xl font-semibold">Latest Articles</h2>
-              <a href="/articles" className="text-blue-600 hover:underline">View all</a>
+              <a href="/articles" className="text-blue-600 hover:underline">
+                View all
+              </a>
             </div>
             {articles?.length ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -169,16 +203,32 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 dark:text-gray-400">No articles yet.</p>
+              <p className="text-gray-500 dark:text-gray-400">
+                No articles yet.
+              </p>
             )}
           </div>
         </motion.section>
 
-        <motion.section id="awards" key="awards" initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} transition={{ duration: 0.5, ease: "easeOut" }}>
+        <motion.section
+          id="awards"
+          key="awards"
+          initial={{ opacity: 0, x: 50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -50 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
           <Awards />
         </motion.section>
 
-        <motion.section id="testimonials" key="testimonials" initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} transition={{ duration: 0.5, ease: "easeOut" }}>
+        <motion.section
+          id="testimonials"
+          key="testimonials"
+          initial={{ opacity: 0, x: 50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -50 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
           <TestimonialSection />
         </motion.section>
       </AnimatePresence>

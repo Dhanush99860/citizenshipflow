@@ -63,7 +63,10 @@ function months(m?: number) {
 }
 
 const slugify = (s: string) =>
-  (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  (s || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 
 function programId(p: Partial<AnyProgram>): string {
   const cat = (p as any)?.category ?? "residency";
@@ -120,13 +123,13 @@ export default function TopPrograms({ programs }: { programs: AnyProgram[] }) {
       <ul className="flex flex-col gap-3">
         {list.map((p: AnyProgram, idx: number) => {
           const rawImg =
-            (("image" in (p as any)) && (p as any).image) ||
-            (("heroImage" in (p as any)) && (p as any).heroImage) ||
+            ("image" in (p as any) && (p as any).image) ||
+            ("heroImage" in (p as any) && (p as any).heroImage) ||
             undefined;
 
           const imgSrc = normalizeImageSrc(
             rawImg as string | undefined,
-            `/images/countries/${(p as any).countrySlug}-hero-poster.jpg`
+            `/images/countries/${(p as any).countrySlug}-hero-poster.jpg`,
           );
 
           const href = safeHref(p);
@@ -137,7 +140,7 @@ export default function TopPrograms({ programs }: { programs: AnyProgram[] }) {
           const investment = hasInvestment
             ? money(
                 (p as any).minInvestment as number,
-                (p as any).currency as string | undefined
+                (p as any).currency as string | undefined,
               )
             : "Varies";
           const timeline = months((p as any).timelineMonths);
@@ -199,7 +202,10 @@ export default function TopPrograms({ programs }: { programs: AnyProgram[] }) {
                         className="flex items-center gap-1.5 rounded-lg bg-black/5 px-2 py-1 ring-1 ring-neutral-200 dark:bg-white/10 dark:ring-neutral-700"
                         title={`Minimum investment: ${investment}`}
                       >
-                        <Banknote className="h-3.5 w-3.5 opacity-70 text-black dark:text-white" aria-hidden />
+                        <Banknote
+                          className="h-3.5 w-3.5 opacity-70 text-black dark:text-white"
+                          aria-hidden
+                        />
                         <span className="font-medium tabular-nums truncate text-black dark:text-white">
                           {investment}
                         </span>
@@ -208,7 +214,10 @@ export default function TopPrograms({ programs }: { programs: AnyProgram[] }) {
                         className="flex items-center gap-1.5 rounded-lg bg-black/5 px-2 py-1 ring-1 ring-neutral-200 dark:bg-white/10 dark:ring-neutral-700"
                         title={`Typical timeline: ${timeline}`}
                       >
-                        <Timer className="h-3.5 w-3.5 opacity-70 text-black dark:text-white" aria-hidden />
+                        <Timer
+                          className="h-3.5 w-3.5 opacity-70 text-black dark:text-white"
+                          aria-hidden
+                        />
                         <span className="font-medium tabular-nums truncate text-black dark:text-white">
                           {timeline}
                         </span>
@@ -242,12 +251,26 @@ export default function TopPrograms({ programs }: { programs: AnyProgram[] }) {
 
                     {/* Per-card Offer microdata */}
                     {hasInvestment ? (
-                      <div className="hidden" itemProp="offers" itemScope itemType="https://schema.org/Offer">
-                        <meta itemProp="price" content={String((p as any).minInvestment)} />
+                      <div
+                        className="hidden"
+                        itemProp="offers"
+                        itemScope
+                        itemType="https://schema.org/Offer"
+                      >
+                        <meta
+                          itemProp="price"
+                          content={String((p as any).minInvestment)}
+                        />
                         {(p as any).currency ? (
-                          <meta itemProp="priceCurrency" content={String((p as any).currency).toUpperCase()} />
+                          <meta
+                            itemProp="priceCurrency"
+                            content={String((p as any).currency).toUpperCase()}
+                          />
                         ) : null}
-                        <link itemProp="availability" href="https://schema.org/InStock" />
+                        <link
+                          itemProp="availability"
+                          href="https://schema.org/InStock"
+                        />
                       </div>
                     ) : null}
                   </div>

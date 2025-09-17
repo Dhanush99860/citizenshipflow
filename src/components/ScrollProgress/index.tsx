@@ -19,7 +19,8 @@ export default function ScrollProgress({ targetId }: ScrollProgressProps) {
         return totalHeight > 0 ? (scrollTop / totalHeight) * 100 : 0;
       } else {
         const totalHeight =
-          document.documentElement.scrollHeight - document.documentElement.clientHeight;
+          document.documentElement.scrollHeight -
+          document.documentElement.clientHeight;
         const scrollTop = window.scrollY;
         return totalHeight > 0 ? (scrollTop / totalHeight) * 100 : 0;
       }

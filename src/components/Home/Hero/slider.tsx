@@ -29,13 +29,13 @@ const CardSlider = () => {
         { breakpoint: 1280, settings: { slidesToShow: 3 } },
       ],
     }),
-    []
+    [],
   );
 
   // Headlines for ticker
   const headlines = useMemo(
     () => cardData.map((item) => `${item.title} — ${item.short}`),
-    []
+    [],
   );
 
   // JSON-LD structured data
@@ -51,7 +51,7 @@ const CardSlider = () => {
         description: item.short,
       })),
     }),
-    []
+    [],
   );
 
   return (

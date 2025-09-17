@@ -1,31 +1,31 @@
-import 'server-only';
-import fs from 'node:fs';
-import path from 'node:path';
-import matter from 'gray-matter';
-import { AnyDoc, HubDoc, ProgramDoc, Vertical } from './types';
+import "server-only";
+import fs from "node:fs";
+import path from "node:path";
+import matter from "gray-matter";
+import { AnyDoc, HubDoc, ProgramDoc, Vertical } from "./types";
 
-const CONTENT_DIR = path.join(process.cwd(), 'content');
-const HUB_DIRS = new Set(['blog', 'news', 'articles']);
+const CONTENT_DIR = path.join(process.cwd(), "content");
+const HUB_DIRS = new Set(["blog", "news", "articles"]);
 
 const walk = (dir: string): string[] =>
   fs.readdirSync(dir).flatMap((name) => {
     const full = path.join(dir, name);
     const stat = fs.statSync(full);
     if (stat.isDirectory()) return walk(full);
-    return full.endsWith('.mdx') ? [full] : [];
+    return full.endsWith(".mdx") ? [full] : [];
   });
 
 const toUrl = (file: string): string => {
-  const rel = path.relative(CONTENT_DIR, file).replace(/\\/g, '/');
-  const segs = rel.split('/');
+  const rel = path.relative(CONTENT_DIR, file).replace(/\\/g, "/");
+  const segs = rel.split("/");
   if (HUB_DIRS.has(segs[0])) {
     const type = segs[0];
-    const slug = path.basename(file, '.mdx');
+    const slug = path.basename(file, ".mdx");
     return `/${type}/${slug}`;
   }
   const [vertical, country, fileName] = segs;
-  const program = path.basename(fileName, '.mdx');
-  if (program === '_country') return `/${vertical}/${country}`;
+  const program = path.basename(fileName, ".mdx");
+  if (program === "_country") return `/${vertical}/${country}`;
   return `/${vertical}/${country}/${program}`;
 };
 
@@ -35,19 +35,19 @@ export function loadAllContent(): AnyDoc[] {
   const out: AnyDoc[] = [];
 
   for (const file of files) {
-    const rel = path.relative(CONTENT_DIR, file).replace(/\\/g, '/');
-    const [a, b, c] = rel.split('/');
-    const raw = fs.readFileSync(file, 'utf8');
+    const rel = path.relative(CONTENT_DIR, file).replace(/\\/g, "/");
+    const [a, b, c] = rel.split("/");
+    const raw = fs.readFileSync(file, "utf8");
     const { data, content } = matter(raw);
 
     if (HUB_DIRS.has(a)) {
       out.push({
-        kind: 'hub',
-        type: a as HubDoc['type'],
-        title: data.title ?? path.basename(file, '.mdx'),
-        summary: data.summary ?? '',
-        updatedAt: data.updatedAt ?? data.date ?? '',
-        heroImage: data.heroImage ?? '',
+        kind: "hub",
+        type: a as HubDoc["type"],
+        title: data.title ?? path.basename(file, ".mdx"),
+        summary: data.summary ?? "",
+        updatedAt: data.updatedAt ?? data.date ?? "",
+        heroImage: data.heroImage ?? "",
         tags: data.tags ?? [],
         verticals: data.verticals ?? [],
         countries: data.countries ?? [],
@@ -63,14 +63,14 @@ export function loadAllContent(): AnyDoc[] {
     const country = b;
     const fileName = c;
 
-    if (fileName === '_country.mdx') {
+    if (fileName === "_country.mdx") {
       out.push({
-        kind: 'hub',
-        type: 'article',
+        kind: "hub",
+        type: "article",
         title: data.title ?? `${country} ${vertical} overview`,
-        summary: data.summary ?? '',
-        updatedAt: data.updatedAt ?? '',
-        heroImage: data.heroImage ?? '',
+        summary: data.summary ?? "",
+        updatedAt: data.updatedAt ?? "",
+        heroImage: data.heroImage ?? "",
         tags: data.tags ?? [],
         verticals: [vertical],
         countries: [country],
@@ -82,20 +82,20 @@ export function loadAllContent(): AnyDoc[] {
       continue;
     }
 
-    const program = path.basename(fileName, '.mdx');
+    const program = path.basename(fileName, ".mdx");
 
     out.push({
-      kind: 'program',
+      kind: "program",
       title: data.title ?? program,
       vertical,
       country,
       program,
-      summary: data.summary ?? data.tagline ?? '',
-      updatedAt: data.updatedAt ?? data.date ?? '',
-      heroImage: data.heroImage ?? '',
-      heroVideo: data.heroVideo ?? '',
-      heroPoster: data.heroPoster ?? '',
-      brochure: data.brochure ?? '',
+      summary: data.summary ?? data.tagline ?? "",
+      updatedAt: data.updatedAt ?? data.date ?? "",
+      heroImage: data.heroImage ?? "",
+      heroVideo: data.heroVideo ?? "",
+      heroPoster: data.heroPoster ?? "",
+      brochure: data.brochure ?? "",
       tags: data.tags ?? [],
       quickFacts: data.quickFacts ?? [],
       faq: data.faq ?? [],

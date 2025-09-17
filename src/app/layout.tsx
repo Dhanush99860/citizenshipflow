@@ -39,8 +39,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "XIPHIAS Immigration",
-    description:
-      "Residency & Citizenship solutions for HNWIs and enterprises.",
+    description: "Residency & Citizenship solutions for HNWIs and enterprises.",
     images: ["/og.jpg"],
   },
 };
@@ -62,7 +61,11 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
         {/* Preconnect improves font loading */}
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
       </head>
       <body className={`${font.className} antialiased`}>

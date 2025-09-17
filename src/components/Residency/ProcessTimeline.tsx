@@ -49,10 +49,7 @@ export default function ProcessTimeline({
       ) : null}
 
       {/* Timeline list */}
-      <ol
-        className="space-y-4 sm:space-y-5"
-        aria-label="Application steps"
-      >
+      <ol className="space-y-4 sm:space-y-5" aria-label="Application steps">
         {steps.map((raw, i) => {
           const step = raw as Step & {
             duration?: string;
@@ -122,7 +119,7 @@ export default function ProcessTimeline({
                 ) : null}
 
                 {/* Optional meta chips */}
-                {(step.duration || step.docs || step.outcome) ? (
+                {step.duration || step.docs || step.outcome ? (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {step.outcome ? (
                       <Chip icon={<CheckCircle2 className="h-3.5 w-3.5" />}>

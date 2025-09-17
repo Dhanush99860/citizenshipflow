@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 
-export default function ReadingProgress({ targetId = "article-content" }: { targetId?: string }) {
+export default function ReadingProgress({
+  targetId = "article-content",
+}: {
+  targetId?: string;
+}) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -29,7 +33,10 @@ export default function ReadingProgress({ targetId = "article-content" }: { targ
   }, [targetId]);
 
   return (
-    <div aria-hidden className="fixed left-0 right-0 top-0 h-1 bg-transparent z-40">
+    <div
+      aria-hidden
+      className="fixed left-0 right-0 top-0 h-1 bg-transparent z-40"
+    >
       <div
         className="h-full bg-black dark:bg-white transition-[width]"
         style={{ width: `${progress}%` }}

@@ -45,7 +45,9 @@ export default function Video({
   aspect = "16/9",
   className,
 }: Props) {
-  const style: React.CSSProperties = { aspectRatio: aspectToCSS[aspect] || "16 / 9" };
+  const style: React.CSSProperties = {
+    aspectRatio: aspectToCSS[aspect] || "16 / 9",
+  };
 
   // If neither url nor src is provided, render nothing (avoids crashes)
   if (!url && !src) return null;
@@ -57,8 +59,8 @@ export default function Video({
     const type = lower.endsWith(".webm")
       ? "video/webm"
       : lower.endsWith(".ogg") || lower.endsWith(".ogv")
-      ? "video/ogg"
-      : "video/mp4";
+        ? "video/ogg"
+        : "video/mp4";
 
     return (
       <figure className={["my-6", className].filter(Boolean).join(" ")}>
@@ -83,7 +85,9 @@ export default function Video({
           </video>
         </div>
         {title && (
-          <figcaption className="mt-2 text-sm text-black/80 dark:text-white/80">{title}</figcaption>
+          <figcaption className="mt-2 text-sm text-black/80 dark:text-white/80">
+            {title}
+          </figcaption>
         )}
       </figure>
     );
@@ -108,7 +112,9 @@ export default function Video({
         />
       </div>
       {title && (
-        <figcaption className="mt-2 text-sm text-black/80 dark:text-white/80">{title}</figcaption>
+        <figcaption className="mt-2 text-sm text-black/80 dark:text-white/80">
+          {title}
+        </figcaption>
       )}
     </figure>
   );

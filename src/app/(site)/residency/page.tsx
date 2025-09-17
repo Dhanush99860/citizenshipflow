@@ -48,19 +48,27 @@ export default function ResidencyPage() {
         <ResidencyLanding countries={countries} topPrograms={top10} />
       </main>
       <div className="mt-10 grid gap-6 lg:grid-cols-3 max-w-screen-2xl mx-auto px-4 py-10 text-black dark:text-white">
-          <OurOffer className="lg:col-span-2" />
-          <TestimonialCarousel
-            items={[
-              { quote: "Flawless execution from due diligence to passport delivery.", author: "Family Office, Dubai" },
-              { quote: "Transparent costs and genuinely vetted projects.", author: "HNWI, Singapore" },
-              { quote: "Impressive compliance depth—exactly what we needed.", author: "Private Banker, Zurich" },
-            ]}
-          />
-        </div>
-        <InsightsPreview limit={6} />  
+        <OurOffer className="lg:col-span-2" />
+        <TestimonialCarousel
+          items={[
+            {
+              quote:
+                "Flawless execution from due diligence to passport delivery.",
+              author: "Family Office, Dubai",
+            },
+            {
+              quote: "Transparent costs and genuinely vetted projects.",
+              author: "HNWI, Singapore",
+            },
+            {
+              quote: "Impressive compliance depth—exactly what we needed.",
+              author: "Private Banker, Zurich",
+            },
+          ]}
+        />
+      </div>
+      <InsightsPreview limit={6} />
       <Footer />
     </>
   );
 }
-
-

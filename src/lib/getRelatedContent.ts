@@ -49,7 +49,10 @@ export async function getRelatedContent({
     // Recency boost for articles/news with date
     const date = d.updated || d.date;
     if (date) {
-      const ageDays = Math.max(0, (Date.now() - new Date(date).getTime()) / 86400000);
+      const ageDays = Math.max(
+        0,
+        (Date.now() - new Date(date).getTime()) / 86400000,
+      );
       // 0 days -> +2, 180 days -> ~+1, 365+ -> ~+0.5
       s += Math.max(0.5, 2 - ageDays / 180);
     }
@@ -63,7 +66,9 @@ export async function getRelatedContent({
 
   // Remove exact duplicates by id
   const seen = new Set<string>();
-  const unique = ranked.filter((d) => (seen.has(d.id) ? false : (seen.add(d.id), true)));
+  const unique = ranked.filter((d) =>
+    seen.has(d.id) ? false : (seen.add(d.id), true),
+  );
 
   return unique.slice(0, limit);
 }

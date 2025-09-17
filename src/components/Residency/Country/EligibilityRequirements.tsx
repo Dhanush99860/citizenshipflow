@@ -16,7 +16,8 @@ function toDisplayString(v: unknown): string {
   if (typeof v === "string") return v;
   if (v && typeof v === "object") {
     const [k, val] = Object.entries(v as Record<string, unknown>)[0] ?? [];
-    if (k !== undefined) return `${k}${val !== undefined ? `: ${String(val)}` : ""}`;
+    if (k !== undefined)
+      return `${k}${val !== undefined ? `: ${String(val)}` : ""}`;
   }
   return v == null ? "" : String(v);
 }
@@ -41,9 +42,13 @@ export default function EligibilityRequirements({
   const gridCols = columns === 1 ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2";
 
   // JSON-LD only for arrays
-  const jsonLd = isList ? buildItemListLd("Eligibility requirements", list) : null;
+  const jsonLd = isList
+    ? buildItemListLd("Eligibility requirements", list)
+    : null;
 
-  const regionProps = isList ? { itemScope: true, itemType: "https://schema.org/ItemList" } : {};
+  const regionProps = isList
+    ? { itemScope: true, itemType: "https://schema.org/ItemList" }
+    : {};
 
   return (
     <section
@@ -73,7 +78,11 @@ export default function EligibilityRequirements({
             className="block h-1 w-16 rounded-full bg-gradient-to-r from-sky-500 via-sky-300/50 to-emerald-400"
           />
           <div className="mt-2">
-            <SectionHeader eyebrow="Eligibility" title="Requirements" color="sky" />
+            <SectionHeader
+              eyebrow="Eligibility"
+              title="Requirements"
+              color="sky"
+            />
           </div>
         </div>
 
@@ -94,7 +103,8 @@ export default function EligibilityRequirements({
       </div>
 
       <p id="eligibility-desc" className="sr-only">
-        The following list outlines the core eligibility requirements for this program.
+        The following list outlines the core eligibility requirements for this
+        program.
       </p>
 
       {/* -------- Rich-text single string variant -------- */}
@@ -114,7 +124,9 @@ export default function EligibilityRequirements({
         /* -------- Numbered variant -------- */
         <ol
           role="list"
-          className={["relative z-10 mt-2 grid gap-y-3 gap-x-6", gridCols].join(" ")}
+          className={["relative z-10 mt-2 grid gap-y-3 gap-x-6", gridCols].join(
+            " ",
+          )}
           aria-label="Eligibility requirements (numbered)"
         >
           <meta itemProp="numberOfItems" content={String(count || 0)} />
@@ -150,7 +162,9 @@ export default function EligibilityRequirements({
         /* -------- Checklist variant (default) -------- */
         <ul
           role="list"
-          className={["relative z-10 mt-2 grid gap-y-3 gap-x-6", gridCols].join(" ")}
+          className={["relative z-10 mt-2 grid gap-y-3 gap-x-6", gridCols].join(
+            " ",
+          )}
           aria-label="Eligibility requirements"
         >
           <meta itemProp="numberOfItems" content={String(count || 0)} />
@@ -200,22 +214,53 @@ export default function EligibilityRequirements({
 /* ---------------- Background: subtle white surface with light grid ---------------- */
 function BackgroundGraphics() {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 print:hidden">
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 print:hidden"
+    >
       {/* soft brand glows */}
       <div className="absolute -top-16 -left-14 h-40 w-40 rounded-full bg-sky-400/15 blur-3xl" />
       <div className="absolute -bottom-20 -right-16 h-52 w-52 rounded-full bg-blue-500/10 blur-3xl" />
       {/* faint grid + doc motif */}
       <svg className="absolute inset-0 h-full w-full opacity-[0.06] dark:opacity-[0.08]">
         <defs>
-          <pattern id="req-grid" width="24" height="24" patternUnits="userSpaceOnUse">
-            <path d="M24 0H0v24" fill="none" stroke="currentColor" strokeWidth="0.75" />
+          <pattern
+            id="req-grid"
+            width="24"
+            height="24"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M24 0H0v24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="0.75"
+            />
           </pattern>
           <symbol id="doc" viewBox="0 0 96 96">
-            <rect x="22" y="16" width="52" height="64" rx="6" fill="none" stroke="currentColor" strokeWidth="4" />
-            <path d="M30 34h36M30 48h36M30 62h24" stroke="currentColor" strokeWidth="4" />
+            <rect
+              x="22"
+              y="16"
+              width="52"
+              height="64"
+              rx="6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              d="M30 34h36M30 48h36M30 62h24"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
           </symbol>
         </defs>
-        <rect width="100%" height="100%" fill="url(#req-grid)" className="text-sky-900 dark:text-sky-300" />
+        <rect
+          width="100%"
+          height="100%"
+          fill="url(#req-grid)"
+          className="text-sky-900 dark:text-sky-300"
+        />
         <g className="text-sky-900 dark:text-sky-300" opacity="0.06">
           <use href="#doc" x="48" y="36" />
           <use href="#doc" x="300" y="120" />

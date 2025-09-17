@@ -14,8 +14,8 @@ type Props = {
   groups: ChecklistGroup[];
   note?: string;
   className?: string;
-  title?: string;           // overrides default heading
-  renderJsonLd?: boolean;   // default true
+  title?: string; // overrides default heading
+  renderJsonLd?: boolean; // default true
 };
 
 export default function DocumentChecklistNeo({
@@ -26,7 +26,11 @@ export default function DocumentChecklistNeo({
   renderJsonLd = true,
 }: Props) {
   const slug = (s: string) =>
-    s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "").slice(0, 64);
+    s
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "")
+      .slice(0, 64);
 
   // ensure unique ids even if labels repeat
   const groupIds = groups.map((g, i) => `${slug(g.group)}-${i + 1}`);
@@ -53,10 +57,23 @@ export default function DocumentChecklistNeo({
         <div className="absolute -top-24 -left-20 h-56 w-56 rounded-full bg-neutral-300/15 blur-3xl" />
         <div className="absolute -bottom-24 -right-20 h-64 w-64 rounded-full bg-neutral-400/10 blur-3xl" />
         {/* faint grid */}
-        <svg className="absolute inset-0 h-full w-full opacity-[0.035] dark:opacity-[0.06]" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          className="absolute inset-0 h-full w-full opacity-[0.035] dark:opacity-[0.06]"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <defs>
-            <pattern id="doc-grid" width="24" height="24" patternUnits="userSpaceOnUse">
-              <path d="M24 0H0v24" fill="none" stroke="#111827" strokeWidth="1" />
+            <pattern
+              id="doc-grid"
+              width="24"
+              height="24"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                d="M24 0H0v24"
+                fill="none"
+                stroke="#111827"
+                strokeWidth="1"
+              />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#doc-grid)" />
@@ -74,12 +91,24 @@ export default function DocumentChecklistNeo({
           <div className="flex items-center gap-3">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm ring-1 ring-blue-500/30">
               {/* file icon */}
-              <svg aria-hidden viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                aria-hidden
+                viewBox="0 0 24 24"
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <path d="M14 2v6h6" />
               </svg>
             </span>
-            <h2 id={sectionId + "-title"} className="text-xl md:text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+            <h2
+              id={sectionId + "-title"}
+              className="text-xl md:text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100"
+            >
               {title}
             </h2>
           </div>
@@ -114,10 +143,21 @@ export default function DocumentChecklistNeo({
                              transition motion-reduce:transition-none"
                 >
                   {/* hash icon */}
-                  <svg aria-hidden viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    aria-hidden
+                    viewBox="0 0 24 24"
+                    className="h-3.5 w-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M5 9h14M5 15h14M11 4 7 20M17 4l-4 16" />
                   </svg>
-                  <span className="truncate max-w-[14ch] md:max-w-[22ch]">{g.group}</span>
+                  <span className="truncate max-w-[14ch] md:max-w-[22ch]">
+                    {g.group}
+                  </span>
                   <span className="ml-1 text-[11px] px-1.5 py-0.5 rounded-md bg-white/70 ring-1 ring-blue-200 dark:bg-blue-900/40 dark:ring-blue-800">
                     {g.documents.length}
                   </span>
@@ -146,8 +186,19 @@ export default function DocumentChecklistNeo({
               <div className="flex items-center justify-between gap-3 px-4 py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70">
                 <div className="flex items-center gap-2.5">
                   {/* chevron */}
-                  <span aria-hidden className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-blue-50 text-blue-700 ring-1 ring-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:ring-blue-900/40">
-                    <svg className="h-3.5 w-3.5 transition-transform duration-200 ease-out group-open:rotate-180 motion-reduce:transition-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <span
+                    aria-hidden
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-blue-50 text-blue-700 ring-1 ring-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:ring-blue-900/40"
+                  >
+                    <svg
+                      className="h-3.5 w-3.5 transition-transform duration-200 ease-out group-open:rotate-180 motion-reduce:transition-none"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <polyline points="6 9 12 15 18 9" />
                     </svg>
                   </span>
@@ -163,13 +214,29 @@ export default function DocumentChecklistNeo({
 
             {/* items */}
             <div className="px-4 sm:px-5 pb-4">
-              <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2" role="list">
+              <ul
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2"
+                role="list"
+              >
                 {g.documents.map((d, di) => (
                   <li key={`${d}-${di}`} className="flex items-start gap-2">
                     {/* check bullet */}
-                    <span aria-hidden className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-blue-50 text-blue-700 ring-1 ring-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:ring-blue-900/50">
-                      <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M4.5 10.5l3 3 7-7" strokeLinecap="round" strokeLinejoin="round" />
+                    <span
+                      aria-hidden
+                      className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-blue-50 text-blue-700 ring-1 ring-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:ring-blue-900/50"
+                    >
+                      <svg
+                        viewBox="0 0 20 20"
+                        className="h-3.5 w-3.5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path
+                          d="M4.5 10.5l3 3 7-7"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
                       </svg>
                     </span>
                     <span className="text-sm md:text-[15px] leading-relaxed text-neutral-800 dark:text-neutral-200">
@@ -188,7 +255,9 @@ export default function DocumentChecklistNeo({
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(toItemListJsonLd(title, note, groups)) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(toItemListJsonLd(title, note, groups)),
+          }}
         />
       ) : null}
     </section>
@@ -196,7 +265,11 @@ export default function DocumentChecklistNeo({
 }
 
 /* ---------------- JSON-LD builder ---------------- */
-function toItemListJsonLd(title: string, note: string | undefined, groups: ChecklistGroup[]) {
+function toItemListJsonLd(
+  title: string,
+  note: string | undefined,
+  groups: ChecklistGroup[],
+) {
   const items = groups.flatMap((g, gi) =>
     g.documents.map((d, di) => ({
       "@type": "ListItem",
@@ -207,7 +280,7 @@ function toItemListJsonLd(title: string, note: string | undefined, groups: Check
         about: `Group: ${g.group}`,
         description: note || undefined,
       },
-    }))
+    })),
   );
   return {
     "@context": "https://schema.org",

@@ -1,28 +1,32 @@
 import compileMDX from "next-mdx-remote/rsc";
-import remarkGfm from 'remark-gfm';
-import rehypeSlug from 'rehype-slug';
-import rehypeAutolinkHeadings from 'rehype-autolink-headings';
-import { getAllContentCached } from '@/lib/content';
-import { getRelated } from '@/lib/content/related';
-import type { Vertical, ProgramDoc } from '@/lib/content/types';
-import { JsonLd } from '@/lib/seo';
-import Link from 'next/link';
+import remarkGfm from "remark-gfm";
+import rehypeSlug from "rehype-slug";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import { getAllContentCached } from "@/lib/content";
+import { getRelated } from "@/lib/content/related";
+import type { Vertical, ProgramDoc } from "@/lib/content/types";
+import { JsonLd } from "@/lib/seo";
+import Link from "next/link";
 
 export function generateStaticParams() {
   const docs = getAllContentCached();
   return docs
-    .filter((d): d is ProgramDoc => d.kind === 'program')
-    .map((d) => ({ vertical: d.vertical, country: d.country, program: d.program }));
+    .filter((d): d is ProgramDoc => d.kind === "program")
+    .map((d) => ({
+      vertical: d.vertical,
+      country: d.country,
+      program: d.program,
+    }));
 }
 export const dynamicParams = false;
 
-export default async function ProgramPage(
-  props: { params: Promise<{ vertical: Vertical; country: string; program: string }> }
-) {
+export default async function ProgramPage(props: {
+  params: Promise<{ vertical: Vertical; country: string; program: string }>;
+}) {
   const params = await props.params;
   const doc = getAllContentCached().find(
     (d): d is ProgramDoc =>
-      d.kind === 'program' &&
+      d.kind === "program" &&
       d.vertical === params.vertical &&
       d.country === params.country &&
       d.program === params.program,
@@ -31,18 +35,33 @@ export default async function ProgramPage(
 
   const mdx = await compileMDX({
     source: doc.body,
-    options: { mdxOptions: { remarkPlugins: [remarkGfm], rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings] } },
+    options: {
+      mdxOptions: {
+        remarkPlugins: [remarkGfm],
+        rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
+      },
+    },
   });
 
   const related = getRelated(doc, 6);
   const breadcrumbLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: '/' },
-      { '@type': 'ListItem', position: 2, name: doc.vertical, item: `/${doc.vertical}` },
-      { '@type': 'ListItem', position: 3, name: doc.country, item: `/${doc.vertical}/${doc.country}` },
-      { '@type': 'ListItem', position: 4, name: doc.title, item: doc.url },
+      { "@type": "ListItem", position: 1, name: "Home", item: "/" },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: doc.vertical,
+        item: `/${doc.vertical}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: doc.country,
+        item: `/${doc.vertical}/${doc.country}`,
+      },
+      { "@type": "ListItem", position: 4, name: doc.title, item: doc.url },
     ],
   };
 

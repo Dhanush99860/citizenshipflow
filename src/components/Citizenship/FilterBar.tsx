@@ -23,10 +23,18 @@ type Props = {
  * - 100% responsive: 1col → 3col (search | route | sort)
  * - No external libs; server-safe props; client-only behavior
  */
-export default function FilterBar({ initial, onChange, className = "" }: Props) {
+export default function FilterBar({
+  initial,
+  onChange,
+  className = "",
+}: Props) {
   const [q, setQ] = React.useState(initial?.q ?? "");
-  const [routeType, setRouteType] = React.useState<Filters["routeType"]>(initial?.routeType ?? "");
-  const [sort, setSort] = React.useState<Filters["sort"]>(initial?.sort ?? "timeline");
+  const [routeType, setRouteType] = React.useState<Filters["routeType"]>(
+    initial?.routeType ?? "",
+  );
+  const [sort, setSort] = React.useState<Filters["sort"]>(
+    initial?.sort ?? "timeline",
+  );
 
   // Debounce updates slightly to avoid chatty parent re-renders on typing
   React.useEffect(() => {
@@ -200,13 +208,29 @@ export default function FilterBar({ initial, onChange, className = "" }: Props) 
 /* ---------------- Background (light grid + neutral glows) ---------------- */
 function BackgroundGraphics() {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 print:hidden">
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 print:hidden"
+    >
       <div className="absolute -top-20 -left-16 h-48 w-48 rounded-full bg-neutral-300/15 blur-3xl" />
       <div className="absolute -bottom-20 -right-16 h-56 w-56 rounded-full bg-neutral-400/10 blur-3xl" />
-      <svg className="absolute inset-0 h-full w-full opacity-[0.03] dark:opacity-[0.05]" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        className="absolute inset-0 h-full w-full opacity-[0.03] dark:opacity-[0.05]"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <defs>
-          <pattern id="fb-grid" width="24" height="24" patternUnits="userSpaceOnUse">
-            <path d="M24 0H0v24" fill="none" stroke="#111827" strokeWidth="0.75" />
+          <pattern
+            id="fb-grid"
+            width="24"
+            height="24"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M24 0H0v24"
+              fill="none"
+              stroke="#111827"
+              strokeWidth="0.75"
+            />
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#fb-grid)" />
@@ -218,7 +242,14 @@ function BackgroundGraphics() {
 /* ---------------- Inline icons (no libs) ---------------- */
 function SearchIcon({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 20 20" className={className} fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+    <svg
+      viewBox="0 0 20 20"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden
+    >
       <circle cx="9" cy="9" r="6" />
       <path d="M14 14l4 4" strokeLinecap="round" />
     </svg>
@@ -226,14 +257,28 @@ function SearchIcon({ className = "" }: { className?: string }) {
 }
 function XIcon({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 20 20" className={className} fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+    <svg
+      viewBox="0 0 20 20"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden
+    >
       <path d="M5 5l10 10M15 5L5 15" strokeLinecap="round" />
     </svg>
   );
 }
 function ChevronDownIcon({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 20 20" className={className} fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+    <svg
+      viewBox="0 0 20 20"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden
+    >
       <path d="M5 7l5 5 5-5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );

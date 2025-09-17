@@ -43,9 +43,13 @@ export const metadata: Metadata = {
     title: "Book a Private Consultation | XIPHIAS Immigration",
     description:
       "Book your personal consultation with XIPHIAS Immigration. Trusted by 10K+ clients across 25+ global programs.",
-    images: ["https://www.xiphiasimmigration.com/images/og-personal-booking.jpg"],
+    images: [
+      "https://www.xiphiasimmigration.com/images/og-personal-booking.jpg",
+    ],
   },
-  alternates: { canonical: "https://www.xiphiasimmigration.com/personal-booking" },
+  alternates: {
+    canonical: "https://www.xiphiasimmigration.com/personal-booking",
+  },
   robots: { index: true, follow: true },
 };
 

@@ -47,31 +47,57 @@ function guessTypeAndUrl(abs, repoRoot, fm) {
   // content/<section>/<country>/<program>.mdx => /<section>/<country>/<program>
   // Supported sections: citizenship, residency, corporate, skilled
   const contentMatch = baseRel.match(
-    /^content\/(citizenship|residency|corporate|skilled)\/([^/]+)\/([^/]+)\.mdx$/i
+    /^content\/(citizenship|residency|corporate|skilled)\/([^/]+)\/([^/]+)\.mdx$/i,
   );
   if (contentMatch) {
     const [, section, country, leaf] = contentMatch;
     if (leaf === "_country") {
-      return { type: "country", url: `/${section}/${country}`, section, country, program: null };
+      return {
+        type: "country",
+        url: `/${section}/${country}`,
+        section,
+        country,
+        program: null,
+      };
     }
     const program = (fm?.programSlug || leaf).toString();
-    return { type: "program", url: `/${section}/${country}/${program}`, section, country, program };
+    return {
+      type: "program",
+      url: `/${section}/${country}/${program}`,
+      section,
+      country,
+      program,
+    };
   }
 
   // content/<kind>/<slug>.mdx for insights buckets
   // -> pretty routes: /articles/<slug>, /news/<slug>, /media/<slug>, /blog/<slug>
-  const insightMatch = baseRel.match(/^content\/(articles|news|media|blog)\/([^/]+)\.mdx$/i);
+  const insightMatch = baseRel.match(
+    /^content\/(articles|news|media|blog)\/([^/]+)\.mdx$/i,
+  );
   if (insightMatch) {
     const [, kind, leaf] = insightMatch;
     const slug = (fm?.slug || leaf).toString();
     /** @type {"article"|"news"|"media"|"blog"} */
     let type = kind === "articles" ? "article" : /** @type any */ (kind);
     const prettySegment = kind === "articles" ? "articles" : kind;
-    return { type, url: `/${prettySegment}/${slug}`, section: null, country: null, program: null };
+    return {
+      type,
+      url: `/${prettySegment}/${slug}`,
+      section: null,
+      country: null,
+      program: null,
+    };
   }
 
   // fallback (should rarely happen)
-  return { type: "page", url: "/", section: null, country: null, program: null };
+  return {
+    type: "page",
+    url: "/",
+    section: null,
+    country: null,
+    program: null,
+  };
 }
 
 async function main() {
@@ -91,7 +117,11 @@ async function main() {
     "content/blog/**/*.mdx",
   ];
 
-  const files = await fg(patterns, { cwd: repoRoot, absolute: true, dot: false });
+  const files = await fg(patterns, {
+    cwd: repoRoot,
+    absolute: true,
+    dot: false,
+  });
 
   /** @type {Array<any>} */
   const docs = [];
@@ -101,18 +131,25 @@ async function main() {
     const { data: fm, content } = matter(raw);
 
     // skip drafts in production
-    if ((fm?.draft === true || fm?.draft === "true") && process.env.NODE_ENV === "production") continue;
+    if (
+      (fm?.draft === true || fm?.draft === "true") &&
+      process.env.NODE_ENV === "production"
+    )
+      continue;
 
     const meta = guessTypeAndUrl(abs, repoRoot, fm);
 
     // Frontmatter fields (with fallbacks)
-    const title = (fm.title ?? "").toString().trim() || path.basename(abs, ".mdx");
+    const title =
+      (fm.title ?? "").toString().trim() || path.basename(abs, ".mdx");
     const subtitle =
       meta.type === "program"
         ? (fm.country ?? fm.countryName ?? meta.country ?? "").toString()
         : (fm.subtitle ?? fm.section ?? meta.section ?? "").toString();
 
-    const tags = ensureArray(fm.tags).map((t) => t.toString().trim()).filter(Boolean);
+    const tags = ensureArray(fm.tags)
+      .map((t) => t.toString().trim())
+      .filter(Boolean);
     const summary = (fm.summary ?? fm.description ?? "").toString().trim();
     const hero = (fm.hero ?? fm.heroImage ?? fm.image ?? "").toString();
     const date = (fm.date ?? "").toString();
@@ -122,13 +159,21 @@ async function main() {
     const snippet = summary || firstChars(text, 200);
 
     const countries = ensureArray(
-      (fm.countries && fm.countries.length ? fm.countries : (meta.country ? [meta.country] : []))
+      fm.countries && fm.countries.length
+        ? fm.countries
+        : meta.country
+          ? [meta.country]
+          : [],
     )
       .map((s) => s.toString().toLowerCase())
       .filter(Boolean);
 
     const programs = ensureArray(
-      (fm.programs && fm.programs.length ? fm.programs : (meta.program ? [meta.program] : []))
+      fm.programs && fm.programs.length
+        ? fm.programs
+        : meta.program
+          ? [meta.program]
+          : [],
     )
       .map((s) => s.toString().toLowerCase())
       .filter(Boolean);
@@ -166,7 +211,9 @@ async function main() {
     docs,
   };
   await fs.writeFile(outputFile, JSON.stringify(payload), "utf8");
-  console.log(`✓ search-index.json written (${docs.length} docs) -> ${path.relative(repoRoot, outputFile)}`);
+  console.log(
+    `✓ search-index.json written (${docs.length} docs) -> ${path.relative(repoRoot, outputFile)}`,
+  );
 }
 
 main().catch((err) => {

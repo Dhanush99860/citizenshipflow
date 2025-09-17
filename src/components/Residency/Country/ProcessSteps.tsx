@@ -18,8 +18,8 @@ type Step =
       description?: string;
       /** Optional meta displayed as compact chips */
       duration?: string; // e.g., "2–4 weeks", "10 days", "3 months"
-      docs?: string;     // e.g., "Passport, Police certificate"
-      outcome?: string;  // e.g., "File submitted", "Approval granted"
+      docs?: string; // e.g., "Passport, Police certificate"
+      outcome?: string; // e.g., "File submitted", "Approval granted"
     };
 
 export default function ProcessSteps({
@@ -44,7 +44,10 @@ export default function ProcessSteps({
           <span className="inline-flex items-center rounded-md bg-sky-600/10 px-2 py-1 text-[11px] font-semibold text-sky-700 dark:text-sky-300">
             Process
           </span>
-          <h3 id={`process-heading-${uid}`} className="text-21 sm:text-24 font-semibold">
+          <h3
+            id={`process-heading-${uid}`}
+            className="text-21 sm:text-24 font-semibold"
+          >
             {heading}
           </h3>
         </div>
@@ -159,7 +162,10 @@ export default function ProcessSteps({
               >
                 {/* Thin accent bar */}
                 <span
-                  className={["block h-1 w-16 rounded-full", palette.accentBar].join(" ")}
+                  className={[
+                    "block h-1 w-16 rounded-full",
+                    palette.accentBar,
+                  ].join(" ")}
                   aria-hidden
                 />
 
@@ -184,17 +190,23 @@ export default function ProcessSteps({
                 ) : null}
 
                 {/* Meta chips (Outcome / Avg time / Docs) */}
-                {(step.outcome || step.duration || step.docs) ? (
+                {step.outcome || step.duration || step.docs ? (
                   <div className="mt-3 flex flex-wrap gap-2">
                     <MetaChip
                       icon={<CheckCircle2 className="h-3.5 w-3.5" />}
                       label={step.outcome || "Guided"}
                     />
                     {step.duration ? (
-                      <MetaChip icon={<Clock className="h-3.5 w-3.5" />} label={step.duration} />
+                      <MetaChip
+                        icon={<Clock className="h-3.5 w-3.5" />}
+                        label={step.duration}
+                      />
                     ) : null}
                     {step.docs ? (
-                      <MetaChip icon={<FileText className="h-3.5 w-3.5" />} label={step.docs} />
+                      <MetaChip
+                        icon={<FileText className="h-3.5 w-3.5" />}
+                        label={step.docs}
+                      />
                     ) : null}
                   </div>
                 ) : null}
@@ -247,11 +259,21 @@ function DecorativeBackground() {
         className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.05] dark:opacity-[0.07]"
       >
         <defs>
-          <pattern id="proc-grid" width="22" height="22" patternUnits="userSpaceOnUse">
+          <pattern
+            id="proc-grid"
+            width="22"
+            height="22"
+            patternUnits="userSpaceOnUse"
+          >
             <circle cx="1.5" cy="1.5" r="1.1" fill="currentColor" />
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#proc-grid)" className="text-sky-800 dark:text-sky-300" />
+        <rect
+          width="100%"
+          height="100%"
+          fill="url(#proc-grid)"
+          className="text-sky-800 dark:text-sky-300"
+        />
       </svg>
       {/* top gloss (mobile legibility) */}
       <div
@@ -266,7 +288,7 @@ function DecorativeBackground() {
 
 function normalize(
   s: Step,
-  index: number
+  index: number,
 ): {
   title: string;
   description?: string;
@@ -353,7 +375,7 @@ function buildHowToLd(
     docs?: string;
     outcome?: string;
   }>,
-  uid: string
+  uid: string,
 ) {
   if (!steps.length) return null;
 
@@ -383,7 +405,11 @@ function toISODuration(input: string): string | undefined {
   // Accepts patterns like "2–4 weeks", "3 months", "10 days", "90 minutes", "1-2 weeks"
   if (!input) return undefined;
   // Pick the first numeric token for conservative ISO mapping
-  const m = input.toLowerCase().match(/(\d+(?:\.\d+)?)\s*(hour|hr|hours|day|days|week|weeks|month|months|minute|minutes|min)/i);
+  const m = input
+    .toLowerCase()
+    .match(
+      /(\d+(?:\.\d+)?)\s*(hour|hr|hours|day|days|week|weeks|month|months|minute|minutes|min)/i,
+    );
   if (!m) return undefined;
   const value = Number(m[1]);
   const unit = m[2];

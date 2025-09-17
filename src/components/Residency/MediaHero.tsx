@@ -19,7 +19,7 @@ function MobileCTABar({ actions }: { actions: Action[] }) {
 
   // Prefer Brochure / Appointment / Consultation; fallback to first two
   const preferred = actions.filter((a) =>
-    /broch|appoint|consult/i.test(a.label)
+    /broch|appoint|consult/i.test(a.label),
   );
   const mobileActions = (preferred.length ? preferred : actions).slice(0, 2);
 
@@ -54,7 +54,7 @@ function MobileCTABar({ actions }: { actions: Action[] }) {
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }
 
@@ -101,38 +101,39 @@ export default function MediaHero({
       <div className="absolute inset-0 hidden md:flex items-end">
         <div className="p-6 md:p-10">
           <div className="max-w-3xl text-white">
-            <h1 className="text-3xl md:text-4xl font-bold leading-tight">{title}</h1>
+            <h1 className="text-3xl md:text-4xl font-bold leading-tight">
+              {title}
+            </h1>
             {subtitle && <p className="mt-2 text-white/90">{subtitle}</p>}
             {!!actions.length && (
-            <div className="mt-6 flex flex-wrap items-end gap-3 sm:gap-4">
-              {actions.map((a) => {
-                const base =
-                  "inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
-                const styles =
-                  a.variant === "ghost"
-                    ? "bg-white/20 text-white backdrop-blur ring-1 ring-inset ring-white/30 hover:bg-white/30"
-                    : "bg-gradient-to-r from-blue-500 via-purple-600 to-fuchsia-600 text-white shadow-lg";
-                return (
-                  <Link
-                    key={a.label}
-                    href={a.href}
-                    prefetch={false}
-                    download={a.download}
-                    className={`${base} ${styles}`}
-                  >
-                    {a.label}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
+              <div className="mt-6 flex flex-wrap items-end gap-3 sm:gap-4">
+                {actions.map((a) => {
+                  const base =
+                    "inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
+                  const styles =
+                    a.variant === "ghost"
+                      ? "bg-white/20 text-white backdrop-blur ring-1 ring-inset ring-white/30 hover:bg-white/30"
+                      : "bg-gradient-to-r from-blue-500 via-purple-600 to-fuchsia-600 text-white shadow-lg";
+                  return (
+                    <Link
+                      key={a.label}
+                      href={a.href}
+                      prefetch={false}
+                      download={a.download}
+                      className={`${base} ${styles}`}
+                    >
+                      {a.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* MOBILE floating CTA via portal */}
       <MobileCTABar actions={actions} />
-
     </header>
   );
 }

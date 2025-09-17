@@ -1,7 +1,7 @@
 // src/components/Insights/FAQSection.tsx
-'use client';
+"use client";
 
-import * as React from 'react';
+import * as React from "react";
 
 type FAQ = { q: string; a: string };
 
@@ -11,10 +11,14 @@ type Props = {
   /** Optional heading shown above the list (not rendered by default in MDX blocks) */
   heading?: string;
   /** Visual density; compact is recommended for MDX. */
-  variant?: 'compact' | 'comfortable';
+  variant?: "compact" | "comfortable";
 };
 
-export default function FAQSection({ faqs, heading, variant = 'compact' }: Props) {
+export default function FAQSection({
+  faqs,
+  heading,
+  variant = "compact",
+}: Props) {
   const [openIndex, setOpenIndex] = React.useState<number | null>(null);
 
   // Stable, unique slugs per question (even if duplicate text appears)
@@ -26,34 +30,39 @@ export default function FAQSection({ faqs, heading, variant = 'compact' }: Props
   // Open a panel if the URL hash matches on load / hash change
   React.useEffect(() => {
     const applyHash = () => {
-      const hash = decodeURIComponent(window.location.hash.replace('#', ''));
+      const hash = decodeURIComponent(window.location.hash.replace("#", ""));
       if (!hash) return;
       const idx = slugs.indexOf(hash);
       if (idx >= 0) setOpenIndex(idx);
     };
     applyHash();
-    window.addEventListener('hashchange', applyHash);
-    return () => window.removeEventListener('hashchange', applyHash);
+    window.addEventListener("hashchange", applyHash);
+    return () => window.removeEventListener("hashchange", applyHash);
   }, [slugs]);
 
   // Keep the hash in sync with the open panel
   React.useEffect(() => {
     const base = `${window.location.pathname}${window.location.search}`;
     if (openIndex == null) {
-      window.history.replaceState?.(null, '', base);
+      window.history.replaceState?.(null, "", base);
     } else {
-      window.history.replaceState?.(null, '', `${base}#${slugs[openIndex]}`);
+      window.history.replaceState?.(null, "", `${base}#${slugs[openIndex]}`);
     }
   }, [openIndex, slugs]);
 
   if (!faqs?.length) return null;
 
-  const onToggle = (idx: number) => setOpenIndex((cur) => (cur === idx ? null : idx));
+  const onToggle = (idx: number) =>
+    setOpenIndex((cur) => (cur === idx ? null : idx));
 
-  const itemPad = variant === 'compact' ? 'py-3 sm:py-3' : 'py-4 sm:py-5';
-  const answerPad = variant === 'compact' ? 'pb-3 sm:pb-3' : 'pb-4 sm:pb-5';
-  const qText = variant === 'compact' ? 'text-sm sm:text-[15px]' : 'text-[15px] sm:text-base';
-  const aText = variant === 'compact' ? 'text-sm leading-6' : 'text-[15px] leading-7';
+  const itemPad = variant === "compact" ? "py-3 sm:py-3" : "py-4 sm:py-5";
+  const answerPad = variant === "compact" ? "pb-3 sm:pb-3" : "pb-4 sm:pb-5";
+  const qText =
+    variant === "compact"
+      ? "text-sm sm:text-[15px]"
+      : "text-[15px] sm:text-base";
+  const aText =
+    variant === "compact" ? "text-sm leading-6" : "text-[15px] leading-7";
 
   return (
     // not-prose prevents Tailwind Typography from inflating sizes inside MDX
@@ -86,20 +95,20 @@ export default function FAQSection({ faqs, heading, variant = 'compact' }: Props
                   aria-controls={panelId}
                   onClick={() => onToggle(i)}
                   className={[
-                    'group flex w-full items-center justify-between gap-3 text-left font-medium',
-                    'rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500/50',
-                    'hover:bg-neutral-50/80 dark:hover:bg-neutral-900/60',
+                    "group flex w-full items-center justify-between gap-3 text-left font-medium",
+                    "rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500/50",
+                    "hover:bg-neutral-50/80 dark:hover:bg-neutral-900/60",
                     qText,
                     itemPad,
-                    'text-neutral-900 dark:text-neutral-100 transition'
-                  ].join(' ')}
+                    "text-neutral-900 dark:text-neutral-100 transition",
+                  ].join(" ")}
                 >
                   <span className="pr-2">{f.q}</span>
                   <Chevron
                     className={[
-                      'h-4 w-4 sm:h-5 sm:w-5 shrink-0 text-neutral-600 dark:text-neutral-300 transition-transform duration-200',
-                      isOpen ? 'rotate-180' : 'rotate-0',
-                    ].join(' ')}
+                      "h-4 w-4 sm:h-5 sm:w-5 shrink-0 text-neutral-600 dark:text-neutral-300 transition-transform duration-200",
+                      isOpen ? "rotate-180" : "rotate-0",
+                    ].join(" ")}
                   />
                 </button>
               </h3>
@@ -109,17 +118,19 @@ export default function FAQSection({ faqs, heading, variant = 'compact' }: Props
                 role="region"
                 aria-labelledby={buttonId}
                 className={[
-                  'grid transition-all duration-200 ease-out motion-reduce:transition-none',
-                  isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
-                ].join(' ')}
+                  "grid transition-all duration-200 ease-out motion-reduce:transition-none",
+                  isOpen
+                    ? "grid-rows-[1fr] opacity-100"
+                    : "grid-rows-[0fr] opacity-0",
+                ].join(" ")}
               >
                 <div className="overflow-hidden">
                   <div
                     className={[
                       aText,
-                      'text-neutral-700 dark:text-neutral-300 whitespace-pre-line',
+                      "text-neutral-700 dark:text-neutral-300 whitespace-pre-line",
                       answerPad,
-                    ].join(' ')}
+                    ].join(" ")}
                   >
                     {f.a}
                   </div>
@@ -144,11 +155,11 @@ export default function FAQSection({ faqs, heading, variant = 'compact' }: Props
 function slugifyBase(s: string) {
   return s
     .toLowerCase()
-    .replace(/&/g, 'and')
-    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9\s-]/g, "")
     .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
 }
 
 function uniqueSlugify(s: string, seen: Set<string>) {
@@ -160,7 +171,7 @@ function uniqueSlugify(s: string, seen: Set<string>) {
   return out;
 }
 
-function Chevron({ className = '' }: { className?: string }) {
+function Chevron({ className = "" }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -179,12 +190,12 @@ function Chevron({ className = '' }: { className?: string }) {
 
 function buildFaqLd(faqs: FAQ[] = []) {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
     mainEntity: faqs.map((f) => ({
-      '@type': 'Question',
+      "@type": "Question",
       name: f.q,
-      acceptedAnswer: { '@type': 'Answer', text: f.a },
+      acceptedAnswer: { "@type": "Answer", text: f.a },
     })),
   };
 }

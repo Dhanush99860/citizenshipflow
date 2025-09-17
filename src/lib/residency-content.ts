@@ -47,7 +47,12 @@ export type ProofOfFundsRow = {
 
 export type QuickCheckConfig = {
   title?: string;
-  questions?: { id: string; label: string; type: "boolean" | "select" | "number" | "text"; options?: string[] }[];
+  questions?: {
+    id: string;
+    label: string;
+    type: "boolean" | "select" | "number" | "text";
+    options?: string[];
+  }[];
 };
 
 export type ProgramMeta = {
@@ -102,7 +107,8 @@ const toTitle = (slug: string) =>
 
 const coerceNum = (v: unknown): number | undefined => {
   if (typeof v === "number") return v;
-  if (typeof v === "string" && v.trim() !== "" && !isNaN(Number(v))) return Number(v);
+  if (typeof v === "string" && v.trim() !== "" && !isNaN(Number(v)))
+    return Number(v);
   return undefined;
 };
 
@@ -171,7 +177,8 @@ type Cache = {
   mtimes?: Map<string, number>;
 };
 const _g = globalThis as any;
-if (!_g.__RESIDENCY_CACHE__) _g.__RESIDENCY_CACHE__ = { mtimes: new Map() } as Cache;
+if (!_g.__RESIDENCY_CACHE__)
+  _g.__RESIDENCY_CACHE__ = { mtimes: new Map() } as Cache;
 const CACHE: Cache = _g.__RESIDENCY_CACHE__;
 
 function mtime(file: string) {
@@ -195,10 +202,15 @@ function touchCacheForDir(dir: string) {
 /* =========================
  * Normalizers
  * =======================*/
-function normalizeCountry(meta: Partial<CountryMeta>, slug: string): CountryMeta {
+function normalizeCountry(
+  meta: Partial<CountryMeta>,
+  slug: string,
+): CountryMeta {
   const countrySlug = meta.countrySlug || slug;
   const country = meta.country || meta.title || toTitle(countrySlug);
-  const title = meta.title || (typeof country === "string" ? country : toTitle(countrySlug));
+  const title =
+    meta.title ||
+    (typeof country === "string" ? country : toTitle(countrySlug));
   const heroImage = meta.heroImage || `/images/${countrySlug}.jpg`;
   return {
     ...meta,
@@ -210,13 +222,19 @@ function normalizeCountry(meta: Partial<CountryMeta>, slug: string): CountryMeta
   } as CountryMeta;
 }
 
-function normalizeProgram(metaIn: Partial<ProgramMeta>, cSlug: string, pSlug: string): ProgramMeta {
+function normalizeProgram(
+  metaIn: Partial<ProgramMeta>,
+  cSlug: string,
+  pSlug: string,
+): ProgramMeta {
   const meta: any = { ...metaIn };
   meta.programSlug = meta.programSlug || pSlug;
   meta.countrySlug = meta.countrySlug || cSlug;
   meta.category = "residency";
-  if (meta.minInvestment !== undefined) meta.minInvestment = coerceNum(meta.minInvestment);
-  if (meta.timelineMonths !== undefined) meta.timelineMonths = coerceNum(meta.timelineMonths);
+  if (meta.minInvestment !== undefined)
+    meta.minInvestment = coerceNum(meta.minInvestment);
+  if (meta.timelineMonths !== undefined)
+    meta.timelineMonths = coerceNum(meta.timelineMonths);
 
   if (Array.isArray(meta.prices)) {
     meta.prices = meta.prices.map((row: any) => ({
@@ -296,7 +314,11 @@ export function getResidencyPrograms(countrySlug?: string): ProgramMeta[] {
   const cacheKey = `${ROOT}::programsAll`;
   const cacheStamp = `${ROOT}::programs_dir_mtime`;
 
-  if (!countrySlug && CACHE.programsAll && CACHE.mtimes?.get(cacheStamp) === dirMtime) {
+  if (
+    !countrySlug &&
+    CACHE.programsAll &&
+    CACHE.mtimes?.get(cacheStamp) === dirMtime
+  ) {
     return CACHE.programsAll;
   }
 
@@ -312,7 +334,9 @@ export function getResidencyPrograms(countrySlug?: string): ProgramMeta[] {
     }
   }
 
-  const sorted = out.sort((a, b) => (a.countrySlug + a.title).localeCompare(b.countrySlug + b.title));
+  const sorted = out.sort((a, b) =>
+    (a.countrySlug + a.title).localeCompare(b.countrySlug + b.title),
+  );
   if (!countrySlug) {
     CACHE.programsAll = sorted;
     CACHE.mtimes?.set(cacheKey, Date.now());
@@ -335,11 +359,17 @@ export async function loadCountryPage(countrySlug: string) {
     },
   });
 
-  const meta = normalizeCountry(frontmatter as Partial<CountryMeta>, countrySlug);
+  const meta = normalizeCountry(
+    frontmatter as Partial<CountryMeta>,
+    countrySlug,
+  );
   return { content, meta };
 }
 
-export async function loadProgramPage(countrySlug: string, programSlug: string) {
+export async function loadProgramPage(
+  countrySlug: string,
+  programSlug: string,
+) {
   const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
   const source = fs.readFileSync(f, "utf8");
   const { content, frontmatter } = await compileMDX<ProgramMeta>({
@@ -350,20 +380,28 @@ export async function loadProgramPage(countrySlug: string, programSlug: string) 
     },
   });
 
-  const meta = normalizeProgram(frontmatter as Partial<ProgramMeta>, countrySlug, programSlug);
+  const meta = normalizeProgram(
+    frontmatter as Partial<ProgramMeta>,
+    countrySlug,
+    programSlug,
+  );
   return { content, meta };
 }
 
 /* ========= Section-by-section renderer (non-breaking) ========= */
 export async function loadProgramPageSections(
   countrySlug: string,
-  programSlug: string
+  programSlug: string,
 ): Promise<{ meta: ProgramMeta; sections: ProgramSections }> {
   const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
   const raw = fs.readFileSync(f, "utf8");
   const { data, content: body } = matter(raw);
 
-  const meta = normalizeProgram(data as Partial<ProgramMeta>, countrySlug, programSlug);
+  const meta = normalizeProgram(
+    data as Partial<ProgramMeta>,
+    countrySlug,
+    programSlug,
+  );
   const chunks = splitByH3(body);
 
   const entries = await Promise.all(
@@ -376,7 +414,7 @@ export async function loadProgramPageSections(
         },
       });
       return [key, content] as const;
-    })
+    }),
   );
 
   const sections = Object.fromEntries(entries) as ProgramSections;
@@ -386,10 +424,17 @@ export async function loadProgramPageSections(
 /* =========================
  * Frontmatter-only helpers
  * =======================*/
-export function getProgramFrontmatter(countrySlug: string, programSlug: string) {
+export function getProgramFrontmatter(
+  countrySlug: string,
+  programSlug: string,
+) {
   const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
   const { data } = matter(fs.readFileSync(f, "utf8"));
-  return normalizeProgram(data as Partial<ProgramMeta>, countrySlug, programSlug);
+  return normalizeProgram(
+    data as Partial<ProgramMeta>,
+    countrySlug,
+    programSlug,
+  );
 }
 
 export function getCountryFrontmatter(countrySlug: string) {

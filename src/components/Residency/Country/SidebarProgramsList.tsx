@@ -98,7 +98,9 @@ export default function SidebarProgramsList({
 
   const hasPrograms = uniquePrograms.length > 0;
   const countrySlug = hasPrograms ? uniquePrograms[0]?.countrySlug : undefined;
-  const base = baseFromCategory(hasPrograms ? uniquePrograms[0]?.category : undefined);
+  const base = baseFromCategory(
+    hasPrograms ? uniquePrograms[0]?.category : undefined,
+  );
 
   return (
     <section
@@ -118,7 +120,10 @@ export default function SidebarProgramsList({
       />
 
       <meta itemProp="name" content={`Programs in ${country}`} />
-      <meta itemProp="itemListOrder" content="https://schema.org/ItemListOrderAscending" />
+      <meta
+        itemProp="itemListOrder"
+        content="https://schema.org/ItemListOrderAscending"
+      />
 
       <SectionHeader eyebrow="Programs" title={`In ${country}`} />
 
@@ -140,8 +145,18 @@ export default function SidebarProgramsList({
             >
               Explore country overview
               <span aria-hidden="true" className="inline-block">
-                <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M7 5l6 5-6 5" strokeLinecap="round" strokeLinejoin="round" />
+                <svg
+                  viewBox="0 0 20 20"
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path
+                    d="M7 5l6 5-6 5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </span>
             </Link>
@@ -158,11 +173,14 @@ export default function SidebarProgramsList({
           </span>
 
           {uniquePrograms.map((p, idx) => {
-            const isActive = !!activeProgramSlug && p.programSlug === activeProgramSlug;
-            const timelineLabel = formatTimeline((p as any).timelineMonths as number | undefined);
+            const isActive =
+              !!activeProgramSlug && p.programSlug === activeProgramSlug;
+            const timelineLabel = formatTimeline(
+              (p as any).timelineMonths as number | undefined,
+            );
             const investmentLabel = formatInvestment(
               (p as any).minInvestment as number | undefined,
-              (p as any).currency as string | undefined
+              (p as any).currency as string | undefined,
             );
 
             // 2) Make keys/IDs unambiguously unique and stable
@@ -215,7 +233,9 @@ export default function SidebarProgramsList({
                       <span
                         className={[
                           "mt-1 inline-flex h-2.5 w-2.5 shrink-0 rounded-full",
-                          isActive ? "bg-sky-500" : "bg-neutral-300 dark:bg-neutral-600 group-hover:bg-sky-400/80",
+                          isActive
+                            ? "bg-sky-500"
+                            : "bg-neutral-300 dark:bg-neutral-600 group-hover:bg-sky-400/80",
                         ].join(" ")}
                         aria-hidden="true"
                       />
@@ -226,7 +246,9 @@ export default function SidebarProgramsList({
                       <div
                         className={[
                           "text-[13.5px] sm:text-14 font-medium leading-snug line-clamp-2",
-                          isActive ? "text-sky-700 dark:text-sky-300" : "text-neutral-900 dark:text-neutral-100",
+                          isActive
+                            ? "text-sky-700 dark:text-sky-300"
+                            : "text-neutral-900 dark:text-neutral-100",
                         ].join(" ")}
                         itemProp="name"
                       >
@@ -261,7 +283,9 @@ export default function SidebarProgramsList({
                                 strokeLinejoin="round"
                               />
                             </svg>
-                            <span className="tabular-nums">{timelineLabel}</span>
+                            <span className="tabular-nums">
+                              {timelineLabel}
+                            </span>
                           </span>
                         ) : null}
 
@@ -285,10 +309,16 @@ export default function SidebarProgramsList({
                               strokeWidth="1.8"
                               aria-hidden="true"
                             >
-                              <path d="M3 6h14M3 10h14M3 14h14" strokeLinecap="round" />
+                              <path
+                                d="M3 6h14M3 10h14M3 14h14"
+                                strokeLinecap="round"
+                              />
                             </svg>
                             <span className="whitespace-nowrap">
-                              From <span className="tabular-nums">{investmentLabel}</span>
+                              From{" "}
+                              <span className="tabular-nums">
+                                {investmentLabel}
+                              </span>
                             </span>
                           </span>
                         ) : null}
@@ -305,8 +335,18 @@ export default function SidebarProgramsList({
                       ].join(" ")}
                       aria-hidden="true"
                     >
-                      <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M7 5l6 5-6 5" strokeLinecap="round" strokeLinejoin="round" />
+                      <svg
+                        viewBox="0 0 20 20"
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path
+                          d="M7 5l6 5-6 5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
                       </svg>
                     </span>
                   </div>

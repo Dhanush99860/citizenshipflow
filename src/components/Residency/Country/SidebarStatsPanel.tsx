@@ -4,28 +4,22 @@
 
 import * as React from "react";
 import SectionHeader, { AccentIcon } from "./SectionHeader";
-import {
-  Layers,
-  BadgeDollarSign,
-  Clock,
-  Globe2,
-  Medal,
-} from "lucide-react";
+import { Layers, BadgeDollarSign, Clock, Globe2, Medal } from "lucide-react";
 
 /* ================================
    Types
 ================================== */
 type Props = {
-  programsCount?: number;        // 0 is valid; undefined = hide tile
-  investRange?: string;          // e.g. "$150k–$300k USD"
-  timelineRange?: string;        // e.g. "4–8 months", "40 months"
-  visaFreeCount?: number;        // optional; show only if number
-  passportRank?: number;         // optional; show only if number
+  programsCount?: number; // 0 is valid; undefined = hide tile
+  investRange?: string; // e.g. "$150k–$300k USD"
+  timelineRange?: string; // e.g. "4–8 months", "40 months"
+  visaFreeCount?: number; // optional; show only if number
+  passportRank?: number; // optional; show only if number
 
   className?: string;
   loading?: boolean;
-  updatedAt?: string;            // optional ISO or display string
-  showTimelineBar?: boolean;     // default: true
+  updatedAt?: string; // optional ISO or display string
+  showTimelineBar?: boolean; // default: true
   timeScaleMonths?: number | "auto"; // default: "auto"
 };
 
@@ -46,20 +40,37 @@ export default function SidebarStatsPanel({
 }: Props) {
   const headerId = "snapshot-" + React.useId();
 
-  const hasPrograms = typeof programsCount === "number" && !Number.isNaN(programsCount);
+  const hasPrograms =
+    typeof programsCount === "number" && !Number.isNaN(programsCount);
   const hasInvest = Boolean(investRange);
   const hasTimeline = Boolean(timelineRange);
-  const hasVisa = typeof visaFreeCount === "number" && !Number.isNaN(visaFreeCount);
-  const hasRank = typeof passportRank === "number" && !Number.isNaN(passportRank);
+  const hasVisa =
+    typeof visaFreeCount === "number" && !Number.isNaN(visaFreeCount);
+  const hasRank =
+    typeof passportRank === "number" && !Number.isNaN(passportRank);
 
   // If nothing to show and not loading, render nothing
-  if (!loading && !hasPrograms && !hasInvest && !hasTimeline && !hasVisa && !hasRank) {
+  if (
+    !loading &&
+    !hasPrograms &&
+    !hasInvest &&
+    !hasTimeline &&
+    !hasVisa &&
+    !hasRank
+  ) {
     return null;
   }
 
-  const t = React.useMemo(() => parseTimeline(timelineRange || ""), [timelineRange]);
-  const label = React.useMemo(() => formatTimelineLabel(t, timelineRange || ""), [t, timelineRange]);
-  const scale = timeScaleMonths === "auto" ? chooseScale(t, 60) : timeScaleMonths;
+  const t = React.useMemo(
+    () => parseTimeline(timelineRange || ""),
+    [timelineRange],
+  );
+  const label = React.useMemo(
+    () => formatTimelineLabel(t, timelineRange || ""),
+    [t, timelineRange],
+  );
+  const scale =
+    timeScaleMonths === "auto" ? chooseScale(t, 60) : timeScaleMonths;
 
   return (
     <section
@@ -106,7 +117,10 @@ export default function SidebarStatsPanel({
               loading ? (
                 <Skeleton />
               ) : (
-                <span itemProp="variableMeasured" aria-label={`${programsCount} programs`}>
+                <span
+                  itemProp="variableMeasured"
+                  aria-label={`${programsCount} programs`}
+                >
                   {new Intl.NumberFormat().format(programsCount!)}
                 </span>
               )
@@ -120,7 +134,13 @@ export default function SidebarStatsPanel({
             label="Investment"
             color="green"
             icon={<BadgeDollarSign className="h-4 w-4" aria-hidden />}
-            value={loading ? <Skeleton /> : <Truncate title={investRange}>{investRange}</Truncate>}
+            value={
+              loading ? (
+                <Skeleton />
+              ) : (
+                <Truncate title={investRange}>{investRange}</Truncate>
+              )
+            }
             badge="From"
           />
         )}
@@ -130,7 +150,13 @@ export default function SidebarStatsPanel({
             label="Timeline"
             color="violet"
             icon={<Clock className="h-4 w-4" aria-hidden />}
-            value={loading ? <Skeleton /> : <Truncate title={label}>{label}</Truncate>}
+            value={
+              loading ? (
+                <Skeleton />
+              ) : (
+                <Truncate title={label}>{label}</Truncate>
+              )
+            }
             badge={t.hasRange ? "Range" : "Avg"}
             footer={
               !loading && showTimelineBar && t.avg != null ? (
@@ -151,7 +177,11 @@ export default function SidebarStatsPanel({
             label="Visa-free countries"
             color="blue"
             icon={<Globe2 className="h-4 w-4" aria-hidden />}
-            value={<span itemProp="variableMeasured">{new Intl.NumberFormat().format(visaFreeCount!)}</span>}
+            value={
+              <span itemProp="variableMeasured">
+                {new Intl.NumberFormat().format(visaFreeCount!)}
+              </span>
+            }
             badge="Count"
           />
         )}
@@ -161,7 +191,11 @@ export default function SidebarStatsPanel({
             label="Passport rank"
             color="violet"
             icon={<Medal className="h-4 w-4" aria-hidden />}
-            value={<span itemProp="variableMeasured">#{new Intl.NumberFormat().format(passportRank!)}</span>}
+            value={
+              <span itemProp="variableMeasured">
+                #{new Intl.NumberFormat().format(passportRank!)}
+              </span>
+            }
             badge="Rank"
           />
         )}
@@ -192,11 +226,26 @@ function DecorativeBackground() {
         className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.06] dark:opacity-[0.08]"
       >
         <defs>
-          <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
-            <path d="M24 0H0V24" fill="none" stroke="currentColor" strokeWidth="0.75" />
+          <pattern
+            id="grid"
+            width="24"
+            height="24"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M24 0H0V24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="0.75"
+            />
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#grid)" className="text-sky-700 dark:text-sky-300" />
+        <rect
+          width="100%"
+          height="100%"
+          fill="url(#grid)"
+          className="text-sky-700 dark:text-sky-300"
+        />
       </svg>
       {/* Gloss highlight */}
       <div
@@ -226,15 +275,15 @@ function MetricTile({
     color === "blue"
       ? "ring-sky-200 dark:ring-sky-800"
       : color === "green"
-      ? "ring-emerald-200 dark:ring-emerald-800"
-      : "ring-violet-200 dark:ring-violet-800";
+        ? "ring-emerald-200 dark:ring-emerald-800"
+        : "ring-violet-200 dark:ring-violet-800";
 
   const accentGrad =
     color === "blue"
       ? "from-sky-500 to-blue-600"
       : color === "green"
-      ? "from-emerald-500 to-green-600"
-      : "from-violet-500 to-fuchsia-600";
+        ? "from-emerald-500 to-green-600"
+        : "from-violet-500 to-fuchsia-600";
 
   return (
     <div
@@ -253,7 +302,11 @@ function MetricTile({
         className={`pointer-events-none absolute -right-14 -top-12 h-32 w-32 rounded-full bg-gradient-to-br ${accentGrad} opacity-10 blur-2xl`}
       />
       {/* Inner stroke tint based on accent */}
-      <div aria-hidden className={`pointer-events-none absolute inset-0 rounded-2xl ${colorRing}`} style={{ maskImage: "linear-gradient(transparent, black)" }} />
+      <div
+        aria-hidden
+        className={`pointer-events-none absolute inset-0 rounded-2xl ${colorRing}`}
+        style={{ maskImage: "linear-gradient(transparent, black)" }}
+      />
 
       <div className="flex items-start gap-3">
         <AccentIcon color={color}>{icon}</AccentIcon>
@@ -321,10 +374,10 @@ function TimelineBar({
   scale,
   ariaLabel,
 }: {
-  avg: number;             // months
-  min: number | null;      // months
-  max: number | null;      // months
-  scale: number;           // total scale in months
+  avg: number; // months
+  min: number | null; // months
+  max: number | null; // months
+  scale: number; // total scale in months
   ariaLabel: string;
 }) {
   const showBand = min != null && max != null && Math.abs(max - min) >= 1;
@@ -340,7 +393,10 @@ function TimelineBar({
         {showBand && minPct != null && maxPct != null ? (
           <div
             className="absolute top-0 h-full bg-gradient-to-r from-sky-300/70 to-blue-300/70 dark:from-sky-700/50 dark:to-blue-700/50"
-            style={{ left: `${minPct}%`, width: `${Math.max(2, maxPct - minPct)}%` }}
+            style={{
+              left: `${minPct}%`,
+              width: `${Math.max(2, maxPct - minPct)}%`,
+            }}
             aria-hidden
           />
         ) : null}
@@ -389,8 +445,13 @@ function parseTimeline(input: string) {
 
 // If value is a single number or min==max, show "≈ 40 mo"; else "4–8 mo"
 function formatTimelineLabel(
-  t: { min: number | null; max: number | null; avg: number | null; hasRange: boolean },
-  original: string
+  t: {
+    min: number | null;
+    max: number | null;
+    avg: number | null;
+    hasRange: boolean;
+  },
+  original: string,
 ) {
   if (t.avg == null) return original || "—";
   if (t.hasRange && t.min != null && t.max != null) {
@@ -406,7 +467,7 @@ function stripZero(n: number) {
 // Choose a readable scale: pad ~25% and round up to the nearest 6 mo (min 24)
 function chooseScale(
   t: { min: number | null; max: number | null; avg: number | null },
-  fallback = 60
+  fallback = 60,
 ) {
   const target = Math.max(t.max ?? 0, t.avg ?? 0);
   if (!target) return fallback;

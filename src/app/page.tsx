@@ -17,7 +17,6 @@ import SkilledPreview from "@/components/Skilled/SkilledPreview";
 import CitizenshipPreview from "@/components/Citizenship/CitizenshipPreview";
 import CorporatePreview from "@/components/Corporate/CorporatePreview";
 
-
 // Revalidate home once per day (adjust as needed)
 export const revalidate = 86400; // seconds
 
@@ -49,8 +48,6 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
-
-
   return (
     <>
       <Header />
@@ -62,7 +59,7 @@ export default function Home() {
         <ResidencyPreview />
         <CitizenshipPreview />
         <SkilledPreview />
-      <CorporatePreview />
+        <CorporatePreview />
         <Platform />
         <InsightsPreview limit={6} />
         <Perks />

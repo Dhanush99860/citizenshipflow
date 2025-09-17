@@ -57,7 +57,9 @@ export default function Prices({
     }
   };
 
-  const sumByCurrency = <T extends { amount?: number; currency?: string }>(list: T[]) => {
+  const sumByCurrency = <T extends { amount?: number; currency?: string }>(
+    list: T[],
+  ) => {
     const map = new Map<string, number>();
     for (const row of list) {
       if (typeof row.amount !== "number" || Number.isNaN(row.amount)) continue;
@@ -67,14 +69,22 @@ export default function Prices({
     return [...map.entries()].map(([currency, total]) => ({ currency, total }));
   };
 
-  type StageKey = "reservation" | "application" | "approval" | "issuance" | "other";
+  type StageKey =
+    | "reservation"
+    | "application"
+    | "approval"
+    | "issuance"
+    | "other";
   const normalizeStage = (when?: string): StageKey => {
     const s = (when || "").toLowerCase();
     if (!s) return "other";
-    if (/\b(reserve|reservation|booking|deposit)\b/.test(s)) return "reservation";
-    if (/\b(app|application|submit|filing|due diligence|dd)\b/.test(s)) return "application";
+    if (/\b(reserve|reservation|booking|deposit)\b/.test(s))
+      return "reservation";
+    if (/\b(app|application|submit|filing|due diligence|dd)\b/.test(s))
+      return "application";
     if (/\b(approval|decision|grant)\b/.test(s)) return "approval";
-    if (/\b(oath|issuance|passport|certificate|naturalization)\b/.test(s)) return "issuance";
+    if (/\b(oath|issuance|passport|certificate|naturalization)\b/.test(s))
+      return "issuance";
     return "other";
   };
 
@@ -149,7 +159,10 @@ export default function Prices({
         <span className="inline-flex items-center rounded-md bg-blue-600 px-2 py-1 text-xs font-semibold text-white dark:bg-blue-500">
           Costs & funds
         </span>
-        <h3 id="prices-title" className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+        <h3
+          id="prices-title"
+          className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-neutral-100"
+        >
           Program fees & proof of funds
         </h3>
       </header>
@@ -188,7 +201,10 @@ export default function Prices({
                         px-2.5 py-0.5 text-[12px] font-medium
                       "
                     >
-                      {currency}: <span className="tabular-nums">{fmt(total, currency)}</span>
+                      {currency}:{" "}
+                      <span className="tabular-nums">
+                        {fmt(total, currency)}
+                      </span>
                     </span>
                   ))}
                 </div>
@@ -214,7 +230,10 @@ export default function Prices({
                         px-2.5 py-0.5 text-[12px] font-medium
                       "
                     >
-                      {currency}: <span className="tabular-nums">{fmt(total, currency)}</span>
+                      {currency}:{" "}
+                      <span className="tabular-nums">
+                        {fmt(total, currency)}
+                      </span>
                     </span>
                   ))}
                 </div>
@@ -240,7 +259,9 @@ export default function Prices({
               aria-hidden
               className="pointer-events-none absolute left-0 right-0 top-5 hidden sm:block h-px bg-neutral-200 dark:bg-neutral-700"
             />
-            {(["reservation", "application", "approval", "issuance"] as const).map((k, idx) => {
+            {(
+              ["reservation", "application", "approval", "issuance"] as const
+            ).map((k, idx) => {
               const active = stageBuckets[k].items.length > 0;
               return (
                 <li key={k} className="relative">
@@ -263,7 +284,9 @@ export default function Prices({
                       <div className="mt-0.5 space-y-0.5">
                         {stageBuckets[k].totals.map(({ currency, total }) => (
                           <div key={`${k}-${currency}`} className="text-[13px]">
-                            <span className="text-neutral-600 dark:text-neutral-300">{currency}:</span>{" "}
+                            <span className="text-neutral-600 dark:text-neutral-300">
+                              {currency}:
+                            </span>{" "}
                             <span className="font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
                               {fmt(total, currency)}
                             </span>
@@ -299,8 +322,13 @@ export default function Prices({
           "
         >
           <div className="px-4 pt-4 sm:px-6 sm:pt-6 flex items-center gap-2">
-            <Banknote className="h-4 w-4 text-blue-700 dark:text-blue-300" aria-hidden />
-            <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Detailed fee table</p>
+            <Banknote
+              className="h-4 w-4 text-blue-700 dark:text-blue-300"
+              aria-hidden
+            />
+            <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              Detailed fee table
+            </p>
           </div>
 
           <div className="relative mt-3">
@@ -348,7 +376,9 @@ export default function Prices({
                       key={`${it.label}-${i}`}
                       className={[
                         "border-t border-neutral-200 dark:border-neutral-800",
-                        i % 2 ? "bg-white dark:bg-neutral-900" : "bg-neutral-50/70 dark:bg-neutral-900/50",
+                        i % 2
+                          ? "bg-white dark:bg-neutral-900"
+                          : "bg-neutral-50/70 dark:bg-neutral-900/50",
                       ].join(" ")}
                       itemScope
                       itemType="https://schema.org/Offer"
@@ -365,16 +395,22 @@ export default function Prices({
                         <span itemProp="name">{it.label}</span>
                       </td>
                       <td className="py-3 pr-4 tabular-nums text-neutral-900 dark:text-neutral-100">
-                        <span itemProp="price">{fmt(it.amount, it.currency)}</span>
+                        <span itemProp="price">
+                          {fmt(it.amount, it.currency)}
+                        </span>
                         {it.amount ? (
                           <meta
                             itemProp="priceCurrency"
-                            content={(it.currency || defaultCurrency).toUpperCase()}
+                            content={(
+                              it.currency || defaultCurrency
+                            ).toUpperCase()}
                           />
                         ) : null}
                       </td>
-                      <td className="py-3 pr-4 text-neutral-700 dark:text-neutral-300">{it.when ?? "—"}</td>
-                      
+                      <td className="py-3 pr-4 text-neutral-700 dark:text-neutral-300">
+                        {it.when ?? "—"}
+                      </td>
+
                       <td className="py-3 pr-4 align-top">
                         {it.notes ? (
                           <p
@@ -384,7 +420,9 @@ export default function Prices({
                             {it.notes}
                           </p>
                         ) : (
-                          <span className="text-neutral-500 dark:text-neutral-400">—</span>
+                          <span className="text-neutral-500 dark:text-neutral-400">
+                            —
+                          </span>
                         )}
                       </td>
                     </tr>
@@ -410,7 +448,9 @@ export default function Prices({
               "
             >
               <FileText className="h-3.5 w-3.5" />
-              <span>We’ll share a personalized cost sheet after your pre-screen.</span>
+              <span>
+                We’ll share a personalized cost sheet after your pre-screen.
+              </span>
             </div>
           </div>
         </div>
@@ -428,7 +468,10 @@ export default function Prices({
           aria-label="Proof of funds guidance"
         >
           <div className="flex items-center gap-2">
-            <Wallet className="h-4 w-4 text-blue-700 dark:text-blue-300" aria-hidden />
+            <Wallet
+              className="h-4 w-4 text-blue-700 dark:text-blue-300"
+              aria-hidden
+            />
             <h4 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
               Proof of funds
             </h4>
@@ -453,7 +496,9 @@ export default function Prices({
                   </span>
                 </div>
                 {p.notes ? (
-                  <p className="mt-1 text-xs text-neutral-700 dark:text-neutral-300">{p.notes}</p>
+                  <p className="mt-1 text-xs text-neutral-700 dark:text-neutral-300">
+                    {p.notes}
+                  </p>
                 ) : null}
               </li>
             ))}
@@ -479,8 +524,8 @@ export default function Prices({
           ) : null}
 
           <p className="mt-3 text-[12px] text-neutral-600 dark:text-neutral-400">
-            Figures are indicative and may change with family size, project selection and program
-            updates.
+            Figures are indicative and may change with family size, project
+            selection and program updates.
           </p>
         </div>
       ) : null}
@@ -495,7 +540,9 @@ export default function Prices({
 }
 
 /* ---------- helpers ---------- */
-function stageLabel(k: "reservation" | "application" | "approval" | "issuance" | "other") {
+function stageLabel(
+  k: "reservation" | "application" | "approval" | "issuance" | "other",
+) {
   switch (k) {
     case "reservation":
       return "Reservation / Deposit";
@@ -530,8 +577,18 @@ function BackgroundGraphics() {
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          <pattern id="prices-grid-white" width="24" height="24" patternUnits="userSpaceOnUse">
-            <path d="M24 0H0V24" fill="none" stroke="currentColor" strokeWidth="0.75" />
+          <pattern
+            id="prices-grid-white"
+            width="24"
+            height="24"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M24 0H0V24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="0.75"
+            />
           </pattern>
         </defs>
         <rect

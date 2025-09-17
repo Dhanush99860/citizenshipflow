@@ -27,9 +27,18 @@ export default function ShareBar({ title, url }: ShareBarProps) {
   const encodedTitle = encodeURIComponent(title);
 
   const items = [
-    { name: "X", href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}` },
-    { name: "LinkedIn", href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}` },
-    { name: "WhatsApp", href: `https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}` },
+    {
+      name: "X",
+      href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
+    },
+    {
+      name: "LinkedIn",
+      href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+    },
+    {
+      name: "WhatsApp",
+      href: `https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}`,
+    },
   ];
 
   return (

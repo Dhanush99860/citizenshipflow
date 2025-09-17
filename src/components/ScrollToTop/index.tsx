@@ -14,8 +14,7 @@ export default function ScrollToTop() {
 
   useEffect(() => {
     const toggleVisibility = () => {
-      const scrollTop =
-        window.scrollY || document.documentElement.scrollTop;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
       setIsVisible(scrollTop > 300);
     };

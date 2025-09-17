@@ -28,7 +28,10 @@ export default function SidebarHighlights({ points }: { points?: string[] }) {
       />
 
       <meta itemProp="name" content="Program highlights" />
-      <meta itemProp="itemListOrder" content="https://schema.org/ItemListOrderAscending" />
+      <meta
+        itemProp="itemListOrder"
+        content="https://schema.org/ItemListOrderAscending"
+      />
 
       <SectionHeader
         eyebrow="Highlights"

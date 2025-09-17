@@ -2,7 +2,11 @@ import { NextRequest } from "next/server";
 import path from "node:path";
 import fs from "node:fs/promises";
 import MiniSearch from "minisearch";
-import type { SearchDoc, SearchIndexFile, ApiSearchResponse } from "@/types/search";
+import type {
+  SearchDoc,
+  SearchIndexFile,
+  ApiSearchResponse,
+} from "@/types/search";
 
 export const runtime = "nodejs"; // Fuse/MiniSearch prefer Node
 export const dynamic = "force-dynamic";
@@ -16,11 +20,16 @@ function expandQuery(q: string) {
   const normalized = q.toLowerCase();
   const add: string[] = [];
   if (normalized.includes("golden visa"))
-    add.push("residency by investment", "greece golden visa", "portugal golden visa");
+    add.push(
+      "residency by investment",
+      "greece golden visa",
+      "portugal golden visa",
+    );
   if (/\bcbi\b/.test(normalized)) add.push("citizenship by investment");
   if (/\bebi\b/.test(normalized)) add.push("employment based immigration");
   if (/\bep\b/.test(normalized)) add.push("employment pass");
-  if (normalized.includes("startup visa")) add.push("start up visa", "start-up visa");
+  if (normalized.includes("startup visa"))
+    add.push("start up visa", "start-up visa");
   if (normalized.includes("real estate")) add.push("property investment");
   return [q, ...add];
 }
@@ -78,7 +87,10 @@ export async function GET(req: NextRequest) {
   const t0 = performance.now();
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") || "").trim();
-  const limit = Math.max(1, Math.min(parseInt(searchParams.get("limit") || "12", 10), 25));
+  const limit = Math.max(
+    1,
+    Math.min(parseInt(searchParams.get("limit") || "12", 10), 25),
+  );
   const types = (searchParams.get("types") || "")
     .split(",")
     .map((s) => s.trim())
@@ -101,8 +113,17 @@ export async function GET(req: NextRequest) {
 
     const tookMs = Math.round(performance.now() - t0);
     return Response.json(
-      { query: "", tookMs, count: recent.length, items: recent } as ApiSearchResponse,
-      { headers: { "Cache-Control": "s-maxage=86400, stale-while-revalidate=600" } }
+      {
+        query: "",
+        tookMs,
+        count: recent.length,
+        items: recent,
+      } as ApiSearchResponse,
+      {
+        headers: {
+          "Cache-Control": "s-maxage=86400, stale-while-revalidate=600",
+        },
+      },
     );
   }
 
@@ -140,6 +161,6 @@ export async function GET(req: NextRequest) {
         // CDN friendly
         "Cache-Control": "s-maxage=86400, stale-while-revalidate=600",
       },
-    }
+    },
   );
 }

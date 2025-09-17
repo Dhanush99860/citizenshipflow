@@ -7,7 +7,6 @@ export const footerlabels: { label: string; href: string }[] = [
   { label: "Latest News", href: "#" },
 ];
 
-
 export const cardData: {
   title: string;
   short: string;
@@ -77,9 +76,8 @@ export const cardData: {
     height: 28,
     padding: "px-3 py-3",
     link: "/tax-optimization",
-  }
+  },
 ];
-
 
 export const portfolioData: { image: string; title: string }[] = [
   {

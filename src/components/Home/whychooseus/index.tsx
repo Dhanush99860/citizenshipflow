@@ -16,12 +16,20 @@ const features = [
 // Motion Variants
 const fadeInLeft = {
   hidden: { opacity: 0, x: -200 },
-  visible: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 70, damping: 20 } },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { type: "spring", stiffness: 70, damping: 20 },
+  },
 };
 
 const fadeInRight = {
   hidden: { opacity: 0, x: 200 },
-  visible: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 70, damping: 20 } },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { type: "spring", stiffness: 70, damping: 20 },
+  },
 };
 
 const fadeUp = (delay = 0) => ({
@@ -87,7 +95,11 @@ const WhyChooseUs = () => {
                     ],
                     scale: [1, 1.03, 1],
                   }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
                   className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-xl flex-shrink-0"
                 >
                   {item.icon}
@@ -133,7 +145,6 @@ const WhyChooseUs = () => {
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-secondary/10" />
           </div>
 
-          
           {/* <motion.div
             initial={{ opacity: 0, scale: 2.9 }}
             whileInView={{ opacity: 1, scale: 1 }}

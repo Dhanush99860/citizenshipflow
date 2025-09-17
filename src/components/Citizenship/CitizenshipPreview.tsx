@@ -4,7 +4,10 @@ import { getCitizenshipCountries } from "@/lib/citizenship-content";
 
 // tiny helper
 function slugify(s: string) {
-  return (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  return (s || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 }
 
 export default async function CitizenshipPreview() {
@@ -16,7 +19,9 @@ export default async function CitizenshipPreview() {
     title: c?.title ?? c?.country ?? "Citizenship country",
     country: c?.country ?? c?.title ?? "Unknown",
     countrySlug:
-      c?.countrySlug ?? c?.slug ?? (c?.country ? slugify(c.country) : "unknown"),
+      c?.countrySlug ??
+      c?.slug ??
+      (c?.country ? slugify(c.country) : "unknown"),
     // heroImage optional; carousel has a safe fallback
   }));
 

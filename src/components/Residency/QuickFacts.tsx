@@ -25,11 +25,17 @@ export default function QuickFacts({
   timelineMonths?: number;
   tags?: string[];
 }) {
-  const hasMin = typeof minInvestment === "number" && !Number.isNaN(minInvestment);
-  const hasTimeline = typeof timelineMonths === "number" && !Number.isNaN(timelineMonths);
+  const hasMin =
+    typeof minInvestment === "number" && !Number.isNaN(minInvestment);
+  const hasTimeline =
+    typeof timelineMonths === "number" && !Number.isNaN(timelineMonths);
 
-  const minDisplay = hasMin ? formatMoney(minInvestment!, currency) : "No minimum";
-  const timelineDisplay = hasTimeline ? pluralizeMonths(timelineMonths!) : "Varies";
+  const minDisplay = hasMin
+    ? formatMoney(minInvestment!, currency)
+    : "No minimum";
+  const timelineDisplay = hasTimeline
+    ? pluralizeMonths(timelineMonths!)
+    : "Varies";
 
   const allTags = Array.isArray(tags) ? tags.filter(Boolean) : [];
   const MAX_TAGS = 6;
@@ -40,7 +46,9 @@ export default function QuickFacts({
   const a11ySummary = [
     hasMin ? `Minimum investment ${minDisplay}` : "No minimum investment",
     hasTimeline ? `Typical timeline ${timelineDisplay}` : "Timeline varies",
-    shownTags.length ? `${shownTags.length} highlights` : "No highlights listed",
+    shownTags.length
+      ? `${shownTags.length} highlights`
+      : "No highlights listed",
   ].join("; ");
 
   return (
@@ -110,7 +118,8 @@ export default function QuickFacts({
 
             {currency ? (
               <dd className="text-xs opacity-70">
-                Currency: <abbr title={currencyFullName(currency)}>{currency}</abbr>
+                Currency:{" "}
+                <abbr title={currencyFullName(currency)}>{currency}</abbr>
               </dd>
             ) : null}
           </dl>
@@ -134,7 +143,9 @@ export default function QuickFacts({
               <time
                 itemProp="duration"
                 // ISO 8601 duration (months → PnM), only when we know months
-                dateTime={hasTimeline ? toISOMonthDuration(timelineMonths!) : undefined}
+                dateTime={
+                  hasTimeline ? toISOMonthDuration(timelineMonths!) : undefined
+                }
               >
                 {timelineDisplay}
               </time>
@@ -197,7 +208,9 @@ export default function QuickFacts({
                   ) : null}
                 </>
               ) : (
-                <li className="text-xs opacity-70">Add highlights in front-matter</li>
+                <li className="text-xs opacity-70">
+                  Add highlights in front-matter
+                </li>
               )}
             </ul>
           </div>

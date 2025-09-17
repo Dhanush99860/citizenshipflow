@@ -41,9 +41,10 @@ const Platform = () => {
             </h2>
             <p className="text-white/90 dark:text-dark_text text-18 leading-relaxed max-w-3xl mx-auto lg:mx-0">
               We provide end-to-end immigration services, helping individuals,
-              families, and businesses navigate complex visa processes with ease.
-              <br /> From residency and citizenship by investment to work permits
-              and study visas — we simplify your journey across borders.
+              families, and businesses navigate complex visa processes with
+              ease.
+              <br /> From residency and citizenship by investment to work
+              permits and study visas — we simplify your journey across borders.
             </p>
           </div>
 

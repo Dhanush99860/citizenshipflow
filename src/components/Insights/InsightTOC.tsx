@@ -27,10 +27,14 @@ export default function InsightTOC({ headings }: { headings: Heading[] }) {
       (entries) => {
         const visible = entries
           .filter((e) => e.isIntersecting)
-          .sort((a, b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top));
+          .sort(
+            (a, b) =>
+              Math.abs(a.boundingClientRect.top) -
+              Math.abs(b.boundingClientRect.top),
+          );
         if (visible[0]) setActiveId(visible[0].target.id);
       },
-      { rootMargin: "-24% 0px -70% 0px", threshold: [0, 1] }
+      { rootMargin: "-24% 0px -70% 0px", threshold: [0, 1] },
     );
 
     targets.forEach((el) => io.observe(el));
@@ -44,7 +48,9 @@ export default function InsightTOC({ headings }: { headings: Heading[] }) {
       aria-label="Table of contents"
       className="rounded-xl border border-black/10 dark:border-white/10 bg-white/70 dark:bg-black/50 backdrop-blur p-4"
     >
-      <h2 className="text-sm font-semibold text-black dark:text-white mb-2">On this page</h2>
+      <h2 className="text-sm font-semibold text-black dark:text-white mb-2">
+        On this page
+      </h2>
       <ul className="space-y-1.5 text-sm">
         {items.map((h) => {
           const isActive = activeId === h.id;

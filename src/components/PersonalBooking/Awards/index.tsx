@@ -83,7 +83,11 @@ export default function AwardSection() {
           className="awards-swiper pb-20"
         >
           {awardsData.map((award: Award) => (
-            <SwiperSlide className="pb-5" key={award.id} aria-label={`Award: ${award.title}`}>
+            <SwiperSlide
+              className="pb-5"
+              key={award.id}
+              aria-label={`Award: ${award.title}`}
+            >
               <article className="relative group w-full h-[220px] rounded-br-3xl overflow-hidden bg-white dark:bg-neutral-800 hover:shadow-md transition-all duration-500 ">
                 <Image
                   src={award.img}
@@ -109,7 +113,10 @@ export default function AwardSection() {
         <noscript>
           <ul className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
             {awardsData.map((award: Award) => (
-              <li key={award.id} className="border rounded-lg p-4 bg-white dark:bg-neutral-800">
+              <li
+                key={award.id}
+                className="border rounded-lg p-4 bg-white dark:bg-neutral-800"
+              >
                 <Image
                   src={award.img}
                   alt={`${award.title} award`}
