@@ -7,7 +7,6 @@ import Header from "@/components/Layout/Header";
 import Hero from "@/components/Home/Hero";
 import WhyChooseUs from "@/components/Home/whychooseus";
 import Platform from "@/components/Home/platform";
-import Perks from "@/components/Home/perks";
 import BottomContactBar from "@/components/Common/BottomContactBar";
 
 import InsightsPreview from "@/components/Insights/InsightsPreview";
@@ -20,7 +19,6 @@ import CorporatePreview from "@/components/Corporate/CorporatePreview";
 // Revalidate home once per day (adjust as needed)
 export const revalidate = 86400; // seconds
 
-// ✅ Full SEO metadata for homepage (uses layout.tsx metadataBase)
 export const metadata: Metadata = {
   title: "XIPHIAS Immigration – Global Residency & Citizenship Solutions",
   description:
@@ -61,8 +59,7 @@ export default function Home() {
         <SkilledPreview />
         <CorporatePreview />
         <Platform />
-        <InsightsPreview limit={6} />
-        <Perks />
+        <InsightsPreview />
         <BottomContactBar />
       </main>
     </>
