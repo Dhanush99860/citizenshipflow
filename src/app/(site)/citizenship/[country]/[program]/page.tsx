@@ -27,7 +27,7 @@ import RiskCompliance from "@/components/Citizenship/RiskCompliance";
 import CostCalculator from "@/components/Citizenship/CostCalculator";
 import DocumentChecklist from "@/components/Citizenship/DocumentChecklist";
 import FamilyMatrix from "@/components/Citizenship/FamilyMatrix";
-import AdvisorSpotlight from "@/components/Citizenship/AdvisorSpotlight";
+import AdvisorConsultationCard from "@/components/Citizenship/AdvisorConsultationCard";
 import StickyInquiryDock from "@/components/Citizenship/StickyInquiryDock";
 import { FileSignature, Hourglass, CalendarClock } from "lucide-react";
 import GovernmentFees from "@/components/Citizenship/GovernmentFees";
@@ -132,12 +132,12 @@ export default async function ProgramPage(props: {
     const quickCheck = (meta as any).quickCheck as any | undefined; // from MDX
     const prices = (meta as any).prices as
       | {
-          label: string;
-          amount?: number;
-          currency?: string;
-          when?: string;
-          notes?: string;
-        }[]
+        label: string;
+        amount?: number;
+        currency?: string;
+        when?: string;
+        notes?: string;
+      }[]
       | undefined;
     const proofOfFunds = (meta as any).proofOfFunds as
       | { label?: string; amount: number; currency?: string; notes?: string }[]
@@ -159,12 +159,12 @@ export default async function ProgramPage(props: {
       | undefined;
     const projectList = (meta as any).projectList as
       | {
-          name: string;
-          minBuyIn: number;
-          holdMonths: number;
-          notes?: string;
-          image?: string;
-        }[]
+        name: string;
+        minBuyIn: number;
+        holdMonths: number;
+        notes?: string;
+        image?: string;
+      }[]
       | undefined;
     const riskNotes = (meta as any).riskNotes as string[] | undefined;
     const complianceNotes = (meta as any).complianceNotes as
@@ -178,11 +178,11 @@ export default async function ProgramPage(props: {
       | undefined;
     const familyMatrix = (meta as any).familyMatrix as
       | {
-          childrenUpTo?: number;
-          parentsFromAge?: number;
-          siblings?: boolean;
-          spouse?: boolean;
-        }
+        childrenUpTo?: number;
+        parentsFromAge?: number;
+        siblings?: boolean;
+        spouse?: boolean;
+      }
       | undefined;
 
     /** Programs in same country */
@@ -329,41 +329,41 @@ export default async function ProgramPage(props: {
     const howToLdData =
       processSteps.length > 0
         ? {
-            "@context": "https://schema.org",
-            "@type": "HowTo",
-            name: `${meta.title} Application Process`,
-            description:
-              (meta as any).seo?.description ?? (meta as any).tagline,
-            step: processSteps.map((step: any, index: number) => ({
-              "@type": "HowToStep",
-              position: index + 1,
-              name: step.title,
-              text: step.description,
-            })),
-          }
+          "@context": "https://schema.org",
+          "@type": "HowTo",
+          name: `${meta.title} Application Process`,
+          description:
+            (meta as any).seo?.description ?? (meta as any).tagline,
+          step: processSteps.map((step: any, index: number) => ({
+            "@type": "HowToStep",
+            position: index + 1,
+            name: step.title,
+            text: step.description,
+          })),
+        }
         : null;
 
     const offerLd =
       prices && prices.length
         ? {
-            "@context": "https://schema.org",
-            "@type": "AggregateOffer",
-            priceCurrency:
-              prices.find((p) => p.currency)?.currency ||
-              (meta as any).currency ||
-              "USD",
-            offers: prices
-              .filter((p) => typeof p.amount === "number")
-              .map((p) => ({
-                "@type": "Offer",
-                name: p.label,
-                price: p.amount,
-                priceCurrency: p.currency || (meta as any).currency || "USD",
-                category: p.when || undefined,
-                description: p.notes || undefined,
-                availability: "https://schema.org/InStock",
-              })),
-          }
+          "@context": "https://schema.org",
+          "@type": "AggregateOffer",
+          priceCurrency:
+            prices.find((p) => p.currency)?.currency ||
+            (meta as any).currency ||
+            "USD",
+          offers: prices
+            .filter((p) => typeof p.amount === "number")
+            .map((p) => ({
+              "@type": "Offer",
+              name: p.label,
+              price: p.amount,
+              priceCurrency: p.currency || (meta as any).currency || "USD",
+              category: p.when || undefined,
+              description: p.notes || undefined,
+              availability: "https://schema.org/InStock",
+            })),
+        }
         : null;
 
     const webPageLd = {
@@ -1007,7 +1007,29 @@ export default async function ProgramPage(props: {
 
             {/* ADVISOR SPOTLIGHT (component) */}
             <section id="advisor" className="scroll-mt-28">
-              <AdvisorSpotlight brochureUrl={brochure} />
+              <AdvisorConsultationCard
+                advisorName="Varun Singh"
+                role="CBI & RBI - MD XIPHIAS"
+                avatarSrc="/images/avtar/varun-singh.png"
+                bookingUrl="/PersonalBooking"
+                brochureUrl="/brochures/citizenship/grenada/real-estate.pdf"
+                priceOptions={[
+                  {
+                    id: "std", label: "45–60 mins", price: "₹15,500", best: true, bullets: [
+                      "Eligibility triage & risk pointers",
+                      "Route comparison (donation vs real estate)",
+                      "Project shortlist & checklist",
+                    ]
+                  },
+                  {
+                    id: "deep", label: "90 mins (in-depth)", price: "₹25,500", bullets: [
+                      "Everything in Standard",
+                      "File strategy & timeline modeling",
+                      "Follow-up summary & next steps",
+                    ]
+                  },
+                ]}
+              />
             </section>
 
             {/* spacer for mobile floating nav */}
@@ -1074,10 +1096,10 @@ function toNiceDate(d: string) {
   return isNaN(date.getTime())
     ? d
     : new Intl.DateTimeFormat(undefined, {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      }).format(date);
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }).format(date);
 }
 function prettyRouteType(rt: string) {
   return rt.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());

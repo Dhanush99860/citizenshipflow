@@ -1,34 +1,33 @@
-﻿---
+---
 program: real-estate
 vertical: citizenship
 kind: program
-title: "Approved Real Estate – Investment Route"
+title: "Grenada Citizenship — Real Estate (Approved Project)"
 country: Grenada
 countrySlug: grenada
 programSlug: real-estate
-tagline: "Invest in an approved hospitality or residential project and qualify."
+tagline: "Invest in an approved development and secure Grenadian citizenship."
 currency: USD
-timelineMonths: 6
+timelineMonths: 5
 minInvestment: 270000
-tags: ["CBI", "real estate", "Caribbean", "asset-backed", "approved projects"]
+tags: ["CBI", "real-estate", "Caribbean", "family"]
 
-# Media (conform to your loaders / fallbacks)
-heroImage: "/images/citizenship/grenada.webp"
+heroImage: "/images/citizenship/antigua/antigua.webp"
 heroVideo: "/images/personal/video/sample.mp4"
 heroPoster: "/images/countries/grenada-hero-poster.jpg"
 
-# Brochure (so <Link download> works across locales/basePath)
-brochure: "/brochures/citizenship/grenada/real-estate.pdf"
+# Put the PDF here (or change the path to your actual file)
+brochure: "/images/citizenship/antigua/antigua.pdf"
 
-# Program specifics / Projects / Risk & Compliance / Docs / Estimator
+# Used by Program specifics / Risk & Compliance / Docs / Estimator
 routeType: real-estate
-holdingPeriodMonths: 60
 lastUpdated: "2025-03-01"
 
 prices:
-  - label: "Approved real estate (from)"
+  - label: "Real estate investment (approved project)"
     amount: 270000
-    notes: "Five-year minimum hold; resale rules apply."
+  - label: "Government fee (family up to 4)"
+    amount: 50000
   - label: "Due diligence fee (per adult, 17+)"
     amount: 5000
   - label: "Government processing (per person 17+)"
@@ -37,71 +36,54 @@ prices:
     amount: 1000
 
 governmentFees:
-  - label: "Land transfer & registration"
-    amount: 0
+  - label: "Certificate & oath issuance (per file)"
+    amount: 500
     currency: USD
-    notes: "Varies by conveyance; typically payable at completion."
   - label: "Passport issuance (per person)"
     amount: 250
     currency: USD
-    notes: "Charged at issuance stage; non-refundable."
 
 proofOfFunds:
   - label: "Recommended liquid funds (from)"
     amount: 350000
-    notes: "Indicative buffer for entry price, fees and closing costs."
+    notes: "Indicative for a couple. Families require higher buffers for fees and passports."
 
 benefits:
-  - "Asset-backed path with potential yield in approved projects."
-  - "Family inclusions and flexible unit types (shares/condos)."
-  - "Recognised program with a curated development pipeline."
+  - "Tangible asset exposure via a government-approved development."
+  - "Family eligibility with competitive government fee structure."
+  - "Processing commonly begins 4–6 months after file submission."
 
 requirements:
-  - "Invest at or above threshold in an approved project."
-  - "Hold the asset per program rules (typically 5 years)."
-  - "Pass due diligence and complete interview."
+  - "Invest USD 270,000 (or as per the selected project’s minimum) in an approved development."
+  - "Maintain the investment for the required holding period (typically 5+ years)."
+  - "Pass due diligence and interview; submit complete KYC through an authorised agent."
 
 disqualifiers:
-  - "Non-approved or decertified projects."
-  - "Financing structures that mask true ownership/funds."
-  - "Background red flags or KYC gaps."
+  - "Adverse background findings or unclear source of funds."
+  - "Any attempt to apply without an authorised marketing agent or local agent."
+  - "Sanctions/watchlist conflicts."
 
 riskNotes:
-  - "Project performance and rental pools vary; yields are not guaranteed."
-  - "Liquidity depends on exit windows and resale eligibility."
+  - "Real estate carries project and timeline risk; perform project-level due diligence."
+  - "Resale may be restricted to future CBI buyers per the rules at time of exit."
 
 complianceNotes:
-  - "Title/escrow must follow approved templates."
-  - "Enhanced due diligence and remote interview for adults."
-
-projectList:
-  - name: "Harborview Suites (share units)"
-    minBuyIn: 270000
-    holdMonths: 60
-    notes: "Share-based participation in an approved hospitality development."
-    image: "/images/residency/canada-residency-by-investment.png"
-  - name: "Coral Bay Residences (condo title)"
-    minBuyIn: 350000
-    holdMonths: 60
-    notes: "Limited inventory; rental pool optional."
-    image: "/images/citizenship/grenada.webp"
+  - "Enhanced KYC (PEP checks, source-of-funds, banking reference)."
+  - "Remote interview typically required for adults."
+  - "Funds must flow through compliant/approved channels."
 
 documentChecklist:
   - group: "Identity & Civil"
     documents:
       - "Passport copies (validity ≥ 12 months)"
       - "Birth and marriage certificates (apostilled)"
-      - "Address proof (utility/bank statement)"
+      - "National ID(s) and address proof"
   - group: "Financial & SOF"
     documents:
       - "Bank statements (6–12 months)"
-      - "Sale proceeds / business income evidence"
+      - "Source-of-funds trail (salary/dividends/sale proceeds)"
+      - "Signed purchase agreement / reservation receipt"
       - "Banker’s reference letter"
-  - group: "Real-estate"
-    documents:
-      - "Reservation form and escrow letter"
-      - "Executed purchase agreement"
-      - "Source-of-funds references for purchase monies"
   - group: "Compliance"
     documents:
       - "Police clearance certificates"
@@ -115,36 +97,55 @@ familyMatrix:
   spouse: true
 
 quickCheck:
-  title: "Real-estate route pre-screen"
+  title: "Real estate route pre-screen"
   questions:
-    - id: "capital"
-      label: "Capital for USD 270k + fees?"
+    - id: "budget"
+      label: "Budget for USD 270k real estate + fees?"
       type: boolean
-    - id: "hold"
-      label: "Comfortable with a 5-year hold?"
+    - id: "clean"
+      label: "Clean background & KYC docs ready?"
       type: boolean
-    - id: "docs"
-      label: "KYC & interview readiness?"
+    - id: "interview"
+      label: "Comfortable with a remote interview?"
       type: boolean
   ctas:
     primaryHref: "/PersonalBooking"
     primaryText: "Book a Free Consultation"
     secondaryHref: "/citizenship/grenada"
-    secondaryText: "See donation route"
+    secondaryText: "See other Grenada options"
+
+processSteps:
+  - title: "Select approved project & reserve"
+    description: "Choose a government-approved development and sign a reservation."
+  - title: "File compilation & submission"
+    description: "Due diligence & remote interview for adults; purchase agreement prepared."
+  - title: "Approval in principle"
+    description: "Complete the investment and pay outstanding government/processing fees."
+  - title: "Citizenship & passports"
+    description: "Certificate issued; passport applications filed."
+
+faq:
+  - q: "Can I resell the property?"
+    a: "After the holding period and subject to the rules in force at the time of exit. Some projects limit resale to CBI buyers."
+  - q: "Do rental returns apply during holding?"
+    a: "Many projects offer a rental program; terms vary by project and operator."
 
 # Optional interactive estimator (drives CostCalculator)
 costEstimator:
   baseOptions:
-    - id: "share270"
-      label: "Project share (from)"
+    - id: "family4"
+      label: "Family (up to 4) – Investment"
       amount: 270000
-    - id: "condo350"
-      label: "Condo title (from)"
-      amount: 350000
-  defaultBaseId: "share270"
+    - id: "single"
+      label: "Single applicant – Investment"
+      amount: 270000
+  defaultBaseId: "family4"
   adults: 2
   children: 0
   addons:
+    - id: "gov-fee-family"
+      label: "Government fee (family up to 4)"
+      amount: 50000
     - id: "dd-adult"
       label: "Due diligence (per adult)"
       amount: 5000
@@ -163,389 +164,30 @@ costEstimator:
       per: "person"
 
 seo:
-  title: "Grenada – Citizenship via Approved Real Estate"
-  description: "Qualify for Grenada citizenship from USD 270,000 in approved real estate. See the investment rules, holding period, fees, timeline and compliance steps."
+  title: "Grenada Real Estate — Citizenship by Investment"
+  description: "Invest in an approved Grenadian development (from USD 270,000) and secure citizenship for the family. Fees, timelines, and steps explained."
   keywords:
-    - "Grenada citizenship by investment real estate"
-    - "Grenada CBI real estate 270000"
-    - "approved projects Grenada citizenship"
-    - "Caribbean CBI property investment"
+    - "Grenada real estate citizenship"
+    - "Grenada CBI real estate"
+    - "Grenada approved project"
 ---
 
 ### Overview
 
-The **Approved Real Estate** route lets you qualify for Grenada citizenship by investing in a project that has received formal program approval. It’s a transparent, asset-backed alternative to the donation path and suits applicants who prefer **capital preservation** (with potential rental participation) over a pure contribution. Processing typically completes in **~6 months** for clean files.
+Invest in a government-approved development and obtain Grenadian citizenship for you and eligible family members. This route combines asset ownership with a predictable application process.
 
-> **What qualifies?** Hospitality or residential developments that have been vetted and approved by the program authority. Inventory can be offered as **project shares** or **condo/freehold title**, depending on the development.
+### Investment Overview
 
----
-program: real-estate
-vertical: citizenship
-kind: program
-title: "Approved Real Estate – Investment Route"
-country: Grenada
-countrySlug: grenada
-programSlug: real-estate
-tagline: "Invest in an approved hospitality or residential project and qualify."
-currency: USD
-timelineMonths: 6
-minInvestment: 270000
-tags: ["CBI", "real estate", "Caribbean", "asset-backed", "approved projects"]
+Commit USD 270,000 to an approved project, complete due diligence and a remote interview, and—upon approval in principle—finalise the purchase and pay government/processing fees.
 
-# Media (conform to your loaders / fallbacks)
-heroImage: "/images/citizenship/grenada.webp"
-heroVideo: "/images/personal/video/sample.mp4"
-heroPoster: "/images/countries/grenada-hero-poster.jpg"
+### Project Selection
 
-# Brochure (so <Link download> works across locales/basePath)
-brochure: "/brochures/citizenship/grenada/real-estate.pdf"
+We shortlist vetted developments with clear title, escrow protections, and defined delivery milestones. Returns and usage rights vary by project/operator.
 
-# Program specifics / Projects / Risk & Compliance / Docs / Estimator
-routeType: real-estate
-holdingPeriodMonths: 60
-lastUpdated: "2025-03-01"
+### Why Grenada
 
-prices:
-  - label: "Approved real estate (from)"
-    amount: 270000
-    notes: "Five-year minimum hold; resale rules apply."
-  - label: "Due diligence fee (per adult, 17+)"
-    amount: 5000
-  - label: "Government processing (per person 17+)"
-    amount: 1500
-  - label: "Interview fee (per person 17+)"
-    amount: 1000
-
-governmentFees:
-  - label: "Land transfer & registration"
-    amount: 0
-    currency: USD
-    notes: "Varies by conveyance; typically payable at completion."
-  - label: "Passport issuance (per person)"
-    amount: 250
-    currency: USD
-    notes: "Charged at issuance stage; non-refundable."
-
-proofOfFunds:
-  - label: "Recommended liquid funds (from)"
-    amount: 350000
-    notes: "Indicative buffer for entry price, fees and closing costs."
-
-benefits:
-  - "Asset-backed path with potential yield in approved projects."
-  - "Family inclusions and flexible unit types (shares/condos)."
-  - "Recognised program with a curated development pipeline."
-
-requirements:
-  - "Invest at or above threshold in an approved project."
-  - "Hold the asset per program rules (typically 5 years)."
-  - "Pass due diligence and complete interview."
-
-disqualifiers:
-  - "Non-approved or decertified projects."
-  - "Financing structures that mask true ownership/funds."
-  - "Background red flags or KYC gaps."
-
-riskNotes:
-  - "Project performance and rental pools vary; yields are not guaranteed."
-  - "Liquidity depends on exit windows and resale eligibility."
-
-complianceNotes:
-  - "Title/escrow must follow approved templates."
-  - "Enhanced due diligence and remote interview for adults."
-
-projectList:
-  - name: "Harborview Suites (share units)"
-    minBuyIn: 270000
-    holdMonths: 60
-    notes: "Share-based participation in an approved hospitality development."
-    image: "/images/residency/canada-residency-by-investment.png"
-  - name: "Coral Bay Residences (condo title)"
-    minBuyIn: 350000
-    holdMonths: 60
-    notes: "Limited inventory; rental pool optional."
-    image: "/images/citizenship/grenada.webp"
-
-documentChecklist:
-  - group: "Identity & Civil"
-    documents:
-      - "Passport copies (validity ≥ 12 months)"
-      - "Birth and marriage certificates (apostilled)"
-      - "Address proof (utility/bank statement)"
-  - group: "Financial & SOF"
-    documents:
-      - "Bank statements (6–12 months)"
-      - "Sale proceeds / business income evidence"
-      - "Banker’s reference letter"
-  - group: "Real-estate"
-    documents:
-      - "Reservation form and escrow letter"
-      - "Executed purchase agreement"
-      - "Source-of-funds references for purchase monies"
-  - group: "Compliance"
-    documents:
-      - "Police clearance certificates"
-      - "Medical form & basic labs"
-      - "CVs for adult applicants"
-
-familyMatrix:
-  childrenUpTo: 25
-  parentsFromAge: 55
-  siblings: false
-  spouse: true
-
-quickCheck:
-  title: "Real-estate route pre-screen"
-  questions:
-    - id: "capital"
-      label: "Capital for USD 270k + fees?"
-      type: boolean
-    - id: "hold"
-      label: "Comfortable with a 5-year hold?"
-      type: boolean
-    - id: "docs"
-      label: "KYC & interview readiness?"
-      type: boolean
-  ctas:
-    primaryHref: "/PersonalBooking"
-    primaryText: "Book a Free Consultation"
-    secondaryHref: "/citizenship/grenada"
-    secondaryText: "See donation route"
-
-# Optional interactive estimator (drives CostCalculator)
-costEstimator:
-  baseOptions:
-    - id: "share270"
-      label: "Project share (from)"
-      amount: 270000
-    - id: "condo350"
-      label: "Condo title (from)"
-      amount: 350000
-  defaultBaseId: "share270"
-  adults: 2
-  children: 0
-  addons:
-    - id: "dd-adult"
-      label: "Due diligence (per adult)"
-      amount: 5000
-      per: "adult"
-    - id: "proc-per-person"
-      label: "Gov. processing (per person)"
-      amount: 1500
-      per: "person"
-    - id: "interview-per-adult"
-      label: "Interview (per adult)"
-      amount: 1000
-      per: "adult"
-    - id: "passport-per-person"
-      label: "Passport issuance (per person)"
-      amount: 250
-      per: "person"
-
-seo:
-  title: "Grenada – Citizenship via Approved Real Estate"
-  description: "Qualify for Grenada citizenship from USD 270,000 in approved real estate. See the investment rules, holding period, fees, timeline and compliance steps."
-  keywords:
-    - "Grenada citizenship by investment real estate"
-    - "Grenada CBI real estate 270000"
-    - "approved projects Grenada citizenship"
-    - "Caribbean CBI property investment"
----
-
-### Comparison with Provincial Entrepreneur Programs
-
-Entrepreneur visas require **active management**, job creation and business performance monitoring. Grenada’s approved real estate route is **capital-focused**:
-
-| Dimension        | Approved Real Estate             | Entrepreneur / Business Owner     |
-| ---------------- | -------------------------------- | --------------------------------- |
-| Core requirement | Qualifying capital & hold period | Business setup, jobs, operations  |
-| Time commitment  | Passive                          | Active, ongoing                   |
-| Risk vector      | Project & exit windows           | Business performance & compliance |
-| Suitability      | Capital-first families           | Hands-on operators                |
-
----
-program: real-estate
-vertical: citizenship
-kind: program
-title: "Approved Real Estate – Investment Route"
-country: Grenada
-countrySlug: grenada
-programSlug: real-estate
-tagline: "Invest in an approved hospitality or residential project and qualify."
-currency: USD
-timelineMonths: 6
-minInvestment: 270000
-tags: ["CBI", "real estate", "Caribbean", "asset-backed", "approved projects"]
-
-# Media (conform to your loaders / fallbacks)
-heroImage: "/images/citizenship/grenada.webp"
-heroVideo: "/images/personal/video/sample.mp4"
-heroPoster: "/images/countries/grenada-hero-poster.jpg"
-
-# Brochure (so <Link download> works across locales/basePath)
-brochure: "/brochures/citizenship/grenada/real-estate.pdf"
-
-# Program specifics / Projects / Risk & Compliance / Docs / Estimator
-routeType: real-estate
-holdingPeriodMonths: 60
-lastUpdated: "2025-03-01"
-
-prices:
-  - label: "Approved real estate (from)"
-    amount: 270000
-    notes: "Five-year minimum hold; resale rules apply."
-  - label: "Due diligence fee (per adult, 17+)"
-    amount: 5000
-  - label: "Government processing (per person 17+)"
-    amount: 1500
-  - label: "Interview fee (per person 17+)"
-    amount: 1000
-
-governmentFees:
-  - label: "Land transfer & registration"
-    amount: 0
-    currency: USD
-    notes: "Varies by conveyance; typically payable at completion."
-  - label: "Passport issuance (per person)"
-    amount: 250
-    currency: USD
-    notes: "Charged at issuance stage; non-refundable."
-
-proofOfFunds:
-  - label: "Recommended liquid funds (from)"
-    amount: 350000
-    notes: "Indicative buffer for entry price, fees and closing costs."
-
-benefits:
-  - "Asset-backed path with potential yield in approved projects."
-  - "Family inclusions and flexible unit types (shares/condos)."
-  - "Recognised program with a curated development pipeline."
-
-requirements:
-  - "Invest at or above threshold in an approved project."
-  - "Hold the asset per program rules (typically 5 years)."
-  - "Pass due diligence and complete interview."
-
-disqualifiers:
-  - "Non-approved or decertified projects."
-  - "Financing structures that mask true ownership/funds."
-  - "Background red flags or KYC gaps."
-
-riskNotes:
-  - "Project performance and rental pools vary; yields are not guaranteed."
-  - "Liquidity depends on exit windows and resale eligibility."
-
-complianceNotes:
-  - "Title/escrow must follow approved templates."
-  - "Enhanced due diligence and remote interview for adults."
-
-projectList:
-  - name: "Harborview Suites (share units)"
-    minBuyIn: 270000
-    holdMonths: 60
-    notes: "Share-based participation in an approved hospitality development."
-    image: "/images/residency/canada-residency-by-investment.png"
-  - name: "Coral Bay Residences (condo title)"
-    minBuyIn: 350000
-    holdMonths: 60
-    notes: "Limited inventory; rental pool optional."
-    image: "/images/citizenship/grenada.webp"
-
-documentChecklist:
-  - group: "Identity & Civil"
-    documents:
-      - "Passport copies (validity ≥ 12 months)"
-      - "Birth and marriage certificates (apostilled)"
-      - "Address proof (utility/bank statement)"
-  - group: "Financial & SOF"
-    documents:
-      - "Bank statements (6–12 months)"
-      - "Sale proceeds / business income evidence"
-      - "Banker’s reference letter"
-  - group: "Real-estate"
-    documents:
-      - "Reservation form and escrow letter"
-      - "Executed purchase agreement"
-      - "Source-of-funds references for purchase monies"
-  - group: "Compliance"
-    documents:
-      - "Police clearance certificates"
-      - "Medical form & basic labs"
-      - "CVs for adult applicants"
-
-familyMatrix:
-  childrenUpTo: 25
-  parentsFromAge: 55
-  siblings: false
-  spouse: true
-
-quickCheck:
-  title: "Real-estate route pre-screen"
-  questions:
-    - id: "capital"
-      label: "Capital for USD 270k + fees?"
-      type: boolean
-    - id: "hold"
-      label: "Comfortable with a 5-year hold?"
-      type: boolean
-    - id: "docs"
-      label: "KYC & interview readiness?"
-      type: boolean
-  ctas:
-    primaryHref: "/PersonalBooking"
-    primaryText: "Book a Free Consultation"
-    secondaryHref: "/citizenship/grenada"
-    secondaryText: "See donation route"
-
-# Optional interactive estimator (drives CostCalculator)
-costEstimator:
-  baseOptions:
-    - id: "share270"
-      label: "Project share (from)"
-      amount: 270000
-    - id: "condo350"
-      label: "Condo title (from)"
-      amount: 350000
-  defaultBaseId: "share270"
-  adults: 2
-  children: 0
-  addons:
-    - id: "dd-adult"
-      label: "Due diligence (per adult)"
-      amount: 5000
-      per: "adult"
-    - id: "proc-per-person"
-      label: "Gov. processing (per person)"
-      amount: 1500
-      per: "person"
-    - id: "interview-per-adult"
-      label: "Interview (per adult)"
-      amount: 1000
-      per: "adult"
-    - id: "passport-per-person"
-      label: "Passport issuance (per person)"
-      amount: 250
-      per: "person"
-
-seo:
-  title: "Grenada – Citizenship via Approved Real Estate"
-  description: "Qualify for Grenada citizenship from USD 270,000 in approved real estate. See the investment rules, holding period, fees, timeline and compliance steps."
-  keywords:
-    - "Grenada citizenship by investment real estate"
-    - "Grenada CBI real estate 270000"
-    - "approved projects Grenada citizenship"
-    - "Caribbean CBI property investment"
----
+Strong due-diligence reputation, efficient processing, and attractive family pricing relative to regional peers.
 
 ### Why Choose Us
 
-We act as your **file steward and investment guide** from reservation through oath:
-
-- **Project vetting** — we maintain a live shortlist of approved developments with clear exit horizons and governance.
-- **Funds & escrow hygiene** — SOF/SOW mapping, compliant remittances and reconciliation to program templates.
-- **Timeline control** — upfront KYC triage, interview preparation and document readiness to reduce avoidable slippage.
-- **Post-approval support** — passport issuance logistics and resale advisory at/after the holding period.
-
-If you’d like a tailored comparison between **share units vs. condo title** for your family profile, book a short consultation and we’ll model costs, use-rights and exit options.
-
----
+We coordinate the project reservation, compliance file, and payment flows so your application stays on track from reservation through passports.
