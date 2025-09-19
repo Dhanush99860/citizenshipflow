@@ -77,11 +77,11 @@ export default function InsightsList({
       >
         {isLoading
           ? Array.from({ length: pageSize }).map((_, i) =>
-              view === "grid" ? <SkeletonCard key={i} /> : <SkeletonRow key={i} />
-            )
+            view === "grid" ? <SkeletonCard key={i} /> : <SkeletonRow key={i} />
+          )
           : items.slice(0, visible).map((it) =>
-              view === "grid" ? <InsightCard key={it.url} item={it} /> : <Row key={it.url} item={it} />
-            )}
+            view === "grid" ? <InsightCard key={it.url} item={it} /> : <Row key={it.url} item={it} />
+          )}
       </div>
 
       {!isLoading && visible < total && (
@@ -120,7 +120,7 @@ function Toolbar({
   onSortChangeAction?: (s: SortKey) => void;
 }) {
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-3 rounded-2xl ring-1 ring-neutral-200 dark:ring-neutral-800 bg-white/70 dark:bg-neutral-900/50 px-3 py-2">
+    <div className="mb-4 flex flex-wrap items-center gap-3 rounded-2xl bg-white/70 dark:bg-neutral-900/50 px-3 py-2">
       <span className="text-sm text-neutral-700 dark:text-neutral-300">{countText}</span>
 
       <div className="ml-auto flex items-center gap-2">
@@ -142,7 +142,7 @@ function Toolbar({
 
         <div className="inline-flex overflow-hidden rounded-md ring-1 ring-neutral-300 dark:ring-neutral-700">
           <button
-            className={`px-2.5 py-1.5 text-sm ${view === "grid" ? "bg-emerald-600 text-white" : "bg-white dark:bg-neutral-900"}`}
+            className={`px-2.5 py-1.5 text-sm ${view === "grid" ? "bg-secondary text-white" : "bg-white dark:bg-neutral-900"}`}
             aria-pressed={view === "grid"}
             onClick={() => onViewChange("grid")}
             title="Grid view"
@@ -150,7 +150,7 @@ function Toolbar({
             <GridIcon className="h-4 w-4" />
           </button>
           <button
-            className={`px-2.5 py-1.5 text-sm ${view === "list" ? "bg-emerald-600 text-white" : "bg-white dark:bg-neutral-900"}`}
+            className={`px-2.5 py-1.5 text-sm ${view === "list" ? "bg-primary text-white" : "bg-white dark:bg-neutral-900"}`}
             aria-pressed={view === "list"}
             onClick={() => onViewChange("list")}
             title="List view"
@@ -356,8 +356,8 @@ function ArrowDown({ className = "" }: { className?: string }) {
   </svg>;
 }
 function SearchIcon({ className = "" }: { className?: string }) {
-  return <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M10 2a8 8 0 105.293 14.293l4.707 4.707a1 1 0 001.414-1.414l-4.707-4.707A8 8 0 0010 2zm0 2a6 6 0 110 12A6 6 0 0110 4z"/></svg>;
+  return <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M10 2a8 8 0 105.293 14.293l4.707 4.707a1 1 0 001.414-1.414l-4.707-4.707A8 8 0 0010 2zm0 2a6 6 0 110 12A6 6 0 0110 4z" /></svg>;
 }
 function RotateIcon({ className = "" }: { className?: string }) {
-  return <svg viewBox="0 0 20 20" fill="currentColor" className={className}><path d="M10 2a8 8 0 017.937 7H16l3.5 3.5L23 9h-2.063A8.001 8.001 0 112 10a1 1 0 102 0 6 6 0 106 6 1 1 0 100-2 4 4 0 110-8 1 1 0 100-2z"/></svg>;
+  return <svg viewBox="0 0 20 20" fill="currentColor" className={className}><path d="M10 2a8 8 0 017.937 7H16l3.5 3.5L23 9h-2.063A8.001 8.001 0 112 10a1 1 0 102 0 6 6 0 106 6 1 1 0 100-2 4 4 0 110-8 1 1 0 100-2z" /></svg>;
 }

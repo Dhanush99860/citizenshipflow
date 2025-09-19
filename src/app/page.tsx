@@ -6,7 +6,7 @@ import Header from "@/components/Layout/Header";
 
 import Hero from "@/components/Home/Hero";
 import WhyChooseUs from "@/components/Home/whychooseus";
-import Platform from "@/components/Home/platform";
+import FAQJourney from "@/components/Home/FAQJourney";
 import BottomContactBar from "@/components/Common/BottomContactBar";
 
 import InsightsPreview from "@/components/Insights/InsightsPreview";
@@ -15,6 +15,7 @@ import ResidencyPreview from "@/components/Residency/ResidencyPreview";
 import SkilledPreview from "@/components/Skilled/SkilledPreview";
 import CitizenshipPreview from "@/components/Citizenship/CitizenshipPreview";
 import CorporatePreview from "@/components/Corporate/CorporatePreview";
+import AdvisorConsultationCard from "@/components/Citizenship/AdvisorConsultationCard";
 
 // Revalidate home once per day (adjust as needed)
 export const revalidate = 86400; // seconds
@@ -56,9 +57,35 @@ export default function Home() {
         <WhyChooseUs />
         <ResidencyPreview />
         <CitizenshipPreview />
+        {/* ADVISOR SPOTLIGHT (component) */}
+        <section className="scroll-mt-28 max-w-screen-xl mx-auto py-6 px-4">
+          <AdvisorConsultationCard
+            advisorName="Varun Singh"
+            role="CBI & RBI - MD XIPHIAS"
+            avatarSrc="/images/avtar/varun-singh.png"
+            bookingUrl="/PersonalBooking"
+            brochureUrl="/brochures/citizenship/grenada/real-estate.pdf"
+            priceOptions={[
+              {
+                id: "std", label: "45–60 mins", price: "₹15,500", best: true, bullets: [
+                  "Eligibility triage & risk pointers",
+                  "Route comparison (donation vs real estate)",
+                  "Project shortlist & checklist",
+                ]
+              },
+              {
+                id: "deep", label: "90 mins (in-depth)", price: "₹25,500", bullets: [
+                  "Everything in Standard",
+                  "File strategy & timeline modeling",
+                  "Follow-up summary & next steps",
+                ]
+              },
+            ]}
+          />
+        </section>
         <SkilledPreview />
         <CorporatePreview />
-        <Platform />
+        <FAQJourney />
         <InsightsPreview />
         <BottomContactBar />
       </main>

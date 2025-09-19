@@ -65,7 +65,7 @@ export default function FAQWithForm() {
             id="faq-heading"
             className="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-800 dark:text-gray-100 leading-tight mb-8"
           >
-            Still got questions?{" "}
+            Your Journey with XIPHIAS{" "}
             <span className="text-primary">We're here to help.</span>
           </h2>
 

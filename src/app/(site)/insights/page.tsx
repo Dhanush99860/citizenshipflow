@@ -60,9 +60,10 @@ export default async function InsightsPage({ searchParams }: PageProps) {
           initialTag={searchParams.tag}
           facets={facets}
         />
+        
       </div>
 
-      <div className="mt-8">
+      <div className="mt-4">
         <InsightsList items={items} />
       </div>
 

@@ -1,9 +1,11 @@
 // src/components/Insights/InsightCard.tsx
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import type { InsightMeta } from "@/types/insights";
 
-/** Format date in UTC for consistent display (e.g., 16 September 2025) */
+/** Format date in UTC for consistent display (e.g., 16 Sep 2025) */
 function formatDateUTC(input?: string) {
   if (!input) return null;
   const d = new Date(input);
@@ -16,25 +18,13 @@ function formatDateUTC(input?: string) {
   }).format(d);
 }
 
-/* ──────────────────────────────────────────────────────────────────────────
-   UX strategy: small, color-coded kind badge + compact readable meta
-   - Badge: top-left over media (color per kind)
-   - Media: 16:9, covers, graceful gradient fallback using kind colors
-   - Title: 18px / 2 lines, summary: 14px / 2 lines
-   - Meta: date • author • reading time (12px)
-   - Hover: subtle lift + soft color ring, full-card clickable
-   - A11y: <article>, <time>, alt text, large clickable target
-   ------------------------------------------------------------------------ */
-
 type KindKey = NonNullable<InsightMeta["kind"]> | "default";
 
 const KIND_UI: Record<
   KindKey,
   {
     label: string;
-    /** Badge appearance */
     badge: string;
-    /** Ambient/fallback gradient colors */
     ambientFrom: string;
     ambientTo: string;
   }
@@ -79,9 +69,11 @@ const KIND_UI: Record<
 export default function InsightCard({
   item,
   showKindBadge = true,
+  priority = false, // set true for above-the-fold cards if you like
 }: {
   item: InsightMeta;
   showKindBadge?: boolean;
+  priority?: boolean;
 }) {
   const displayDate = formatDateUTC(item.updated || item.date);
   const author =
@@ -99,23 +91,25 @@ export default function InsightCard({
     >
       <article
         className="
-          relative isolate overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm transition
+          relative isolate flex h-full flex-col overflow-hidden rounded-2xl
+          border border-neutral-200 bg-white shadow-sm transition
           hover:-translate-y-0.5 hover:shadow-md hover:ring-2 hover:ring-indigo-300/40
           focus-visible:ring-2 focus-visible:ring-indigo-300/60
           dark:border-neutral-800 dark:bg-neutral-900 dark:hover:ring-indigo-500/30
           will-change-transform
         "
       >
-        {/* Media */}
-        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-t-2xl">
+        {/* Media (fixed aspect -> prevents height jumps) */}
+        <div className="relative aspect-[16/9] w-full overflow-hidden">
           {item.hero ? (
             <Image
               src={item.hero}
               alt={item.heroAlt || item.title}
               fill
               sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
-              quality={85}
-              loading="lazy"
+              quality={80}
+              priority={priority}
+              loading={priority ? "eager" : "lazy"}
               className="object-cover"
             />
           ) : (
@@ -130,7 +124,7 @@ export default function InsightCard({
             />
           )}
 
-          {/* Tiny type badge */}
+          {/* Kind badge */}
           {showKindBadge && (
             <span
               className={[
@@ -142,22 +136,13 @@ export default function InsightCard({
             </span>
           )}
         </div>
+{/* Content (flex-1 ensures footer row sits at bottom, equalizing heights) */}
+<div className="flex flex-1 flex-col px-4 sm:px-5 py-2 sm:py-2">
 
-        {/* Content */}
-        <div className="p-4 sm:p-5">
-          {/* Title (18px) */}
-          <h3 className="line-clamp-2 text-[18px] font-semibold leading-6 text-neutral-900 dark:text-white">
-            {item.title}
-          </h3>
+          {/* Spacer grows to push meta to bottom so all cards align */}
+          <div className="flex-1" />
 
-          {/* Description (14px) */}
-          {item.summary && (
-            <p className="mt-2 line-clamp-2 text-[14px] leading-5 text-neutral-700 dark:text-neutral-300">
-              {item.summary}
-            </p>
-          )}
-
-          {/* Meta row (12px) */}
+          {/* Meta row */}
           <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-neutral-500 dark:text-neutral-400">
             {displayDate && (
               <time
@@ -169,10 +154,7 @@ export default function InsightCard({
             )}
             {author && (
               <>
-                <span
-                  aria-hidden
-                  className="text-neutral-300 dark:text-neutral-600"
-                >
+                <span aria-hidden className="text-neutral-300 dark:text-neutral-600">
                   •
                 </span>
                 <span className="truncate">{author}</span>
@@ -180,10 +162,7 @@ export default function InsightCard({
             )}
             {typeof item.readingTimeMins === "number" && (
               <>
-                <span
-                  aria-hidden
-                  className="text-neutral-300 dark:text-neutral-600"
-                >
+                <span aria-hidden className="text-neutral-300 dark:text-neutral-600">
                   •
                 </span>
                 <span className="whitespace-nowrap">
@@ -192,6 +171,21 @@ export default function InsightCard({
               </>
             )}
           </div>
+        </div>
+        {/* Content (flex-1 ensures footer row sits at bottom, equalizing heights) */}
+        <div className="flex flex-1 flex-col px-4 sm:px-5 py-1 sm:py-1">
+          {/* Title — two lines max (stable height) */}
+          <h3 className="line-clamp-2 text-[18px] font-semibold leading-6 text-neutral-900 dark:text-white">
+            {item.title}
+          </h3>
+
+          {/* Summary — two lines max (keeps cards aligned even with long copy) */}
+          {(item.summary || (item as any).excerpt) && (
+            <p className="mt-2 mb-4 line-clamp-2 text-[14px] leading-5 text-neutral-700 dark:text-neutral-300">
+              {item.summary ?? (item as any).excerpt}
+            </p>
+          )}
+
         </div>
 
         {/* Subtle ambient glow (tinted per kind) */}

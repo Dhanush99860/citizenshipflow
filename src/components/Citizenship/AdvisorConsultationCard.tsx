@@ -173,7 +173,7 @@ export default function AdvisorConsultationCard({
             <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full ring-2 ring-primary/10 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900">
               <Image src={avatarSrc} alt={advisorName} fill sizes="96px" className="object-cover" />
             </div>
-              <h3 id="advisor-card-title" className="text-xl font-semibold tracking-tight">
+              <h3 id="advisor-card-title" className="text-xl font-semibold tracking-tight pt-3">
                 {title}
               </h3>
               <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">{subtitle}</p>
