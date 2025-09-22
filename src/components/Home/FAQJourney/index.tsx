@@ -6,36 +6,18 @@ import * as React from "react";
 type FAQ = { q: string; a: string };
 
 const DEFAULT_FAQS: FAQ[] = [
-  {
-    q: "How does my journey with XIPHIAS start?",
-    a:
-      "With a private discovery call (20–30 mins). We clarify your goals—relocation, work, investment, family, or a second home—along with timelines and budget. You leave with a shortlist of routes and a first roadmap tailored to your profile.",
-  },
-  {
-    q: "What happens after the consultation?",
-    a:
-      "We complete structured profile diligence (work history, education, assets, source of funds, travel history, dependants) and lock the best-fit program. You receive milestones, documentation lists, fees, and estimated decision windows.",
-  },
-  {
-    q: "Which documents will I need to prepare?",
-    a:
-      "Typically: passports, civil status, education/work proofs, bank statements, and police clearances. Investment/business routes may require source-of-funds and company papers. We provide checklists, templates, and QC guidance for each step.",
-  },
-  {
-    q: "How long does the process usually take?",
-    a:
-      "It varies by country and route. Fast-track visas: ~1–3 months. Investment PR/Golden Visa: ~3–9 months. Some citizenship-by-exception routes: ~4–8 months. We keep a milestone tracker and update you if authorities request more evidence.",
-  },
-  {
-    q: "Can my family be included in the same file?",
-    a:
-      "Yes. Most programs include spouse and dependent children; some allow parents. We plan sequencing so school/work schedules face minimal disruption and everyone moves through the process smoothly.",
-  },
-  {
-    q: "What support do I get post-approval and on landing?",
-    a:
-      "We guide visa stamping, landing formalities, IDs/tax numbers, and local registrations. Our relocation desk coordinates housing, schools, banking, insurance and—on business routes—entity setup and light compliance so you can settle quickly.",
-  },
+  { q: "How does my journey with XIPHIAS start?",
+    a: "With a private discovery call (20–30 mins). We clarify your goals—relocation, work, investment, family, or a second home—along with timelines and budget. You leave with a shortlist of routes and a first roadmap tailored to your profile." },
+  { q: "What happens after the consultation?",
+    a: "We complete structured profile diligence (work history, education, assets, source of funds, travel history, dependants) and lock the best-fit program. You receive milestones, documentation lists, fees, and estimated decision windows." },
+  { q: "Which documents will I need to prepare?",
+    a: "Typically: passports, civil status, education/work proofs, bank statements, and police clearances. Investment/business routes may require source-of-funds and company papers. We provide checklists, templates, and QC guidance for each step." },
+  { q: "How long does the process usually take?",
+    a: "It varies by country and route. Fast-track visas: ~1–3 months. Investment PR/Golden Visa: ~3–9 months. Some citizenship-by-exception routes: ~4–8 months. We keep a milestone tracker and update you if authorities request more evidence." },
+  { q: "Can my family be included in the same file?",
+    a: "Yes. Most programs include spouse and dependent children; some allow parents. We plan sequencing so school/work schedules face minimal disruption and everyone moves through the process smoothly." },
+  { q: "What support do I get post-approval and on landing?",
+    a: "We guide visa stamping, landing formalities, IDs/tax numbers, and local registrations. Our relocation desk coordinates housing, schools, banking, insurance and—on business routes—entity setup and light compliance so you can settle quickly." },
 ];
 
 export default function FAQSectionXiphas({
@@ -43,47 +25,55 @@ export default function FAQSectionXiphas({
   title = "Your journey with XIPHIAS — Top FAQs",
   subtitle = "A quick overview from first consultation to post-landing support.",
   className = "",
+  hashMode = "replace",      // "replace" | "push"
+  clearHashOnClose = false,  // if true, clears hash when closing the last open panel
 }: {
   faqs?: FAQ[];
   title?: string;
   subtitle?: string;
   className?: string;
+  hashMode?: "replace" | "push";
+  clearHashOnClose?: boolean;
 }) {
-  // open first by default
+  // Open first item by default (no hash write on load)
   const [openIndex, setOpenIndex] = React.useState<number | null>(0);
 
-  // Stable slugs for #hash deep links
+  // Tracks whether the last change came from a USER click
+  const userChangedRef = React.useRef(false);
+
+  // Slugs for anchors
   const slugs = React.useMemo(() => (faqs ?? []).map((f) => slugify(f.q)), [faqs]);
 
-  // Open matching hash on load / when hash changes
+  // If page loads with a hash, open that item (no URL write here)
   React.useEffect(() => {
     if (typeof window === "undefined") return;
-    const applyHash = () => {
-      const hash = decodeURIComponent(window.location.hash.replace("#", ""));
-      if (!hash) return;
-      const idx = slugs.indexOf(hash);
-      if (idx >= 0) setOpenIndex(idx);
-    };
-    applyHash();
-    window.addEventListener("hashchange", applyHash);
-    return () => window.removeEventListener("hashchange", applyHash);
+    const hash = decodeURIComponent(window.location.hash.replace("#", ""));
+    if (!hash) return;
+    const idx = slugs.indexOf(hash);
+    if (idx >= 0) setOpenIndex(idx);
   }, [slugs]);
 
-  // ✅ Update URL hash AFTER render when the open item changes
+  // Only write/clear the hash AFTER a user toggles
   React.useEffect(() => {
     if (typeof window === "undefined") return;
+    if (!userChangedRef.current) return; // ignore initial programmatic state changes
+
+    const base = `${window.location.pathname}${window.location.search}`;
+    const write = (url: string) => {
+      if (hashMode === "push") window.history.pushState?.(null, "", url);
+      else window.history.replaceState?.(null, "", url);
+    };
+
     if (openIndex === null) {
-      // clear hash but keep path + search
-      const url = `${window.location.pathname}${window.location.search}`;
-      window.history.replaceState(null, "", url);
+      if (clearHashOnClose) write(base); // optionally clear hash
     } else {
-      const nextHash = `#${slugs[openIndex]}`;
-      const url = `${window.location.pathname}${window.location.search}${nextHash}`;
-      window.history.replaceState(null, "", url);
+      write(`${base}#${slugs[openIndex]}`);
     }
-  }, [openIndex, slugs]);
+    userChangedRef.current = false;
+  }, [openIndex, slugs, hashMode, clearHashOnClose]);
 
   const onToggle = React.useCallback((idx: number) => {
+    userChangedRef.current = true;
     setOpenIndex((cur) => (cur === idx ? null : idx));
   }, []);
 
@@ -96,23 +86,22 @@ export default function FAQSectionXiphas({
       aria-label="Frequently asked questions"
       className={`relative py-10 sm:py-12 md:py-14 ${className}`}
     >
-      {/* Soft background accents (no heavy cards/boxes) */}
+      {/* soft background accents */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -top-24 -left-16 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute -bottom-28 -right-10 h-64 w-64 rounded-full bg-secondary/10 blur-3xl" />
       </div>
 
       <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <header className="mb-6 sm:mb-8 md:mb-10">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             {title}
           </h2>
-        {subtitle && (
-          <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-3xl">
-            {subtitle}
-          </p>
-        )}
+          {subtitle && (
+            <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-3xl">
+              {subtitle}
+            </p>
+          )}
         </header>
 
         {/* Elegant accordion */}
@@ -188,24 +177,14 @@ function slugify(s: string) {
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
 }
-
 function Chevron({ className = "" }: { className?: string }) {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true" fill="none"
+         stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="m6 9 6 6 6-6" />
     </svg>
   );
 }
-
 function buildFaqLd(faqs: FAQ[]) {
   return {
     "@context": "https://schema.org",
@@ -213,10 +192,7 @@ function buildFaqLd(faqs: FAQ[]) {
     mainEntity: faqs.map((f) => ({
       "@type": "Question",
       name: f.q,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: f.a,
-      },
+      acceptedAnswer: { "@type": "Answer", text: f.a },
     })),
   };
 }
