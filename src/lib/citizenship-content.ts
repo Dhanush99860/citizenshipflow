@@ -221,12 +221,16 @@ function splitByH3(md: string): Record<string, string> {
       current = nextKey(slugify(m[1]));
       buf.push(line);
     } else {
+      // If we haven't started a section yet, skip leading blank lines.
       if (!current) {
+        if (line.trim() === "") continue; // <-- new: don't start a section on blanks
+        // First real content line is not an H3 -> wrap it into an "Overview" section
         current = nextKey("overview");
         buf.push("### Overview");
       }
       buf.push(line);
     }
+    
   }
   flush();
   return out;
