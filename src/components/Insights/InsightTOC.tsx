@@ -19,6 +19,7 @@ export default function InsightTOC({
   className = "",
 }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [targets, setTargets] = useState<HTMLElement[]>([]);
   const detailsRef = useRef<HTMLDetailsElement | null>(null);
 
   // Keep only unique H2/H3; group H3 under the *nearest preceding* H2
@@ -45,20 +46,23 @@ export default function InsightTOC({
     return { h2s, childrenByH2 };
   }, [headings]);
 
-  // Targets for IntersectionObserver
-  const targets = useMemo(() => {
+  // Build DOM targets on the client only (avoids SSR "document is not defined")
+  useEffect(() => {
+    if (typeof document === "undefined") return;
     const ids = [
       ...h2s.map((h) => h.id),
       ...[...childrenByH2.values()].flat().map((h) => h.id),
     ];
-    return ids
+    const els = ids
       .map((id) => document.getElementById(id))
       .filter(Boolean) as HTMLElement[];
+    setTargets(els);
   }, [h2s, childrenByH2]);
 
   // Scroll spy (highlights the closest visible heading)
   useEffect(() => {
-    if (!targets.length) return;
+    if (!targets.length || typeof IntersectionObserver === "undefined") return;
+
     const io = new IntersectionObserver(
       (entries) => {
         const visible = entries
@@ -70,9 +74,9 @@ export default function InsightTOC({
           );
         if (visible[0]) setActiveId(visible[0].target.id);
       },
-      // earlier trigger near top; later trigger near bottom
       { rootMargin: "-25% 0px -65% 0px", threshold: [0, 1] },
     );
+
     targets.forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, [targets]);
@@ -82,6 +86,7 @@ export default function InsightTOC({
   // Smooth-scroll with fixed-header offset
   const goTo = (id: string) => (e: React.MouseEvent) => {
     e.preventDefault();
+    if (typeof window === "undefined" || typeof document === "undefined") return;
     const el = document.getElementById(id);
     if (!el) return;
     const top = el.getBoundingClientRect().top + window.scrollY - scrollOffset;

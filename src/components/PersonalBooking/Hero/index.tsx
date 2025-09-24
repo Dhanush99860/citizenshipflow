@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Calendar, ShieldCheck, TrendingUp, Globe2 } from "lucide-react";
 import Breadcrumb from "@/components/Common/Breadcrumb";
-
 import {
   BarChart,
   Bar,
@@ -15,18 +14,12 @@ import {
   Cell,
 } from "recharts";
 
-// ----------------------------------------------------
-// Config
-// ----------------------------------------------------
+/* -------------------------------------------------------------------
+ * Config & Utilities
+ * ------------------------------------------------------------------*/
 const INDUSTRY_AVG = 68;
 const XIPHIAS_SUCCESS = 92;
 
-// Tailwind color tokens from your design system are used throughout
-// (primary, secondary, light_bg, dark_text, etc.) so it fits right in.
-
-// ----------------------------------------------------
-// Utilities
-// ----------------------------------------------------
 const useReducedMotion = () => {
   const [reduced, setReduced] = useState(false);
   useEffect(() => {
@@ -39,8 +32,6 @@ const useReducedMotion = () => {
   return reduced;
 };
 
-// Smooth counter that only animates when visible
-// Smooth counter that only animates when visible (no update loops)
 type CounterProps = { end: number; suffix?: string; duration?: number };
 
 const Counter = ({ end, suffix = "", duration = 1800 }: CounterProps) => {
@@ -56,8 +47,6 @@ const Counter = ({ end, suffix = "", duration = 1800 }: CounterProps) => {
 
     const onIntersect: IntersectionObserverCallback = ([entry], obs) => {
       if (!entry.isIntersecting || didAnimateRef.current) return;
-
-      // ensure we don't re-trigger again
       didAnimateRef.current = true;
       obs.unobserve(entry.target);
 
@@ -75,7 +64,7 @@ const Counter = ({ end, suffix = "", duration = 1800 }: CounterProps) => {
         if (p < 1) {
           rafId.current = requestAnimationFrame(step);
         } else {
-          setCount(end); // snap to final
+          setCount(end);
         }
       };
 
@@ -89,7 +78,6 @@ const Counter = ({ end, suffix = "", duration = 1800 }: CounterProps) => {
       io.disconnect();
       if (rafId.current) cancelAnimationFrame(rafId.current);
     };
-    // only re-create if end/duration/reduced change
   }, [end, duration, reduced]);
 
   return (
@@ -100,10 +88,9 @@ const Counter = ({ end, suffix = "", duration = 1800 }: CounterProps) => {
   );
 };
 
-
-// ----------------------------------------------------
-// Component
-// ----------------------------------------------------
+/* -------------------------------------------------------------------
+ * PersonalHero Component
+ * ------------------------------------------------------------------*/
 export default function PersonalHero() {
   const reduced = useReducedMotion();
 
@@ -124,7 +111,7 @@ export default function PersonalHero() {
   );
 
   const [chartData, setChartData] = useState(initialData);
-  const [dateText, setDateText] = useState<string>(""); // avoid hydration mismatch
+  const [dateText, setDateText] = useState<string>("");
 
   // Animate chart only when visible
   useEffect(() => {
@@ -147,7 +134,10 @@ export default function PersonalHero() {
   useEffect(() => {
     const update = () =>
       setDateText(
-        new Date().toLocaleString("en-US", { month: "short", year: "numeric" })
+        new Date().toLocaleString("en-US", {
+          month: "short",
+          year: "numeric",
+        })
       );
     update();
     const id = setInterval(update, 1000 * 60 * 60);
@@ -179,31 +169,50 @@ export default function PersonalHero() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
           {/* LEFT CONTENT */}
           <header className="flex flex-col justify-center text-center lg:text-left text-light_bg dark:text-dark_text space-y-5">
-            <h1 id="hero-title" className="text-3xl sm:text-4xl lg:text-6xl font-extrabold leading-tight tracking-tight">
-              Unlock Global Opportunities with <span className="text-secondary">XIPHIAS</span>
+            {/* Headline */}
+            <h1
+              id="hero-title"
+              className="text-3xl sm:text-4xl lg:text-6xl font-extrabold leading-tight tracking-tight"
+            >
+              Unlock Your Global Future with
+              <span className="text-secondary"> Varun&nbsp;Singh</span>
             </h1>
 
+            {/* Subheading */}
             <p className="text-base sm:text-lg lg:text-xl max-w-2xl mx-auto lg:mx-0 text-light_bg/95 dark:text-dark_text/80">
-              Trusted by entrepreneurs, investors, and families worldwide — with a
-              <span className="font-semibold text-secondary"> 92% success rate</span> across Golden Visa, PR, and Investment Migration Programs.
+              With over{" "}
+              <span className="font-semibold text-secondary">
+                15&nbsp;years of investment migration expertise
+              </span>{" "}
+              and a proven
+              <span className="font-semibold text-secondary">
+                {" "}
+                92% success rate
+              </span>
+              , Varun Singh and the XIPHIAS team have empowered{" "}
+              <span className="font-semibold text-secondary">
+                10,000+ clients
+              </span>{" "}
+              to achieve their global mobility goals. Book a personalised
+              session to discover your optimal immigration pathway.
             </p>
 
             {/* CTA Row */}
             <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 pt-1">
               <Link
                 href="/contact"
-                aria-label="Book a private consultation"
+                aria-label="Reserve a paid consultation with Varun Singh"
                 className="group inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3 rounded-2xl bg-secondary text-light_text font-semibold shadow-md hover:shadow-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-secondary/80"
               >
                 <Calendar className="h-5 w-5 shrink-0" />
-                <span>Book a Private Consultation</span>
+                <span>Reserve a Paid Consultation</span>
               </Link>
 
               <Link
                 href="/insights"
                 className="inline-flex items-center justify-center px-5 sm:px-6 py-3 rounded-2xl bg-white/20 dark:bg-white/10 text-white border border-white/30 hover:bg-white/30 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white/50"
               >
-                Explore latest Insights
+                Explore Latest Insights
               </Link>
             </div>
 
@@ -247,9 +256,11 @@ export default function PersonalHero() {
 
             {/* Chart */}
             <div className="relative">
-              {/* Skeleton shimmer while values are 0 */}
               {isAnimating && (
-                <div aria-hidden className="absolute inset-0 rounded-2xl overflow-hidden">
+                <div
+                  aria-hidden
+                  className="absolute inset-0 rounded-2xl overflow-hidden"
+                >
                   <div className="h-full w-full animate-pulse bg-gradient-to-b from-slate-200/60 to-slate-100/30 dark:from-slate-700/40 dark:to-slate-600/20" />
                 </div>
               )}
@@ -262,37 +273,47 @@ export default function PersonalHero() {
                     tickLine={false}
                     tick={{ fontSize: 12 }}
                   />
-                  <Tooltip
-                    cursor={{ fill: "transparent" }}
-                    contentStyle={{
-                      backgroundColor: "rgba(255,255,255,0.95)",
-                      borderRadius: 12,
-                      border: "1px solid rgba(2,6,23,0.06)",
-                      boxShadow: "0 6px 18px rgba(0,0,0,0.1)",
-                      color: "#0f172a",
-                    }}
-                    labelStyle={{ display: "none" }}
-                  />
+                    <Tooltip
+                      cursor={{ fill: "transparent" }}
+                      contentStyle={{
+                        backgroundColor: "rgba(255,255,255,0.95)",
+                        borderRadius: 12,
+                        border: "1px solid rgba(2,6,23,0.06)",
+                        boxShadow: "0 6px 18px rgba(0,0,0,0.1)",
+                        color: "#0f172a",
+                      }}
+                      labelStyle={{ display: "none" }}
+                    />
 
-                  {/* Animated Gradients */}
-                  <defs>
-                    <linearGradient id="gradGray" x1="0" y1="1" x2="0" y2="0">
-                      <stop offset="0%" stopColor="#cbd5e1">
-                        {!reduced && (
-                          <animate attributeName="offset" values="0;1;0" dur="6s" repeatCount="indefinite" />
-                        )}
-                      </stop>
-                      <stop offset="100%" stopColor="#e2e8f0" />
-                    </linearGradient>
-                    <linearGradient id="gradBlue" x1="0" y1="1" x2="0" y2="0">
-                      <stop offset="0%" stopColor="#1c57b4">
-                        {!reduced && (
-                          <animate attributeName="offset" values="0;1;0" dur="6s" repeatCount="indefinite" />
-                        )}
-                      </stop>
-                      <stop offset="100%" stopColor="#2563eb" />
-                    </linearGradient>
-                  </defs>
+                    {/* Animated Gradients */}
+                    <defs>
+                      <linearGradient id="gradGray" x1="0" y1="1" x2="0" y2="0">
+                        <stop offset="0%" stopColor="#cbd5e1">
+                          {!reduced && (
+                            <animate
+                              attributeName="offset"
+                              values="0;1;0"
+                              dur="6s"
+                              repeatCount="indefinite"
+                            />
+                          )}
+                        </stop>
+                        <stop offset="100%" stopColor="#e2e8f0" />
+                      </linearGradient>
+                      <linearGradient id="gradBlue" x1="0" y1="1" x2="0" y2="0">
+                        <stop offset="0%" stopColor="#1c57b4">
+                          {!reduced && (
+                            <animate
+                              attributeName="offset"
+                              values="0;1;0"
+                              dur="6s"
+                              repeatCount="indefinite"
+                            />
+                          )}
+                        </stop>
+                        <stop offset="100%" stopColor="#2563eb" />
+                      </linearGradient>
+                    </defs>
 
                   <Bar
                     dataKey="value"
@@ -303,7 +324,11 @@ export default function PersonalHero() {
                     {chartData.map((entry, i) => (
                       <Cell
                         key={`cell-${i}`}
-                        fill={entry.name === "Industry Avg" ? "url(#gradGray)" : "url(#gradBlue)"}
+                        fill={
+                          entry.name === "Industry Avg"
+                            ? "url(#gradGray)"
+                            : "url(#gradBlue)"
+                        }
                         className="transition-all duration-300 hover:brightness-110"
                       />
                     ))}
@@ -331,7 +356,8 @@ export default function PersonalHero() {
 
             {/* Disclaimer */}
             <p className="relative text-xs text-light_grey dark:text-dark_border mt-4 text-center lg:text-left">
-              *As of {dateText || "—"}. Past performance does not guarantee future outcomes.
+              *As of {dateText || "—"}. Past performance does not guarantee future
+              outcomes.
             </p>
 
             {/* Key Stats */}
@@ -340,19 +366,25 @@ export default function PersonalHero() {
                 <p className="text-2xl sm:text-3xl font-bold text-primary dark:text-secondary">
                   <Counter end={15} suffix="+" />
                 </p>
-                <p className="text-xs sm:text-sm text-light_grey dark:text-dark_border">Years of Excellence</p>
+                <p className="text-xs sm:text-sm text-light_grey dark:text-dark_border">
+                  Years of Excellence
+                </p>
               </div>
               <div className="space-y-1 hover:scale-[1.03] transition-transform duration-300">
                 <p className="text-2xl sm:text-3xl font-bold text-primary dark:text-secondary">
                   <Counter end={25} suffix="+" />
                 </p>
-                <p className="text-xs sm:text-sm text-light_grey dark:text-dark_border">Global Programs</p>
+                <p className="text-xs sm:text-sm text-light_grey dark:text-dark_border">
+                  Global Programs
+                </p>
               </div>
               <div className="space-y-1 hover:scale-[1.03] transition-transform duration-300">
                 <p className="text-2xl sm:text-3xl font-bold text-primary dark:text-secondary">
                   <Counter end={10000} suffix="+" duration={2200} />
                 </p>
-                <p className="text-xs sm:text-sm text-light_grey dark:text-dark_border">Clients Empowered</p>
+                <p className="text-xs sm:text-sm text-light_grey dark:text-dark_border">
+                  Clients Empowered
+                </p>
               </div>
             </div>
           </div>

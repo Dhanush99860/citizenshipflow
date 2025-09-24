@@ -1,7 +1,7 @@
 // src/app/PersonalBooking/page.tsx
 import Hero from "@/components/PersonalBooking/Hero";
 import Details from "@/components/PersonalBooking/Details";
-import PressReleased from "@/components/Common/PressReleased";
+import PressReleased from "@/components/PersonalBooking/PressReleased";
 import FAQSection from "@/components/Common/FAQSection";
 import { getAllInsights } from "@/lib/insights-content";
 import type { Metadata } from "next";

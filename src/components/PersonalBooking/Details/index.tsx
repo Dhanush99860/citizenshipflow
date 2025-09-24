@@ -8,8 +8,17 @@ import Awards from "@/components/PersonalBooking/Awards";
 import InvestmentStats from "@/components/PersonalBooking/Problem/index";
 import Solutions from "@/components/PersonalBooking/Solutions";
 import TestimonialSection from "@/components/Common/TestimonialSection/index";
+import AdvisorConsultationCard from "@/components/Citizenship/AdvisorConsultationCard";
 
-import { User, Award, FileText, MessageSquare, DollarSign } from "lucide-react";
+import {
+  User,
+  AlertTriangle,
+  Lightbulb,
+  FileText,
+  Award,
+  MessageCircle,
+  DollarSign,
+} from "lucide-react";
 
 type ArticleMeta = {
   title: string;
@@ -20,14 +29,15 @@ type ArticleMeta = {
   tags?: string[];
 };
 
+// Navigation labels and section anchors
 const navItems = [
-  { label: "Expert", href: "#expert", icon: User },
-  { label: "Problem", href: "#problem", icon: DollarSign },
-  { label: "Solution", href: "#solution", icon: User },
-  { label: "Articles", href: "#articles", icon: FileText },
-  { label: "Awards", href: "#awards", icon: Award },
-  { label: "Testimonials", href: "#testimonials", icon: MessageSquare },
-  { label: "Fee", href: "#fee", icon: MessageSquare },
+  { label: "About", href: "#about", icon: User },
+  { label: "Why Consultation", href: "#why", icon: AlertTriangle },
+  { label: "Our Approach", href: "#approach", icon: Lightbulb },
+  { label: "Insights", href: "#articles", icon: FileText },
+  { label: "Awards & Media", href: "#awards", icon: Award },
+  { label: "Client Stories", href: "#testimonials", icon: MessageCircle },
+  { label: "Pricing", href: "#pricing", icon: DollarSign },
 ];
 
 function ArticleCard({ a }: { a: ArticleMeta }) {
@@ -68,7 +78,7 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
           if (entry.isIntersecting) setActive(entry.target.id);
         });
       },
-      { rootMargin: "-50% 0px -50% 0px" },
+      { rootMargin: "-50% 0px -50% 0px" }
     );
 
     navItems.forEach((item) => {
@@ -133,9 +143,16 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
               }`}
             >
               <motion.div
-                animate={{ scale: isActive ? 1.15 : 1, y: isActive ? -3 : 0 }}
+                animate={{
+                  scale: isActive ? 1.15 : 1,
+                  y: isActive ? -3 : 0,
+                }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className={`p-2 rounded-xl ${isActive ? "bg-indigo-50 dark:bg-indigo-900/40 shadow-md" : "bg-transparent"}`}
+                className={`p-2 rounded-xl ${
+                  isActive
+                    ? "bg-indigo-50 dark:bg-indigo-900/40 shadow-md"
+                    : "bg-transparent"
+                }`}
               >
                 <Icon size={20} strokeWidth={2} />
               </motion.div>
@@ -147,9 +164,10 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
 
       {/* Sections */}
       <AnimatePresence mode="wait">
+        {/* About Section */}
         <motion.section
-          id="expert"
-          key="expert"
+          id="about"
+          key="about"
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 50 }}
@@ -158,9 +176,10 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
           <Expert />
         </motion.section>
 
+        {/* Why Consultation Section */}
         <motion.section
-          id="problem"
-          key="problem"
+          id="why"
+          key="why"
           initial={{ opacity: 0, x: 50 }}
           whileInView={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -50 }}
@@ -169,9 +188,10 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
           <InvestmentStats />
         </motion.section>
 
+        {/* Our Approach Section */}
         <motion.section
-          id="solution"
-          key="solution"
+          id="approach"
+          key="approach"
           initial={{ opacity: 0, x: 50 }}
           whileInView={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -50 }}
@@ -180,7 +200,7 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
           <Solutions />
         </motion.section>
 
-        {/* ✅ Latest Articles (from props; no server imports here) */}
+        {/* Insights Section */}
         <motion.section
           id="articles"
           key="articles"
@@ -191,7 +211,7 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
         >
           <div className="container mx-auto lg:max-w-screen-xl px-4 py-8">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-2xl font-semibold">Latest Articles</h2>
+              <h2 className="text-2xl font-semibold">Latest Insights</h2>
               <a href="/articles" className="text-blue-600 hover:underline">
                 View all
               </a>
@@ -210,6 +230,7 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
           </div>
         </motion.section>
 
+        {/* Awards & Media Section */}
         <motion.section
           id="awards"
           key="awards"
@@ -221,6 +242,7 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
           <Awards />
         </motion.section>
 
+        {/* Client Stories / Testimonials Section */}
         <motion.section
           id="testimonials"
           key="testimonials"
@@ -230,6 +252,43 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
           <TestimonialSection />
+        </motion.section>
+
+        {/* Pricing Section */}
+        <motion.section
+          id="pricing"
+          key="pricing"
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 50 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          {/* ADVISOR SPOTLIGHT (component) */}
+        <section className="scroll-mt-28 max-w-screen-xl mx-auto py-6 px-4">
+          <AdvisorConsultationCard
+            advisorName="Varun Singh"
+            role="CBI & RBI - MD XIPHIAS"
+            avatarSrc="/images/avtar/varun-singh.png"
+            bookingUrl="/PersonalBooking"
+            brochureUrl="/brochures/citizenship/grenada/real-estate.pdf"
+            priceOptions={[
+              {
+                id: "std", label: "45–60 mins", price: "₹15,500", best: true, bullets: [
+                  "Eligibility triage & risk pointers",
+                  "Route comparison (donation vs real estate)",
+                  "Project shortlist & checklist",
+                ]
+              },
+              {
+                id: "deep", label: "90 mins (in-depth)", price: "₹25,500", bullets: [
+                  "Everything in Standard",
+                  "File strategy & timeline modeling",
+                  "Follow-up summary & next steps",
+                ]
+              },
+            ]}
+          />
+        </section>
         </motion.section>
       </AnimatePresence>
     </div>

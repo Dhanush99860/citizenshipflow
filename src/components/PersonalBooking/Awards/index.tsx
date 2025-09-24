@@ -18,8 +18,8 @@ export default function AwardSection() {
       aria-labelledby="awards-heading"
     >
       {/* Decorative Orbs */}
-      <div className="absolute -top-20 -left-20 w-72 h-72 bg-neutral-300/20 dark:bg-neutral-700/20 rounded-full blur-3xl"></div>
-      <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-neutral-400/20 dark:bg-neutral-800/20 rounded-full blur-3xl"></div>
+      <div className="absolute -top-24 -left-24 w-72 h-72 bg-neutral-300/20 dark:bg-neutral-700/20 rounded-full blur-3xl"></div>
+      <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-neutral-400/20 dark:bg-neutral-800/20 rounded-full blur-3xl"></div>
 
       <div className="max-w-7xl mx-auto px-6 relative">
         {/* Header */}
@@ -31,10 +31,9 @@ export default function AwardSection() {
             >
               Awards &amp; Recognition
             </h2>
-
             <p className="mt-4 max-w-2xl text-lg text-neutral-600 dark:text-neutral-400 leading-relaxed">
-              We are proud to be recognized for our commitment to excellence,
-              leadership, and trusted client service worldwide.
+              We are proud to be recognised worldwide for our commitment to excellence,
+              leadership, and trusted client service.
             </p>
           </div>
 
@@ -88,16 +87,24 @@ export default function AwardSection() {
               key={award.id}
               aria-label={`Award: ${award.title}`}
             >
-              <article className="relative group w-full h-[220px] rounded-br-3xl overflow-hidden bg-white dark:bg-neutral-800 hover:shadow-md transition-all duration-500 ">
+              <article className="relative group w-full h-[220px] rounded-xl overflow-hidden bg-white dark:bg-neutral-800 hover:shadow-lg transition-all duration-500 border border-neutral-200 dark:border-neutral-700">
+                {/* Award Image */}
                 <Image
                   src={award.img}
                   alt={`${award.title} award recognition`}
                   width={500}
                   height={320}
-                  className="object-cover w-full h-full absolute inset-0 opacity-90 group-hover:opacity-100 transition duration-500 p-8"
+                  className="object-cover w-full h-full absolute inset-0 transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
                 />
-                <div className="sr-only">{award.title}</div>
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent dark:from-black/60 dark:via-black/40 dark:to-transparent opacity-80 group-hover:opacity-90 transition"></div>
+                {/* Award Title */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 backdrop-blur-sm">
+                  <h3 className="text-sm sm:text-base font-semibold text-white">
+                    {award.title}
+                  </h3>
+                </div>
               </article>
             </SwiperSlide>
           ))}
