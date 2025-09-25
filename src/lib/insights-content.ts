@@ -165,7 +165,14 @@ async function loadRawDocs(): Promise<RawDoc[]> {
 
 function metaFromRaw(raw: RawDoc): InsightMeta {
   const title = coerceString(raw.data.title) ?? raw.slug;
-  const summary = coerceString(raw.data.summary);
+
+  // Summary: accept common aliases from MDX
+  const summary =
+    coerceString(raw.data.summary) ||
+    coerceString((raw.data as any).excerpt) ||
+    coerceString((raw.data as any).description) ||
+    coerceString((raw.data as any).subtitle) ||
+    undefined;
 
   // Support string or { name: string }
   const author =
@@ -180,12 +187,26 @@ function metaFromRaw(raw: RawDoc): InsightMeta {
     normalizeArray((raw.data as any).programs);
   const tags = normalizeArray(raw.data.tags) ?? [];
 
+  // Hero image: accept many aliases
   const hero =
     coerceString((raw.data as any).hero) ||
     coerceString((raw.data as any).heroImage) ||
-    coerceString((raw.data as any).image);
+    coerceString((raw.data as any).cover) ||
+    coerceString((raw.data as any).coverImage) ||
+    coerceString((raw.data as any).featuredImage) ||
+    coerceString((raw.data as any).featured_image) ||
+    coerceString((raw.data as any).image) ||
+    coerceString((raw.data as any).thumbnail) ||
+    coerceString((raw.data as any).thumb) ||
+    coerceString((raw.data as any).banner) ||
+    coerceString((raw.data as any).ogImage) ||
+    coerceString((raw.data as any).og_image) ||
+    undefined;
 
-  const heroAlt = coerceString((raw.data as any).heroAlt) || title;
+  const heroAlt =
+    coerceString((raw.data as any).heroAlt) ||
+    coerceString((raw.data as any).imageAlt) ||
+    title;
 
   // Detail hero video/poster (optional)
   const heroVideo =
@@ -336,8 +357,7 @@ export async function getInsightBySlug(
   const componentsMap = (mdxComponents as Record<string, unknown>) || {};
   if (DEV) console.log("[mdx components keys]", Object.keys(componentsMap));
 
-  // IMPORTANT: components at TOP LEVEL (runtime needs this on your version).
-  // Cast to satisfy TS if local type definition doesn’t include `components`.
+  // Components at TOP LEVEL (required for your runtime)
   const args = {
     source: entry.source,
     components: componentsMap as Record<string, any>,

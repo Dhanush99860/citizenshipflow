@@ -18,16 +18,32 @@ function formatDateUTC(input?: string) {
   }).format(d);
 }
 
+/* ───────── field pickers (support multiple keys from MDX) ───────── */
+function pickImage(a: any): string | null {
+  return (
+    a?.hero ??
+    a?.heroImage ??
+    a?.cover ??
+    a?.image ??
+    a?.thumbnail ??
+    a?.banner ??
+    a?.ogImage ??
+    a?.og_image ??
+    a?.featuredImage ??
+    a?.featured_image ??
+    null
+  );
+}
+function pickSummary(a: any): string | null {
+  return a?.summary ?? a?.excerpt ?? a?.description ?? null;
+}
+
+/* ───────── kind UI (unchanged) ───────── */
 type KindKey = NonNullable<InsightMeta["kind"]> | "default";
 
 const KIND_UI: Record<
   KindKey,
-  {
-    label: string;
-    badge: string;
-    ambientFrom: string;
-    ambientTo: string;
-  }
+  { label: string; badge: string; ambientFrom: string; ambientTo: string }
 > = {
   articles: {
     label: "Article",
@@ -69,7 +85,7 @@ const KIND_UI: Record<
 export default function InsightCard({
   item,
   showKindBadge = true,
-  priority = false, // set true for above-the-fold cards if you like
+  priority = false,
 }: {
   item: InsightMeta;
   showKindBadge?: boolean;
@@ -82,6 +98,10 @@ export default function InsightCard({
       : (item as any).author?.name) || "";
 
   const ui = KIND_UI[item.kind as KindKey] ?? KIND_UI.default;
+
+  // NEW: tolerate multiple front-matter keys
+  const img = pickImage(item);
+  const desc = pickSummary(item);
 
   return (
     <Link
@@ -99,11 +119,11 @@ export default function InsightCard({
           will-change-transform
         "
       >
-        {/* Media (fixed aspect -> prevents height jumps) */}
+        {/* Media (fixed aspect) */}
         <div className="relative aspect-[16/9] w-full overflow-hidden">
-          {item.hero ? (
+          {img ? (
             <Image
-              src={item.hero}
+              src={img}
               alt={item.heroAlt || item.title}
               fill
               sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
@@ -124,7 +144,6 @@ export default function InsightCard({
             />
           )}
 
-          {/* Kind badge */}
           {showKindBadge && (
             <span
               className={[
@@ -136,13 +155,10 @@ export default function InsightCard({
             </span>
           )}
         </div>
-{/* Content (flex-1 ensures footer row sits at bottom, equalizing heights) */}
-<div className="flex flex-1 flex-col px-4 sm:px-5 py-2 sm:py-2">
 
-          {/* Spacer grows to push meta to bottom so all cards align */}
+        {/* Meta row */}
+        <div className="flex flex-1 flex-col px-4 sm:px-5 py-2 sm:py-2">
           <div className="flex-1" />
-
-          {/* Meta row */}
           <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-neutral-500 dark:text-neutral-400">
             {displayDate && (
               <time
@@ -172,23 +188,20 @@ export default function InsightCard({
             )}
           </div>
         </div>
-        {/* Content (flex-1 ensures footer row sits at bottom, equalizing heights) */}
+
+        {/* Title + summary */}
         <div className="flex flex-1 flex-col px-4 sm:px-5 py-1 sm:py-1">
-          {/* Title — two lines max (stable height) */}
           <h3 className="line-clamp-2 text-[18px] font-semibold leading-6 text-neutral-900 dark:text-white">
             {item.title}
           </h3>
-
-          {/* Summary — two lines max (keeps cards aligned even with long copy) */}
-          {(item.summary || (item as any).excerpt) && (
+          {desc && (
             <p className="mt-2 mb-4 line-clamp-2 text-[14px] leading-5 text-neutral-700 dark:text-neutral-300">
-              {item.summary ?? (item as any).excerpt}
+              {desc}
             </p>
           )}
-
         </div>
 
-        {/* Subtle ambient glow (tinted per kind) */}
+        {/* Ambient glow */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -inset-px rounded-[1.1rem] opacity-[.05] blur-xl dark:opacity-[.09]"

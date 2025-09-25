@@ -1,3 +1,4 @@
+// ===== Usage example (no slider, 1st big on left + list on right) =====
 // src/components/Citizenship/CitizenshipPreview.tsx
 import CountryCarousel from "@/components/Residency/CountryCarousel";
 import { getCitizenshipCountries } from "@/lib/citizenship-content";
@@ -22,18 +23,25 @@ export default async function CitizenshipPreview() {
       c?.countrySlug ??
       c?.slug ??
       (c?.country ? slugify(c.country) : "unknown"),
-    // heroImage optional; carousel has a safe fallback
+    // heroImage optional; component has a safe fallback
   }));
 
   return (
     <section className="mx-auto max-w-screen-2xl px-4">
       <CountryCarousel
         countries={countries as any}
-        variant="compact"
+        layout="featureList"         // new 3+5 layout
+        variant="plush"
         title="Citizenship by Country"
         description="Explore citizenship by investment and naturalization routes."
-        ctaText="View all countries"
+        ctaText="Browse all countries"
         ctaHref="/citizenship"
+        showSearch
+        showRegionFilter             // only shows if your data has region
+        rightInitialMobile={5}       // show 5 on phones
+        rightInitialDesktop={10}     // show 10 on md+
+        rightRevealStep={10}         // “Show more” step
+        seoItemListJsonLd            // optional structured data
       />
     </section>
   );

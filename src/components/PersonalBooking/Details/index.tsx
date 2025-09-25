@@ -102,11 +102,10 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
                 <a
                   key={item.href}
                   href={item.href}
-                  className={`relative p-5 transition-all duration-300 ${
-                    isActive
+                  className={`relative p-5 transition-all duration-300 ${isActive
                       ? "text-black dark:text-white font-semibold"
                       : "text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white p-1"
-                  }`}
+                    }`}
                 >
                   {item.label}
                   {isActive && (
@@ -123,44 +122,62 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
         </div>
       </section>
 
-      {/* Floating Bottom Nav (Mobile) */}
+      {/* Floating Bottom Nav (Mobile) — improved */}
       <nav
-        className="sm:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-white/80 dark:bg-neutral-900/80
-                   backdrop-blur-xl border border-neutral-200/60 dark:border-neutral-700/60
-                   flex justify-around items-center gap-3 px-4 py-2 rounded-2xl shadow-lg w-[90%] max-w-md"
+        role="tablist"
+        aria-label="Section navigation"
+        className="
+    sm:hidden fixed left-1/2 -translate-x-1/2 z-50
+    bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl
+    border border-neutral-200/70 dark:border-neutral-700/70
+    rounded-2xl shadow-lg w-[92%] max-w-md
+  "
+        /* respect iOS home-indicator */
+        style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)" }}
       >
-        {navItems.map((item) => {
-          const isActive = active === item.href.replace("#", "");
-          const Icon = item.icon;
-          return (
-            <a
-              key={item.href}
-              href={item.href}
-              className={`relative flex flex-col items-center justify-center gap-1 flex-1 py-1 rounded-xl transition-all duration-300 ${
-                isActive
-                  ? "text-indigo-600 dark:text-indigo-400 font-semibold"
-                  : "text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white"
-              }`}
-            >
-              <motion.div
-                animate={{
-                  scale: isActive ? 1.15 : 1,
-                  y: isActive ? -3 : 0,
-                }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className={`p-2 rounded-xl ${
-                  isActive
-                    ? "bg-indigo-50 dark:bg-indigo-900/40 shadow-md"
-                    : "bg-transparent"
-                }`}
+        {/* scrollable rail so 7 items aren’t squished */}
+        <div className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory px-2 py-2 gap-1">
+          {navItems.map((item) => {
+            const isActive = active === item.href.replace("#", "");
+            const Icon = item.icon;
+
+            return (
+              <a
+                key={item.href}
+                href={item.href}
+                role="tab"
+                aria-selected={isActive}
+                aria-current={isActive ? "page" : undefined}
+                className={`
+            snap-center shrink-0 grow-0 basis-[84px]
+            flex flex-col items-center justify-center
+            h-16 rounded-xl transition-all
+            ${isActive
+                    ? "text-indigo-600 dark:text-indigo-400"
+                    : "text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white"}
+          `}
               >
-                <Icon size={20} strokeWidth={2} />
-              </motion.div>
-              <span className="text-[11px]">{item.label}</span>
-            </a>
-          );
-        })}
+                {/* keep height stable so nothing jumps on active */}
+                <div
+                  className={`
+              grid place-items-center h-9 w-9 rounded-xl
+              ${isActive ? "bg-indigo-50 dark:bg-indigo-900/40 ring-1 ring-indigo-200/60 dark:ring-indigo-800/60" : ""}
+            `}
+                >
+                  <Icon size={18} strokeWidth={2} />
+                </div>
+                <span className="mt-1 text-[10.5px] leading-none line-clamp-1 text-center">
+                  {item.label}
+                </span>
+              </a>
+            );
+          })}
+        </div>
+
+        {/* optional subtle handle to hint scrollability on very small screens */}
+        <div className="pointer-events-none absolute -bottom-2 left-1/2 -translate-x-1/2 h-1.5 w-10 rounded-full bg-neutral-200 dark:bg-neutral-700" />
       </nav>
+
 
       {/* Sections */}
       <AnimatePresence mode="wait">
@@ -209,9 +226,9 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
           exit={{ opacity: 0, x: 50 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
-          <div className="container mx-auto lg:max-w-screen-xl px-4 py-8">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-2xl font-semibold">Latest Insights</h2>
+          <div className="container mx-auto lg:max-w-screen-2xl px-4 py-8">
+            <div className="flex items-center justify-between mb-10">
+              <h2 className="text-2xl font-semibold">Latest Articles</h2>
               <a href="/articles" className="text-blue-600 hover:underline">
                 View all
               </a>
@@ -264,31 +281,31 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
           {/* ADVISOR SPOTLIGHT (component) */}
-        <section className="scroll-mt-28 max-w-screen-xl mx-auto py-6 px-4">
-          <AdvisorConsultationCard
-            advisorName="Varun Singh"
-            role="CBI & RBI - MD XIPHIAS"
-            avatarSrc="/images/avtar/varun-singh.png"
-            bookingUrl="/PersonalBooking"
-            brochureUrl="/brochures/citizenship/grenada/real-estate.pdf"
-            priceOptions={[
-              {
-                id: "std", label: "45–60 mins", price: "₹15,500", best: true, bullets: [
-                  "Eligibility triage & risk pointers",
-                  "Route comparison (donation vs real estate)",
-                  "Project shortlist & checklist",
-                ]
-              },
-              {
-                id: "deep", label: "90 mins (in-depth)", price: "₹25,500", bullets: [
-                  "Everything in Standard",
-                  "File strategy & timeline modeling",
-                  "Follow-up summary & next steps",
-                ]
-              },
-            ]}
-          />
-        </section>
+          <section className="scroll-mt-28 max-w-screen-xl mx-auto py-6 px-4">
+            <AdvisorConsultationCard
+              advisorName="Varun Singh"
+              role="CBI & RBI - MD XIPHIAS"
+              avatarSrc="/images/avtar/varun-singh.png"
+              bookingUrl="/PersonalBooking"
+              brochureUrl="/brochures/citizenship/grenada/real-estate.pdf"
+              priceOptions={[
+                {
+                  id: "std", label: "45–60 mins", price: "₹15,500", best: true, bullets: [
+                    "Eligibility triage & risk pointers",
+                    "Route comparison (donation vs real estate)",
+                    "Project shortlist & checklist",
+                  ]
+                },
+                {
+                  id: "deep", label: "90 mins (in-depth)", price: "₹25,500", bullets: [
+                    "Everything in Standard",
+                    "File strategy & timeline modeling",
+                    "Follow-up summary & next steps",
+                  ]
+                },
+              ]}
+            />
+          </section>
         </motion.section>
       </AnimatePresence>
     </div>
