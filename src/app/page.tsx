@@ -55,8 +55,8 @@ export default function Home() {
       <main id="main" className="min-h-screen">
         <Hero />
         <WhyChooseUs />
-        <ResidencyPreview />
         <CitizenshipPreview />
+        <ResidencyPreview />
         {/* ADVISOR SPOTLIGHT (component) */}
         <section className="scroll-mt-28 max-w-screen-xl mx-auto py-6 px-4">
           <AdvisorConsultationCard
@@ -83,8 +83,8 @@ export default function Home() {
             ]}
           />
         </section>
-        <SkilledPreview />
         <CorporatePreview />
+        <SkilledPreview />
         <FAQJourney />
         <InsightsPreview />
         <BottomContactBar />

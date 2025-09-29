@@ -6,43 +6,62 @@ country: "Egypt"
 countrySlug: "egypt"
 programSlug: "business-investment"
 tagline: "Invest in a local Egyptian business to secure citizenship."
-currency: USD
-timelineMonths: "6–9 Months"
-minInvestment: "450,000"
-tags: ["Egypt citizenship", "business investment", "CBI", "second passport Egypt"]
+currency: "USD"
+timelineMonths: 6
+minInvestment: 450000
+tags:
+  - "Egypt citizenship"
+  - "business investment"
+  - "CBI"
+  - "second passport Egypt"
 
 heroImage: "/images/citizenship/egypt/business-investment.webp"
 heroVideo: "/images/personal/video/sample.mp4"
 heroPoster: "/images/citizenship/egypt/business-investment.webp"
 
-routeType: business-investment
+# Program specifics / Risk & Compliance / Docs / Estimator
+# (Your app supports: donation | real-estate | bond | naturalisation)
+# Business investment fits best under “naturalisation” in your union.
+routeType: "naturalisation"
 lastUpdated: "2025-09-23"
+holdingPeriodMonths: 36
 
 prices:
   - label: "State contribution"
     amount: 100000
+    when: "At approval/closing"
+    notes: "Non-refundable treasury contribution."
   - label: "Business investment"
     amount: 350000
+    when: "Post-approval funding"
+    notes: "Equity or fixed capital in an Egyptian entity; structure must meet program rules."
   - label: "Due diligence – principal applicant"
     amount: 8500
+    when: "At submission"
   - label: "Due diligence – spouse"
     amount: 5000
+    when: "At submission"
   - label: "Due diligence – dependent child (0–11)"
     amount: 0
+    when: "At submission"
   - label: "Due diligence – dependent child (12–17)"
     amount: 2000
+    when: "At submission"
   - label: "Due diligence – dependent (18–30)"
     amount: 4000
+    when: "At submission"
 
 governmentFees:
   - label: "Passport issuance (per person)"
     amount: 300
-    currency: USD
+    currency: "USD"
+  - label: "Company registration & filings (indicative)"
+    notes: "Varies by legal form (LLC/SA), share capital, and notary/registry charges."
 
 proofOfFunds:
   - label: "Recommended liquid funds"
-    amount: 450000
-    notes: "Covers state contribution, business investment, and all associated fees."
+    amount: 500000
+    notes: "Covers state contribution, business investment, and professional/government fees."
 
 benefits:
   - "Direct path to Egypt citizenship via investment in a local business."
@@ -55,7 +74,7 @@ requirements:
   - "Pass due diligence and background checks."
   - "Be at least 18 years old with a clean criminal record."
   - "Complete a health examination."
-  
+
 disqualifiers:
   - "Non-approved businesses or opaque funding."
   - "Material background issues or incomplete KYC."
@@ -67,6 +86,12 @@ riskNotes:
 complianceNotes:
   - "All funds must be transferred through approved channels."
   - "Full source-of-funds verification required for all adult applicants."
+
+projectList:
+  - name: "NewCo Manufacturing (illustrative)"
+    minBuyIn: 350000
+    holdMonths: 36
+    notes: "Greenfield or expansion capital; audited reporting and governance required."
 
 documentChecklist:
   - group: "Identity & Civil"
@@ -83,6 +108,7 @@ documentChecklist:
     documents:
       - "Police clearance certificates"
       - "Medical examination report"
+    notes: "Translate to English/Arabic as required; notarization/apostille per instructions."
 
 familyMatrix:
   childrenUpTo: 21
@@ -95,19 +121,59 @@ quickCheck:
   questions:
     - id: "capital"
       label: "Available USD 450,000 + fees?"
-      type: boolean
+      type: "boolean"
+      note: "Covers USD 100k state + USD 350k business, plus due diligence & passports."
     - id: "clean"
       label: "Clean background & KYC documents ready?"
-      type: boolean
+      type: "boolean"
     - id: "interview"
       label: "Comfortable with a brief program interview?"
-      type: boolean
-
+      type: "boolean"
   ctas:
     primaryHref: "/PersonalBooking"
     primaryText: "Book a Free Consultation"
     secondaryHref: "/citizenship/egypt"
     secondaryText: "See other Egypt investment options"
+
+# Optional interactive estimator (drives CostCalculator)
+costEstimator:
+  baseOptions:
+    - id: "biz450"
+      label: "Business investment route"
+      amount: 450000
+  defaultBaseId: "biz450"
+  adults: 2
+  children: 0
+  addons:
+    - id: "dd-principal"
+      label: "Due diligence — principal"
+      amount: 8500
+    - id: "dd-spouse"
+      label: "Due diligence — spouse"
+      amount: 5000
+    - id: "dd-12-17"
+      label: "Due diligence — dependent 12–17"
+      amount: 2000
+    - id: "dd-18-30"
+      label: "Due diligence — dependent 18–30"
+      amount: 4000
+    - id: "passport-per-person"
+      label: "Passport issuance (per person)"
+      amount: 300
+
+processSteps:
+  - title: "Eligibility & route selection"
+    description: "Triaging investment profile, family structure, and compliance red flags."
+  - title: "Company pathway confirmation"
+    description: "Pick legal form (e.g., LLC) and finalize cap table, governance, and activity codes."
+  - title: "KYC & application submission"
+    description: "Compile civil/financial docs; pay due diligence fees and submit through authorized channel."
+  - title: "Approvals & funding"
+    description: "Remit USD 100k state contribution; transfer USD 350k into the approved Egyptian business."
+  - title: "Implementation & monitoring"
+    description: "Complete incorporation/filings; maintain books, payroll (if any), and compliance."
+  - title: "Citizenship & passports"
+    description: "Citizenship decree; oath and passport issuance for approved family members."
 
 seo:
   title: "Egypt Business Investment – Citizenship by Investment"

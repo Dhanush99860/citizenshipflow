@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useId, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Loader from "@/components/Common/Loader";
 import { FiMail, FiUser, FiPhone, FiMessageSquare } from "react-icons/fi";
@@ -14,6 +15,11 @@ import { FiMail, FiUser, FiPhone, FiMessageSquare } from "react-icons/fi";
  *   responsive 2-column layout on md+, non-jumpy focus rings, toast feedback
  * • A11y: labeled fields, aria-invalid, aria-live, keyboard-friendly
  * • SEO: ContactPage JSON-LD
+ *
+ * Backend wiring:
+ * - Pass `apiEndpoint="/api/contact"` (or any URL) to POST JSON there.
+ * - While `apiEndpoint` is undefined, the form simulates success locally.
+ * - Optionally pass `onSuccessRedirect="/thanks"` to navigate after success.
  */
 
 type Props = {
@@ -22,7 +28,12 @@ type Props = {
   heading?: string;
   subheading?: string;
   defaults?: Partial<Record<"name" | "phone" | "email" | "message", string>>;
-  onSuccess?: () => void;
+
+  /** When ready to connect, set this to your POST URL (e.g. "/api/contact"). */
+  apiEndpoint?: string;
+
+  /** After a successful submit, navigate here (e.g. "/thanks"). */
+  onSuccessRedirect?: string;
 };
 
 export default function ContactForm({
@@ -31,13 +42,15 @@ export default function ContactForm({
   heading,
   subheading,
   defaults,
-  onSuccess,
+  apiEndpoint, // ← set this when backend is ready
+  onSuccessRedirect, // ← optional redirect after success
 }: Props) {
   const isFull = variant === "full";
   const [loading, setLoading] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [msgLen, setMsgLen] = useState(defaults?.message?.length ?? 0);
   const formRef = useRef<HTMLFormElement | null>(null);
+  const router = useRouter();
 
   // a11y ids
   const baseId = useId();
@@ -101,27 +114,53 @@ export default function ContactForm({
 
     try {
       setLoading(true);
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...payload,
-          variant,
-          page: typeof window !== "undefined" ? window.location.pathname : "",
-          referrer:
-            typeof document !== "undefined" ? document.referrer || "" : "",
-        }),
-      });
-      if (!res.ok) throw new Error("Failed to send message.");
+
+      if (apiEndpoint) {
+        // Real submit: POST to your backend
+        const res = await fetch(apiEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...payload,
+            variant,
+            page:
+              typeof window !== "undefined" ? window.location.pathname : "",
+            referrer:
+              typeof document !== "undefined" ? document.referrer || "" : "",
+          }),
+        });
+
+        if (!res.ok) {
+          // Try to read a server-provided error if any
+          let message = "Failed to send message.";
+          try {
+            const data = await res.json();
+            if (data?.error) message = String(data.error);
+          } catch {
+            /* ignore json parse */
+          }
+          throw new Error(message);
+        }
+      } else {
+        // Mock submit: simulate success while backend isn't ready
+        await new Promise((r) => setTimeout(r, 600));
+      }
+
       toast.success(
         isFull
           ? "Your message has been sent. We’ll be in touch soon."
-          : "Callback request received. We’ll call you shortly.",
+          : "Callback request received. We’ll call you shortly."
       );
-      onSuccess?.();
+
+      // Clear form & local state
       f.reset();
       setTouched({});
       setMsgLen(0);
+
+      // Optional redirect
+      if (onSuccessRedirect) {
+        router.push(onSuccessRedirect);
+      }
     } catch (err: any) {
       toast.error(err?.message || "Something went wrong. Please try again.");
     } finally {
@@ -130,8 +169,7 @@ export default function ContactForm({
   }
 
   const title =
-    heading ??
-    (isFull ? "Book a FREE consultation" : "Request a quick callback");
+    heading ?? (isFull ? "Book a FREE consultation" : "Request a quick callback");
   const desc =
     subheading ??
     (isFull
@@ -269,13 +307,7 @@ export default function ContactForm({
             ].join(" ")}
             aria-live="polite"
           >
-            {loading ? (
-              <Loader />
-            ) : isFull ? (
-              "Send message"
-            ) : (
-              "Request callback"
-            )}
+            {loading ? <Loader /> : isFull ? "Send message" : "Request callback"}
           </button>
           <p className="mt-2 text-[12px] text-neutral-600 dark:text-neutral-400">
             We respond within one business day. By submitting, you accept our{" "}
@@ -498,26 +530,11 @@ function CardBG() {
       <div className="absolute -bottom-10 -right-10 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
       <svg className="absolute inset-0 h-full w-full opacity-[0.04] dark:opacity-[0.07]">
         <defs>
-          <pattern
-            id="grid-cf"
-            width="24"
-            height="24"
-            patternUnits="userSpaceOnUse"
-          >
-            <path
-              d="M24 0H0V24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="0.75"
-            />
+          <pattern id="grid-cf" width="24" height="24" patternUnits="userSpaceOnUse">
+            <path d="M24 0H0V24" fill="none" stroke="currentColor" strokeWidth="0.75" />
           </pattern>
         </defs>
-        <rect
-          width="100%"
-          height="100%"
-          fill="url(#grid-cf)"
-          className="text-primary"
-        />
+        <rect width="100%" height="100%" fill="url(#grid-cf)" className="text-primary" />
       </svg>
     </div>
   );

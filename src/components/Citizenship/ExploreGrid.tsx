@@ -540,24 +540,19 @@ export default function ExploreGrid({
             {sortedCountries.map(
               ({ c, minInvestment, currency, timelineMonths }, idx) => (
                 <li
-                  key={c.countrySlug}
+                  key={`${c.countrySlug}-${idx}`}   // <-- ✅ make the key unique
                   className="contents"
                   itemProp="itemListElement"
                   itemScope
                   itemType="https://schema.org/ListItem"
                 >
                   <meta itemProp="position" content={String(idx + 1)} />
-                  <div
-                    itemProp="item"
-                    itemScope
-                    itemType="https://schema.org/Country"
-                  >
+                  <div itemProp="item" itemScope itemType="https://schema.org/Country">
                     <meta itemProp="name" content={c.country} />
                     <CountryCardPro
                       href={`/citizenship/${c.countrySlug}`}
                       title={c.title}
                       summary={c.summary}
-                      // ⬇️ always send a real, absolute URL
                       heroImage={
                         ensureAbs((c as any).heroImage) ||
                         `/images/countries/${c.countrySlug}-hero-poster.jpg`
@@ -601,6 +596,7 @@ export default function ExploreGrid({
             </div>
           )}
         </section>
+
       </div>
 
       <CompareDrawer items={compareItems} />

@@ -2,7 +2,7 @@
 import CountryCarousel from "@/components/Residency/CountryCarousel";
 import { getCorporateCountries } from "@/lib/corporate-content";
 
-// tiny helper
+// tiny helper (same as other previews)
 function slugify(s: string) {
   return (s || "")
     .toLowerCase()
@@ -11,7 +11,7 @@ function slugify(s: string) {
 }
 
 export default async function CorporatePreview() {
-  const raw = await getCorporateCountries(); // must exist in your corporate-content lib
+  const raw = await getCorporateCountries();
 
   const countries = (raw ?? []).map((c: any) => ({
     ...c,
@@ -22,17 +22,24 @@ export default async function CorporatePreview() {
       c?.countrySlug ??
       c?.slug ??
       (c?.country ? slugify(c.country) : "unknown"),
+    // heroImage optional; CountryCarousel has a safe fallback
   }));
 
   return (
     <section className="mx-auto max-w-screen-2xl px-4">
       <CountryCarousel
         countries={countries as any}
-        variant="compact"
+        layout="featureList"             // same 60/40 two-column layout
+        variant="standard"
         title="Corporate Immigration by Country"
         description="Work permits, company setup & sponsored employment routes."
         ctaText="View all countries"
         ctaHref="/corporate"
+        showSearch
+        showRegionFilter={false}         // off as requested
+        rightInitialDesktop={7}          // 7 rows on desktop (right column)
+        rightInitialMobile={2}           // 2 rows on mobile (left has 3 => ~5 total)
+        seoItemListJsonLd
       />
     </section>
   );

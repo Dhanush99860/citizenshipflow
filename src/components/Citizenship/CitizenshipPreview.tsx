@@ -1,9 +1,7 @@
-// ===== Usage example (no slider, 1st big on left + list on right) =====
 // src/components/Citizenship/CitizenshipPreview.tsx
 import CountryCarousel from "@/components/Residency/CountryCarousel";
 import { getCitizenshipCountries } from "@/lib/citizenship-content";
 
-// tiny helper
 function slugify(s: string) {
   return (s || "")
     .toLowerCase()
@@ -30,18 +28,17 @@ export default async function CitizenshipPreview() {
     <section className="mx-auto max-w-screen-2xl px-4">
       <CountryCarousel
         countries={countries as any}
-        layout="featureList"         // new 3+5 layout
-        variant="plush"
+        layout="featureList"            // keep the 60/40 two-column layout
+        variant="standard"
         title="Citizenship by Country"
         description="Explore citizenship by investment and naturalization routes."
-        ctaText="Browse all countries"
+        ctaText="View all countries"
         ctaHref="/citizenship"
         showSearch
-        showRegionFilter             // only shows if your data has region
-        rightInitialMobile={5}       // show 5 on phones
-        rightInitialDesktop={10}     // show 10 on md+
-        rightRevealStep={10}         // “Show more” step
-        seoItemListJsonLd            // optional structured data
+        showRegionFilter={false}        // off as requested
+        rightInitialDesktop={7}         // 7 rows on desktop
+        rightInitialMobile={2}          // 2 rows on mobile (left has 3 => ~5 total visible)
+        seoItemListJsonLd
       />
     </section>
   );
