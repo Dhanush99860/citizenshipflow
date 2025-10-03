@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,9 +18,7 @@ function MobileCTABar({ actions }: { actions: Action[] }) {
   if (!mounted) return null;
 
   // Prefer Brochure / Appointment / Consultation; fallback to first two
-  const preferred = actions.filter((a) =>
-    /broch|appoint|consult/i.test(a.label),
-  );
+  const preferred = actions.filter((a) => /broch|appoint|consult/i.test(a.label));
   const mobileActions = (preferred.length ? preferred : actions).slice(0, 2);
 
   if (mobileActions.length === 0) return null;
@@ -58,6 +56,31 @@ function MobileCTABar({ actions }: { actions: Action[] }) {
   );
 }
 
+// --- YouTube helpers ---
+const isYouTubeUrl = (url: string) =>
+  /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//i.test(url);
+
+const getYouTubeId = (url: string): string | null => {
+  try {
+    const u = new URL(url);
+    if (u.hostname === "youtu.be") return u.pathname.slice(1);
+    if (u.hostname.includes("youtube.com")) {
+      const v = u.searchParams.get("v");
+      if (v) return v;
+      const parts = u.pathname.split("/").filter(Boolean);
+      const embedIdx = parts.findIndex((p) => p === "embed");
+      if (embedIdx !== -1 && parts[embedIdx + 1]) return parts[embedIdx + 1];
+      const shortsIdx = parts.findIndex((p) => p === "shorts");
+      if (shortsIdx !== -1 && parts[shortsIdx + 1]) return parts[shortsIdx + 1];
+      const liveIdx = parts.findIndex((p) => p === "live");
+      if (liveIdx !== -1 && parts[liveIdx + 1]) return parts[liveIdx + 1];
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+};
+
 export default function MediaHero({
   title,
   subtitle,
@@ -65,30 +88,78 @@ export default function MediaHero({
   poster,
   imageSrc,
   actions = [],
+  // playback controls (defaults show controls, no autoplay)
+  controls = true,
+  autoPlay = false,
+  muted = false,
+  loop = false,
+  startAt = 0,
 }: {
   title: string;
   subtitle?: string;
-  videoSrc?: string;
+  videoSrc?: string; // local mp4 OR YouTube URL
   poster?: string;
   imageSrc?: string;
   actions?: Action[];
+  controls?: boolean;
+  autoPlay?: boolean;
+  muted?: boolean;
+  loop?: boolean;
+  startAt?: number;
 }) {
+  const ytId = videoSrc && isYouTubeUrl(videoSrc) ? getYouTubeId(videoSrc) : null;
+
+  const youTubeSrc = useMemo(() => {
+    if (!ytId) return null;
+    const params = new URLSearchParams({
+      rel: "0",
+      modestbranding: "1",
+      playsinline: "1",
+      controls: controls ? "1" : "0",
+      autoplay: autoPlay ? "1" : "0",
+      mute: muted ? "1" : "0",
+      loop: loop ? "1" : "0",
+      start: startAt ? String(startAt) : "0",
+      playlist: loop ? ytId : "",
+      origin: typeof window !== "undefined" ? window.location.origin : "",
+    });
+    // privacy-enhanced domain; normal youtube.com also fine
+    return `https://www.youtube-nocookie.com/embed/${ytId}?${params.toString()}`;
+  }, [ytId, controls, autoPlay, muted, loop, startAt]);
+
   return (
     <header className="relative mb-4 overflow-hidden rounded-3xl">
-      {/* MEDIA: mobile 16:9 like your reference; desktop keeps 16:7 */}
+      {/* MEDIA: mobile 16:9; desktop 16:7 */}
       <div className="relative w-full aspect-video md:aspect-[16/7] rounded-2xl md:rounded-3xl overflow-hidden">
         {videoSrc ? (
-          <video
-            className="absolute inset-0 h-full w-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster={poster}
-          >
-            <source src={videoSrc} type="video/mp4" />
-          </video>
+          ytId && youTubeSrc ? (
+            <iframe
+              className="absolute inset-0 h-full w-full"
+              src={youTubeSrc}
+              title={title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              loading="lazy"
+            />
+          ) : (
+            <video
+              className="absolute inset-0 h-full w-full object-cover"
+              autoPlay={autoPlay}
+              muted={muted}
+              loop={loop}
+              controls={controls}
+              playsInline
+              preload="metadata"
+              poster={poster}
+              onLoadedMetadata={(e) => {
+                try {
+                  if (startAt) (e.target as HTMLVideoElement).currentTime = startAt;
+                } catch {}
+              }}
+            >
+              <source src={videoSrc} type="video/mp4" />
+            </video>
+          )
         ) : imageSrc ? (
           <Image src={imageSrc} alt={title} fill className="object-cover" />
         ) : (
@@ -96,14 +167,12 @@ export default function MediaHero({
         )}
       </div>
 
-      {/* DESKTOP overlay unchanged; hidden on mobile */}
+      {/* overlay + text */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/65 via-black/35 to-black/10 hidden md:block" />
       <div className="absolute inset-0 hidden md:flex items-end">
         <div className="p-6 md:p-10">
           <div className="max-w-3xl text-white">
-            <h1 className="text-3xl md:text-4xl font-bold leading-tight">
-              {title}
-            </h1>
+            <h1 className="text-3xl md:text-4xl font-bold leading-tight">{title}</h1>
             {subtitle && <p className="mt-2 text-white/90">{subtitle}</p>}
             {!!actions.length && (
               <div className="mt-6 flex flex-wrap items-end gap-3 sm:gap-4">
