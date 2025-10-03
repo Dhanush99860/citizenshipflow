@@ -56,9 +56,8 @@ function MobileCTABar({ actions }: { actions: Action[] }) {
   );
 }
 
-// --- YouTube helpers ---
-const isYouTubeUrl = (url: string) =>
-  /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//i.test(url);
+// --- helpers to support YouTube links in videoSrc ---
+const isYouTubeUrl = (url: string) => /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//i.test(url);
 
 const getYouTubeId = (url: string): string | null => {
   try {
@@ -67,16 +66,12 @@ const getYouTubeId = (url: string): string | null => {
     if (u.hostname.includes("youtube.com")) {
       const v = u.searchParams.get("v");
       if (v) return v;
-      const parts = u.pathname.split("/").filter(Boolean);
+      const parts = u.pathname.split("/");
       const embedIdx = parts.findIndex((p) => p === "embed");
       if (embedIdx !== -1 && parts[embedIdx + 1]) return parts[embedIdx + 1];
-      const shortsIdx = parts.findIndex((p) => p === "shorts");
-      if (shortsIdx !== -1 && parts[shortsIdx + 1]) return parts[shortsIdx + 1];
-      const liveIdx = parts.findIndex((p) => p === "live");
-      if (liveIdx !== -1 && parts[liveIdx + 1]) return parts[liveIdx + 1];
     }
   } catch {
-    // ignore
+    // ignore parse errors and treat as non-YouTube
   }
   return null;
 };
@@ -88,11 +83,11 @@ export default function MediaHero({
   poster,
   imageSrc,
   actions = [],
-  // playback controls (defaults show controls, no autoplay)
-  controls = true,
-  autoPlay = false,
-  muted = false,
-  loop = false,
+  // NEW: playback controls
+  controls = false,
+  autoPlay = true,
+  muted = true,
+  loop = true,
   startAt = 0,
 }: {
   title: string;
@@ -101,14 +96,15 @@ export default function MediaHero({
   poster?: string;
   imageSrc?: string;
   actions?: Action[];
-  controls?: boolean;
+  controls?: boolean; // show native controls (HTML5) / player controls (YouTube)
   autoPlay?: boolean;
   muted?: boolean;
   loop?: boolean;
-  startAt?: number;
+  startAt?: number; // seconds to start from (YouTube + HTML5)
 }) {
   const ytId = videoSrc && isYouTubeUrl(videoSrc) ? getYouTubeId(videoSrc) : null;
 
+  // Build the YouTube URL with flags that mirror the HTML5 attrs
   const youTubeSrc = useMemo(() => {
     if (!ytId) return null;
     const params = new URLSearchParams({
@@ -120,19 +116,19 @@ export default function MediaHero({
       mute: muted ? "1" : "0",
       loop: loop ? "1" : "0",
       start: startAt ? String(startAt) : "0",
+      // Needed for looping a single video in YT
       playlist: loop ? ytId : "",
-      origin: typeof window !== "undefined" ? window.location.origin : "",
     });
-    // privacy-enhanced domain; normal youtube.com also fine
-    return `https://www.youtube-nocookie.com/embed/${ytId}?${params.toString()}`;
+    return `https://www.youtube.com/embed/${ytId}?${params.toString()}`;
   }, [ytId, controls, autoPlay, muted, loop, startAt]);
 
   return (
     <header className="relative mb-4 overflow-hidden rounded-3xl">
-      {/* MEDIA: mobile 16:9; desktop 16:7 */}
+      {/* MEDIA: mobile 16:9 like your reference; desktop keeps 16:7 */}
       <div className="relative w-full aspect-video md:aspect-[16/7] rounded-2xl md:rounded-3xl overflow-hidden">
         {videoSrc ? (
           ytId && youTubeSrc ? (
+            // YouTube embed
             <iframe
               className="absolute inset-0 h-full w-full"
               src={youTubeSrc}
@@ -144,6 +140,7 @@ export default function MediaHero({
           ) : (
             <video
               className="absolute inset-0 h-full w-full object-cover"
+              // tie to props
               autoPlay={autoPlay}
               muted={muted}
               loop={loop}
@@ -151,9 +148,12 @@ export default function MediaHero({
               playsInline
               preload="metadata"
               poster={poster}
+              // attempt startAt for HTML5 once metadata is loaded
               onLoadedMetadata={(e) => {
                 try {
-                  if (startAt) (e.target as HTMLVideoElement).currentTime = startAt;
+                  if (startAt && (e.target as HTMLVideoElement).currentTime < startAt) {
+                    (e.target as HTMLVideoElement).currentTime = startAt;
+                  }
                 } catch {}
               }}
             >
@@ -167,7 +167,7 @@ export default function MediaHero({
         )}
       </div>
 
-      {/* overlay + text */}
+      {/* DESKTOP overlay unchanged; hidden on mobile */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/65 via-black/35 to-black/10 hidden md:block" />
       <div className="absolute inset-0 hidden md:flex items-end">
         <div className="p-6 md:p-10">
