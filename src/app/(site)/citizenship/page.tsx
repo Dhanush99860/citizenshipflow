@@ -28,17 +28,24 @@ export const metadata: Metadata = {
 
 /** Server ranker for JSON-LD only */
 function pickTopProgramsForLd(all: ProgramMeta[], n = 5): ProgramMeta[] {
+  const key = (x: ProgramMeta) =>
+    `${x?.title ?? ""} ${x?.country ?? ""}`.trim();
+
   const ranked = [...all].sort((a, b) => {
     const tA = a.timelineMonths ?? Number.MAX_SAFE_INTEGER;
     const tB = b.timelineMonths ?? Number.MAX_SAFE_INTEGER;
     if (tA !== tB) return tA - tB;
+
     const iA = a.minInvestment ?? Number.MAX_SAFE_INTEGER;
     const iB = b.minInvestment ?? Number.MAX_SAFE_INTEGER;
     if (iA !== iB) return iA - iB;
-    return (a.title + a.country).localeCompare(b.title + b.country);
+
+    return key(a).localeCompare(key(b), undefined, { sensitivity: "base" });
   });
+
   return ranked.slice(0, n);
 }
+
 
 export default function CitizenshipPage() {
   const countries: CountryMeta[] = getCitizenshipCountries();
