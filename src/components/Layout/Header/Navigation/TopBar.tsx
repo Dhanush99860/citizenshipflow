@@ -1,99 +1,100 @@
-"use client";
+'use client';
 
-import { HiMiniPhone, HiOutlineEnvelope } from "react-icons/hi2";
-import { FaFacebookF, FaTwitter, FaInstagram } from "react-icons/fa";
-import { FiLogIn } from "react-icons/fi";
-import Link from "next/link";
-import Search from "@/components/GlobalSearch"; // ⬅️ your global search component
+import Link from 'next/link';
+// import Search from '@/components/GlobalSearch';
+import { Phone, Mail, Facebook, Twitter, Instagram, Search as SearchIcon } from 'lucide-react';
 
-const TopBar = () => {
-  const textColor = "text-white";
-  const iconBg = "bg-white/20 text-white";
-  const hoverText = "hover:bg-secondary hover:text-white";
-
+/**
+ * Desktop TopBar
+ * - Same width as main bar (max-w-screen-xl)
+ * - Contact chips + centered search (fallback input shown) + socials + Login
+ * - Search icon z-index/visibility fixed so it never “pops in” on scroll
+ */
+export default function TopBar() {
   return (
-    <div className="hidden lg:block mb-[12px]">
-      <div className="pb-5 text-sm border-b border-white/20 container mx-auto lg:max-w-screen-xl md:max-w-screen-md flex items-center justify-between px-4 gap-6">
-        {/* Left - Contact Info */}
-        <div
-          className={`flex items-center gap-6 text-16 font-medium ${textColor}`}
-        >
-          <a
-            href="tel:+919876543210"
-            className="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-lg px-1"
-            aria-label="Call us at +91 98765 43210"
-          >
-            <span className="p-1.5 rounded-full bg-white text-secondary group-hover:bg-secondary group-hover:text-white transition-all duration-300">
-              <HiMiniPhone className="text-lg" aria-hidden="true" />
-            </span>
-            <span className="group-hover:text-secondary transition-colors">
-              +91 98765 43210
-            </span>
-          </a>
+    <div className="hidden lg:block">
+      <div className="mx-auto max-w-screen-2xl px-4">
+        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 py-2 text-[13px] leading-6 text-white/95">
+          {/* Contact chips */}
+          <div className="flex items-center gap-2 xl:gap-3">
+            <Chip href="tel:+919876543210" label="+91 98765 43210" ariaLabel="Call +91 98765 43210" />
+            <Chip href="mailto:info@example.com" label="info@example.com" ariaLabel="Email info@example.com" />
+          </div>
 
-          <a
-            href="mailto:info@example.com"
-            className="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary rounded-lg px-1"
-            aria-label="Email us at info@example.com"
-          >
-            <span className="p-1.5 rounded-full bg-white text-secondary group-hover:bg-secondary group-hover:text-white transition-all duration-300">
-              <HiOutlineEnvelope className="text-lg" aria-hidden="true" />
-            </span>
-            <span className="group-hover:text-secondary transition-colors">
-              info@example.com
-            </span>
-          </a>
-        </div>
+          {/* Centered search */}
+          <div className="flex justify-center">
+            {/* <div className="w-full max-w-xl"><Search /></div> */}
+            <div className="relative w-full max-w-xl">
+              <SearchIcon
+                className="pointer-events-none absolute left-3 top-1/2 z-[1] h-4 w-4 -translate-y-1/2 text-white/80"
+                aria-hidden
+              />
+              <input
+                aria-label="Search site"
+                placeholder="Search…"
+                className="w-full rounded-full border border-white/15 bg-white/10 px-9 py-2 text-sm text-white placeholder-white/70 outline-none backdrop-blur-md focus:border-white/35"
+              />
+            </div>
+          </div>
 
-        {/* Middle - Global Search Component */}
-        <div className="flex justify-end flex-1">
-          <Search />
-        </div>
+          {/* Social + Login */}
+          <div className="flex items-center justify-end gap-1.5">
+            <CircleLink href="https://facebook.com" label="Facebook">
+              <Facebook className="h-4 w-4" aria-hidden />
+            </CircleLink>
+            <CircleLink href="https://twitter.com" label="Twitter">
+              <Twitter className="h-4 w-4" aria-hidden />
+            </CircleLink>
+            <CircleLink href="https://instagram.com" label="Instagram">
+              <Instagram className="h-4 w-4" aria-hidden />
+            </CircleLink>
 
-        {/* Right - Social Icons + Login */}
-        <div className="flex items-center gap-3">
-          {[
-            {
-              Icon: FaFacebookF,
-              label: "Facebook",
-              href: "https://facebook.com",
-            },
-            { Icon: FaTwitter, label: "Twitter", href: "https://twitter.com" },
-            {
-              Icon: FaInstagram,
-              label: "Instagram",
-              href: "https://instagram.com",
-            },
-          ].map(({ Icon, label, href }, idx) => (
-            <a
-              key={idx}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Visit our ${label} page`}
-              className={`p-2 rounded-full ${iconBg} ${hoverText} 
-                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary 
-                         transition-all duration-300 hover:scale-110 shadow-sm`}
+            <Link
+              href="/login"
+              className="ml-1 inline-flex items-center rounded-full bg-white/10 px-3 py-1.5 text-[12px] text-white/95 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
             >
-              <Icon size={14} aria-hidden="true" />
-            </a>
-          ))}
-
-          <Link
-            href="/login"
-            aria-label="Login to your account"
-            className="flex items-center gap-3 bg-transparent border border-white rounded-lg 
-                       text-16 font-medium text-white hover:bg-secondary hover:text-white 
-                       py-1 px-4 transition-all duration-300 ml-[10px] hover:shadow-lg
-                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
-          >
-            <FiLogIn className="text-lg" aria-hidden="true" />
-            Login
-          </Link>
+              Login
+            </Link>
+          </div>
         </div>
       </div>
     </div>
   );
-};
+}
 
-export default TopBar;
+function Chip({ href, label, ariaLabel }: { href: string; label: string; ariaLabel: string }) {
+  return (
+    <a
+      href={href}
+      aria-label={ariaLabel}
+      className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-white/95 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+    >
+      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/95 text-primary">
+        {href.startsWith('tel') ? <Phone className="h-3.5 w-3.5" aria-hidden /> : <Mail className="h-3.5 w-3.5" aria-hidden />}
+      </span>
+      <span className="whitespace-nowrap">{label}</span>
+    </a>
+  );
+}
+
+function CircleLink({
+  href,
+  label,
+  children
+}: {
+  href: string;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+    >
+      {children}
+    </a>
+  );
+}

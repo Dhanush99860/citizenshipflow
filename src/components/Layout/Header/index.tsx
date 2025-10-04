@@ -1,257 +1,320 @@
-"use client";
+// FILE: src/components/Layout/Header/index.tsx
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { headerData } from "../Header/Navigation/menuData";
-import Logo from "./Logo";
-import LogoWhite from "./LogoWhite";
-import HeaderLink from "../Header/Navigation/HeaderLink";
-import MobileHeaderLink from "../Header/Navigation/MobileHeaderLink";
-import { useTheme } from "next-themes";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import TopBar from "@/components/Layout/Header/Navigation/TopBar";
-import { FaFacebookF, FaTwitter, FaInstagram } from "react-icons/fa";
-import { FiLogIn } from "react-icons/fi";
-import { HiMiniPhone, HiOutlineEnvelope } from "react-icons/hi2";
-import Search from "@/components/GlobalSearch";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTheme } from 'next-themes';
 
-const Header: React.FC = () => {
-  const pathUrl = usePathname();
-  const { theme, setTheme } = useTheme();
-  const [navbarOpen, setNavbarOpen] = useState(false);
-  const [sticky, setSticky] = useState(false);
-  const mobileMenuRef = useRef<HTMLDivElement>(null);
+import { headerMenu } from './Navigation/menu.data';
+import Logo from './Logo';
+import HeaderLink from './Navigation/HeaderLink';
+import MobileHeaderLink from './Navigation/MobileHeaderLink';
+import TopBar from './Navigation/TopBar';
+// import Search from '@/components/GlobalSearch';
 
-  const handleScroll = () => setSticky(window.scrollY >= 80);
+import { Menu, X, Moon, Sun, Search as SearchIcon } from 'lucide-react';
 
-  const handleClickOutside = (event: MouseEvent) => {
-    if (
-      mobileMenuRef.current &&
-      !mobileMenuRef.current.contains(event.target as Node) &&
-      navbarOpen
-    ) {
-      setNavbarOpen(false);
-    }
-  };
+/**
+ * Fixed Header with compact Myntra-like nav
+ */
 
+export default function Header() {
+  const pathname = usePathname();
+  const { theme, resolvedTheme, setTheme } = useTheme();
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [compact, setCompact] = useState(false);
+  const [showTopBar, setShowTopBar] = useState(true);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  const lastYRef = useRef(0);
+  const lastIntentAtRef = useRef(0);
+  const rAFRef = useRef<number | null>(null);
+  const burgerBtnRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
+
+  const colorMode = useMemo(() => (resolvedTheme || theme) ?? 'light', [resolvedTheme, theme]);
+  const isDark = colorMode === 'dark';
+
+  // Direction-aware scroll
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      document.removeEventListener("mousedown", handleClickOutside);
+    lastYRef.current = window.scrollY || 0;
+    const DELTA = 6;
+    const INTENT_MS = 120;
+    const COMPACT_MIN_Y = 8;
+
+    const onScroll = () => {
+      if (rAFRef.current) cancelAnimationFrame(rAFRef.current);
+      rAFRef.current = requestAnimationFrame(() => {
+        const y = window.scrollY || 0;
+        const dy = y - lastYRef.current;
+        if (Math.abs(dy) < DELTA) return;
+
+        const now = performance.now();
+        if (now - lastIntentAtRef.current < INTENT_MS) {
+          lastYRef.current = y;
+          return;
+        }
+
+        const goingDown = dy > 0;
+        const goingUp = dy < 0;
+        setCompact(goingDown && y > COMPACT_MIN_Y);
+        setShowTopBar(goingUp || y <= 0);
+
+        lastYRef.current = y <= 0 ? 0 : y;
+        lastIntentAtRef.current = now;
+      });
     };
-  }, [navbarOpen]);
 
-  // ✅ Lock scroll only when navbar is open
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (rAFRef.current) cancelAnimationFrame(rAFRef.current);
+    };
+  }, []);
+
+  // Close drawer on route change
   useEffect(() => {
-    document.body.style.overflow = navbarOpen ? "hidden" : "";
-    document.documentElement.style.overflow = navbarOpen ? "hidden" : "";
-  }, [navbarOpen]);
+    if (drawerOpen) setDrawerOpen(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  // Body lock + focus return when drawer toggles
+  useEffect(() => {
+    const docEl = document.documentElement;
+    const prevOverflow = docEl.style.overflow;
+    const prevPadRight = docEl.style.paddingRight;
+
+    if (drawerOpen) {
+      const sw = window.innerWidth - docEl.clientWidth;
+      docEl.style.overflow = 'hidden';
+      if (sw > 0) docEl.style.paddingRight = `${sw}px`;
+
+      const t = setTimeout(() => {
+        drawerRef.current
+          ?.querySelector<HTMLElement>('a,button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')
+          ?.focus();
+      }, 10);
+
+      return () => {
+        clearTimeout(t);
+        docEl.style.overflow = prevOverflow;
+        docEl.style.paddingRight = prevPadRight;
+        burgerBtnRef.current?.focus();
+      };
+    }
+  }, [drawerOpen]);
+
+  // Esc closes drawer
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && drawerOpen) setDrawerOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [drawerOpen]);
+
+  // Reduced motion
+  useEffect(() => {
+    const m = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const apply = () => setReducedMotion(m.matches);
+    apply();
+    m.addEventListener?.('change', apply);
+    return () => m.removeEventListener?.('change', apply);
+  }, []);
+
+  const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
 
   return (
-    <header
-      className={`fixed top-0 z-50 w-full pb-4 transition-all duration-300 ${
-        sticky
-          ? "shadow-lg bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-500 dark:from-blue-900 dark:via-indigo-800 dark:to-black backdrop-blur-md pt-5"
-          : "shadow-none bg-blue-500/70 dark:bg-blue-700/60 backdrop-blur-md pt-3"
-      }`}
-    >
-      <TopBar />
+    <>
+      {/* Skip link */}
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-[9999] focus:rounded-lg focus:bg-black/80 focus:px-3 focus:py-2 focus:text-white"
+      >
+        Skip to content
+      </a>
 
-      <div className="lg:py-0 py-2">
-        <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md flex items-center justify-between px-4">
-          <LogoWhite />
+      {/* Header wrapper */}
+      <header
+        className={[
+          'fixed inset-x-0 top-0 z-50 w-full will-change-transform',
+          'transition-[background-color,backdrop-filter,box-shadow,padding] ease-out',
+          reducedMotion ? 'duration-0' : 'duration-300',
+          isDark ? 'bg-zinc-950' : 'bg-primary/95',
+          'backdrop-blur-md',
+          compact ? 'shadow-lg' : 'shadow-md',
+        ].join(' ')}
+      >
+        {/* Desktop TopBar */}
+        <div
+          aria-hidden={!showTopBar}
+          className={[
+            'overflow-hidden transition-[max-height,opacity] ease-out',
+            reducedMotion ? 'duration-0' : 'duration-300',
+            showTopBar ? 'max-h-[45px] opacity-100' : 'max-h-0 opacity-0',
+          ].join(' ')}
+        >
+          <TopBar />
+        </div>
 
-          {/* ✅ Desktop Navigation with landmark label */}
-          <nav
-            className="hidden lg:flex flex-grow items-center gap-8 justify-center"
-            aria-label="Main navigation"
-          >
-            {headerData.map((item, index) => (
-              <HeaderLink key={index} item={item} />
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-4">
-            {/* Theme Toggle */}
-            <button
-              aria-label="Toggle theme"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors duration-300 ${
-                !sticky && pathUrl === "/"
-                  ? "text-white dark:text-secondary"
-                  : "text-white dark:text-white"
-              }`}
+        {/* Main row */}
+        <div className="mx-auto max-w-screen-2xl px-4">
+          <div className={[showTopBar ? 'mt-[10px]' : 'mt-1', compact ? 'mb-1' : 'mb-2'].join(' ')}>
+            <div
+              className={[
+                'relative flex items-center justify-between rounded-2xl ring-1 ring-white/10',
+                isDark ? 'bg-white/5 backdrop-saturate-[1.3]' : 'bg-white/[0.06] backdrop-saturate-[1.4]',
+                isDark
+                  ? 'before:absolute before:inset-0 before:-z-10 before:rounded-2xl before:bg-[radial-gradient(120%_100%_at_50%_0%,rgba(255,255,255,0.08),transparent_60%)]'
+                  : 'before:absolute before:inset-0 before:-z-10 before:rounded-2xl before:bg-[radial-gradient(120%_100%_at_50%_0%,rgba(255,255,255,0.12),transparent_60%)]',
+                compact ? 'px-3 py-2' : 'px-4 py-2.5',
+                'transition-[padding,ring-color,transform,box-shadow] ease-out',
+                reducedMotion ? 'duration-0' : 'duration-300',
+                'hover:ring-white/20',
+              ].join(' ')}
             >
-              {theme === "dark" ? (
-                <Icon
-                  icon="mdi:white-balance-sunny"
-                  className="h-6 w-6 text-yellow-400"
-                />
-              ) : (
-                <Icon
-                  icon="mdi:moon-waning-crescent"
-                  className="h-6 w-6 text-white-800"
-                />
-              )}
-            </button>
+              <Logo />
 
-            {/* Mobile Search */}
-            <div className="block lg:hidden w-full px-2">
-              <div className="flex-1">
-                <Search />
+              {/* Desktop navigation */}
+              <nav className="hidden lg:flex flex-grow items-center justify-center gap-1 xl:gap-2" aria-label="Main navigation">
+                {headerMenu.map((item, i) => (
+                  <HeaderLink key={i} item={item} />
+                ))}
+              </nav>
+
+              {/* Desktop actions */}
+              <div className="ml-3 flex items-center gap-1 sm:gap-2">
+                <button
+                  aria-label="Toggle theme"
+                  onClick={toggleTheme}
+                  className="hidden lg:inline-flex h-9 w-9 items-center justify-center rounded-xl text-white/90 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                >
+                  {isDark ? <Sun className="h-5 w-5" aria-hidden /> : <Moon className="h-5 w-5" aria-hidden />}
+                </button>
+
+                <Link
+                  href="/PersonalBooking"
+                  aria-label="Book a personal consultation"
+                  className="hidden lg:inline-flex items-center rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-sm font-semibold text-white hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                >
+                  Book a Personal Consultation
+                </Link>
+
+                {/* Burger (mobile) */}
+                <button
+                  ref={burgerBtnRef}
+                  onClick={() => setDrawerOpen((s) => !s)}
+                  aria-label="Toggle mobile menu"
+                  aria-expanded={drawerOpen}
+                  aria-controls="mobile-menu"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:hidden"
+                >
+                  {drawerOpen ? <X className="h-6 w-6" aria-hidden /> : <Menu className="h-6 w-6" aria-hidden />}
+                </button>
               </div>
             </div>
-
-            {/* Desktop Book Button */}
-            <Link
-              href="/PersonalBooking"
-              aria-label="Book a personal consultation"
-              className="hidden lg:block bg-secondary text-white hover:bg-transparent hover:text-secondary dark:hover:text-white border border-secondary px-4 py-2 rounded-lg transition"
-            >
-              Book a Personal Consultation
-            </Link>
-
-            {/* Mobile Menu Toggle */}
-            <button
-              onClick={() => setNavbarOpen(!navbarOpen)}
-              className="block lg:hidden p-2 rounded-lg"
-              aria-label="Toggle mobile menu"
-            >
-              <span className="block w-6 h-0.5 bg-white dark:bg-white"></span>
-              <span className="block w-6 h-0.5 bg-white dark:bg-white mt-1.5"></span>
-              <span className="block w-6 h-0.5 bg-white dark:bg-white mt-1.5"></span>
-            </button>
           </div>
         </div>
 
-        {/* Mobile Menu Overlay */}
-        {navbarOpen && (
-          <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity duration-300"
-            onClick={() => setNavbarOpen(false)}
-            role="button"
-            aria-label="Close mobile menu"
-            tabIndex={0}
+        {/* Overlay — click outside to close */}
+        {drawerOpen && (
+          <button
+            type="button"
+            className="fixed inset-0 z-[49] bg-black/50 backdrop-blur-[2px] overscroll-contain lg:hidden"
+            onClick={() => setDrawerOpen(false)}
+            aria-label="Close menu"
           />
         )}
 
-        {/* Mobile Menu Drawer */}
+        {/* MOBILE DRAWER */}
         <div
-          ref={mobileMenuRef}
-          className={`lg:hidden fixed top-0 right-0 h-full w-[80%] max-w-xs bg-white dark:bg-darklight shadow-xl rounded-l-2xl transform transition-transform duration-300 ${
-            navbarOpen ? "translate-x-0" : "translate-x-full"
-          } z-50`}
+          id="mobile-menu"
+          ref={drawerRef}
+          className={[
+            'fixed right-0 top-0 z-[50] h-full w-[86%] max-w-xs rounded-l-2xl outline-none lg:hidden',
+            'transition-transform',
+            reducedMotion ? 'duration-0' : 'duration-300',
+            drawerOpen ? 'translate-x-0' : 'translate-x-full',
+            'bg-white dark:bg-zinc-900',
+          ].join(' ')}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobile navigation drawer"
         >
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-            <Logo />
+          <div className="flex h-full flex-col overscroll-contain">
+            {/* Drawer header */}
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-zinc-900">
+              <Logo />
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={toggleTheme}
+                  aria-label="Toggle theme"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-zinc-800 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:text-white dark:hover:bg-white/10"
+                >
+                  {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                </button>
+                <button
+                  onClick={() => setDrawerOpen(false)}
+                  className="rounded-lg p-2 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:hover:bg:white/10"
+                  aria-label="Close menu"
+                >
+                  <X className="h-6 w-6 text-zinc-900 dark:text-white" aria-hidden />
+                </button>
+              </div>
+            </div>
 
-            <button
-              onClick={() => setNavbarOpen(false)}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-              aria-label="Close menu"
-            >
-              <Icon
-                icon="tabler:x"
-                className="w-6 h-6 text-primary dark:text-white"
-              />
-            </button>
-          </div>
+            {/* Single mobile search */}
+            <div className="border-b border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-zinc-900">
+              {/* <Search /> */}
+              <div className="relative">
+                <SearchIcon
+                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500 dark:text-zinc-300"
+                  aria-hidden
+                />
+                <input
+                  aria-label="Search site"
+                  placeholder="Search…"
+                  className="w-full rounded-lg border border-zinc-300 bg-white px-9 py-3 text-base text-zinc-900 outline-none focus:border-zinc-500 dark:border-white/20 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-300"
+                />
+              </div>
+            </div>
 
-          {/* Scrollable mobile nav */}
-          <nav
-            className="flex flex-col items-start p-4 text-black dark:text-white bg-white dark:bg-darklight overflow-y-auto h-[calc(100vh-64px)] space-y-4"
-            aria-label="Mobile navigation"
-          >
-            {headerData.map((item, index) => (
-              <MobileHeaderLink key={index} item={item} />
-            ))}
+            {/* SCROLLABLE MENU */}
+            <nav className="flex-1 px-4 py-3 bg-white dark:bg-zinc-900" aria-label="Mobile navigation">
+              <div className="rounded-xl bg-zinc-50 p-2 dark:bg-zinc-800">
+                {headerMenu.map((item, i) => (
+                  <MobileHeaderLink key={i} item={item} closeMenuAction={() => setDrawerOpen(false)} />
+                ))}
+              </div>
+            </nav>
 
-            <div className="mt-4 flex flex-col space-y-4 w-full">
+            {/* Sticky footer */}
+            <div className="sticky bottom-0 border-t border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-zinc-900">
               <Link
-                href="/PersonalBooking"
-                aria-label="Book a personal consultation"
-                className="bg-primary text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition-all duration-300"
-                onClick={() => setNavbarOpen(false)}
+                href="/login"
+                onClick={() => setDrawerOpen(false)}
+                className="inline-flex w-full items-center justify-center rounded-xl border border-zinc-300 px-4 py-3 text-base dark:border-white/20"
               >
-                Book a Personal Consultation
+                Login
               </Link>
             </div>
-
-            {/* ✅ Contact info as real links */}
-            <div className="flex flex-col items-start gap-3 mt-[25px]">
-              <div className="flex items-center gap-2 group">
-                <span className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-secondary group-hover:bg-secondary group-hover:text-white transition-all duration-300 shadow-sm">
-                  <HiMiniPhone className="text-lg" />
-                </span>
-                <a
-                  href="tel:+919876543210"
-                  className="group-hover:text-secondary transition-colors font-medium"
-                >
-                  +91 98765 43210
-                </a>
-              </div>
-              <div className="flex items-center gap-2 group">
-                <span className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-secondary group-hover:bg-secondary group-hover:text-white transition-all duration-300 shadow-sm">
-                  <HiOutlineEnvelope className="text-lg" />
-                </span>
-                <a
-                  href="mailto:info@example.com"
-                  className="group-hover:text-secondary transition-colors font-medium"
-                >
-                  info@example.com
-                </a>
-              </div>
-            </div>
-
-            {/* ✅ Social Icons with real links */}
-            <div className="flex flex-col items-start">
-              <div className="flex items-center gap-3 mt-[25px]">
-                <Link
-                  href="https://facebook.com/xiphiasimmigration"
-                  aria-label="Visit our Facebook page"
-                  className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-300 hover:scale-110 shadow-sm"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaFacebookF size={14} />
-                </Link>
-                <Link
-                  href="https://twitter.com/xiphiasimmigra"
-                  aria-label="Visit our Twitter page"
-                  className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-300 hover:scale-110 shadow-sm"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaTwitter size={14} />
-                </Link>
-                <Link
-                  href="https://instagram.com/xiphiasimmigration"
-                  aria-label="Visit our Instagram page"
-                  className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-300 hover:scale-110 shadow-sm"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaInstagram size={14} />
-                </Link>
-              </div>
-
-              {/* ✅ Login Button with aria-label */}
-              <button
-                aria-label="Login to your account"
-                className="flex items-center gap-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-16 font-medium text-gray-800 dark:text-white hover:bg-gray-800 dark:hover:bg-primary hover:text-white py-1 px-4 mt-[20px] transition-all duration-300 shadow-sm hover:shadow-lg"
-              >
-                <FiLogIn className="text-lg" />
-                Login
-              </button>
-            </div>
-          </nav>
+          </div>
         </div>
-      </div>
-    </header>
-  );
-};
+      </header>
 
-export default Header;
+      {/* Spacer */}
+      <div
+        aria-hidden
+        className={[
+          'w-full',
+          showTopBar ? 'h-[calc(var(--header-h,70px)+var(--topbar-h,0px))]' : 'h-[var(--header-h,88px)]',
+          compact && !showTopBar ? 'md:h-[var(--header-h-compact,70px)]' : '',
+        ].join(' ')}
+      />
+
+      <div id="main" />
+    </>
+  );
+}

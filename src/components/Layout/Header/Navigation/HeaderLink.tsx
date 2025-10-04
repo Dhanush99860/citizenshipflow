@@ -1,134 +1,161 @@
-"use client";
-import { useState, useRef } from "react";
-import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { HeaderItem } from "../../../../types/menu";
-import { usePathname } from "next/navigation";
-import { ChevronRight, Circle } from "lucide-react";
+// FILE: src/components/Layout/Header/Navigation/HeaderLink.tsx
+'use client';
 
-const HeaderLink: React.FC<{ item: HeaderItem }> = ({ item }) => {
+import * as React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import MegaPanel from './MegaPanel';
+import type { HeaderItem } from '../menu.types';
+
+/**
+ * Improved HeaderLink (compact Myntra-like)
+ * - Correct semantics (no interactive-in-interactive). The label is an <a>.
+ * - Hover/focus opens on desktop; keyboard open with ⬇/Space/Enter, Esc closes.
+ * - Touch: first tap opens, second tap (≤600ms) navigates.
+ * - Separate caret button on mobile toggles the mega panel.
+ */
+
+type Props = { item: HeaderItem };
+
+export default function HeaderLink({ item }: Props) {
   const path = usePathname();
-  const [submenuOpen, setSubmenuOpen] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleMouseEnter = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setSubmenuOpen(true);
+  const [open, setOpen] = React.useState(false);
+  const [reducedMotion, setReducedMotion] = React.useState(false);
+
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+  const linkRef = React.useRef<HTMLAnchorElement>(null);
+  const caretBtnRef = React.useRef<HTMLButtonElement>(null);
+  const hoverTimer = React.useRef<number | null>(null);
+  const lastTapRef = React.useRef<number>(0);
+
+  const id = React.useId();
+  const isActive = !!item.href && (path === item.href || path?.startsWith(item.href + '/'));
+  const hasMenu = Array.isArray(item.submenu) && item.submenu.length > 0;
+
+  // Reduced motion
+  React.useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const apply = () => setReducedMotion(mq.matches);
+    apply();
+    mq.addEventListener?.('change', apply);
+    return () => mq.removeEventListener?.('change', apply);
+  }, []);
+
+  const clearTimer = () => {
+    if (hoverTimer.current) {
+      window.clearTimeout(hoverTimer.current);
+      hoverTimer.current = null;
+    }
   };
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => setSubmenuOpen(false), 200);
+
+  const openWithIntent = () => {
+    clearTimer();
+    hoverTimer.current = window.setTimeout(() => setOpen(true), 80);
   };
+
+  const closeWithIntent = () => {
+    clearTimer();
+    hoverTimer.current = window.setTimeout(() => setOpen(false), 140);
+  };
+
+  // Keyboard
+  const onKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>) => {
+    if (!hasMenu) return;
+    if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      setOpen(true);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setOpen(false);
+      linkRef.current?.focus();
+    }
+  };
+
+  // Touch: first tap opens, second tap navigates
+  const onTouchStart = (e: React.TouchEvent<HTMLAnchorElement>) => {
+    if (!hasMenu) return;
+    const now = performance.now();
+    if (!open || now - lastTapRef.current > 600) {
+      e.preventDefault();
+      setOpen(true);
+      lastTapRef.current = now;
+    }
+  };
+
+  const onCaretClick = () => setOpen((s) => !s);
+
+  // Close on outside click
+  React.useEffect(() => {
+    if (!open) return;
+    const handle = (ev: MouseEvent) => {
+      const el = wrapperRef.current;
+      if (el && !el.contains(ev.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handle);
+    return () => document.removeEventListener('mousedown', handle);
+  }, [open]);
+
+  // Cleanup timers
+  React.useEffect(() => () => clearTimer(), []);
+
+  // Compact Myntra-like pill
+  const basePill =
+    'relative inline-flex items-center gap-1 rounded-xl px-3 py-2 text-[14px] font-medium leading-6 outline-none transition-colors';
+  const colorIdle = 'text-white/90 hover:text-white focus-visible:ring-2 focus-visible:ring-white/40';
+  const colorActive =
+    'text-white after:absolute after:left-3 after:right-3 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-white/80';
+  const pillBg = isActive ? 'bg-white/10 ring-1 ring-white/10' : 'hover:bg-white/10';
 
   return (
     <div
+      ref={wrapperRef}
       className="relative"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={hasMenu ? openWithIntent : undefined}
+      onMouseLeave={hasMenu ? closeWithIntent : undefined}
     >
-      {/* Main link + arrow */}
-      <button
-        type="button"
-        aria-haspopup="true"
-        aria-expanded={submenuOpen}
-        className={`flex items-center gap-1 text-17 font-medium capitalize relative group 
-          ${path === item.href ? "text-primary" : "text-white dark:text-white"}
-          focus:outline-none`}
+      {/* Label link */}
+      <Link
+        href={item.href}
+        ref={linkRef}
+        className={[basePill, pillBg, isActive ? colorActive : colorIdle].join(' ')}
+        aria-haspopup={hasMenu ? 'menu' : undefined}
+        aria-expanded={hasMenu ? open : undefined}
+        aria-controls={hasMenu ? `mega-${id}` : undefined}
+        onKeyDown={onKeyDown}
+        onTouchStart={onTouchStart}
       >
-        <Link href={item.href}>{item.label}</Link>
-        {item.submenu && (
+        <span>{item.label}</span>
+      </Link>
+
+      {/* Caret button only when there is a submenu (mobile-friendly) */}
+      {hasMenu && (
+        <button
+          ref={caretBtnRef}
+          type="button"
+          aria-label={open ? `Close ${item.label} menu` : `Open ${item.label} menu`}
+          aria-controls={`mega-${id}`}
+          aria-expanded={open}
+          onClick={onCaretClick}
+          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1.5 rounded-lg p-1 text-white/90 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:hidden"
+        >
           <svg
-            className={`w-4 h-4 transition-transform duration-300 ${
-              submenuOpen ? "rotate-180" : "rotate-0"
-            }`}
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
+            className={`h-4 w-4 transition-transform ${reducedMotion ? '' : 'duration-200'} ${open ? 'rotate-180' : ''}`}
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M19 9l-7 7-7-7"
-            />
+            <path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.4a.75.75 0 01-1.08 0l-4.25-4.4a.75.75 0 01.02-1.06z" />
           </svg>
-        )}
-      </button>
+        </button>
+      )}
 
-      {/* Animated Mega Menu */}
-      <AnimatePresence>
-        {item.submenu && submenuOpen && (
-          <motion.div
-            key="mega-menu"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="fixed inset-x-0 top-[150px] bg-grey dark:bg-darklight/95 
-                     backdrop-blur-md shadow-2xl z-50 
-                     overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600"
-            role="menu"
-            aria-label={`${item.label} submenu`}
-            style={{ maxHeight: "65vh" }}
-          >
-            {/* ✅ Centered Container */}
-            <div className="container mx-auto px-6 md:px-10 py-10">
-              <div className="grid gap-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 divide-x divide-gray-200 dark:divide-gray-700">
-                {item.submenu.map((sub, i) => (
-                  <div key={i} className="flex flex-col space-y-4 px-4">
-                    {/* ⭐ Level 1 Heading */}
-                    <Link
-                      href={sub.href}
-                      className="text-xl font-semibold text-gray-900 dark:text-white 
-                               hover:text-primary transition-colors pb-2 border-b border-gray-200 dark:border-gray-700"
-                    >
-                      {sub.label}
-                    </Link>
-
-                    {/* 📌 Level 2 */}
-                    {sub.submenu && (
-                      <ul className="space-y-3">
-                        {sub.submenu.map((child, j) => (
-                          <li key={j} className="group">
-                            <Link
-                              href={child.href}
-                              className="flex items-center gap-2 text-base font-medium text-gray-700 dark:text-gray-300 
-                                       hover:text-primary transition-all duration-200"
-                            >
-                              <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform" />
-                              {child.label}
-                            </Link>
-
-                            {/* 🔹 Level 3 */}
-                            {child.submenu && (
-                              <ul className="mt-2 space-y-2 pl-6 border-l border-gray-200 dark:border-gray-600">
-                                {child.submenu.map((deep, k) => (
-                                  <li key={k} className="group">
-                                    <Link
-                                      href={deep.href}
-                                      className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 
-                                               hover:text-primary transition-all duration-200"
-                                    >
-                                      <Circle className="w-2 h-2 text-gray-400 group-hover:scale-125 transition-transform" />
-                                      {deep.label}
-                                    </Link>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Mega panel */}
+      {hasMenu && (
+        <div id={`mega-${id}`} role="region" aria-label={`${item.label} menu`}>
+          <MegaPanel rootLabel={item.label} columns={item.submenu!} open={open} onClose={() => setOpen(false)} />
+        </div>
+      )}
     </div>
   );
-};
-
-export default HeaderLink;
+}
