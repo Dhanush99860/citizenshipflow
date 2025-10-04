@@ -55,18 +55,24 @@ function ensureAbs(src?: string) {
   return src.startsWith("/") ? src : `/${src.replace(/^\.?\/*/, "")}`;
 }
 
-/** Shared ranker for programs */
+/** Shared ranker for programs (safe) */
 function rankPrograms(all: ProgramMeta[]) {
+  const key = (x: ProgramMeta) =>
+    `${String(x?.title ?? "")} ${String(x?.country ?? "")}`.trim();
+
   return [...all].sort((a, b) => {
     const tA = a.timelineMonths ?? Number.MAX_SAFE_INTEGER;
     const tB = b.timelineMonths ?? Number.MAX_SAFE_INTEGER;
     if (tA !== tB) return tA - tB;
+
     const iA = a.minInvestment ?? Number.MAX_SAFE_INTEGER;
     const iB = b.minInvestment ?? Number.MAX_SAFE_INTEGER;
     if (iA !== iB) return iA - iB;
-    return (a.title + a.country).localeCompare(b.title + b.country);
+
+    return key(a).localeCompare(key(b), undefined, { sensitivity: "base" });
   });
 }
+
 function pickTopPrograms(all: ProgramMeta[], n = 5) {
   return rankPrograms(all).slice(0, n);
 }
@@ -154,14 +160,21 @@ export default function ExploreGrid({
       const derived = p.routeType ?? inferRouteTypeFromTags((p as any).tags);
       if (routeType && derived !== routeType) return false;
       if (!ql) return true;
+  
+      const title = String(p?.title ?? "").toLowerCase();
+      const country = String(p?.country ?? "").toLowerCase();
+      const slug = String((p as any)?.programSlug ?? "").toLowerCase();
+      const tags: string[] = Array.isArray((p as any)?.tags) ? (p as any).tags : [];
+  
       return (
-        p.title.toLowerCase().includes(ql) ||
-        p.country.toLowerCase().includes(ql) ||
-        (p as any).programSlug?.toLowerCase?.().includes(ql) ||
-        (p as any).tags?.some?.((t: string) => t.toLowerCase().includes(ql))
+        title.includes(ql) ||
+        country.includes(ql) ||
+        slug.includes(ql) ||
+        tags.some((t) => String(t).toLowerCase().includes(ql))
       );
     });
   }, [safePrograms, q, routeType]);
+  
 
   /** Per-country best stats after filtering */
   const bestByCountry = React.useMemo(() => {
@@ -202,18 +215,20 @@ export default function ExploreGrid({
     let arr = normalized;
     if (ql) {
       arr = arr.filter(({ c }) => {
+        const country = String(c?.country ?? "").toLowerCase();
+        const title = String(c?.title ?? "").toLowerCase();
+        const tags: string[] = Array.isArray((c as any)?.tags) ? (c as any).tags : [];
         return (
-          c.country.toLowerCase().includes(ql) ||
-          (c.title || "").toLowerCase().includes(ql) ||
-          ((c as any).tags ?? []).some((t: string) =>
-            t.toLowerCase().includes(ql),
-          )
+          country.includes(ql) ||
+          title.includes(ql) ||
+          tags.some((t) => String(t).toLowerCase().includes(ql))
         );
       });
     }
     if (routeType) arr = arr.filter((row) => row.hasMatch);
     return arr;
   }, [normalized, q, routeType]);
+  
 
   /** Sort countries */
   const sortedCountries = React.useMemo(() => {
@@ -229,7 +244,11 @@ export default function ExploreGrid({
       case "passport":
         arr.sort((a, b) => a.passportRank - b.passportRank);
         break;
-      case "alpha":
+        case "alpha":
+          arr.sort((a, b) =>
+            String(a?.c?.country ?? "").localeCompare(String(b?.c?.country ?? ""), undefined, { sensitivity: "base" })
+          );
+          break;        
         arr.sort((a, b) => a.c.country.localeCompare(b.c.country));
         break;
       case "timeline":
