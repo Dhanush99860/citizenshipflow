@@ -36,16 +36,16 @@ function inferRouteTypeFromTags(tags?: string[]): RouteType | undefined {
   return undefined;
 }
 
-function toCurrency(amount?: number, currency = "USD", locale = "en-US") {
+function toCurrency(amount?: number, currency = "USD") {
   if (typeof amount !== "number") return "";
   try {
-    return new Intl.NumberFormat(locale, {
+    return new Intl.NumberFormat(undefined, {
       style: "currency",
       currency,
       maximumFractionDigits: 0,
     }).format(amount);
   } catch {
-    return `${currency} ${amount.toLocaleString(locale)}`;
+    return `${currency} ${amount.toLocaleString()}`;
   }
 }
 
@@ -64,7 +64,7 @@ function rankPrograms(all: ProgramMeta[]) {
     const iA = a.minInvestment ?? Number.MAX_SAFE_INTEGER;
     const iB = b.minInvestment ?? Number.MAX_SAFE_INTEGER;
     if (iA !== iB) return iA - iB;
-    return (a.title + a.country).localeCompare(b.title + b.country, "en", { sensitivity: "base" });
+    return (a.title + a.country).localeCompare(b.title + b.country);
   });
 }
 function pickTopPrograms(all: ProgramMeta[], n = 5) {
@@ -230,7 +230,7 @@ export default function ExploreGrid({
         arr.sort((a, b) => a.passportRank - b.passportRank);
         break;
       case "alpha":
-        arr.sort((a, b) => a.c.country.localeCompare(b.c.country, "en", { sensitivity: "base" }));
+        arr.sort((a, b) => a.c.country.localeCompare(b.c.country));
         break;
       case "timeline":
       default:
