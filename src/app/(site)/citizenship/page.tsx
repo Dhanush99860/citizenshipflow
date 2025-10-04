@@ -35,7 +35,7 @@ function pickTopProgramsForLd(all: ProgramMeta[], n = 5): ProgramMeta[] {
     const iA = a.minInvestment ?? Number.MAX_SAFE_INTEGER;
     const iB = b.minInvestment ?? Number.MAX_SAFE_INTEGER;
     if (iA !== iB) return iA - iB;
-    return (a.title + a.country).localeCompare(b.title + b.country, "en", { sensitivity: "base" });
+    return (a.title + a.country).localeCompare(b.title + b.country);
   });
   return ranked.slice(0, n);
 }
