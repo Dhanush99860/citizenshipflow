@@ -28,7 +28,7 @@ const Hero = () => {
 
   return (
     <section
-      className="relative md:pt-40 md:pb-28 py-20 overflow-hidden z-1"
+      className="relative pb-10 overflow-hidden z-1"
       id="main-banner"
     >
       {/* ✅ Background Image with fetchPriority */}
