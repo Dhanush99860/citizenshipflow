@@ -1,3 +1,4 @@
+// FILE: src/components/GlobalSearch/index.tsx
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
@@ -8,26 +9,10 @@ import { searchItems, preloadIndex, debounce } from "@/utils/search";
 type Item = { title: string; type: string; url: string };
 
 const popularSuggestions: Item[] = [
-  {
-    title: "Canada Startup Visa",
-    type: "Residency",
-    url: "/residency/canada/startupvisa",
-  },
-  {
-    title: "Antigua & Barbuda CBI",
-    type: "Citizenship",
-    url: "/citizenship/antigua-barbuda/program",
-  },
-  {
-    title: "Australia Global Talent",
-    type: "Skilled",
-    url: "/skilled/australia/global-talent",
-  },
-  {
-    title: "Singapore EP (Company Setup)",
-    type: "Corporate",
-    url: "/corporate/singapore/ep",
-  },
+  { title: "Canada Startup Visa", type: "Residency", url: "/residency/canada/startupvisa" },
+  { title: "Antigua & Barbuda CBI", type: "Citizenship", url: "/citizenship/antigua-barbuda/program" },
+  { title: "Australia Global Talent", type: "Skilled", url: "/skilled/australia/global-talent" },
+  { title: "Singapore EP (Company Setup)", type: "Corporate", url: "/corporate/singapore/ep" },
 ];
 
 export default function GlobalSearch() {
@@ -42,7 +27,7 @@ export default function GlobalSearch() {
 
   const allItems = useMemo<Item[]>(
     () => (query.trim() ? results : popularSuggestions),
-    [query, results],
+    [query, results]
   );
 
   // Warm the search index only when overlay opens
@@ -60,19 +45,16 @@ export default function GlobalSearch() {
         setActiveIndex(0);
         return;
       }
-      const found = await Promise.resolve(searchItems(q)); // searchItems is sync; keep await harmlessly
+      const found = await Promise.resolve(searchItems(q));
       setResults(found || []);
       if (found?.length) {
         const match = found[0].title;
-        setHighlighted(
-          match.toLowerCase().startsWith(q.toLowerCase()) ? match : "",
-        );
+        setHighlighted(match.toLowerCase().startsWith(q.toLowerCase()) ? match : "");
       } else {
         setHighlighted("");
       }
       setActiveIndex(0);
     }, 220);
-
     run();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
@@ -95,17 +77,13 @@ export default function GlobalSearch() {
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         setActiveIndex(
-          (prev) =>
-            (prev - 1 + Math.max(allItems.length, 1)) %
-            Math.max(allItems.length, 1),
+          (prev) => (prev - 1 + Math.max(allItems.length, 1)) % Math.max(allItems.length, 1)
         );
       } else if (e.key === "Enter") {
         e.preventDefault();
         const item = allItems[activeIndex];
         if (item) {
-          setRecent((prev) =>
-            [item.title, ...prev.filter((x) => x !== item.title)].slice(0, 5),
-          );
+          setRecent((prev) => [item.title, ...prev.filter((x) => x !== item.title)].slice(0, 5));
           window.location.href = item.url;
         } else if (highlighted) {
           setQuery(highlighted);
@@ -122,10 +100,7 @@ export default function GlobalSearch() {
   // Outside click close
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (
-        overlayRef.current &&
-        !overlayRef.current.contains(e.target as Node)
-      ) {
+      if (overlayRef.current && !overlayRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     }
@@ -154,13 +129,27 @@ export default function GlobalSearch() {
 
   return (
     <>
-      {/* Trigger */}
+      {/* Trigger
+          - Mobile (default): full-width pill like TopBar (spacing on both sides, label text)
+          - Desktop (lg+): compact circular icon (no label)
+      */}
       <button
         onClick={() => setOpen(true)}
-        className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition text-white dark:text-gray-200 dark:hover:bg-gray-800"
         aria-label="Open search"
+        className={[
+          // Base look = TopBar pill
+          "w-full max-w-[520px] mx-6 rounded-full border px-5 py-2 text-sm text-white",
+          "border-white/15 bg-white/10 backdrop-blur-md",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
+          "flex items-center justify-start gap-2 transition",
+          // Desktop overrides → compact icon button
+          "lg:w-8 lg:h-8 lg:mx-0 lg:rounded-full lg:border-0 lg:px-0 lg:py-0 lg:justify-center",
+          "lg:bg-white/20 lg:hover:bg-white/30 dark:text-gray-200 lg:dark:hover:bg-gray-800",
+        ].join(" ")}
       >
-        <Search size={20} />
+        <Search size={20} className="text-white/80" />
+        {/* Hide text on desktop; keep on mobile so center doesn’t look empty */}
+        <span className="text-white/70 lg:hidden">Search…</span>
       </button>
 
       {/* Overlay */}
@@ -176,7 +165,7 @@ export default function GlobalSearch() {
             {/* Close */}
             <button
               onClick={() => setOpen(false)}
-              className="absolute top-6 right-6 text-white hover:text-red-400 transition"
+              className="absolute top-6 right-6 text-gray-900 dark:text-white hover:opacity-80 transition"
               aria-label="Close search"
             >
               <X size={32} />
@@ -194,10 +183,7 @@ export default function GlobalSearch() {
               {/* Input + ghost autocomplete */}
               <div className="relative">
                 <div className="flex items-center bg-white dark:bg-gray-900 rounded-2xl shadow-xl px-4 py-3 border border-gray-200 dark:border-gray-700">
-                  <Search
-                    className="text-gray-500 dark:text-gray-400"
-                    size={22}
-                  />
+                  <Search className="text-gray-500 dark:text-gray-400" size={22} />
                   <input
                     ref={inputRef}
                     type="text"
@@ -208,12 +194,11 @@ export default function GlobalSearch() {
                   />
                 </div>
 
-                {highlighted &&
-                  highlighted.toLowerCase() !== query.toLowerCase() && (
-                    <span className="absolute left-12 top-3.5 text-lg text-gray-400 pointer-events-none select-none">
-                      {highlighted}
-                    </span>
-                  )}
+                {highlighted && highlighted.toLowerCase() !== query.toLowerCase() && (
+                  <span className="absolute left-12 top-3.5 text-lg text-gray-400 pointer-events-none select-none">
+                    {highlighted}
+                  </span>
+                )}
               </div>
 
               {/* Results */}
@@ -225,9 +210,8 @@ export default function GlobalSearch() {
                 )}
 
                 <div className="text-xs text-gray-400 dark:text-gray-500 m-2 px-2 text-center">
-                  ⌨ Type to search — use ↑ ↓ to navigate, <kbd>Enter</kbd> to
-                  select, <kbd>Tab</kbd> to autocomplete, <kbd>Esc</kbd> to
-                  close
+                  ⌨ Type to search — use ↑ ↓ to navigate, <kbd>Enter</kbd> to select,{" "}
+                  <kbd>Tab</kbd> to autocomplete, <kbd>Esc</kbd> to close
                 </div>
 
                 {query.trim() === "" &&
@@ -247,24 +231,14 @@ export default function GlobalSearch() {
                       key={i}
                       href={item.url}
                       className={`flex items-center justify-between px-5 py-4 border-b last:border-0 border-gray-100 dark:border-gray-700 transition ${
-                        i === activeIndex
-                          ? "bg-blue-100 dark:bg-gray-800"
-                          : "hover:bg-blue-50 dark:hover:bg-gray-800"
+                        i === activeIndex ? "bg-blue-100 dark:bg-gray-800" : "hover:bg-blue-50 dark:hover:bg-gray-800"
                       }`}
                     >
                       <div>
-                        <div className="font-semibold text-gray-900 dark:text-gray-100">
-                          {item.title}
-                        </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                          {item.type}
-                        </div>
+                        <div className="font-semibold text-gray-900 dark:text-gray-100">{item.title}</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">{item.type}</div>
                       </div>
-                      <ArrowRight
-                        className={
-                          i === activeIndex ? "text-blue-600" : "text-gray-400"
-                        }
-                      />
+                      <ArrowRight className={i === activeIndex ? "text-blue-600" : "text-gray-400"} />
                     </a>
                   ))
                 ) : query.trim() !== "" ? (
@@ -276,8 +250,7 @@ export default function GlobalSearch() {
 
               {query.trim() === "" && (
                 <div className="text-xs text-gray-400 dark:text-gray-500 mt-3 text-center">
-                  Try: “Canada Startup Visa”, “Citizenship Antigua”, “Global
-                  Talent”, “Singapore EP”
+                  Try: “Canada Startup Visa”, “Citizenship Antigua”, “Global Talent”, “Singapore EP”
                 </div>
               )}
             </motion.div>

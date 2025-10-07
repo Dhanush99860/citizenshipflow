@@ -11,9 +11,9 @@ import Logo from './LogoWhite/index';
 import HeaderLink from './Navigation/HeaderLink';
 import MobileHeaderLink from './Navigation/MobileHeaderLink';
 import TopBar from './Navigation/TopBar';
-// import Search from '@/components/GlobalSearch';
+import GlobalSearch from '@/components/GlobalSearch'; // ⬅️ use the global search (same component as desktop)
 
-import { Menu, X, Moon, Sun, Search as SearchIcon, LogIn } from 'lucide-react';
+import { Menu, X, Moon, Sun, LogIn } from 'lucide-react';
 
 export default function Header() {
   const pathname = usePathname();
@@ -228,7 +228,14 @@ export default function Header() {
                 'hover:ring-white/20',
               ].join(' ')}
             >
+              {/* Left: logo */}
               <Logo />
+
+              {/* CENTER (mobile only): GlobalSearch trigger so the bar doesn't look empty */}
+              <div className="absolute inset-x-0 flex justify-center lg:hidden px-12">
+                {/* Render as-is; it shows the circular search button and opens overlay */}
+                <GlobalSearch />
+              </div>
 
               {/* Desktop navigation */}
               <nav className="hidden lg:flex flex-grow items-center justify-center gap-1 xl:gap-2" aria-label="Main navigation">
@@ -237,8 +244,9 @@ export default function Header() {
                 ))}
               </nav>
 
-              {/* Desktop actions */}
+              {/* Right: actions */}
               <div className="ml-3 flex items-center gap-1 sm:gap-2">
+                {/* Theme toggle (desktop) */}
                 <button
                   aria-label="Toggle theme"
                   onClick={toggleTheme}
@@ -247,6 +255,7 @@ export default function Header() {
                   {isDark ? <Sun className="h-5 w-5" aria-hidden /> : <Moon className="h-5 w-5" aria-hidden />}
                 </button>
 
+                {/* Desktop CTA */}
                 <Link
                   href="/PersonalBooking"
                   aria-label="Book a personal consultation"
@@ -303,7 +312,7 @@ export default function Header() {
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-zinc-900">
               <Logo />
               <div className="flex items-center gap-1.5">
-                {/* Login icon (simple, not highlighted) */}
+                {/* Login icon */}
                 <Link
                   href="/login"
                   aria-label="Login"
@@ -333,20 +342,7 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Search */}
-            <div className="border-b border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-zinc-900">
-              <div className="relative">
-                <SearchIcon
-                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500 dark:text-zinc-300"
-                  aria-hidden
-                />
-                <input
-                  aria-label="Search site"
-                  placeholder="Search…"
-                  className="w-full rounded-lg border border-zinc-300 bg-white px-9 py-3 text-base text-zinc-900 outline-none focus:border-zinc-500 dark:border-white/20 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-300"
-                />
-              </div>
-            </div>
+            {/* 🔁 Removed the old search field inside the drawer (as requested) */}
 
             {/* Scrollable MENU area */}
             <nav
