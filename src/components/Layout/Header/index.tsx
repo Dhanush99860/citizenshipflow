@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTheme } from 'next-themes';
 
 import { headerMenu } from './Navigation/menu.data';
-import Logo from './Logo';
+import Logo from './LogoWhite/index';
 import HeaderLink from './Navigation/HeaderLink';
 import MobileHeaderLink from './Navigation/MobileHeaderLink';
 import TopBar from './Navigation/TopBar';
@@ -35,7 +35,7 @@ export default function Header() {
   const colorMode = useMemo(() => (resolvedTheme || theme) ?? 'light', [resolvedTheme, theme]);
   const isDark = colorMode === 'dark';
 
-  // Direction-aware scroll
+  // Direction-aware scroll (hide topbar on scroll down)
   useEffect(() => {
     lastYRef.current = window.scrollY || 0;
     const DELTA = 6;
@@ -106,7 +106,7 @@ export default function Header() {
     }
   }, [drawerOpen]);
 
-  // Esc + Tab cycle
+  // Esc + Tab cycle (focus trap)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!drawerOpen) return;
@@ -134,7 +134,7 @@ export default function Header() {
     return () => m.removeEventListener?.('change', apply);
   }, []);
 
-  // Swipe-to-close
+  // Swipe-to-close (mobile)
   useEffect(() => {
     if (!drawerOpen) return;
     const drawer = drawerRef.current;
@@ -206,7 +206,7 @@ export default function Header() {
           className={[
             'overflow-hidden transition-[max-height,opacity] ease-out',
             reducedMotion ? 'duration-0' : 'duration-300',
-            showTopBar ? 'max-h-[48px] opacity-100' : 'max-h-0 opacity-0',
+            showTopBar ? 'max-h-[55px] opacity-100' : 'max-h-0 opacity-0',
           ].join(' ')}
         >
           <TopBar />
@@ -284,6 +284,7 @@ export default function Header() {
         <div
           id="mobile-menu"
           ref={drawerRef}
+          data-state={drawerOpen ? 'open' : 'closed'}
           className={[
             'fixed right-0 top-0 z-[50] h-dvh w-[88%] max-w-[420px] rounded-l-2xl outline-none lg:hidden',
             'transition-transform will-change-transform',
@@ -294,6 +295,7 @@ export default function Header() {
           role="dialog"
           aria-modal="true"
           aria-label="Mobile navigation drawer"
+          tabIndex={-1}
         >
           {/* Column layout with scrollable middle */}
           <div className="flex h-dvh flex-col min-h-0 overscroll-contain">
@@ -365,7 +367,7 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Spacer */}
+      {/* Spacer to offset fixed header */}
       <div
         aria-hidden
         className={[

@@ -8,39 +8,74 @@ import MegaPanel from './MegaPanel';
 import type { HeaderItem } from '../menu.types';
 
 /**
- * Improved HeaderLink (compact Myntra-like)
- * - Correct semantics (no interactive-in-interactive). The label is an <a>.
- * - Hover/focus opens on desktop; keyboard open with ⬇/Space/Enter, Esc closes.
- * - Touch: first tap opens, second tap (≤600ms) navigates.
- * - Separate caret button on mobile toggles the mega panel.
+ * HeaderLink — advanced, accessible, intent-aware trigger for MegaPanel
+ *
+ * - Desktop default = click to open; hover intent only on pointer=fine
+ * - Touch: first tap opens, second tap (≤600ms) navigates
+ * - Keyboard: Enter/Space/ArrowDown open; Esc closes and returns focus
+ * - Outside click + route change close; respects reduced motion
+ * - Stable, SSR-safe media query hook prevents "change in order of Hooks" errors
  */
 
 type Props = { item: HeaderItem };
 
+/** Stable, SSR-safe media query state for reduced motion & pointer type */
+function usePointerAndMotion() {
+  const [state, setState] = React.useState({ reduced: false, enableHover: false });
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || !('matchMedia' in window)) {
+      setState({ reduced: false, enableHover: false });
+      return;
+    }
+
+    const mqMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mqPointer = window.matchMedia('(pointer: fine)');
+
+    const apply = () =>
+      setState({
+        reduced: mqMotion.matches,
+        enableHover: mqPointer.matches,
+      });
+
+    // Safari compatibility (addListener/removeListener fallback)
+    const add = (mql: MediaQueryList, cb: () => void) =>
+      (mql.addEventListener ? mql.addEventListener('change', cb) : mql.addListener(cb));
+    const remove = (mql: MediaQueryList, cb: () => void) =>
+      (mql.removeEventListener ? mql.removeEventListener('change', cb) : mql.removeListener(cb));
+
+    apply();
+    add(mqMotion, apply);
+    add(mqPointer, apply);
+    return () => {
+      remove(mqMotion, apply);
+      remove(mqPointer, apply);
+    };
+  }, []);
+
+  return state; // { reduced, enableHover }
+}
+
 export default function HeaderLink({ item }: Props) {
-  const path = usePathname();
+  const pathname = usePathname();
 
   const [open, setOpen] = React.useState(false);
-  const [reducedMotion, setReducedMotion] = React.useState(false);
+  const { reduced: reducedMotion, enableHover } = usePointerAndMotion();
 
   const wrapperRef = React.useRef<HTMLDivElement>(null);
   const linkRef = React.useRef<HTMLAnchorElement>(null);
-  const caretBtnRef = React.useRef<HTMLButtonElement>(null);
   const hoverTimer = React.useRef<number | null>(null);
-  const lastTapRef = React.useRef<number>(0);
+  const lastTapOrClickRef = React.useRef<number>(0);
 
   const id = React.useId();
-  const isActive = !!item.href && (path === item.href || path?.startsWith(item.href + '/'));
+  const isActive = !!item.href && (pathname === item.href || pathname?.startsWith(item.href + '/'));
   const hasMenu = Array.isArray(item.submenu) && item.submenu.length > 0;
 
-  // Reduced motion
+  // Close on route change
   React.useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const apply = () => setReducedMotion(mq.matches);
-    apply();
-    mq.addEventListener?.('change', apply);
-    return () => mq.removeEventListener?.('change', apply);
-  }, []);
+    if (open) setOpen(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   const clearTimer = () => {
     if (hoverTimer.current) {
@@ -49,17 +84,17 @@ export default function HeaderLink({ item }: Props) {
     }
   };
 
-  const openWithIntent = () => {
+  const openWithIntent = (delay = 150) => {
     clearTimer();
-    hoverTimer.current = window.setTimeout(() => setOpen(true), 80);
+    hoverTimer.current = window.setTimeout(() => setOpen(true), delay);
   };
 
-  const closeWithIntent = () => {
+  const closeWithIntent = (delay = 200) => {
     clearTimer();
-    hoverTimer.current = window.setTimeout(() => setOpen(false), 140);
+    hoverTimer.current = window.setTimeout(() => setOpen(false), delay);
   };
 
-  // Keyboard
+  // Keyboard on top-level label
   const onKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>) => {
     if (!hasMenu) return;
     if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
@@ -72,18 +107,36 @@ export default function HeaderLink({ item }: Props) {
     }
   };
 
-  // Touch: first tap opens, second tap navigates
+  // Click-to-open (first click opens, second click within 600ms navigates)
+  const onClickLabel = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!hasMenu) return; // allow default navigate
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return; // allow new-tab, etc.
+
+    const now = performance.now();
+    const delta = now - lastTapOrClickRef.current;
+
+    if (!open || delta > 600) {
+      e.preventDefault();
+      setOpen(true);
+      lastTapOrClickRef.current = now;
+    }
+    // else: allow navigation on rapid second click
+  };
+
+  // Touch: first tap opens; second tap navigates
   const onTouchStart = (e: React.TouchEvent<HTMLAnchorElement>) => {
     if (!hasMenu) return;
     const now = performance.now();
-    if (!open || now - lastTapRef.current > 600) {
+    if (!open || now - lastTapOrClickRef.current > 600) {
       e.preventDefault();
       setOpen(true);
-      lastTapRef.current = now;
+      lastTapOrClickRef.current = now;
     }
   };
 
-  const onCaretClick = () => setOpen((s) => !s);
+  // Hover (only on pointer=fine)
+  const onMouseEnter = hasMenu && enableHover ? () => openWithIntent() : undefined;
+  const onMouseLeave = hasMenu && enableHover ? () => closeWithIntent() : undefined;
 
   // Close on outside click
   React.useEffect(() => {
@@ -99,22 +152,22 @@ export default function HeaderLink({ item }: Props) {
   // Cleanup timers
   React.useEffect(() => () => clearTimer(), []);
 
-  // Compact Myntra-like pill
+  // Styles (compact pill, premium look)
   const basePill =
     'relative inline-flex items-center gap-1 rounded-xl px-3 py-2 text-[14px] font-medium leading-6 outline-none transition-colors';
   const colorIdle = 'text-white/90 hover:text-white focus-visible:ring-2 focus-visible:ring-white/40';
   const colorActive =
-    'text-white after:absolute after:left-3 after:right-3 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-white/80';
+    'text-white after:pointer-events-none after:absolute after:left-3 after:right-3 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-white/80';
   const pillBg = isActive ? 'bg-white/10 ring-1 ring-white/10' : 'hover:bg-white/10';
 
   return (
     <div
       ref={wrapperRef}
       className="relative"
-      onMouseEnter={hasMenu ? openWithIntent : undefined}
-      onMouseLeave={hasMenu ? closeWithIntent : undefined}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
-      {/* Label link */}
+      {/* Top-level label (real link for SEO) */}
       <Link
         href={item.href}
         ref={linkRef}
@@ -123,20 +176,20 @@ export default function HeaderLink({ item }: Props) {
         aria-expanded={hasMenu ? open : undefined}
         aria-controls={hasMenu ? `mega-${id}` : undefined}
         onKeyDown={onKeyDown}
-        onTouchStart={onTouchStart}
+        onClick={hasMenu ? onClickLabel : undefined}
+        onTouchStart={hasMenu ? onTouchStart : undefined}
       >
         <span>{item.label}</span>
       </Link>
 
-      {/* Caret button only when there is a submenu (mobile-friendly) */}
+      {/* Optional caret button for explicit open on mobile (hidden on lg+) */}
       {hasMenu && (
         <button
-          ref={caretBtnRef}
           type="button"
           aria-label={open ? `Close ${item.label} menu` : `Open ${item.label} menu`}
           aria-controls={`mega-${id}`}
           aria-expanded={open}
-          onClick={onCaretClick}
+          onClick={() => setOpen((s) => !s)}
           className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1.5 rounded-lg p-1 text-white/90 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:hidden"
         >
           <svg
