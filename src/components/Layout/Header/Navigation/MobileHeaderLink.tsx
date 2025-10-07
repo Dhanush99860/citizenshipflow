@@ -5,16 +5,6 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { HeaderItem, SubmenuItem } from '../menu.types';
 
-/**
- * MobileHeaderLink — robust, accessible, hydration-safe
- *
- * Fixes from previous version:
- * - NO <li> inside <li> (valid HTML). <Node/> always returns a single <li>; parents render <ul>{<Node/>}</ul> without extra <li>.
- * - Renamed function prop to closeMenuAction (Next.js serializable-props rule for client entries).
- * - Explicit AccordionProps includes `children` to please TS.
- * - Keyboard & screen reader friendly. Reduced-motion aware.
- */
-
 type AccordionProps = {
   open: boolean;
   id: string;
@@ -23,11 +13,7 @@ type AccordionProps = {
 };
 
 const Accordion = ({ open, id, reduced, children }: AccordionProps) => {
-  const variants = {
-    collapsed: { height: 0, opacity: 0 },
-    open: { height: 'auto', opacity: 1 },
-  } as const;
-
+  const variants = { collapsed: { height: 0, opacity: 0 }, open: { height: 'auto', opacity: 1 } } as const;
   return (
     <AnimatePresence initial={false}>
       {open && (
@@ -76,7 +62,6 @@ const Node = ({ item, depth, closeMenuAction }: NodeProps) => {
   const id = React.useId();
   const padLeft = Math.min(16 + depth * 14, 48);
 
-  // autofocus first child when expanding
   const firstChildRef = React.useRef<HTMLAnchorElement>(null);
   React.useEffect(() => {
     if (!open || !hasKids) return;
@@ -89,34 +74,23 @@ const Node = ({ item, depth, closeMenuAction }: NodeProps) => {
   const expand = () => setOpen(true);
 
   const onChevronKey = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      toggle();
-    } else if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      expand();
-    } else if (e.key === 'ArrowLeft' || e.key === 'Escape') {
-      e.preventDefault();
-      collapse();
-    }
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); expand(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'Escape') { e.preventDefault(); collapse(); }
   };
 
   return (
     <li className="list-none border-b border-zinc-200 last:border-0 dark:border-white/10">
       <div className="flex items-stretch justify-between" style={{ paddingLeft: padLeft, paddingRight: 12 }}>
-        {/* Label link — navigates; does not toggle */}
         <Link
           id={`${id}-label`}
           href={item.href}
-          className="flex min-h-[44px] flex-1 items-center py-2 text-[15px] text-zinc-900 outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:text-zinc-100"
-          onClick={() => {
-            if (!hasKids) closeMenuAction?.();
-          }}
+          className="flex min-h-[46px] flex-1 items-center py-2 text-[15px] text-zinc-900 outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:text-zinc-100"
+          onClick={() => closeMenuAction?.()}
         >
           <span className="truncate">{item.label}</span>
         </Link>
 
-        {/* Chevron button — toggles accordion */}
         {hasKids && (
           <button
             type="button"
@@ -124,14 +98,9 @@ const Node = ({ item, depth, closeMenuAction }: NodeProps) => {
             aria-expanded={open}
             onClick={toggle}
             onKeyDown={onChevronKey}
-            className="ml-2 inline-flex h-9 w-9 shrink-0 items-center justify-center self-center rounded-lg text-zinc-700 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:text-zinc-200 dark:hover:bg-white/10"
+            className="ml-1.5 inline-flex h-10 w-10 shrink-0 items-center justify-center self-center rounded-lg text-zinc-700 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:text-zinc-200 dark:hover:bg-white/10"
           >
-            <svg
-              className={`h-5 w-5 transition-transform ${open ? '-rotate-180' : ''}`}
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden
-            >
+            <svg className={`h-5 w-5 transition-transform ${open ? '-rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor" aria-hidden>
               <path d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.4a.75.75 0 01-1.08 0l-4.25-4.4a.75.75 0 01.02-1.06z" />
             </svg>
             <span className="sr-only">{open ? 'Collapse' : 'Expand'}</span>
@@ -139,18 +108,11 @@ const Node = ({ item, depth, closeMenuAction }: NodeProps) => {
         )}
       </div>
 
-      {/* Nested children */}
       {hasKids && (
-        <Accordion open={open} id={`${id}-panel`} reduced={reduced}>
+        <Accordion open={open} id={`${id}-panel`} reduced={useReducedMotion()}>
           <ul className="pb-2">
             {item.submenu!.map((child, i) => (
-              // Render Node directly (it returns <li/>) — do NOT wrap in another <li>
-              <Node
-                key={`${child.label}-${i}`}
-                item={child}
-                depth={depth + 1}
-                closeMenuAction={closeMenuAction}
-              />
+              <Node key={`${child.label}-${i}`} item={child} depth={depth + 1} closeMenuAction={closeMenuAction} />
             ))}
           </ul>
           <span aria-live="polite" className="sr-only">
@@ -162,13 +124,7 @@ const Node = ({ item, depth, closeMenuAction }: NodeProps) => {
   );
 };
 
-export default function MobileHeaderLink({
-  item,
-  closeMenuAction, // function prop renamed to satisfy Next.js serializable-props rule
-}: {
-  item: HeaderItem;
-  closeMenuAction?: () => void;
-}) {
+export default function MobileHeaderLink({ item, closeMenuAction }: { item: HeaderItem; closeMenuAction?: () => void }) {
   return (
     <ul role="list" className="m-0 p-0">
       <Node item={item} depth={0} closeMenuAction={closeMenuAction} />

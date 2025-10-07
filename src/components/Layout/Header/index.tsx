@@ -13,11 +13,7 @@ import MobileHeaderLink from './Navigation/MobileHeaderLink';
 import TopBar from './Navigation/TopBar';
 // import Search from '@/components/GlobalSearch';
 
-import { Menu, X, Moon, Sun, Search as SearchIcon } from 'lucide-react';
-
-/**
- * Fixed Header with compact Myntra-like nav
- */
+import { Menu, X, Moon, Sun, Search as SearchIcon, LogIn } from 'lucide-react';
 
 export default function Header() {
   const pathname = usePathname();
@@ -33,6 +29,8 @@ export default function Header() {
   const rAFRef = useRef<number | null>(null);
   const burgerBtnRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
+  const firstFocusableRef = useRef<HTMLElement | null>(null);
+  const lastFocusableRef = useRef<HTMLElement | null>(null);
 
   const colorMode = useMemo(() => (resolvedTheme || theme) ?? 'light', [resolvedTheme, theme]);
   const isDark = colorMode === 'dark';
@@ -80,7 +78,7 @@ export default function Header() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  // Body lock + focus return when drawer toggles
+  // Body lock + focus trap setup
   useEffect(() => {
     const docEl = document.documentElement;
     const prevOverflow = docEl.style.overflow;
@@ -91,14 +89,16 @@ export default function Header() {
       docEl.style.overflow = 'hidden';
       if (sw > 0) docEl.style.paddingRight = `${sw}px`;
 
-      const t = setTimeout(() => {
-        drawerRef.current
-          ?.querySelector<HTMLElement>('a,button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')
-          ?.focus();
-      }, 10);
+      const focusables = drawerRef.current?.querySelectorAll<HTMLElement>(
+        'a,button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])'
+      );
+      if (focusables && focusables.length > 0) {
+        firstFocusableRef.current = focusables[0];
+        lastFocusableRef.current = focusables[focusables.length - 1];
+        setTimeout(() => firstFocusableRef.current?.focus(), 10);
+      }
 
       return () => {
-        clearTimeout(t);
         docEl.style.overflow = prevOverflow;
         docEl.style.paddingRight = prevPadRight;
         burgerBtnRef.current?.focus();
@@ -106,10 +106,20 @@ export default function Header() {
     }
   }, [drawerOpen]);
 
-  // Esc closes drawer
+  // Esc + Tab cycle
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && drawerOpen) setDrawerOpen(false);
+      if (!drawerOpen) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setDrawerOpen(false);
+      } else if (e.key === 'Tab') {
+        const first = firstFocusableRef.current;
+        const last = lastFocusableRef.current;
+        if (!first || !last) return;
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -123,6 +133,49 @@ export default function Header() {
     m.addEventListener?.('change', apply);
     return () => m.removeEventListener?.('change', apply);
   }, []);
+
+  // Swipe-to-close
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const drawer = drawerRef.current;
+    if (!drawer) return;
+
+    let startX = 0, currentX = 0, dragging = false;
+
+    const onStart = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      startX = touch.clientX;
+      currentX = startX;
+      dragging = true;
+      drawer.style.transition = 'none';
+    };
+    const onMove = (e: TouchEvent) => {
+      if (!dragging) return;
+      currentX = e.touches[0].clientX;
+      const dx = Math.max(0, currentX - startX);
+      drawer.style.transform = `translateX(${dx}px)`;
+    };
+    const onEnd = () => {
+      if (!dragging) return;
+      dragging = false;
+      const dx = Math.max(0, currentX - startX);
+      drawer.style.transition = '';
+      drawer.style.transform = '';
+      if (dx > 60) setDrawerOpen(false);
+    };
+
+    drawer.addEventListener('touchstart', onStart, { passive: true });
+    drawer.addEventListener('touchmove', onMove, { passive: true });
+    drawer.addEventListener('touchend', onEnd);
+    drawer.addEventListener('touchcancel', onEnd);
+
+    return () => {
+      drawer.removeEventListener('touchstart', onStart);
+      drawer.removeEventListener('touchmove', onMove);
+      drawer.removeEventListener('touchend', onEnd);
+      drawer.removeEventListener('touchcancel', onEnd);
+    };
+  }, [drawerOpen]);
 
   const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
 
@@ -153,7 +206,7 @@ export default function Header() {
           className={[
             'overflow-hidden transition-[max-height,opacity] ease-out',
             reducedMotion ? 'duration-0' : 'duration-300',
-            showTopBar ? 'max-h-[45px] opacity-100' : 'max-h-0 opacity-0',
+            showTopBar ? 'max-h-[48px] opacity-100' : 'max-h-0 opacity-0',
           ].join(' ')}
         >
           <TopBar />
@@ -218,13 +271,12 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Overlay — click outside to close */}
+        {/* Backdrop — click outside to close */}
         {drawerOpen && (
-          <button
-            type="button"
-            className="fixed inset-0 z-[49] bg-black/50 backdrop-blur-[2px] overscroll-contain lg:hidden"
+          <div
+            className="fixed inset-0 z-[49] bg-black/50 backdrop-blur-[2px] lg:hidden"
+            aria-hidden="true"
             onClick={() => setDrawerOpen(false)}
-            aria-label="Close menu"
           />
         )}
 
@@ -233,8 +285,8 @@ export default function Header() {
           id="mobile-menu"
           ref={drawerRef}
           className={[
-            'fixed right-0 top-0 z-[50] h-full w-[86%] max-w-xs rounded-l-2xl outline-none lg:hidden',
-            'transition-transform',
+            'fixed right-0 top-0 z-[50] h-dvh w-[88%] max-w-[420px] rounded-l-2xl outline-none lg:hidden',
+            'transition-transform will-change-transform',
             reducedMotion ? 'duration-0' : 'duration-300',
             drawerOpen ? 'translate-x-0' : 'translate-x-full',
             'bg-white dark:bg-zinc-900',
@@ -243,11 +295,23 @@ export default function Header() {
           aria-modal="true"
           aria-label="Mobile navigation drawer"
         >
-          <div className="flex h-full flex-col overscroll-contain">
-            {/* Drawer header */}
+          {/* Column layout with scrollable middle */}
+          <div className="flex h-dvh flex-col min-h-0 overscroll-contain">
+            {/* Drawer header (sticky) */}
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-zinc-900">
               <Logo />
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
+                {/* Login icon (simple, not highlighted) */}
+                <Link
+                  href="/login"
+                  aria-label="Login"
+                  onClick={() => setDrawerOpen(false)}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-zinc-800 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:text-white dark:hover:bg-white/10"
+                >
+                  <LogIn className="h-5 w-5" aria-hidden />
+                </Link>
+
+                {/* Theme toggle */}
                 <button
                   onClick={toggleTheme}
                   aria-label="Toggle theme"
@@ -255,19 +319,20 @@ export default function Header() {
                 >
                   {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                 </button>
+
+                {/* Close */}
                 <button
                   onClick={() => setDrawerOpen(false)}
-                  className="rounded-lg p-2 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:hover:bg:white/10"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-zinc-800 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:text-white dark:hover:bg-white/10"
                   aria-label="Close menu"
                 >
-                  <X className="h-6 w-6 text-zinc-900 dark:text-white" aria-hidden />
+                  <X className="h-6 w-6" aria-hidden />
                 </button>
               </div>
             </div>
 
-            {/* Single mobile search */}
+            {/* Search */}
             <div className="border-b border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-zinc-900">
-              {/* <Search /> */}
               <div className="relative">
                 <SearchIcon
                   className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500 dark:text-zinc-300"
@@ -281,25 +346,21 @@ export default function Header() {
               </div>
             </div>
 
-            {/* SCROLLABLE MENU */}
-            <nav className="flex-1 px-4 py-3 bg-white dark:bg-zinc-900" aria-label="Mobile navigation">
+            {/* Scrollable MENU area */}
+            <nav
+              className="flex-1 min-h-0 overflow-y-auto px-4 py-3 bg-white dark:bg-zinc-900"
+              aria-label="Mobile navigation"
+            >
               <div className="rounded-xl bg-zinc-50 p-2 dark:bg-zinc-800">
                 {headerMenu.map((item, i) => (
                   <MobileHeaderLink key={i} item={item} closeMenuAction={() => setDrawerOpen(false)} />
                 ))}
               </div>
-            </nav>
 
-            {/* Sticky footer */}
-            <div className="sticky bottom-0 border-t border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-zinc-900">
-              <Link
-                href="/login"
-                onClick={() => setDrawerOpen(false)}
-                className="inline-flex w-full items-center justify-center rounded-xl border border-zinc-300 px-4 py-3 text-base dark:border-white/20"
-              >
-                Login
-              </Link>
-            </div>
+              {/* Keep content clear of floating CTA bar at bottom of page */}
+              <div className="pb-28" />
+              <div className="h-[env(safe-area-inset-bottom)]" />
+            </nav>
           </div>
         </div>
       </header>
