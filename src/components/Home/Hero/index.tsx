@@ -45,7 +45,7 @@ const Hero = () => {
         <div className="absolute inset-0 bg-blue-600/90" />
       </div>
 
-      <div className="container mx-auto lg:max-w-screen-xl px-4">
+      <div className="container mx-auto lg:max-w-screen-2xl px-4">
         <div className="grid grid-cols-12">
           {/* ✅ Left Content */}
           <motion.div {...leftAnimation} className="lg:col-span-5 col-span-12">

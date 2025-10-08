@@ -92,7 +92,7 @@ export default function FAQSectionXiphas({
         <div className="absolute -bottom-28 -right-10 h-64 w-64 rounded-full bg-secondary/10 blur-3xl" />
       </div>
 
-      <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto lg:max-w-screen-2xl px-4">
         <header className="mb-6 sm:mb-8 md:mb-10">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             {title}
