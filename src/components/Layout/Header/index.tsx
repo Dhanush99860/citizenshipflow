@@ -1,4 +1,3 @@
-// FILE: src/components/Layout/Header/index.tsx
 'use client';
 
 import Link from 'next/link';
@@ -11,7 +10,7 @@ import Logo from './LogoWhite/index';
 import HeaderLink from './Navigation/HeaderLink';
 import MobileHeaderLink from './Navigation/MobileHeaderLink';
 import TopBar from './Navigation/TopBar';
-import GlobalSearch from '@/components/GlobalSearch'; // ⬅️ use the global search (same component as desktop)
+import GlobalSearch from '@/components/GlobalSearch';
 
 import { Menu, X, Moon, Sun, LogIn } from 'lucide-react';
 
@@ -78,7 +77,7 @@ export default function Header() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  // Body lock + focus trap setup
+  // Body lock + focus trap for drawer
   useEffect(() => {
     const docEl = document.documentElement;
     const prevOverflow = docEl.style.overflow;
@@ -106,7 +105,7 @@ export default function Header() {
     }
   }, [drawerOpen]);
 
-  // Esc + Tab cycle (focus trap)
+  // Esc + Tab cycle (drawer)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!drawerOpen) return;
@@ -231,10 +230,9 @@ export default function Header() {
               {/* Left: logo */}
               <Logo />
 
-              {/* CENTER (mobile only): GlobalSearch trigger so the bar doesn't look empty */}
-              <div className="absolute inset-x-0 flex justify-center lg:hidden px-12">
-                {/* Render as-is; it shows the circular search button and opens overlay */}
-                <GlobalSearch />
+              {/* CENTER (mobile only): GlobalSearch trigger */}
+              <div className="absolute inset-x-0 flex justify-center lg:hidden px-12 pointer-events-none">
+                <GlobalSearch className="max-w-[520px]" placeholder="Search…" />
               </div>
 
               {/* Desktop navigation */}
@@ -289,7 +287,7 @@ export default function Header() {
           />
         )}
 
-        {/* MOBILE DRAWER */}
+        {/* Mobile Drawer */}
         <div
           id="mobile-menu"
           ref={drawerRef}
@@ -306,13 +304,10 @@ export default function Header() {
           aria-label="Mobile navigation drawer"
           tabIndex={-1}
         >
-          {/* Column layout with scrollable middle */}
           <div className="flex h-dvh flex-col min-h-0 overscroll-contain">
-            {/* Drawer header (sticky) */}
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-200 bg-white p-4 dark:border-white/10 dark:bg-zinc-900">
               <Logo />
               <div className="flex items-center gap-1.5">
-                {/* Login icon */}
                 <Link
                   href="/login"
                   aria-label="Login"
@@ -322,7 +317,6 @@ export default function Header() {
                   <LogIn className="h-5 w-5" aria-hidden />
                 </Link>
 
-                {/* Theme toggle */}
                 <button
                   onClick={toggleTheme}
                   aria-label="Toggle theme"
@@ -331,7 +325,6 @@ export default function Header() {
                   {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                 </button>
 
-                {/* Close */}
                 <button
                   onClick={() => setDrawerOpen(false)}
                   className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-zinc-800 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:text-white dark:hover:bg-white/10"
@@ -341,8 +334,6 @@ export default function Header() {
                 </button>
               </div>
             </div>
-
-            {/* 🔁 Removed the old search field inside the drawer (as requested) */}
 
             {/* Scrollable MENU area */}
             <nav
@@ -355,7 +346,6 @@ export default function Header() {
                 ))}
               </div>
 
-              {/* Keep content clear of floating CTA bar at bottom of page */}
               <div className="pb-28" />
               <div className="h-[env(safe-area-inset-bottom)]" />
             </nav>

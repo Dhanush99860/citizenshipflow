@@ -1,36 +1,11 @@
-// FILE: src/components/Layout/Header/Navigation/TopBar.tsx
 'use client';
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Phone, Mail, Facebook, Twitter, Instagram, Search as SearchIcon, X as XIcon } from 'lucide-react';
-import GlobalSearch from '@/components/GlobalSearch'; // ⬅️ added
-
-/**
- * Desktop TopBar — unchanged styles.
- * This version *opens GlobalSearch overlay* whenever the TopBar search is used.
- */
+import { Phone, Mail, Facebook, Twitter, Instagram } from 'lucide-react';
+import GlobalSearch from '@/components/GlobalSearch';
 
 export default function TopBar() {
-  const [q, setQ] = React.useState('');
-
-  // Imperatively click GlobalSearch's trigger button (it has aria-label="Open search")
-  const openGlobalSearch = React.useCallback(() => {
-    const btn = document.querySelector<HTMLButtonElement>('button[aria-label="Open search"]');
-    btn?.click();
-  }, []);
-
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    openGlobalSearch();
-  };
-
-  // Open overlay on any interaction with the faux input
-  const onOpenFromInput = (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    openGlobalSearch();
-  };
-
   return (
     <div className="hidden lg:block">
       <div className="mx-auto max-w-screen-2xl px-4">
@@ -48,61 +23,11 @@ export default function TopBar() {
             <Chip href="mailto:info@example.com" label="info@example.com" ariaLabel="Email info@example.com" />
           </div>
 
-          {/* Centered search (visual stays identical) */}
+          {/* Center: GlobalSearch trigger (real, pill-style) */}
           <div className="flex justify-center">
-            <form
-              role="search"
-              action="/search"
-              method="GET"
-              onSubmit={onSubmit}
-              className="relative w-full max-w-xl"
-              aria-label="Site search"
-            >
-              <label htmlFor="topbar-search" className="sr-only">
-                Search the site
-              </label>
-
-              <SearchIcon
-                className="pointer-events-none absolute left-3 top-1/2 z-[1] h-4 w-4 -translate-y-1/2 text-white/80"
-                aria-hidden
-              />
-
-              {/* This input looks the same, but any interaction opens GlobalSearch */}
-              <input
-                id="topbar-search"
-                name="q"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                onFocus={onOpenFromInput}
-                onClick={onOpenFromInput}
-                onKeyDown={(e) => {
-                  // Let Tab work normally for a11y, otherwise open the overlay
-                  if (e.key !== 'Tab') {
-                    e.preventDefault();
-                    openGlobalSearch();
-                  }
-                }}
-                autoComplete="off"
-                placeholder="Search…"
-                className={[
-                  'w-full rounded-full border px-9 py-2 text-sm text-white placeholder-white/70 outline-none',
-                  'border-white/15 bg-white/10 backdrop-blur-md',
-                  'focus:border-white/35 focus:ring-2 focus:ring-white/40',
-                ].join(' ')}
-              />
-
-              {/* Clear button (unchanged) */}
-              {q && (
-                <button
-                  type="button"
-                  onClick={() => setQ('')}
-                  aria-label="Clear search"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-7 w-7 items-center justify-center rounded-full text-white/80 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-                >
-                  <XIcon className="h-4 w-4" aria-hidden />
-                </button>
-              )}
-            </form>
+            <div className="w-full max-w-xl">
+              <GlobalSearch placeholder="Search…" />
+            </div>
           </div>
 
           {/* Social + Login */}
@@ -125,11 +50,6 @@ export default function TopBar() {
             </Link>
           </div>
         </div>
-      </div>
-
-      {/* Render GlobalSearch once; we trigger it programmatically */}
-      <div aria-hidden>
-        <GlobalSearch />
       </div>
     </div>
   );
