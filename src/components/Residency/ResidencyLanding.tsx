@@ -160,7 +160,7 @@ export default function ResidencyLanding({
             Explore by country
           </h2>
           <Link
-            href="/PersonalBooking"
+            href="/personalbooking"
             className="text-sm font-medium text-neutral-900 dark:text-neutral-50 underline underline-offset-2 hover:opacity-90"
           >
             Need advice?

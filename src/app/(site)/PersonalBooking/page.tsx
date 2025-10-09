@@ -1,7 +1,7 @@
-// src/app/PersonalBooking/page.tsx
-import Hero from "@/components/PersonalBooking/Hero";
-import Details from "@/components/PersonalBooking/Details";
-import PressReleased from "@/components/PersonalBooking/PressReleased";
+// src/app/personalbooking/page.tsx
+import Hero from "@/components/personalbooking/Hero";
+import Details from "@/components/personalbooking/Details";
+import PressReleased from "@/components/personalbooking/PressReleased";
 import FAQSection from "@/components/Common/FAQSection";
 import { getAllInsights } from "@/lib/insights-content";
 import type { Metadata } from "next";
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default async function PersonalBookingPage() {
+export default async function personalbookingPage() {
   // ✅ FIX: kind must be "articles" (plural). Or omit `kind` to get from all kinds.
   const { items } = await getAllInsights({ kind: "articles", pageSize: 6 });
 

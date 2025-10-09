@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-import Expert from "@/components/PersonalBooking/Expert";
-import Awards from "@/components/PersonalBooking/Awards";
-import InvestmentStats from "@/components/PersonalBooking/Problem/index";
-import Solutions from "@/components/PersonalBooking/Solutions";
+import Expert from "@/components/personalbooking/Expert";
+import Awards from "@/components/personalbooking/Awards";
+import InvestmentStats from "@/components/personalbooking/Problem/index";
+import Solutions from "@/components/personalbooking/Solutions";
 import TestimonialSection from "@/components/Common/TestimonialSection/index";
 import AdvisorConsultationCard from "@/components/Citizenship/AdvisorConsultationCard";
 
@@ -286,7 +286,7 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
               advisorName="Varun Singh"
               role="CBI & RBI - MD XIPHIAS"
               avatarSrc="/images/avtar/varun-singh.png"
-              bookingUrl="/PersonalBooking"
+              bookingUrl="/personalbooking"
               brochureUrl="/brochures/citizenship/grenada/real-estate.pdf"
               priceOptions={[
                 {

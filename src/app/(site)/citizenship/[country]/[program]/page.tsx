@@ -409,7 +409,7 @@ export default async function ProgramPage(props: {
               imageSrc={heroImage}
               actions={[
                 {
-                  href: "/PersonalBooking",
+                  href: "/personalbooking",
                   label: "Book a Free Consultation",
                   variant: "primary",
                 },
@@ -793,7 +793,7 @@ export default async function ProgramPage(props: {
                 </ul>
                 <div className="mt-4">
                   <a
-                    href="/PersonalBooking"
+                    href="/personalbooking"
                     className="inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
                   >
                     Discuss vetted projects
@@ -1011,7 +1011,7 @@ export default async function ProgramPage(props: {
                 advisorName="Varun Singh"
                 role="CBI & RBI - MD XIPHIAS"
                 avatarSrc="/images/avtar/varun-singh.png"
-                bookingUrl="/PersonalBooking"
+                bookingUrl="/personalbooking"
                 brochureUrl="/brochures/citizenship/grenada/real-estate.pdf"
                 priceOptions={[
                   {

@@ -104,7 +104,7 @@ export default async function InsightDetailView({
           imageSrc={record.hero || undefined}
           actions={[
             {
-              href: "/PersonalBooking",
+              href: "/personalbooking",
               label: "Book a Free Consultation",
               variant: "primary",
             },

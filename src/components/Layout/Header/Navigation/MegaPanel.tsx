@@ -10,12 +10,11 @@ import { cx } from '../menu.utils';
 /**
  * MegaPanel — premium UX surface (no harsh white)
  *
- * Highlights:
- * - Subtle gradient + glass background (light/dark aware), soft border & shadow.
- * - Sticky tools row: section title + inline filter (desktop), collapsible on small screens.
- * - Responsive grid (2→6 cols), comfy spacing, hover-elevated country blocks.
- * - Optional flags; neat bullet list items with better hit areas.
- * - Esc & outside-click close, first focus on first link, reduced motion aware.
+ * Update (2025-10-09):
+ * - Stronger glass background (more opaque for legibility) with richer blur/saturation.
+ * - Higher-contrast borders, softer but deeper shadow.
+ * - Input + hover states tuned for clearer text and better contrast.
+ * - Decorative layers toned down slightly so content pops.
  */
 
 interface MegaPanelProps {
@@ -152,11 +151,14 @@ export default function MegaPanel({ rootLabel, columns, open, onClose }: MegaPan
             <div
               ref={panelRef}
               className={cx(
-                'relative rounded-3xl ring-1 shadow-xl backdrop-blur-md',
-                // light: soft gradient glass; dark: deep neutral glass
-                'ring-white/10 dark:ring-white/10',
-                'bg-[linear-gradient(180deg,rgba(255,255,255,0.72)_0%,rgba(255,255,255,0.58)_100%)]',
-                'dark:bg-[linear-gradient(180deg,rgba(20,20,20,0.86)_0%,rgba(20,20,20,0.74)_100%)]'
+                'relative rounded-3xl ring-1 shadow-2xl backdrop-blur-xl backdrop-saturate-150 backdrop-contrast-125',
+                // higher-contrast ring in light, subtle in dark
+                'ring-black/5 dark:ring-white/15',
+                // more opaque glass for better text legibility
+                'bg-[linear-gradient(180deg,rgba(255,255,255,0.92)_0%,rgba(255,255,255,0.82)_100%)]',
+                'dark:bg-[linear-gradient(180deg,rgba(14,14,14,0.92)_0%,rgba(22,22,22,0.84)_100%)]',
+                // fallback when backdrop-filter unsupported — add a soft solid base
+                'supports-[backdrop-filter:none]:bg-white/90 supports-[backdrop-filter:none]:dark:bg-zinc-900/90'
               )}
               style={{ maxHeight: 'min(72vh, 880px)' }}
             >
@@ -168,14 +170,16 @@ export default function MegaPanel({ rootLabel, columns, open, onClose }: MegaPan
                 )}
               >
                 {/* subtle radial glow */}
-                <div className="absolute -top-24 left-1/2 h-64 w-[120%] -translate-x-1/2 rounded-[50%] bg-[radial-gradient(closest-side,rgba(99,102,241,0.15),transparent_65%)] dark:bg-[radial-gradient(closest-side,rgba(99,102,241,0.18),transparent_60%)]" />
-                {/* faint grid lines */}
-                <div className="absolute inset-0 opacity-[0.06] dark:opacity-[0.08] [background-image:linear-gradient(to_right,currentColor_1px,transparent_1px),linear-gradient(to_bottom,currentColor_1px,transparent_1px)] [background-size:32px_32px] text-zinc-600 dark:text-zinc-300" />
+                <div className="absolute -top-24 left-1/2 h-64 w-[120%] -translate-x-1/2 rounded-[50%] bg-[radial-gradient(closest-side,rgba(99,102,241,0.12),transparent_65%)] dark:bg-[radial-gradient(closest-side,rgba(99,102,241,0.15),transparent_60%)]" />
+                {/* faint grid lines (toned down for readability) */}
+                <div className="absolute inset-0 opacity-[0.04] dark:opacity-[0.06] [background-image:linear-gradient(to_right,currentColor_1px,transparent_1px),linear-gradient(to_bottom,currentColor_1px,transparent_1px)] [background-size:32px_32px] text-zinc-700 dark:text-zinc-300" />
+                {/* vignette edge to boost edge contrast */}
+                <div className="absolute inset-0 rounded-3xl bg-[radial-gradient(120%_100%_at_50%_0%,transparent_60%,rgba(0,0,0,0.04)_100%)] dark:bg-[radial-gradient(120%_100%_at_50%_0%,transparent_58%,rgba(0,0,0,0.18)_100%)]" />
               </div>
 
               {/* Tools row (sticky) */}
-              <div className="sticky top-0 z-10 flex flex-col gap-3 border-b border-white/15 px-4 py-3 sm:flex-row sm:items-center sm:justify-between md:px-6 md:py-4 dark:border-white/10">
-                <h2 className="text-[11px] font-semibold tracking-wide uppercase text-zinc-800/90 dark:text-zinc-100/90">
+              <div className="sticky top-0 z-10 flex flex-col gap-3 border-b border-white/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between md:px-6 md:py-4 dark:border-white/15 bg-white/55 dark:bg-zinc-900/55 backdrop-blur-xl">
+                <h2 className="text-[11px] font-semibold tracking-wide uppercase text-zinc-900 dark:text-zinc-100">
                   Explore {rootLabel}
                 </h2>
 
@@ -186,10 +190,10 @@ export default function MegaPanel({ rootLabel, columns, open, onClose }: MegaPan
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Filter by country or program…"
                     className={cx(
-                      'w-[min(80vw,340px)] sm:w-80 rounded-lg border px-3 py-2 text-xs',
-                      'bg-white/70 backdrop-blur-sm border-white/30 placeholder:text-zinc-500 text-zinc-900',
-                      'focus:outline-none focus:ring-2 focus:ring-primary/40',
-                      'dark:bg-zinc-900/70 dark:border-white/20 dark:text-zinc-100 dark:placeholder:text-zinc-400'
+                      'w-[min(80vw,340px)] sm:w-80 rounded-lg border px-3 py-2 text-xs shadow-inner',
+                      'bg-white/85 backdrop-blur-sm border-black/10 placeholder:text-zinc-500 text-zinc-900',
+                      'focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent',
+                      'dark:bg-zinc-900/85 dark:border-white/15 dark:text-zinc-100 dark:placeholder:text-zinc-400'
                     )}
                   />
                 </label>
@@ -212,8 +216,9 @@ export default function MegaPanel({ rootLabel, columns, open, onClose }: MegaPan
                             key={country.label}
                             className={cx(
                               'group relative min-w-0 rounded-2xl p-3 transition',
-                              'hover:bg-white/50 dark:hover:bg-white/5',
-                              'hover:shadow-sm hover:ring-1 hover:ring-white/20 dark:hover:ring-white/10'
+                              'ring-1 ring-black/5 dark:ring-white/10',
+                              'hover:bg-white/70 dark:hover:bg-white/[0.06]',
+                              'hover:shadow-sm'
                             )}
                           >
                             {/* Country heading */}
@@ -245,7 +250,7 @@ export default function MegaPanel({ rootLabel, columns, open, onClose }: MegaPan
                                     <Link
                                       href={p.href}
                                       className={cx(
-                                        'relative flex items-start rounded-md px-2 py-1.5 text-[13px] text-zinc-700 dark:text-zinc-300',
+                                        'relative flex items-start rounded-md px-2 py-1.5 text-[13px] text-zinc-800 dark:text-zinc-200',
                                         'before:mr-2 before:mt-[9px] before:inline-block before:h-1.5 before:w-1.5 before:rounded-full before:bg-zinc-300 dark:before:bg-zinc-500',
                                         'hover:text-primary hover:before:bg-primary/70',
                                         'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30'
@@ -286,7 +291,7 @@ export default function MegaPanel({ rootLabel, columns, open, onClose }: MegaPan
 
                 {/* Empty state */}
                 {filtered.length === 0 && (
-                  <div className="flex items-center justify-center py-14 text-xs text-zinc-600 dark:text-zinc-400">
+                  <div className="flex items-center justify-center py-14 text-xs text-zinc-700 dark:text-zinc-300">
                     No matches. Try a different term.
                   </div>
                 )}

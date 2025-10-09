@@ -63,7 +63,7 @@ export default function Home() {
             advisorName="Varun Singh"
             role="CBI & RBI - MD XIPHIAS"
             avatarSrc="/images/avtar/varun-singh.png"
-            bookingUrl="/PersonalBooking"
+            bookingUrl="/personalbooking"
             brochureUrl="/brochures/citizenship/grenada/real-estate.pdf"
             priceOptions={[
               {

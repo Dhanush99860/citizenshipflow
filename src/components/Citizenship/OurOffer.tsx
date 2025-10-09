@@ -36,7 +36,7 @@ export default function OurOffer({
     "End-to-end execution: strategy, documentation, submission, oath & passports.",
     "Confidential handling and white-glove concierge for families.",
   ],
-  primaryHref = "/PersonalBooking",
+  primaryHref = "/personalbooking",
   primaryText = "Speak to an Advisor",
   secondaryHref = "/images/citizenship/Brochure/projectbrochure.pdf",
   secondaryText = "Download Checklist",

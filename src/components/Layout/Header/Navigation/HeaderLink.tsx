@@ -64,12 +64,14 @@ export default function HeaderLink({ item }: Props) {
 
   const wrapperRef = React.useRef<HTMLDivElement>(null);
   const linkRef = React.useRef<HTMLAnchorElement>(null);
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
   const hoverTimer = React.useRef<number | null>(null);
   const lastTapOrClickRef = React.useRef<number>(0);
 
   const id = React.useId();
   const isActive = !!item.href && (pathname === item.href || pathname?.startsWith(item.href + '/'));
   const hasMenu = Array.isArray(item.submenu) && item.submenu.length > 0;
+  const isRealLink = typeof item.href === 'string' && item.href.length > 0;
 
   // Close on route change
   React.useEffect(() => {
@@ -95,7 +97,7 @@ export default function HeaderLink({ item }: Props) {
   };
 
   // Keyboard on top-level label
-  const onKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement>) => {
+  const onKeyDown = (e: React.KeyboardEvent<HTMLAnchorElement | HTMLButtonElement>) => {
     if (!hasMenu) return;
     if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
       e.preventDefault();
@@ -103,11 +105,11 @@ export default function HeaderLink({ item }: Props) {
     } else if (e.key === 'Escape') {
       e.preventDefault();
       setOpen(false);
-      linkRef.current?.focus();
+      (linkRef.current ?? buttonRef.current)?.focus();
     }
   };
 
-  // Click-to-open (first click opens, second click within 600ms navigates)
+  // Click-to-open on <Link> (first click opens, second click within 600ms navigates)
   const onClickLabel = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!hasMenu) return; // allow default navigate
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return; // allow new-tab, etc.
@@ -123,8 +125,8 @@ export default function HeaderLink({ item }: Props) {
     // else: allow navigation on rapid second click
   };
 
-  // Touch: first tap opens; second tap navigates
-  const onTouchStart = (e: React.TouchEvent<HTMLAnchorElement>) => {
+  // Touch: first tap opens; second tap navigates (both link/button)
+  const onTouchStart = (e: React.TouchEvent<HTMLAnchorElement | HTMLButtonElement>) => {
     if (!hasMenu) return;
     const now = performance.now();
     if (!open || now - lastTapOrClickRef.current > 600) {
@@ -167,20 +169,36 @@ export default function HeaderLink({ item }: Props) {
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      {/* Top-level label (real link for SEO) */}
-      <Link
-        href={item.href}
-        ref={linkRef}
-        className={[basePill, pillBg, isActive ? colorActive : colorIdle].join(' ')}
-        aria-haspopup={hasMenu ? 'menu' : undefined}
-        aria-expanded={hasMenu ? open : undefined}
-        aria-controls={hasMenu ? `mega-${id}` : undefined}
-        onKeyDown={onKeyDown}
-        onClick={hasMenu ? onClickLabel : undefined}
-        onTouchStart={hasMenu ? onTouchStart : undefined}
-      >
-        <span>{item.label}</span>
-      </Link>
+      {/* Top-level label (real link for SEO when href exists) */}
+      {isRealLink ? (
+        <Link
+          href={item.href!}
+          ref={linkRef}
+          className={[basePill, pillBg, isActive ? colorActive : colorIdle].join(' ')}
+          aria-haspopup={hasMenu ? 'menu' : undefined}
+          aria-expanded={hasMenu ? open : undefined}
+          aria-controls={hasMenu ? `mega-${id}` : undefined}
+          onKeyDown={onKeyDown}
+          onClick={hasMenu ? onClickLabel : undefined}
+          onTouchStart={hasMenu ? onTouchStart : undefined}
+        >
+          <span>{item.label}</span>
+        </Link>
+      ) : (
+        <button
+          type="button"
+          ref={buttonRef}
+          className={[basePill, pillBg, isActive ? colorActive : colorIdle].join(' ')}
+          aria-haspopup={hasMenu ? 'menu' : undefined}
+          aria-expanded={hasMenu ? open : undefined}
+          aria-controls={hasMenu ? `mega-${id}` : undefined}
+          onKeyDown={onKeyDown}
+          onClick={hasMenu ? () => setOpen((s) => !s) : undefined}
+          onTouchStart={hasMenu ? onTouchStart : undefined}
+        >
+          <span>{item.label}</span>
+        </button>
+      )}
 
       {/* Optional caret button for explicit open on mobile (hidden on lg+) */}
       {hasMenu && (
@@ -206,7 +224,12 @@ export default function HeaderLink({ item }: Props) {
       {/* Mega panel */}
       {hasMenu && (
         <div id={`mega-${id}`} role="region" aria-label={`${item.label} menu`}>
-          <MegaPanel rootLabel={item.label} columns={item.submenu!} open={open} onClose={() => setOpen(false)} />
+          <MegaPanel
+            rootLabel={item.label}
+            columns={item.submenu!}
+            open={open}
+            onClose={() => setOpen(false)}
+          />
         </div>
       )}
     </div>

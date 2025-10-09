@@ -41,7 +41,7 @@ const DEFAULT_VERDICT: VerdictText = {
   cautionText: "Some answers need review. There may be alternative routes.",
 };
 const DEFAULT_CTAS: Required<QuickCheckCTAs> = {
-  primaryHref: "/PersonalBooking",
+  primaryHref: "/personalbooking",
   primaryText: "Book a Free Consultation",
   secondaryHref: "/residency/eligibility",
   secondaryText: "Full eligibility checker",

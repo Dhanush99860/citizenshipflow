@@ -108,7 +108,7 @@ export default function AdvisorConsultationCard({
   currencyNote = "Prices auto-convert to your selected currency",
   highDemandHint = "High demand this week",
 
-  bookingUrl = "/PersonalBooking",
+  bookingUrl = "/personalbooking",
   brochureUrl,
 
   paymentNote = "UPI • Cards • Bank Wire",
