@@ -206,7 +206,7 @@ export default function Footer() {
         name: "XIPHIAS Immigration",
         url: "https://www.xiphiasimmigration.com",
         logo: "https://www.xiphias.com/images/logo.png",
-        sameAs: SOCIALS.filter((s) => s.href !== "#").map((s) => s.href),
+        sameAs: SOCIALS.map(s => s.href),
         contactPoint: [
           { "@type": "ContactPoint", contactType: "sales", email: "immigration@xiphias.in" },
           { "@type": "ContactPoint", contactType: "support", email: "immigration@xiphias.in" },
