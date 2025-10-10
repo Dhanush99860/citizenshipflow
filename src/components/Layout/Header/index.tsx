@@ -194,7 +194,7 @@ export default function Header() {
           'fixed inset-x-0 top-0 z-50 w-full will-change-transform',
           'transition-[background-color,backdrop-filter,box-shadow,padding] ease-out',
           reducedMotion ? 'duration-0' : 'duration-300',
-          isDark ? 'bg-zinc-950' : 'bg-primary/95',
+          'bg-primary/95 dark:bg-zinc-950',
           'backdrop-blur-md',
           compact ? 'shadow-lg' : 'shadow-md',
         ].join(' ')}
@@ -217,10 +217,11 @@ export default function Header() {
             <div
               className={[
                 'relative flex items-center justify-between rounded-2xl ring-1 ring-white/10',
-                isDark ? 'bg-white/5 backdrop-saturate-[1.3]' : 'bg-white/[0.06] backdrop-saturate-[1.4]',
-                isDark
-                  ? 'before:absolute before:inset-0 before:-z-10 before:rounded-2xl before:bg-[radial-gradient(120%_100%_at_50%_0%,rgba(255,255,255,0.08),transparent_60%)]'
-                  : 'before:absolute before:inset-0 before:-z-10 before:rounded-2xl before:bg-[radial-gradient(120%_100%_at_50%_0%,rgba(255,255,255,0.12),transparent_60%)]',
+                'bg-white/[0.06] dark:bg-white/5',
+                'backdrop-saturate-[1.4] dark:backdrop-saturate-[1.3]',
+                'before:absolute before:inset-0 before:-z-10 before:rounded-2xl',
+                'before:bg-[radial-gradient(120%_100%_at_50%_0%,rgba(255,255,255,0.12),transparent_60%)]',
+                'dark:before:bg-[radial-gradient(120%_100%_at_50%_0%,rgba(255,255,255,0.08),transparent_60%)]',
                 compact ? 'px-3 py-2' : 'px-4 py-2.5',
                 'transition-[padding,ring-color,transform,box-shadow] ease-out',
                 reducedMotion ? 'duration-0' : 'duration-300',
@@ -250,7 +251,9 @@ export default function Header() {
                   onClick={toggleTheme}
                   className="hidden lg:inline-flex h-9 w-9 items-center justify-center rounded-xl text-white/90 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
                 >
-                  {isDark ? <Sun className="h-5 w-5" aria-hidden /> : <Moon className="h-5 w-5" aria-hidden />}
+                  {/* Render both; CSS shows the right one */}
+                  <Moon className="h-5 w-5 dark:hidden" aria-hidden />
+                  <Sun className="h-5 w-5 hidden dark:inline" aria-hidden />
                 </button>
 
                 {/* Desktop CTA */}
@@ -322,7 +325,9 @@ export default function Header() {
                   aria-label="Toggle theme"
                   className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-zinc-800 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:text-white dark:hover:bg-white/10"
                 >
-                  {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                  {/* Render both; CSS shows the right one */}
+                  <Moon className="h-5 w-5 dark:hidden" aria-hidden />
+                  <Sun className="h-5 w-5 hidden dark:inline" aria-hidden />
                 </button>
 
                 <button
