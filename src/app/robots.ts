@@ -1,28 +1,20 @@
 // src/app/robots.ts
-import { MetadataRoute } from "next";
-import { headers } from "next/headers";
+import type { MetadataRoute } from 'next'
+import { headers } from 'next/headers'
 
-const PROD_HOST = "https://www.xiphiasimmigration.com";
+// Needed if you read per-request values like headers:
+export const dynamic = 'force-dynamic'
 
-// Helper: resolve the current origin (works on Vercel previews/dev too)
-function getOrigin(): string {
-  const h = headers();
-  const forwardedProto = h.get("x-forwarded-proto") || "https";
-  const forwardedHost = h.get("x-forwarded-host");
-  if (forwardedHost) return `${forwardedProto}://${forwardedHost}`;
-  return PROD_HOST; // fallback for build-time or unknown
-}
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const h = await headers(); // <- await here
 
-export default function robots(): MetadataRoute.Robots {
-  const origin = getOrigin();
-  const isProd = origin === PROD_HOST;
+  // In proxies (Vercel, etc.), prefer x-forwarded-* first:
+  const host  = h.get('x-forwarded-host') ?? h.get('host') ?? 'localhost:3000'
+  const proto = h.get('x-forwarded-proto') ?? 'http'
+  const base  = `${proto}://${host}`
 
-  // In non-prod (vercel.app previews, localhost), block indexing
   return {
-    rules: isProd
-      ? [{ userAgent: "*", allow: "/" }]
-      : [{ userAgent: "*", disallow: "/" }],
-    sitemap: [`${origin}/sitemap.xml`],
-    host: isProd ? PROD_HOST : undefined,
-  };
+    rules: [{ userAgent: '*', allow: '/' }],
+    sitemap: `${base}/sitemap.xml`,
+  }
 }

@@ -1,9 +1,5 @@
-﻿import { MetadataRoute } from "next";
+import { MetadataRoute } from "next";
 import { getResidencyUrls } from "@/lib/residency-content";
-import { getResidencyUrls } from "@/lib/citizenship-content";
-import { getResidencyUrls } from "@/lib/insights-content";
-import { getResidencyUrls } from "@/lib/skilled-content";
-import { getResidencyUrls } from "@/lib/corporate-content";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = "https://www.xiphiasimmigration.com";
