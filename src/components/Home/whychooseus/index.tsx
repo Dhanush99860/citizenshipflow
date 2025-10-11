@@ -108,7 +108,7 @@ export default function WhyChooseUs() {
         </div>
       )}
 
-      <div className="container mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+      <div className="container mx-auto lg:max-w-screen-2xl px-4 sm:px-6 lg:px-8">
         {/* ======= HEADER ======= */}
         <motion.div
           initial="hidden"

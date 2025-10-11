@@ -25,7 +25,7 @@ export default async function CitizenshipPreview() {
   }));
 
   return (
-    <section className="mx-auto max-w-screen-2xl px-4">
+    <section className="container mx-auto lg:max-w-screen-2xl">
       <CountryCarousel
         countries={countries as any}
         layout="featureList"            // keep the 60/40 two-column layout

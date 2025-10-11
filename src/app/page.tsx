@@ -58,7 +58,7 @@ export default function Home() {
         <CitizenshipPreview />
         <ResidencyPreview />
         {/* ADVISOR SPOTLIGHT (component) */}
-        <section className="scroll-mt-28 max-w-screen-xl mx-auto py-6 px-4">
+        <section className="scroll-mt-28 mx-auto lg:max-w-screen-2xl sm:px-6 lg:px-4">
           <AdvisorConsultationCard
             advisorName="Varun Singh"
             role="CBI & RBI - MD XIPHIAS"

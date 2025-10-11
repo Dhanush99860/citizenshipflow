@@ -2,196 +2,219 @@
 
 import { useEffect, useRef, useState } from "react";
 
-export default function ReadingProgress() {
-  // animated (displayed) progress 0..100
-  const [animPct, setAnimPct] = useState(0);
-  // target progress (instant)
-  const targetPctRef = useRef(0);
-  // rAF handle
+type Props = {
+  targetId?: string;
+  heightClassName?: string; // overall thickness
+  zIndexClassName?: string;
+  showMilestones?: boolean;
+  showPercentBadge?: boolean;
+  showStripes?: boolean;
+  showGlow?: boolean;
+};
+
+export default function ReadingProgress({
+  targetId = "article-content",
+  heightClassName = "h-2.5",
+  zIndexClassName = "z-50",
+  showMilestones = true,
+  showPercentBadge = true,
+  showStripes = true,
+  showGlow = true,
+}: Props) {
+  const [progress, setProgress] = useState(0);
   const rafRef = useRef<number | null>(null);
-  // message state
-  const [toast, setToast] = useState<string | null>(null);
-  const lastMilestoneRef = useRef<number>(0);
-
-  // find the best reading root automatically
-  function resolveRoot(): HTMLElement | null {
-    return (
-      document.getElementById("article-content") ||
-      document.querySelector("main article") ||
-      document.querySelector("article") ||
-      document.querySelector("main") ||
-      document.documentElement
-    );
-  }
-
-  // compute target progress based on the element
-  const measure = () => {
-    const el = resolveRoot();
-    if (!el) {
-      targetPctRef.current = 0;
-      return;
-    }
-
-    const rect = el.getBoundingClientRect();
-    const startY = window.scrollY + rect.top;
-    const endY = startY + el.scrollHeight;
-
-    // how much of the element can be scrolled through (avoid div by 0)
-    const maxScrollable = Math.max(1, endY - window.innerHeight - 0 /* offsetTop */);
-    const current = Math.min(Math.max(window.scrollY - startY, 0), maxScrollable);
-
-    const pct = Math.round((current / maxScrollable) * 100);
-    targetPctRef.current = pct;
-  };
-
-  // smooth animate toward target using lerp
-  const tick = () => {
-    const target = targetPctRef.current;
-    const next = animPct + (target - animPct) * 0.18; // easing factor
-    const clamped = Math.abs(next - target) < 0.2 ? target : next;
-
-    setAnimPct(clamped);
-
-    // show milestone toasts when crossing thresholds upward
-    const milestones = [1, 25, 50, 75, 100];
-    const last = lastMilestoneRef.current;
-    for (let i = milestones.length - 1; i >= 0; i--) {
-      const m = milestones[i];
-      if (clamped >= m && last < m) {
-        lastMilestoneRef.current = m;
-        showToast(m);
-        break;
-      }
-    }
-
-    if (Math.abs(clamped - target) > 0.1) {
-      rafRef.current = requestAnimationFrame(tick);
-    } else {
-      setAnimPct(target);
-      rafRef.current = null;
-    }
-  };
-
-  const showToast = (m: number) => {
-    const msg =
-      m === 1
-        ? "Nice start 👏"
-        : m === 25
-        ? "Good momentum 💪"
-        : m === 50
-        ? "Halfway there 🔥"
-        : m === 75
-        ? "Almost done 🙌"
-        : "Finished! 🎉";
-    setToast(msg);
-    window.clearTimeout((showToast as any)._t);
-    (showToast as any)._t = window.setTimeout(() => setToast(null), 1400);
-  };
+  const lastPctRef = useRef<number>(-1);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   useEffect(() => {
-    // initial measurement
-    measure();
+    if (typeof window === "undefined") return;
 
-    const onScroll = () => {
-      // update target quickly and start animation loop if needed
-      measure();
-      if (rafRef.current == null) {
-        rafRef.current = requestAnimationFrame(tick);
-      }
+    const el = document.getElementById(targetId) || document.documentElement;
+
+    const compute = () => {
+      const rect = el.getBoundingClientRect();
+      const topY = window.scrollY + rect.top;
+      const total = Math.max(1, el.scrollHeight - window.innerHeight);
+      const current = Math.min(Math.max(window.scrollY - topY, 0), total);
+      return Math.round((current / total) * 100);
     };
 
-    const onResize = () => {
-      measure();
-      if (rafRef.current == null) {
-        rafRef.current = requestAnimationFrame(tick);
-      }
+    const schedule = () => {
+      if (rafRef.current != null) return;
+      rafRef.current = window.requestAnimationFrame(() => {
+        rafRef.current = null;
+        const pct = compute();
+        if (pct !== lastPctRef.current) {
+          lastPctRef.current = pct;
+          setProgress(pct);
+        }
+      });
     };
 
-    // first paint nudge
-    rafRef.current = requestAnimationFrame(tick);
+    schedule();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onResize);
+    if ("ResizeObserver" in window) {
+      resizeObserverRef.current = new ResizeObserver(schedule);
+      resizeObserverRef.current.observe(el);
+    }
+
     return () => {
-      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onResize);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (resizeObserverRef.current) resizeObserverRef.current.disconnect();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // no props — one-line import API
+  }, [targetId]);
 
-  // accessibility (live value)
-  const aNow = Math.round(animPct);
+  // Color shifts: 0% (red) → 50% (amber) → 100% (green)
+  // We’ll compute an H (hue) from ~0 to ~135 and pass as CSS var.
+  const hue = Math.round((progress / 100) * 135); // 0=red, 135=green
+  const pctClamp = Math.max(0, Math.min(progress, 100));
+  const pctScale = pctClamp / 100;
 
-  // placement
-  const fixedPos = "fixed left-0 right-0 top-0"; // change to bottom-0 if you prefer
+  // Badge positioning — keep it inside screen bounds
+  const badgeTranslate = `calc(${pctClamp}% - 18px)`; // center ~36px wide badge
+
+  const milestones = [25, 50, 75, 100];
 
   return (
-    <div className={`${fixedPos} z-50 pointer-events-none`} aria-hidden="true">
-      {/* Track: set text color so the bar can use currentColor (bw only) */}
+    <div
+      aria-hidden
+      className={[
+        "pointer-events-none fixed inset-x-0",
+        // keep under the browser’s safe area
+        zIndexClassName,
+      ].join(" ")}
+      style={{
+        top: `max(env(safe-area-inset-top, 0px), 0px)`,
+      }}
+    >
+      {/* Track */}
       <div
-        className="
-          mx-auto w-full
-          h-[3px] md:h-[4px]
-          text-black dark:text-white
-          bg-transparent
-          shadow-[0_1px_0_0_rgba(0,0,0,0.08)] dark:shadow-[0_1px_0_0_rgba(255,255,255,0.15)]
-        "
+        className={[
+          "mx-0",
+          heightClassName,
+          "bg-[rgba(0,0,0,0.06)] dark:bg-[rgba(255,255,255,0.08)]",
+          "backdrop-blur-[2px]",
+          "relative overflow-visible",
+        ].join(" ")}
+        // rounded container
+        style={{ borderRadius: 9999 }}
       >
-        {/* Bar: GPU-friendly transform for ultra-smooth motion */}
+        {/* Filled bar (GPU, scaleX) */}
         <div
-          className="
-            h-full origin-left will-change-transform
-            [transition:transform_120ms_linear]
-            md:[transition:transform_100ms_linear]
-            rounded-r
-          "
+          className={[
+            "absolute left-0 top-0 h-full w-full origin-left will-change-transform",
+            "transition-[transform] duration-150 ease-out motion-reduce:transition-none",
+            "rounded-r-full",
+          ].join(" ")}
           style={{
-            transform: `translateZ(0) scaleX(${Math.max(0, Math.min(1, animPct / 100))})`,
-            background: "currentColor",
+            transform: `scaleX(${pctScale})`,
           }}
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={aNow}
-          aria-label="Reading progress"
-        />
+        >
+          {/* Color layer: dynamic gradient following progress */}
+          <div
+            className="h-full w-full rounded-r-full"
+            style={{
+              // use a lively multi-stop gradient; hue anchors at --p
+              // we also add a subtle top highlight via layered gradients
+              background: `
+                linear-gradient(
+                  90deg,
+                  hsl(${Math.max(hue - 20, 0)} 90% 50%) 0%,
+                  hsl(${hue} 90% 50%) 50%,
+                  hsl(${Math.min(hue + 30, 150)} 90% 45%) 100%
+                )
+              `,
+              boxShadow: showGlow
+                ? `0 0 14px hsl(${hue} 90% 60% / 0.55), 0 2px 8px rgba(0,0,0,0.2)`
+                : undefined,
+            }}
+          />
+
+          {/* Optional animated stripes for motion depth (respects reduced motion) */}
+          {showStripes && (
+            <div
+              className={[
+                "absolute inset-0 rounded-r-full mix-blend-overlay",
+                "motion-reduce:hidden",
+              ].join(" ")}
+              style={{
+                backgroundImage:
+                  "linear-gradient(45deg, rgba(255,255,255,0.18) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.18) 75%, transparent 75%, transparent)",
+                backgroundSize: "28px 28px",
+                animation: "rp-stripes 1.2s linear infinite",
+              }}
+            />
+          )}
+        </div>
+
+        {/* Milestone ticks */}
+        {showMilestones && (
+          <div className="absolute inset-0">
+            {milestones.map((m) => {
+              const active = progress >= m;
+              return (
+                <div
+                  key={m}
+                  className="absolute top-1/2 -translate-y-1/2"
+                  style={{ left: `${m}%` }}
+                >
+                  <div
+                    className={[
+                      "w-[2px] h-3 -translate-x-1/2",
+                      active
+                        ? "bg-[rgba(0,0,0,0.45)] dark:bg-[rgba(255,255,255,0.5)]"
+                        : "bg-[rgba(0,0,0,0.2)] dark:bg-[rgba(255,255,255,0.25)]",
+                    ].join(" ")}
+                  />
+                  <div
+                    className={[
+                      "mt-1 text-[10px] leading-none select-none",
+                      active
+                        ? "text-[rgba(0,0,0,0.65)] dark:text-[rgba(255,255,255,0.8)]"
+                        : "text-[rgba(0,0,0,0.4)] dark:text-[rgba(255,255,255,0.45)]",
+                    ].join(" ")}
+                  >
+                    {m}%
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Floating % badge that hugs the leading edge */}
+        {showPercentBadge && (
+          <div
+            className={[
+              "absolute -top-7",
+              "min-w-[36px] px-1.5 py-0.5",
+              "rounded-md text-[11px] font-medium",
+              "shadow-sm border",
+              "bg-white/90 text-neutral-800 border-black/10",
+              "dark:bg-neutral-900/85 dark:text-neutral-100 dark:border-white/10",
+              "transition-transform duration-150",
+            ].join(" ")}
+            style={{
+              transform: `translateX(${badgeTranslate})`,
+            }}
+          >
+            {progress}%
+          </div>
+        )}
       </div>
 
-      {/* Tiny end cap (subtle “spark” for motivation) */}
-      <div
-        className="absolute top-1 md:top-1.5 h-2 w-2 rounded-full bg-black dark:bg-white shadow-sm"
-        style={{
-          left: `calc(${animPct}% - 4px)`,
-          opacity: animPct > 0 && animPct < 100 ? 1 : 0,
-          transition: "left 120ms linear, opacity 200ms ease",
-        }}
-      />
-
-      {/* Toast (brief motivational nudge) */}
-      <div
-        className={`
-          absolute right-3 top-3 md:top-2
-          px-3 py-1.5 rounded-full text-xs md:text-sm font-medium
-          bg-black text-white dark:bg-white dark:text-black
-          shadow-sm select-none
-          transition
-          ${toast ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}
-        `}
-        style={{ pointerEvents: "none" }}
-        aria-live="polite"
-      >
-        {toast || ""}
-      </div>
-
-      {/* Respect reduced motion: drop transitions */}
+      {/* Keyframes (scoped) */}
       <style jsx>{`
-        @media (prefers-reduced-motion: reduce) {
-          .origin-left {
-            transition: none !important;
+        @keyframes rp-stripes {
+          0% {
+            background-position: 0 0;
           }
-          .transition {
-            transition: none !important;
+          100% {
+            background-position: 28px 0;
           }
         }
       `}</style>

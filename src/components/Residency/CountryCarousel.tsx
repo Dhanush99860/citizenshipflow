@@ -302,7 +302,7 @@ function FeatureList({
     })();
 
   return (
-    <section className="max-w-screen-xl mx-auto py-6 px-4 bg-[var(--c-bg)] text-[var(--c-text)]">
+    <div className="py-8 lg:max-w-screen-2xl bg-[var(--c-bg)] text-[var(--c-text)]">
       {/* Header */}
       <div className="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
@@ -489,7 +489,7 @@ function FeatureList({
       {seoItemListJsonLd && jsonLd && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       )}
-    </section>
+    </div>
   );
 }
 
@@ -587,7 +587,7 @@ export default function CountryCarousel({
 
   // ====== Carousel (unchanged) ======
   return (
-    <section className="max-w-screen-xl mx-auto py-6 px-4 bg-[var(--c-bg)] text-[var(--c-text)]">
+    <section className="py-8 container lg:max-w-screen-2xl bg-[var(--c-bg)] text-[var(--c-text)]">
       <ThemeVars />
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
         <div className="max-w-2xl">

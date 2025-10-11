@@ -68,8 +68,21 @@ export default function HeaderLink({ item }: Props) {
   const hoverTimer = React.useRef<number | null>(null);
   const lastTapOrClickRef = React.useRef<number>(0);
 
-  const id = React.useId();
-  const isActive = !!item.href && (pathname === item.href || pathname?.startsWith(item.href + '/'));
+  // Deterministic, SSR-safe id (replaces useId to avoid hydration mismatch)
+  const stableId = React.useMemo(() => {
+    const base =
+      (item as any).id ??
+      item.href ??
+      item.label ??
+      Math.random().toString(36).slice(2); // last fallback; ideally never used
+    return String(base)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/gi, '-')
+      .replace(/(^-|-$)/g, '');
+  }, [item]);
+
+  const isActive =
+    !!item.href && (pathname === item.href || pathname?.startsWith(item.href + '/'));
   const hasMenu = Array.isArray(item.submenu) && item.submenu.length > 0;
   const isRealLink = typeof item.href === 'string' && item.href.length > 0;
 
@@ -157,7 +170,8 @@ export default function HeaderLink({ item }: Props) {
   // Styles (compact pill, premium look)
   const basePill =
     'relative inline-flex items-center gap-1 rounded-xl px-3 py-2 text-[14px] font-medium leading-6 outline-none transition-colors';
-  const colorIdle = 'text-white/90 hover:text-white focus-visible:ring-2 focus-visible:ring-white/40';
+  const colorIdle =
+    'text-white/90 hover:text-white focus-visible:ring-2 focus-visible:ring-white/40';
   const colorActive =
     'text-white after:pointer-events-none after:absolute after:left-3 after:right-3 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-white/80';
   const pillBg = isActive ? 'bg-white/10 ring-1 ring-white/10' : 'hover:bg-white/10';
@@ -177,7 +191,7 @@ export default function HeaderLink({ item }: Props) {
           className={[basePill, pillBg, isActive ? colorActive : colorIdle].join(' ')}
           aria-haspopup={hasMenu ? 'menu' : undefined}
           aria-expanded={hasMenu ? open : undefined}
-          aria-controls={hasMenu ? `mega-${id}` : undefined}
+          aria-controls={hasMenu ? `mega-${stableId}` : undefined}
           onKeyDown={onKeyDown}
           onClick={hasMenu ? onClickLabel : undefined}
           onTouchStart={hasMenu ? onTouchStart : undefined}
@@ -191,7 +205,7 @@ export default function HeaderLink({ item }: Props) {
           className={[basePill, pillBg, isActive ? colorActive : colorIdle].join(' ')}
           aria-haspopup={hasMenu ? 'menu' : undefined}
           aria-expanded={hasMenu ? open : undefined}
-          aria-controls={hasMenu ? `mega-${id}` : undefined}
+          aria-controls={hasMenu ? `mega-${stableId}` : undefined}
           onKeyDown={onKeyDown}
           onClick={hasMenu ? () => setOpen((s) => !s) : undefined}
           onTouchStart={hasMenu ? onTouchStart : undefined}
@@ -205,13 +219,15 @@ export default function HeaderLink({ item }: Props) {
         <button
           type="button"
           aria-label={open ? `Close ${item.label} menu` : `Open ${item.label} menu`}
-          aria-controls={`mega-${id}`}
+          aria-controls={`mega-${stableId}`}
           aria-expanded={open}
           onClick={() => setOpen((s) => !s)}
           className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1.5 rounded-lg p-1 text-white/90 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 lg:hidden"
         >
           <svg
-            className={`h-4 w-4 transition-transform ${reducedMotion ? '' : 'duration-200'} ${open ? 'rotate-180' : ''}`}
+            className={`h-4 w-4 transition-transform ${
+              reducedMotion ? '' : 'duration-200'
+            } ${open ? 'rotate-180' : ''}`}
             viewBox="0 0 20 20"
             fill="currentColor"
             aria-hidden
@@ -223,7 +239,7 @@ export default function HeaderLink({ item }: Props) {
 
       {/* Mega panel */}
       {hasMenu && (
-        <div id={`mega-${id}`} role="region" aria-label={`${item.label} menu`}>
+        <div id={`mega-${stableId}`} role="region" aria-label={`${item.label} menu`}>
           <MegaPanel
             rootLabel={item.label}
             columns={item.submenu!}
