@@ -1,26 +1,299 @@
-import fs from "node:fs";
-import path from "node:path";
-import EligibilityWizard from "./components/EligibilityWizard";
+import * as React from "react";
+import type { Metadata } from "next";
+import Link from "next/link";
+import Script from "next/script";
+import Flow from "./Flow";
+import EligibilityHero from "@/components/Eligibility/EligibilityHero";
+/* ── SEO ─────────────────────────────────────────────────────────────── */
+export const metadata: Metadata = {
+  title:
+    "Free Immigration Eligibility Check | Residency • Citizenship • Corporate • Skilled",
+  description:
+    "Interactive global eligibility quiz. Answer a few smart questions and get instant results plus a personalized PDF by email.",
+  alternates: { canonical: "/eligibility" },
+};
 
-function readSchema(name: string) {
-  const file = path.join(
-    process.cwd(),
-    "src",
-    "app",
-    "(site)",
-    "eligibility",
-    "schema",
-    `${name}.json`,
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "Is this assessment free?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes. It’s a free preliminary assessment to guide your next steps.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How accurate are the results?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "They’re indicative and based on your answers. Final outcomes depend on official review.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Do I need to share my email to see full results?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes—after a quick preview, enter your name and email to unlock full results and download your personalized PDF.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How long does it take?",
+      acceptedAnswer: { "@type": "Answer", text: "Typically 2–4 minutes." },
+    },
+    {
+      "@type": "Question",
+      name: "Is my data secure?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "We keep your information confidential and never sell it to third parties.",
+      },
+    },
+  ],
+};
+
+/* ── Inline icons (no deps) ──────────────────────────────────────────── */
+function IconZap(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      {...props}
+    >
+      <path d="M13 3L4 14h7l-1 7 9-11h-7l1-7z" />
+    </svg>
   );
-  return JSON.parse(fs.readFileSync(file, "utf8"));
+}
+function IconShield(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      {...props}
+    >
+      <path d="M12 22c6-3 8-6 8-10V5l-8-3-8 3v7c0 4 2 7 8 10z" />
+    </svg>
+  );
+}
+function IconFileText(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      {...props}
+    >
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <path d="M14 2v6h6" />
+      <path d="M16 13H8" />
+      <path d="M16 17H8" />
+      <path d="M10 9H8" />
+    </svg>
+  );
+}
+function IconPlus(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="14"
+      height="14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      {...props}
+    >
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+function IconMinus(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="14"
+      height="14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      {...props}
+    >
+      <path d="M5 12h14" />
+    </svg>
+  );
 }
 
+/* ── Page ────────────────────────────────────────────────────────────── */
 export default function EligibilityPage() {
-  const schema = readSchema("residency"); // add more schemas later
   return (
-    <main className="mx-auto max-w-3xl p-6 space-y-6">
-      <h1 className="text-3xl font-semibold">Eligibility Checker</h1>
-      <EligibilityWizard schema={schema} />
-    </main>
+    <>
+      <Script
+        id="faq-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+
+      <main className="bg-white text-black dark:bg-black dark:text-white">
+        {/* Single container wrapper */}
+        <section className="container mx-auto lg:max-w-screen-2xl px-3 sm:px-4">
+          {/* HERO (monochrome copy, responsive CTAs) */}
+          <section className="py-6 text-center">
+          <EligibilityHero />
+          </section>
+
+          {/* FLOW frame — ensure children cannot overflow on small screens */}
+          <section id="start" className="scroll-mt-24">
+            <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-500 p-[1px] shadow-sm">
+              {/* min-w-0 + overflow-hidden keep Flow content contained */}
+              <div className="rounded-2xl bg-white dark:bg-black min-w-0 overflow-hidden">
+                {/* meta chips (wrap on mobile) */}
+                <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 md:px-5 md:py-3">
+                  <h2 className="text-base md:text-xl font-semibold">
+                    Start your free eligibility check
+                  </h2>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-black/5 dark:bg-white/10 px-2 py-1 text-[11px] font-medium ring-1 ring-black/10 dark:ring-white/10">
+                      <IconZap /> 2–4 min
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-black/5 dark:bg-white/10 px-2 py-1 text-[11px] font-medium ring-1 ring-black/10 dark:ring-white/10">
+                      <IconFileText /> Instant results + PDF
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-black/5 dark:bg-white/10 px-2 py-1 text-[11px] font-medium ring-1 ring-black/10 dark:ring-white/10">
+                      <IconShield /> Secure
+                    </span>
+                  </div>
+                </div>
+
+                {/* Flow itself */}
+                <div className=" pb-4 pt-2 md:pb-4">
+                  {/* Wrapper guards to avoid inner component width issues */}
+                  <div className="min-w-0">
+                    <Flow />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Micro-benefits: mobile 2-col grid (no overlap), desktop 3-col */}
+          <section className="mt-4">
+            <div className="md:grid md:grid-cols-3 md:gap-3">
+              <div className="grid grid-cols-2 gap-2 md:contents">
+                <div className="rounded-xl ring-1 ring-black/10 dark:ring-white/10 bg-white dark:bg-black px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <IconZap />
+                    <span className="font-semibold">Fast</span>
+                  </div>
+                  <p className="mt-1 text-xs md:text-sm">Finish in 2–4 minutes.</p>
+                </div>
+                <div className="rounded-xl ring-1 ring-black/10 dark:ring-white/10 bg-white dark:bg-black px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <IconFileText />
+                    <span className="font-semibold">Detailed PDF</span>
+                  </div>
+                  <p className="mt-1 text-xs md:text-sm">
+                    Personalized report after the quiz.
+                  </p>
+                </div>
+                {/* Desktop third card spans alone */}
+                <div className="hidden md:block rounded-xl ring-1 ring-black/10 dark:ring-white/10 bg-white dark:bg-black px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <IconShield />
+                    <span className="font-semibold">Private</span>
+                  </div>
+                  <p className="mt-1 text-sm">Your data stays confidential.</p>
+                </div>
+              </div>
+              {/* Mobile third card below */}
+              <div className="md:hidden mt-2 rounded-xl ring-1 ring-black/10 dark:ring-white/10 bg-white dark:bg-black px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <IconShield />
+                  <span className="font-semibold">Private</span>
+                </div>
+                <p className="mt-1 text-xs">Your data stays confidential.</p>
+              </div>
+            </div>
+          </section>
+
+          {/* FAQ (compact +/– accordion) */}
+          <section className="mt-8 mb-12">
+            <h2 className="text-base md:text-lg font-semibold">FAQ</h2>
+            <div className="mt-3 overflow-hidden rounded-2xl ring-1 ring-black/10 dark:ring-white/10 divide-y">
+              <details className="group open:bg-black/[0.02] dark:open:bg-white/[0.04]">
+                <summary className="list-none flex items-center justify-between px-4 md:px-5 py-3 md:py-4 cursor-pointer select-none">
+                  <span className="font-medium">Is this assessment free?</span>
+                  <span className="ml-4 inline-flex h-6 w-6 items-center justify-center rounded-md ring-1 ring-black/15 dark:ring-white/25">
+                    <IconPlus className="group-open:hidden" />
+                    <IconMinus className="hidden group-open:inline-block" />
+                  </span>
+                </summary>
+                <div className="px-4 md:px-5 pb-4 md:pb-5 text-sm">
+                  Yes. It’s a free preliminary assessment to guide your next steps.
+                </div>
+              </details>
+
+              <details className="group open:bg-black/[0.02] dark:open:bg-white/[0.04]">
+                <summary className="list-none flex items-center justify-between px-4 md:px-5 py-3 md:py-4 cursor-pointer select-none">
+                  <span className="font-medium">How accurate are the results?</span>
+                  <span className="ml-4 inline-flex h-6 w-6 items-center justify-center rounded-md ring-1 ring-black/15 dark:ring-white/25">
+                    <IconPlus className="group-open:hidden" />
+                    <IconMinus className="hidden group-open:inline-block" />
+                  </span>
+                </summary>
+                <div className="px-4 md:px-5 pb-4 md:pb-5 text-sm">
+                  They’re indicative and based on your answers. Final outcomes depend on official review.
+                </div>
+              </details>
+
+              <details className="group open:bg-black/[0.02] dark:open:bg-white/[0.04]">
+                <summary className="list-none flex items-center justify-between px-4 md:px-5 py-3 md:py-4 cursor-pointer select-none">
+                  <span className="font-medium">
+                    Do I need to share my email to see full results?
+                  </span>
+                  <span className="ml-4 inline-flex h-6 w-6 items-center justify-center rounded-md ring-1 ring-black/15 dark:ring-white/25">
+                    <IconPlus className="group-open:hidden" />
+                    <IconMinus className="hidden group-open:inline-block" />
+                  </span>
+                </summary>
+                <div className="px-4 md:px-5 pb-4 md:pb-5 text-sm">
+                  You’ll see a preview first. Enter your name and email to unlock
+                  full results and download your personalized PDF.
+                </div>
+              </details>
+            </div>
+          </section>
+        </section>
+
+        {/* Sticky mobile CTA (stays above content, no overlap) */}
+        <div className="fixed inset-x-0 bottom-3 z-30 mx-auto w-full px-4 sm:hidden">
+          <div className="mx-auto max-w-md rounded-xl ring-1 ring-black/10 dark:ring-white/10 bg-white/95 dark:bg-black/90 backdrop-blur px-3 py-2 shadow">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm font-medium">Ready to start?</span>
+              <a
+                href="#start"
+                className="rounded-lg bg-black text-white dark:bg-white dark:text-black px-3 py-1.5 text-sm font-medium"
+              >
+                Start Free Check
+              </a>
+            </div>
+          </div>
+        </div>
+      </main>
+    </>
   );
 }

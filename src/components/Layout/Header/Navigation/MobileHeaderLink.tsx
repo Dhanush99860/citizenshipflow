@@ -33,18 +33,23 @@ function useReducedMotionStable() {
   return reduced;
 }
 
+/** Slugify a string for safe IDs */
+const slug = (s: string) =>
+  s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
 /* -------------------------------------------------
    Accordion
 -------------------------------------------------- */
 
 type AccordionProps = {
   open: boolean;
-  id: string;
+  id: string;           // panel id
+  labelId: string;      // id of the controlling label element
   reduced: boolean;
   children: React.ReactNode;
 };
 
-const Accordion = ({ open, id, reduced, children }: AccordionProps) => {
+const Accordion = ({ open, id, labelId, reduced, children }: AccordionProps) => {
   const variants = { collapsed: { height: 0, opacity: 0 }, open: { height: 'auto', opacity: 1 } } as const;
 
   return (
@@ -54,7 +59,7 @@ const Accordion = ({ open, id, reduced, children }: AccordionProps) => {
           key={id}
           id={id}
           role="region"
-          aria-labelledby={`${id}-label`}
+          aria-labelledby={labelId}
           className="overflow-hidden"
           initial="collapsed"
           animate="open"
@@ -76,15 +81,18 @@ const Accordion = ({ open, id, reduced, children }: AccordionProps) => {
 type NodeProps = {
   item: SubmenuItem;
   depth: number;
+  path: string; // stable index path from root, e.g., "0-2-1"
   closeMenuAction?: () => void;
   reduced: boolean;
 };
 
-const Node = ({ item, depth, closeMenuAction, reduced }: NodeProps) => {
+const Node = ({ item, depth, path, closeMenuAction, reduced }: NodeProps) => {
   const [open, setOpen] = React.useState(false);
   const hasKids = Array.isArray(item.submenu) && item.submenu.length > 0;
 
-  const id = React.useId();
+  // Stable base id derived from data + structural path (SSR-safe)
+  const baseId = React.useMemo(() => `mh-${path}-${slug(item.label)}`, [path, item.label]);
+
   const padLeft = Math.min(16 + depth * 14, 48);
 
   // autofocus first child when expanding
@@ -126,7 +134,7 @@ const Node = ({ item, depth, closeMenuAction, reduced }: NodeProps) => {
       >
         {/* Label link — if leaf, closes menu on click */}
         <Link
-          id={`${id}-label`}
+          id={`${baseId}-label`}
           href={item.href}
           className="flex min-h-[46px] flex-1 items-center py-2 text-[15px] text-zinc-900 outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:text-zinc-100"
           onClick={() => {
@@ -140,7 +148,7 @@ const Node = ({ item, depth, closeMenuAction, reduced }: NodeProps) => {
         {hasKids && (
           <button
             type="button"
-            aria-controls={`${id}-panel`}
+            aria-controls={`${baseId}-panel`}
             aria-expanded={open}
             onClick={toggle}
             onKeyDown={onChevronKey}
@@ -161,13 +169,14 @@ const Node = ({ item, depth, closeMenuAction, reduced }: NodeProps) => {
 
       {/* Nested children */}
       {hasKids && (
-        <Accordion open={open} id={`${id}-panel`} reduced={reduced}>
+        <Accordion open={open} id={`${baseId}-panel`} labelId={`${baseId}-label`} reduced={reduced}>
           <ul className="pb-2">
             {item.submenu!.map((child, i) => (
               <Node
                 key={`${child.label}-${i}`}
                 item={child}
                 depth={depth + 1}
+                path={`${path}-${i}`}
                 closeMenuAction={closeMenuAction}
                 reduced={reduced}
               />
@@ -196,7 +205,7 @@ export default function MobileHeaderLink({
   const reduced = useReducedMotionStable(); // single call — passed down to all Nodes
   return (
     <ul role="list" className="m-0 p-0">
-      <Node item={item} depth={0} closeMenuAction={closeMenuAction} reduced={reduced} />
+      <Node item={item} depth={0} path="0" closeMenuAction={closeMenuAction} reduced={reduced} />
     </ul>
   );
 }

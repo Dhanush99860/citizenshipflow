@@ -70,7 +70,7 @@ const Hero = () => {
             {/* ✅ Buttons with accessible roles */}
             <div className="flex items-center md:justify-start justify-center gap-4 md:gap-8">
               <Link
-                href="/eligibility-check"
+                href="/eligibility"
                 aria-label="Check your visa eligibility"
                 className="bg-secondary border border-secondary rounded-lg 
                 text-base md:text-[21px] leading-tight md:leading-normal 
@@ -82,7 +82,7 @@ const Hero = () => {
               </Link>
 
               <Link
-                href="/downloads/guide.pdf"
+                href="/images/residency/xiphias-corporate-mobility.pdf"
                 aria-label="Download immigration guide"
                 className="bg-transparent border border-secondary rounded-lg 
                 text-base md:text-[21px] leading-tight md:leading-normal 
