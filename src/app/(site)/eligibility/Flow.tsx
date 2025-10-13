@@ -305,16 +305,15 @@ export default function Flow() {
                   transition={reduceMotion ? undefined : SPRING}
                   className="mt-2"
                 >
-                  {questions[stepIndex] && (
-                    <QuestionCard
-                      question={questions[stepIndex]}
-                      value={answers[questions[stepIndex].key]}
-                      onSubmitAction={(val) =>
-                        onAnswer(questions[stepIndex].key, val)
-                      }
-                      onBackAction={back}
-                    />
-                  )}
+                  {Boolean(questions[stepIndex]) ? (
+  <QuestionCard
+    question={questions[stepIndex]!}
+    value={answers[questions[stepIndex]!.key]}
+    onSubmitAction={(val) => onAnswer(questions[stepIndex]!.key, val)}
+    onBackAction={back}
+  />
+) : null}
+
                 </motion.div>
               </Section>
             )}
@@ -335,17 +334,18 @@ export default function Flow() {
                 </div>
 
                 <div className="relative z-10 pointer-events-auto">
-                  <LeadGate
-                    track={track}
-                    answers={answers}
-                    name={name}
-                    setName={setName}
-                    email={email}
-                    setEmail={setEmail}
-                    phone={phone}
-                    setPhone={setPhone}
-                    onSubmit={() => void submitLead()}
-                  />
+                <LeadGate
+  track={track}
+  answers={answers}
+  name={name}
+  setName={setName}
+  email={email}
+  setEmail={setEmail}
+  phone={phone}
+  setPhone={setPhone}
+  onSubmitAction={submitLead}   // ← use it directly
+/>
+
                 </div>
               </Section>
             )}
