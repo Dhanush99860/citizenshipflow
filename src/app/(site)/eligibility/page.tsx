@@ -1,9 +1,10 @@
 import * as React from "react";
+import { Suspense } from "react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import Script from "next/script";
 import Flow from "./Flow";
 import EligibilityHero from "@/components/Eligibility/EligibilityHero";
+
 /* ── SEO ─────────────────────────────────────────────────────────────── */
 export const metadata: Metadata = {
   title:
@@ -12,6 +13,10 @@ export const metadata: Metadata = {
     "Interactive global eligibility quiz. Answer a few smart questions and get instant results plus a personalized PDF by email.",
   alternates: { canonical: "/eligibility" },
 };
+
+/** Ensure this page is rendered dynamically (avoids SSG + searchParams bailouts) */
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const faqJsonLd = {
   "@context": "https://schema.org",
@@ -151,17 +156,16 @@ export default function EligibilityPage() {
       <main className="bg-white text-black dark:bg-black dark:text-white">
         {/* Single container wrapper */}
         <section className="container mx-auto lg:max-w-screen-2xl px-3 sm:px-4">
-          {/* HERO (monochrome copy, responsive CTAs) */}
+          {/* HERO */}
           <section className="py-6 text-center">
-          <EligibilityHero />
+            <EligibilityHero />
           </section>
 
-          {/* FLOW frame — ensure children cannot overflow on small screens */}
+          {/* FLOW frame */}
           <section id="start" className="scroll-mt-24">
             <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-500 p-[1px] shadow-sm">
-              {/* min-w-0 + overflow-hidden keep Flow content contained */}
               <div className="rounded-2xl bg-white dark:bg-black min-w-0 overflow-hidden">
-                {/* meta chips (wrap on mobile) */}
+                {/* meta chips */}
                 <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 md:px-5 md:py-3">
                   <h2 className="text-base md:text-xl font-semibold">
                     Start your free eligibility check
@@ -179,18 +183,25 @@ export default function EligibilityPage() {
                   </div>
                 </div>
 
-                {/* Flow itself */}
-                <div className=" pb-4 pt-2 md:pb-4">
-                  {/* Wrapper guards to avoid inner component width issues */}
+                {/* Flow (client) wrapped in Suspense for useSearchParams */}
+                <div className="pb-4 pt-2 md:pb-4">
                   <div className="min-w-0">
-                    <Flow />
+                    <Suspense
+                      fallback={
+                        <div className="px-3 md:px-5 pb-4">
+                          <div className="rounded-xl ring-1 ring-black/10 dark:ring-white/10 bg-black/5 dark:bg-white/10 h-28 animate-pulse" />
+                        </div>
+                      }
+                    >
+                      <Flow />
+                    </Suspense>
                   </div>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* Micro-benefits: mobile 2-col grid (no overlap), desktop 3-col */}
+          {/* Micro-benefits */}
           <section className="mt-4">
             <div className="md:grid md:grid-cols-3 md:gap-3">
               <div className="grid grid-cols-2 gap-2 md:contents">
@@ -210,7 +221,7 @@ export default function EligibilityPage() {
                     Personalized report after the quiz.
                   </p>
                 </div>
-                {/* Desktop third card spans alone */}
+                {/* Desktop third card */}
                 <div className="hidden md:block rounded-xl ring-1 ring-black/10 dark:ring-white/10 bg-white dark:bg-black px-4 py-3">
                   <div className="flex items-center gap-2">
                     <IconShield />
@@ -219,7 +230,7 @@ export default function EligibilityPage() {
                   <p className="mt-1 text-sm">Your data stays confidential.</p>
                 </div>
               </div>
-              {/* Mobile third card below */}
+              {/* Mobile third card */}
               <div className="md:hidden mt-2 rounded-xl ring-1 ring-black/10 dark:ring-white/10 bg-white dark:bg-black px-4 py-3">
                 <div className="flex items-center gap-2">
                   <IconShield />
@@ -230,7 +241,7 @@ export default function EligibilityPage() {
             </div>
           </section>
 
-          {/* FAQ (compact +/– accordion) */}
+          {/* FAQ */}
           <section className="mt-8 mb-12">
             <h2 className="text-base md:text-lg font-semibold">FAQ</h2>
             <div className="mt-3 overflow-hidden rounded-2xl ring-1 ring-black/10 dark:ring-white/10 divide-y">
@@ -279,7 +290,7 @@ export default function EligibilityPage() {
           </section>
         </section>
 
-        {/* Sticky mobile CTA (stays above content, no overlap) */}
+        {/* Sticky mobile CTA */}
         <div className="fixed inset-x-0 bottom-3 z-30 mx-auto w-full px-4 sm:hidden">
           <div className="mx-auto max-w-md rounded-xl ring-1 ring-black/10 dark:ring-white/10 bg-white/95 dark:bg-black/90 backdrop-blur px-3 py-2 shadow">
             <div className="flex items-center justify-between gap-2">
