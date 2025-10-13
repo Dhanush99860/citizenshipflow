@@ -30,7 +30,7 @@ const SPRING = { type: "spring", stiffness: 340, damping: 32, mass: 0.72 };
 
 const UI = {
   surface:
-    "relative isolate rounded-3xl ring-1 ring-black/10 dark:ring-white/10 bg-white dark:bg-black",
+    "rounded-2xl ring-1 ring-black/10 dark:ring-white/10 bg-white dark:bg-black",
   pad: "px-3 py-3 md:px-4 md:py-4",
 };
 
@@ -58,9 +58,12 @@ export default function Flow() {
           STORAGE_KEY,
           JSON.stringify({ track, stage, answers, stepIndex, name, email, phone })
         );
-      } catch {}
+      } catch {
+        /* noop */
+      }
     }, 150);
   }, [track, stage, answers, stepIndex, name, email, phone]);
+
   useEffect(() => {
     scheduleSave();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -95,7 +98,9 @@ export default function Flow() {
           setPhone(s.phone ?? "");
         }
       }
-    } catch {}
+    } catch {
+      /* noop */
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -132,43 +137,46 @@ export default function Flow() {
       trackEvent("select_track", { track: t });
 
       const nav = `/eligibility?track=${t}`;
-      replaceOnly ? router.replace(nav, { scroll: false }) : router.push(nav, { scroll: false });
+      if (replaceOnly) router.replace(nav, { scroll: false });
+      else router.push(nav, { scroll: false });
 
       requestAnimationFrame(() => {
         const el = shellRef.current;
         if (!el) return;
         el.style.scrollMarginTop = "12px";
-        el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+        el.scrollIntoView({
+          behavior: reduceMotion ? "auto" : "smooth",
+          block: "start",
+        });
       });
     },
     [reduceMotion, router]
   );
 
-  /** Clear to select & remove ?track from URL (works for both Back & Change pathway) */
+  /** Back to select + remove ?track from URL */
   const goToSelect = useCallback(() => {
-    // reset state first
     setTrack(null);
     setStage("select");
     setAnswers({});
     setStepIndex(0);
 
-    // remove ?track immediately in the address bar (ensures SearchParams snapshot updates next render)
     try {
       const url = new URL(window.location.href);
       if (url.searchParams.has("track")) {
         url.searchParams.delete("track");
         window.history.replaceState({}, "", url.pathname + url.search);
       }
-    } catch {}
+    } catch {
+      /* noop */
+    }
     router.replace("/eligibility", { scroll: false });
   }, [router]);
 
-  /* keep URL and state in sync if user lands on a new track via URL */
+  /* keep URL and state in sync */
   useEffect(() => {
     const urlTrack = search.get("track") as Track | null;
     if (urlTrack && urlTrack !== track) {
       startTrack(urlTrack, true);
-      return;
     }
   }, [search, track, startTrack]);
 
@@ -188,11 +196,8 @@ export default function Flow() {
 
   const back = useCallback(() => {
     if (stage === "quiz") {
-      if (stepIndex > 0) {
-        setStepIndex((i) => i - 1);
-      } else {
-        goToSelect(); // back from first question → select
-      }
+      if (stepIndex > 0) setStepIndex((i) => i - 1);
+      else goToSelect();
       return;
     }
     if (stage === "lead") {
@@ -201,11 +206,9 @@ export default function Flow() {
     }
     if (stage === "result") {
       setStage("lead");
-      return;
     }
   }, [stage, stepIndex, goToSelect]);
 
-  /* keyboard back */
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
       if (e.key === "Escape" || e.key === "ArrowLeft") back();
@@ -222,7 +225,9 @@ export default function Flow() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-    } catch {}
+    } catch {
+      /* ignore network errors for now */
+    }
     setStage("result");
     trackEvent("result_viewed", { track });
   }, [name, email, phone, track, answers]);
@@ -231,16 +236,13 @@ export default function Flow() {
   return (
     <div ref={shellRef} className="w-full">
       <div className={`${UI.surface} overflow-hidden`}>
-        {/* premium hairline */}
         <div className="h-0.5 w-full bg-gradient-to-r from-blue-600 to-indigo-500" />
-
         <div className={`${UI.pad}`}>
           <AnimatePresence mode="wait" initial={false}>
             {/* SELECT */}
-            {stage === "select" && (
+            {stage === "select" ? (
               <Section key="select">
-                {/* 1-up (mobile) → 2-up (sm) → 4-up (md+) */}
-                <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 min-w-0">
+                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 min-w-0">
                   <Tile>
                     <CategoryTile title="Residency" onClickAction={() => startTrack("residency")} />
                   </Tile>
@@ -255,10 +257,10 @@ export default function Flow() {
                   </Tile>
                 </div>
               </Section>
-            )}
+            ) : null}
 
             {/* QUIZ */}
-            {stage === "quiz" && track && (
+            {stage === "quiz" && track ? (
               <Section key="quiz">
                 <TopBar back={back} onChangePathway={goToSelect} changeLabel="Change pathway">
                   <span className="inline-flex items-center gap-2 rounded-full ring-1 ring-black/10 dark:ring-white/20 bg-black/5 dark:bg-white/10 px-2 py-1 text-xs font-medium">
@@ -281,7 +283,7 @@ export default function Flow() {
                   transition={reduceMotion ? undefined : SPRING}
                   className="mt-2"
                 >
-                  {Boolean(questions[stepIndex]) ? (
+                  {questions[stepIndex] ? (
                     <QuestionCard
                       question={questions[stepIndex]!}
                       value={answers[questions[stepIndex]!.key]}
@@ -291,10 +293,10 @@ export default function Flow() {
                   ) : null}
                 </motion.div>
               </Section>
-            )}
+            ) : null}
 
             {/* LEAD */}
-            {stage === "lead" && track && (
+            {stage === "lead" && track ? (
               <Section key="lead">
                 <TopBar back={back} onChangePathway={goToSelect} changeLabel="Change pathway">
                   <span className="text-xs opacity-80">Almost done</span>
@@ -314,14 +316,14 @@ export default function Flow() {
                     setEmail={setEmail}
                     phone={phone}
                     setPhone={setPhone}
-                    onSubmit={() => void submitLead()} // keep prop name compatible
+                    onSubmitAction={submitLead}
                   />
                 </div>
               </Section>
-            )}
+            ) : null}
 
             {/* RESULT */}
-            {stage === "result" && track && (
+            {stage === "result" && track ? (
               <Section key="result">
                 <TopBar back={back} onChangePathway={goToSelect} changeLabel="Change pathway">
                   <span className="text-xs opacity-80">Results</span>
@@ -337,7 +339,7 @@ export default function Flow() {
                   />
                 </div>
               </Section>
-            )}
+            ) : null}
           </AnimatePresence>
         </div>
       </div>
@@ -374,11 +376,6 @@ function Section({ children }: { children: React.ReactNode }) {
   );
 }
 
-function HeaderRow({ children }: { children: React.ReactNode }) {
-  return <div className="flex items-center justify-between gap-2">{children}</div>;
-}
-
-/** Grid item wrapper */
 function Tile({ children }: { children: React.ReactNode }) {
   const reduceMotion = useReducedMotion();
   return (
@@ -393,7 +390,6 @@ function Tile({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Top bar with Back + optional Change Pathway. Always above other layers. */
 function TopBar({
   back,
   children,
@@ -442,13 +438,5 @@ function TopBar({
         </button>
       ) : null}
     </div>
-  );
-}
-
-function Chip({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full ring-1 ring-black/10 dark:ring-white/15 px-2 py-0.5">
-      {children}
-    </span>
   );
 }
