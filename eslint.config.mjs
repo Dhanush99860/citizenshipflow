@@ -28,7 +28,7 @@ export default [
     },
   },
 
-  // TypeScript base rules
+  // TypeScript base rules (flat config)
   ...tseslint.configs.recommended,
 
   // App rules
@@ -43,6 +43,8 @@ export default [
       "@next/next": next,
       react,
       "react-hooks": hooks,
+      // Make sure TS plugin is available for rule keys starting with @typescript-eslint/...
+      "@typescript-eslint": tseslint.plugin,
     },
     settings: {
       react: { version: "detect" },
@@ -58,14 +60,24 @@ export default [
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-require-imports": "off",
       "@typescript-eslint/triple-slash-reference": "off",
-      "@typescript-eslint/ban-ts-comment": "off", // ← fixes your current error
+      "@typescript-eslint/ban-ts-comment": "off",
 
+      // Allow non-null assertions used in Flow/Question rendering (e.g. questions[idx]!)
+      "@typescript-eslint/no-non-null-assertion": "off",
+
+      // Keep hooks rules relaxed as before
       "react-hooks/rules-of-hooks": "off",
       "react-hooks/exhaustive-deps": "off",
+
       "react/no-unescaped-entities": "off",
 
+      // Next.js specific allowances
       "@next/next/no-img-element": "off",
       "@next/next/no-html-link-for-pages": "off",
+
+      // Misc common harmless relaxations
+      "react/react-in-jsx-scope": "off", // Next.js JSX runtime
+      "react/jsx-no-target-blank": "off", // allow without rel attrs when safe/controlled
     },
   },
 
