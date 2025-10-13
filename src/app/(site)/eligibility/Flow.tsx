@@ -29,8 +29,7 @@ const TRACK_LABEL: Record<Track, string> = {
 const SPRING = { type: "spring", stiffness: 340, damping: 32, mass: 0.72 };
 
 const UI = {
-  surface:
-    "",
+  surface: "rounded-2xl ring-1 ring-black/10 dark:ring-white/10 bg-white dark:bg-black",
   pad: "px-3 py-3 md:px-4 md:py-4",
 };
 
@@ -48,7 +47,7 @@ export default function Flow() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
 
-  /* ---- autosave ---- */
+  // ---- autosave ----
   const saveTimer = useRef<number | null>(null);
   const scheduleSave = useCallback(() => {
     if (saveTimer.current) window.clearTimeout(saveTimer.current);
@@ -61,12 +60,13 @@ export default function Flow() {
       } catch {}
     }, 150);
   }, [track, stage, answers, stepIndex, name, email, phone]);
+
   useEffect(() => {
     scheduleSave();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [track, stage, answers, stepIndex, name, email, phone]);
 
-  /* ---- restore on mount ---- */
+  // ---- restore on mount ----
   useEffect(() => {
     const t = search.get("track") as Track | null;
     if (t && ["residency", "citizenship", "corporate", "skilled"].includes(t)) {
@@ -99,7 +99,7 @@ export default function Flow() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ---- questions ---- */
+  // ---- questions ----
   const questions = useMemo(
     () => (track ? getQuestionsForTrack(track, answers) : []),
     [track, answers]
@@ -107,17 +107,14 @@ export default function Flow() {
 
   const progressPct = useMemo(() => {
     if (!questions.length) return 0;
-    return Math.max(
-      0,
-      Math.min(100, Math.round((stepIndex / questions.length) * 100))
-    );
+    return Math.max(0, Math.min(100, Math.round((stepIndex / questions.length) * 100)));
   }, [questions.length, stepIndex]);
+
   const progressText = useMemo(() => {
     if (!questions.length) return "";
-    return `Step ${Math.min(stepIndex + 1, questions.length)} of ${
-      questions.length
-    }`;
+    return `Step ${Math.min(stepIndex + 1, questions.length)} of ${questions.length}`;
   }, [questions.length, stepIndex]);
+
   const etaText = useMemo(() => {
     if (!questions.length) return "2–4 min";
     const remaining = Math.max(questions.length - stepIndex, 1);
@@ -125,7 +122,7 @@ export default function Flow() {
     return `${mins} min left`;
   }, [questions.length, stepIndex]);
 
-  /* ---- navigation helpers ---- */
+  // ---- navigation helpers ----
   const startTrack = useCallback(
     (t: Track, replaceOnly = false) => {
       setTrack(t);
@@ -135,9 +132,8 @@ export default function Flow() {
       trackEvent("select_track", { track: t });
 
       const nav = `/eligibility?track=${t}`;
-      replaceOnly
-        ? router.replace(nav, { scroll: false })
-        : router.push(nav, { scroll: false });
+      if (replaceOnly) router.replace(nav, { scroll: false });
+      else router.push(nav, { scroll: false });
 
       requestAnimationFrame(() => {
         const el = shellRef.current;
@@ -152,15 +148,13 @@ export default function Flow() {
     [reduceMotion, router]
   );
 
-  /** Robustly go back to the select screen and clear ?track from the URL */
+  /** Go back to select + remove ?track from URL */
   const goToSelect = useCallback(() => {
-    // reset state first
     setTrack(null);
     setStage("select");
     setAnswers({});
     setStepIndex(0);
 
-    // clear ?track from URL (history fallback ensures Next state updates immediately)
     try {
       const url = new URL(window.location.href);
       if (url.searchParams.has("track")) {
@@ -171,14 +165,12 @@ export default function Flow() {
     router.replace("/eligibility", { scroll: false });
   }, [router]);
 
-  /* keep URL and state in sync (URL is source of truth only when it has track) */
+  // keep URL and state in sync
   useEffect(() => {
     const urlTrack = search.get("track") as Track | null;
     if (urlTrack && urlTrack !== track) {
       startTrack(urlTrack, true);
-      return;
     }
-    // If URL has no track, do nothing here: goToSelect handles the reset instantly.
   }, [search, track, startTrack]);
 
   const onAnswer = useCallback(
@@ -198,7 +190,7 @@ export default function Flow() {
   const back = useCallback(() => {
     if (stage === "quiz") {
       if (stepIndex > 0) setStepIndex((i) => i - 1);
-      else goToSelect(); // back from first question → select
+      else goToSelect();
       return;
     }
     if (stage === "lead") {
@@ -207,11 +199,9 @@ export default function Flow() {
     }
     if (stage === "result") {
       setStage("lead");
-      return;
     }
   }, [stage, stepIndex, goToSelect]);
 
-  /* keyboard back */
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
       if (e.key === "Escape" || e.key === "ArrowLeft") back();
@@ -241,54 +231,33 @@ export default function Flow() {
         <div className={`${UI.pad}`}>
           <AnimatePresence mode="wait" initial={false}>
             {/* SELECT */}
-            {stage === "select" && (
+            {stage === "select" ? (
               <Section key="select">
-
-                {/* 1-up (mobile) → 2-up (sm) → 4-up (md+) */}
                 <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 min-w-0">
                   <Tile>
-                    <CategoryTile
-                      title="Residency"
-                      onClickAction={() => startTrack("residency")}
-                    />
+                    <CategoryTile title="Residency" onClickAction={() => startTrack("residency")} />
                   </Tile>
                   <Tile>
-                    <CategoryTile
-                      title="Citizenship"
-                      onClickAction={() => startTrack("citizenship")}
-                    />
+                    <CategoryTile title="Citizenship" onClickAction={() => startTrack("citizenship")} />
                   </Tile>
                   <Tile>
-                    <CategoryTile
-                      title="Corporate"
-                      onClickAction={() => startTrack("corporate")}
-                    />
+                    <CategoryTile title="Corporate" onClickAction={() => startTrack("corporate")} />
                   </Tile>
                   <Tile>
-                    <CategoryTile
-                      title="Skilled"
-                      onClickAction={() => startTrack("skilled")}
-                    />
+                    <CategoryTile title="Skilled" onClickAction={() => startTrack("skilled")} />
                   </Tile>
                 </div>
               </Section>
-            )}
+            ) : null}
 
             {/* QUIZ */}
-            {stage === "quiz" && track && (
+            {stage === "quiz" && track ? (
               <Section key="quiz">
-                <TopBar
-                  back={back}
-                  onChangePathway={goToSelect}
-                  changeLabel="Change pathway"
-                >
+                <TopBar back={back} onChangePathway={goToSelect} changeLabel="Change pathway">
                   <span className="inline-flex items-center gap-2 rounded-full ring-1 ring-black/10 dark:ring-white/20 bg-black/5 dark:bg-white/10 px-2 py-1 text-xs font-medium">
                     {TRACK_LABEL[track]}
                   </span>
-                  <span
-                    className="text-xs md:text-sm opacity-80"
-                    aria-live="polite"
-                  >
+                  <span className="text-xs md:text-sm opacity-80" aria-live="polite">
                     {progressText} • {etaText}
                   </span>
                 </TopBar>
@@ -305,28 +274,22 @@ export default function Flow() {
                   transition={reduceMotion ? undefined : SPRING}
                   className="mt-2"
                 >
-                  {questions[stepIndex] && (
+                  {questions[stepIndex] ? (
                     <QuestionCard
-                      question={questions[stepIndex]}
-                      value={answers[questions[stepIndex].key]}
-                      onSubmitAction={(val) =>
-                        onAnswer(questions[stepIndex].key, val)
-                      }
+                      question={questions[stepIndex]!}
+                      value={answers[questions[stepIndex]!.key]}
+                      onSubmitAction={(val) => onAnswer(questions[stepIndex]!.key, val)}
                       onBackAction={back}
                     />
-                  )}
+                  ) : null}
                 </motion.div>
               </Section>
-            )}
+            ) : null}
 
             {/* LEAD */}
-            {stage === "lead" && track && (
+            {stage === "lead" && track ? (
               <Section key="lead">
-                <TopBar
-                  back={back}
-                  onChangePathway={goToSelect}
-                  changeLabel="Change pathway"
-                >
+                <TopBar back={back} onChangePathway={goToSelect} changeLabel="Change pathway">
                   <span className="text-xs opacity-80">Almost done</span>
                 </TopBar>
 
@@ -344,20 +307,16 @@ export default function Flow() {
                     setEmail={setEmail}
                     phone={phone}
                     setPhone={setPhone}
-                    onSubmit={() => void submitLead()}
+                    onSubmitAction={submitLead}
                   />
                 </div>
               </Section>
-            )}
+            ) : null}
 
             {/* RESULT */}
-            {stage === "result" && track && (
+            {stage === "result" && track ? (
               <Section key="result">
-                <TopBar
-                  back={back}
-                  onChangePathway={goToSelect}
-                  changeLabel="Change pathway"
-                >
+                <TopBar back={back} onChangePathway={goToSelect} changeLabel="Change pathway">
                   <span className="text-xs opacity-80">Results</span>
                 </TopBar>
 
@@ -371,7 +330,7 @@ export default function Flow() {
                   />
                 </div>
               </Section>
-            )}
+            ) : null}
           </AnimatePresence>
         </div>
       </div>
@@ -408,13 +367,6 @@ function Section({ children }: { children: React.ReactNode }) {
   );
 }
 
-function HeaderRow({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex items-center justify-between gap-2">{children}</div>
-  );
-}
-
-/** Grid item wrapper */
 function Tile({ children }: { children: React.ReactNode }) {
   const reduceMotion = useReducedMotion();
   return (
@@ -429,7 +381,6 @@ function Tile({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Top bar with Back + optional Change Pathway. Always above other layers. */
 function TopBar({
   back,
   children,
@@ -478,13 +429,5 @@ function TopBar({
         </button>
       ) : null}
     </div>
-  );
-}
-
-function Chip({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full ring-1 ring-black/10 dark:ring-white/15 px-2 py-0.5">
-      {children}
-    </span>
   );
 }
