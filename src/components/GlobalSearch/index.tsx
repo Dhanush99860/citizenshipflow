@@ -286,7 +286,7 @@ export default function GlobalSearch({
         onClick={() => setOpen(true)}
         aria-label="Open search"
         className={[
-          "pointer-events-auto w-full max-w-[520px] rounded-full border px-5 py-2 text-sm text-white",
+          "pointer-events-auto w-full max-w-[520px] rounded-full border px-5 py-2 text-sm text-white mx-5",
           "border-white/15 bg-white/10 backdrop-blur-md",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
           "flex items-center justify-start gap-2 transition",

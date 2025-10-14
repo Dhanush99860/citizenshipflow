@@ -25,6 +25,7 @@ const TRACK_LABEL: Record<Track, string> = {
   corporate: "Corporate",
   skilled: "Skilled",
 };
+const ALL_TRACKS: Track[] = ["residency", "citizenship", "corporate", "skilled"];
 
 const SPRING = { type: "spring", stiffness: 340, damping: 32, mass: 0.72 };
 
@@ -69,7 +70,7 @@ export default function Flow() {
   // ---- restore on mount ----
   useEffect(() => {
     const t = search.get("track") as Track | null;
-    if (t && ["residency", "citizenship", "corporate", "skilled"].includes(t)) {
+    if (t && ALL_TRACKS.includes(t)) {
       startTrack(t, true);
       return;
     }
@@ -122,56 +123,71 @@ export default function Flow() {
     return `${mins} min left`;
   }, [questions.length, stepIndex]);
 
-  // ---- navigation helpers ----
+  // ---- helpers ----
+  const scrollShellIntoView = useCallback(() => {
+    requestAnimationFrame(() => {
+      const el = shellRef.current;
+      if (!el) return;
+      el.style.scrollMarginTop = "12px";
+      el.scrollIntoView({
+        behavior: reduceMotion ? "auto" : "smooth",
+        block: "start",
+      });
+    });
+  }, [reduceMotion]);
+
+  const clearAutosave = useCallback(() => {
+    try {
+      sessionStorage.removeItem(STORAGE_KEY);
+    } catch {}
+  }, []);
+
+  const resetState = useCallback(() => {
+    setAnswers({});
+    setStepIndex(0);
+  }, []);
+
   const startTrack = useCallback(
     (t: Track, replaceOnly = false) => {
       setTrack(t);
       setStage("quiz");
-      setAnswers({});
-      setStepIndex(0);
+      resetState();
+      clearAutosave();
       trackEvent("select_track", { track: t });
 
       const nav = `/eligibility?track=${t}`;
       if (replaceOnly) router.replace(nav, { scroll: false });
       else router.push(nav, { scroll: false });
 
-      requestAnimationFrame(() => {
-        const el = shellRef.current;
-        if (!el) return;
-        el.style.scrollMarginTop = "12px";
-        el.scrollIntoView({
-          behavior: reduceMotion ? "auto" : "smooth",
-          block: "start",
-        });
-      });
+      scrollShellIntoView();
     },
-    [reduceMotion, router]
+    [router, scrollShellIntoView, resetState, clearAutosave]
   );
 
   /** Go back to select + remove ?track from URL */
   const goToSelect = useCallback(() => {
     setTrack(null);
     setStage("select");
-    setAnswers({});
-    setStepIndex(0);
+    resetState();
+    clearAutosave();
 
-    try {
-      const url = new URL(window.location.href);
-      if (url.searchParams.has("track")) {
-        url.searchParams.delete("track");
-        window.history.replaceState({}, "", url.pathname + url.search);
-      }
-    } catch {}
     router.replace("/eligibility", { scroll: false });
-  }, [router]);
+    scrollShellIntoView();
+  }, [router, resetState, clearAutosave, scrollShellIntoView]);
 
-  // keep URL and state in sync
+  // ---- URL/state sync (guard while on Select) ----
   useEffect(() => {
     const urlTrack = search.get("track") as Track | null;
+
+    // IMPORTANT: when we're showing Select, do NOT auto-start a track,
+    // otherwise Back/Change Pathway jumps back into the quiz.
+    if (stage === "select") return;
+
     if (urlTrack && urlTrack !== track) {
       startTrack(urlTrack, true);
     }
-  }, [search, track, startTrack]);
+    // If urlTrack is null we keep current in-memory state.
+  }, [search, stage, track, startTrack]);
 
   const onAnswer = useCallback(
     (key: string, value: unknown) => {
@@ -202,13 +218,27 @@ export default function Flow() {
     }
   }, [stage, stepIndex, goToSelect]);
 
+  // keyboard helpers
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
       if (e.key === "Escape" || e.key === "ArrowLeft") back();
+      if (e.ctrlKey) {
+        const map: Record<string, Track> = {
+          "1": "residency",
+          "2": "citizenship",
+          "3": "corporate",
+          "4": "skilled",
+        };
+        const t = map[e.key];
+        if (t) {
+          e.preventDefault();
+          startTrack(t);
+        }
+      }
     };
     window.addEventListener("keydown", fn);
     return () => window.removeEventListener("keydown", fn);
-  }, [back]);
+  }, [back, startTrack]);
 
   const submitLead = useCallback(async () => {
     const payload = { name, email, phone, track, answers };
@@ -219,9 +249,10 @@ export default function Flow() {
         body: JSON.stringify(payload),
       });
     } catch {}
+    clearAutosave();
     setStage("result");
     trackEvent("result_viewed", { track });
-  }, [name, email, phone, track, answers]);
+  }, [name, email, phone, track, answers, clearAutosave]);
 
   /* ------------------------------- RENDER ------------------------------- */
   return (
@@ -272,7 +303,8 @@ export default function Flow() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
                   transition={reduceMotion ? undefined : SPRING}
-                  className="mt-2"
+                  layout
+                  className="mt-2 will-change-transform"
                 >
                   {questions[stepIndex] ? (
                     <QuestionCard
@@ -316,7 +348,7 @@ export default function Flow() {
             {/* RESULT */}
             {stage === "result" && track ? (
               <Section key="result">
-                <TopBar back={back} onChangePathway={goToSelect} changeLabel="Change pathway">
+                <TopBar back={back} onChangePathway={goToSelect} changeLabel="Start over">
                   <span className="text-xs opacity-80">Results</span>
                 </TopBar>
 
@@ -360,6 +392,7 @@ function Section({ children }: { children: React.ReactNode }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -6 }}
       transition={reduceMotion ? undefined : SPRING}
+      layout
       className="pointer-events-auto"
     >
       {children}
@@ -393,7 +426,7 @@ function TopBar({
   changeLabel?: string;
 }) {
   return (
-    <div className="relative z-30 flex items-center gap-2">
+    <div className="relative z-30 flex flex-wrap items-center gap-2">
       <button
         type="button"
         onClick={back}

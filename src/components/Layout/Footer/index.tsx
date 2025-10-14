@@ -20,7 +20,7 @@ const EXPLORE = [
 ];
 
 const RESOURCES = [
-  { label: "Eligibility Checker", href: "/tools/eligibility" },
+  { label: "Eligibility Checker", href: "/eligibility" },
   { label: "Country Guides", href: "/guides" },
   { label: "Fees & Timelines", href: "/resources/pricing" },
   { label: "Document Checklists", href: "/resources/checklists" },
@@ -234,7 +234,7 @@ export default function Footer() {
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                 <Link
-                  href="/tools/eligibility"
+                  href="/eligibility"
                   className="inline-flex items-center justify-center px-3.5 py-2.5 rounded-md text-sm font-medium bg-white text-blue-700 hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
                 >
                   <Icon icon="mdi:clipboard-check-outline" className="h-5 w-5 mr-2" />

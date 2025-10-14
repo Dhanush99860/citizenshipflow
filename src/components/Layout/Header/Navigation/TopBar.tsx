@@ -11,7 +11,7 @@ export default function TopBar() {
       <div className="mx-auto max-w-screen-2xl px-4">
         <div
           className={[
-            'grid grid-cols-[auto_1fr_auto] items-center gap-3 py-2',
+            'grid grid-cols-[auto_1fr_auto] items-center gap-3 py-2 px-2',
             'text-[13px] leading-6 text-white/95',
             'rounded-xl ring-1 ring-white/10',
             'bg-white/10 backdrop-blur-md',
