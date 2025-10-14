@@ -4,7 +4,7 @@ import * as React from "react";
 import { useMemo, useState, useCallback } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { scoreAssessment } from "@/lib/eligibility/scoring";
-import type { Track, AnswerMap } from "@/lib/eligibility/types";
+import type { Track, AnswerMap, Result } from "@/lib/eligibility/types";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -21,9 +21,9 @@ export interface LeadGateProps {
   phone: string;
   setPhone: (v: string) => void;
 
-  /** Original callback (kept for backward compat) */
+  /** Back-compat */
   onSubmit?: () => void | Promise<void>;
-  /** Server-action-safe alias (optional) */
+  /** Preferred alias */
   onSubmitAction?: () => void | Promise<void>;
 }
 
@@ -53,10 +53,7 @@ function ArrowRightIcon() {
 function ShieldIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5">
-      <path
-        fill="currentColor"
-        d="M12 2.5 4.5 5v7.5A9.5 9.5 0 0 0 12 22a9.5 9.5 0 0 0 7.5-9.5V5L12 2.5Z"
-      />
+      <path fill="currentColor" d="M12 2.5 4.5 5v7.5A9.5 9.5 0 0 0 12 22a9.5 9.5 0 0 0 7.5-9.5V5L12 2.5Z" />
     </svg>
   );
 }
@@ -123,7 +120,19 @@ export function LeadGate({
   onSubmitAction,
 }: LeadGateProps) {
   const reduceMotion = useReducedMotion();
-  const result = useMemo(() => scoreAssessment(track, answers), [track, answers]);
+
+  // SAFE preview: never throw inside render even if scoring changes later
+  const result: Result = useMemo(() => {
+    try {
+      return scoreAssessment(track, answers);
+    } catch {
+      return {
+        tier: "Borderline",
+        summary: "Preview unavailable. Enter your details to view the full result and PDF.",
+        programs: [],
+      };
+    }
+  }, [track, answers]);
 
   const [touched, setTouched] = useState({ name: false, email: false });
   const [submitting, setSubmitting] = useState(false);
@@ -202,7 +211,7 @@ export function LeadGate({
               </li>
             </ul>
 
-            {/* Lightweight lock overlay (tiny blur; keeps perf) */}
+            {/* Lightweight lock overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

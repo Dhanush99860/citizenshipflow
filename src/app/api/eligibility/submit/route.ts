@@ -2,7 +2,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateSubmission } from "@/utils/validate";
 
-export const runtime = "nodejs"; // ensure a Node runtime (for simple in-memory rate-limit)
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic"; // never cache this route
 
 /* ------------------------------- config ------------------------------- */
 
@@ -12,8 +13,9 @@ const PHONE_RE = /^[+]?[\d\s().-]{6,20}$/;
 
 const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
 const RATE_LIMIT_MAX = 8;            // max submissions / IP / minute
+const MAX_JSON_KB = 64;              // basic body-size guard
 
-// In-memory rate limit bucket (best effort; fine for MVP)
+// In-memory rate limit bucket (best effort; fine for MVP; single-node only)
 const rlBucket: Map<string, number[]> =
   (global as any).__eligibilityRL__ ?? new Map<string, number[]>();
 (global as any).__eligibilityRL__ = rlBucket;
@@ -21,9 +23,13 @@ const rlBucket: Map<string, number[]> =
 /* ------------------------------- helpers ------------------------------- */
 
 function getClientIP(req: NextRequest) {
-  const fwd = req.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0].trim();
-  // @ts-ignore - Next has a non-standard header in dev
+  // common proxies / platforms
+  const hdr =
+    req.headers.get("x-forwarded-for") ||
+    req.headers.get("x-real-ip") ||
+    req.headers.get("cf-connecting-ip");
+  if (hdr) return hdr.split(",")[0].trim();
+  // @ts-ignore next dev
   return (req as any).ip || "0.0.0.0";
 }
 
@@ -38,6 +44,22 @@ function sanitizeStr(v: unknown, max = 400) {
   return v.replace(/\s+/g, " ").trim().slice(0, max);
 }
 
+function safeAnswers(input: unknown) {
+  // Shallow, size-limited copy of the answers map
+  if (!input || typeof input !== "object") return {};
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(input as Record<string, unknown>)) {
+    if (typeof k !== "string") continue;
+    const key = k.replace(/[^\w.-]/g, "").slice(0, 64);
+    if (!key) continue;
+
+    if (typeof v === "string") out[key] = v.slice(0, 1000);
+    else if (typeof v === "number" || typeof v === "boolean" || v === null) out[key] = v;
+    else out[key] = String(v).slice(0, 200);
+  }
+  return out;
+}
+
 function rateLimitHit(ip: string) {
   const now = Date.now();
   const arr = rlBucket.get(ip) ?? [];
@@ -47,11 +69,34 @@ function rateLimitHit(ip: string) {
   return fresh.length > RATE_LIMIT_MAX;
 }
 
+function tooBig(req: NextRequest) {
+  const len = req.headers.get("content-length");
+  if (!len) return false;
+  return Number(len) > MAX_JSON_KB * 1024;
+}
+
+/* -------------------------------- CORS -------------------------------- */
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Cache-Control": "no-store",
+    },
+  });
+}
+
 /* -------------------------------- route -------------------------------- */
 
 export async function POST(req: NextRequest) {
   try {
-    // Require JSON
+    if (tooBig(req)) {
+      return NextResponse.json({ ok: false, error: "Payload too large." }, { status: 413 });
+    }
+
     const ctype = req.headers.get("content-type") || "";
     if (!ctype.includes("application/json")) {
       return NextResponse.json({ ok: false, error: "Unsupported content type" }, { status: 415 });
@@ -67,7 +112,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
 
-    // First, run your existing validator (kept as source of truth)
+    // Keep your existing validator as source of truth
     const { ok, error } = validateSubmission(body);
     if (!ok) {
       return NextResponse.json({ ok: false, error }, { status: 400 });
@@ -78,7 +123,7 @@ export async function POST(req: NextRequest) {
     const email = sanitizeStr(body.email, 160).toLowerCase();
     const phone = normalizePhone(sanitizeStr(body.phone, 40));
     const track = String(body.track || "");
-    const answers = body.answers ?? {};
+    const answers = safeAnswers(body.answers);
     const honeypot = sanitizeStr(body.honeypot || body.website || ""); // optional hidden field
 
     if (!name || name.length < 2) {
@@ -94,8 +139,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "Invalid track." }, { status: 400 });
     }
     if (honeypot) {
-      // likely bot
-      return NextResponse.json({ ok: true }, { status: 200 });
+      // likely bot — pretend OK
+      return NextResponse.json({ ok: true }, { status: 200, headers: { "Cache-Control": "no-store" } });
     }
 
     // Minimal normalized payload (ready for DB/CRM later)
@@ -118,21 +163,30 @@ export async function POST(req: NextRequest) {
     // 2) Send transactional email (thank-you + next steps)
     // 3) Optionally trigger PDF generation and email link
 
-    // For now, structured log (one-liner in prod logs)
-    console.log("[eligibility:submit]", JSON.stringify(payload));
-
-    return new NextResponse(JSON.stringify({ ok: true }), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-      },
+    // Structured log (redact email a bit)
+    const redact = (e: string) => e.replace(/(.).+(@.+)/, (_m, a, b) => a + "***" + b);
+    console.log("[eligibility:submit]", {
+      ...payload,
+      email: redact(email),
+      meta: { ...payload.meta, ip: ip.replace(/\d+$/g, "x") },
     });
+
+    return NextResponse.json(
+      { ok: true },
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+          "Access-Control-Allow-Origin": "*",
+        },
+      }
+    );
   } catch (e: any) {
     console.error("[eligibility:submit:error]", e);
     return NextResponse.json(
       { ok: false, error: e?.message || "Invalid request" },
-      { status: 400, headers: { "Cache-Control": "no-store" } }
+      { status: 400, headers: { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" } }
     );
   }
 }

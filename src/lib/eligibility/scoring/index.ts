@@ -14,5 +14,12 @@ export function scoreAssessment(track: Track, answers: AnswerMap): Result {
       return scoreCorporate(answers);
     case "skilled":
       return scoreSkilled(answers);
+    default: {
+      const _exhaustive: never = track;
+      console.warn("[scoring] Unknown track:", String(track));
+      return { tier: "Not Yet Eligible", summary: "Unknown track.", programs: [] };
+    }
   }
 }
+
+export { scoreResidency, scoreCitizenship, scoreCorporate, scoreSkilled };

@@ -23,6 +23,13 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
   const [downloading, setDownloading] = useState(false);
   const [status, setStatus] = useState<string>("");
 
+  // Guard: ensure shape is always safe to render
+  const safeResult: Result = {
+    tier: result?.tier ?? "Borderline",
+    summary: result?.summary ?? "We couldn’t render the full summary. You can still download the PDF or talk to an expert.",
+    programs: Array.isArray(result?.programs) ? result.programs : [],
+  };
+
   const whatsappLink = useMemo(() => {
     const num = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.replace(/[^\d]/g, "");
     if (!num) return null;
@@ -53,15 +60,16 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
       window.URL.revokeObjectURL(url);
       trackEvent("pdf_download", { track });
       setStatus("Download started.");
-    } catch (e) {
+    } catch {
       setStatus("Sorry — couldn’t generate the PDF. Please try again.");
     } finally {
       setDownloading(false);
+      // auto-clear the status after a moment
       setTimeout(() => setStatus(""), 3000);
     }
   };
 
-  const programs = result.programs ?? [];
+  const programs = safeResult.programs;
 
   return (
     <motion.section
@@ -108,21 +116,19 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
         <span className="inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs ring-1 ring-black/10 dark:ring-white/15">
           <BadgeDot /> {capitalize(track)}
         </span>
-        <span className="inline-flex items-center gap-2 rounded-full bg-black/5 px-2 py-1 text-xs ring-1 ring-black/10 dark:bg-white/10 dark:ring-white/15">
-          Tier: <strong className="font-semibold">{result.tier}</strong>
-        </span>
+        <TierBadge tier={safeResult.tier} />
       </div>
 
       <p className="mt-2 text-sm sm:text-base">
-        <span className="font-semibold">{result.tier}</span> — {result.summary}
+        <span className="font-semibold">{safeResult.tier}</span> — {safeResult.summary}
       </p>
 
       {/* Programs */}
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {programs.length > 0 ? (
-          programs.map((p) => (
+          programs.map((p, idx) => (
             <article
-              key={p.name}
+              key={`${p.name}-${p.why ?? ""}-${idx}`}
               className={[
                 "rounded-xl p-4 sm:p-5",
                 "ring-1 ring-black/10 dark:ring-white/10",
@@ -131,12 +137,15 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
               ].join(" ")}
             >
               <h4 className="text-sm font-medium">{p.name}</h4>
-              <p className="mt-1 text-xs text-black/70 dark:text-white/70">{p.why}</p>
+              {p.why ? (
+                <p className="mt-1 text-xs text-black/70 dark:text-white/70">{p.why}</p>
+              ) : null}
             </article>
           ))
         ) : (
           <div className="rounded-xl ring-1 ring-black/10 dark:ring-white/10 p-4 text-sm">
-            We didn’t detect a clear recommended program from your answers. You can still download the PDF or talk to an expert.
+            We didn’t detect a clear recommended program from your answers. You can still download
+            the PDF or talk to an expert.
           </div>
         )}
       </div>
@@ -205,11 +214,34 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
           {status}
         </p>
       ) : null}
+
+      {/* optional: help QA by showing raw answers */}
+      <details className="mt-3">
+        <summary className="cursor-pointer text-xs opacity-70">Show my answers</summary>
+        <pre className="mt-2 overflow-x-auto rounded-md bg-black/5 dark:bg-white/10 p-2 text-[11px]">
+          {JSON.stringify(answers, null, 2)}
+        </pre>
+      </details>
     </motion.section>
   );
 }
 
 /* ------------------ tiny inline icons & helpers ------------------ */
+
+function TierBadge({ tier }: { tier: Result["tier"] }) {
+  const classes =
+    tier === "Eligible"
+      ? "bg-green-100/60 text-green-900 ring-green-300/60 dark:bg-green-900/30 dark:text-green-200 dark:ring-green-800/50"
+      : tier === "Borderline"
+      ? "bg-yellow-100/60 text-yellow-900 ring-yellow-300/60 dark:bg-yellow-900/30 dark:text-yellow-100 dark:ring-yellow-800/50"
+      : "bg-red-100/60 text-red-900 ring-red-300/60 dark:bg-red-900/30 dark:text-red-100 dark:ring-red-800/50";
+
+  return (
+    <span className={`inline-flex items-center gap-2 rounded-full px-2 py-1 text-xs ring-1 ${classes}`}>
+      Tier: <strong className="font-semibold">{tier}</strong>
+    </span>
+  );
+}
 
 function BadgeDot() {
   return <span className="inline-block h-1.5 w-1.5 rounded-full bg-black/70 dark:bg-white/70" />;

@@ -30,7 +30,8 @@ const ALL_TRACKS: Track[] = ["residency", "citizenship", "corporate", "skilled"]
 const SPRING = { type: "spring", stiffness: 340, damping: 32, mass: 0.72 };
 
 const UI = {
-  surface: "rounded-2xl ring-1 ring-black/10 dark:ring-white/10 bg-white dark:bg-black",
+  surface:
+    "rounded-2xl ring-1 ring-black/10 dark:ring-white/10 bg-white dark:bg-black",
   pad: "px-3 py-3 md:px-4 md:py-4",
 };
 
@@ -48,7 +49,7 @@ export default function Flow() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
 
-  // ---- autosave ----
+  /* -------------------- autosave -------------------- */
   const saveTimer = useRef<number | null>(null);
   const scheduleSave = useCallback(() => {
     if (saveTimer.current) window.clearTimeout(saveTimer.current);
@@ -56,7 +57,15 @@ export default function Flow() {
       try {
         sessionStorage.setItem(
           STORAGE_KEY,
-          JSON.stringify({ track, stage, answers, stepIndex, name, email, phone })
+          JSON.stringify({
+            track,
+            stage,
+            answers,
+            stepIndex,
+            name,
+            email,
+            phone,
+          }),
         );
       } catch {}
     }, 150);
@@ -67,7 +76,7 @@ export default function Flow() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [track, stage, answers, stepIndex, name, email, phone]);
 
-  // ---- restore on mount ----
+  /* -------------------- restore on mount -------------------- */
   useEffect(() => {
     const t = search.get("track") as Track | null;
     if (t && ALL_TRACKS.includes(t)) {
@@ -100,20 +109,25 @@ export default function Flow() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ---- questions ----
+  /* -------------------- derived questions & progress -------------------- */
   const questions = useMemo(
     () => (track ? getQuestionsForTrack(track, answers) : []),
-    [track, answers]
+    [track, answers],
   );
 
   const progressPct = useMemo(() => {
     if (!questions.length) return 0;
-    return Math.max(0, Math.min(100, Math.round((stepIndex / questions.length) * 100)));
+    return Math.max(
+      0,
+      Math.min(100, Math.round((stepIndex / questions.length) * 100)),
+    );
   }, [questions.length, stepIndex]);
 
   const progressText = useMemo(() => {
     if (!questions.length) return "";
-    return `Step ${Math.min(stepIndex + 1, questions.length)} of ${questions.length}`;
+    return `Step ${Math.min(stepIndex + 1, questions.length)} of ${
+      questions.length
+    }`;
   }, [questions.length, stepIndex]);
 
   const etaText = useMemo(() => {
@@ -123,7 +137,7 @@ export default function Flow() {
     return `${mins} min left`;
   }, [questions.length, stepIndex]);
 
-  // ---- helpers ----
+  /* -------------------- helpers -------------------- */
   const scrollShellIntoView = useCallback(() => {
     requestAnimationFrame(() => {
       const el = shellRef.current;
@@ -161,7 +175,7 @@ export default function Flow() {
 
       scrollShellIntoView();
     },
-    [router, scrollShellIntoView, resetState, clearAutosave]
+    [router, scrollShellIntoView, resetState, clearAutosave],
   );
 
   /** Go back to select + remove ?track from URL */
@@ -175,37 +189,52 @@ export default function Flow() {
     scrollShellIntoView();
   }, [router, resetState, clearAutosave, scrollShellIntoView]);
 
-  // ---- URL/state sync (guard while on Select) ----
+  // URL sync (don’t auto-start while on "select")
   useEffect(() => {
     const urlTrack = search.get("track") as Track | null;
-
-    // IMPORTANT: when we're showing Select, do NOT auto-start a track,
-    // otherwise Back/Change Pathway jumps back into the quiz.
     if (stage === "select") return;
-
-    if (urlTrack && urlTrack !== track) {
-      startTrack(urlTrack, true);
-    }
-    // If urlTrack is null we keep current in-memory state.
+    if (urlTrack && urlTrack !== track) startTrack(urlTrack, true);
   }, [search, stage, track, startTrack]);
 
+  /* -------------------- stage jump helpers -------------------- */
+  const goToLeadNow = useCallback(() => {
+    setStage("lead");
+    trackEvent("show_lead_gate", { track });
+    scrollShellIntoView();
+  }, [track, scrollShellIntoView]);
+
+  /* -------------------- answer handling -------------------- */
   const onAnswer = useCallback(
     (key: string, value: unknown) => {
-      setAnswers((prev) => ({ ...prev, [key]: value }));
-      const next = stepIndex + 1;
-      if (next >= questions.length) {
-        setStage("lead");
-        trackEvent("show_lead_gate", { track });
-      } else {
-        setStepIndex(next);
-      }
+      setAnswers(prev => {
+        const nextAnswers = { ...prev, [key]: value };
+        // IMPORTANT: derive next question list from UPDATED answers
+        const nextQs = track ? getQuestionsForTrack(track, nextAnswers) : [];
+        const nextIndex = stepIndex + 1;
+
+        if (nextIndex >= nextQs.length) {
+          goToLeadNow();
+        } else {
+          setStepIndex(nextIndex);
+        }
+        return nextAnswers;
+      });
     },
-    [questions.length, stepIndex, track]
+    [track, stepIndex, goToLeadNow],
   );
 
+  // Clamp index if branching removes questions while on quiz
+  useEffect(() => {
+    if (stage !== "quiz") return;
+    if (!questions.length) return;
+    if (stepIndex >= questions.length) setStage("lead");
+    else if (stepIndex < 0) setStepIndex(0);
+  }, [questions.length, stepIndex, stage]);
+
+  /* -------------------- back nav -------------------- */
   const back = useCallback(() => {
     if (stage === "quiz") {
-      if (stepIndex > 0) setStepIndex((i) => i - 1);
+      if (stepIndex > 0) setStepIndex(i => i - 1);
       else goToSelect();
       return;
     }
@@ -240,6 +269,7 @@ export default function Flow() {
     return () => window.removeEventListener("keydown", fn);
   }, [back, startTrack]);
 
+  /* -------------------- lead submit -------------------- */
   const submitLead = useCallback(async () => {
     const payload = { name, email, phone, track, answers };
     try {
@@ -252,117 +282,154 @@ export default function Flow() {
     clearAutosave();
     setStage("result");
     trackEvent("result_viewed", { track });
-  }, [name, email, phone, track, answers, clearAutosave]);
+    scrollShellIntoView();
+  }, [name, email, phone, track, answers, clearAutosave, scrollShellIntoView]);
 
-  /* ------------------------------- RENDER ------------------------------- */
+  /* -------------------- render -------------------- */
+  // We render exactly ONE stage inside AnimatePresence to avoid ghost height.
+  const stageKey = `${stage}-${track ?? "none"}-${stage === "quiz" ? stepIndex : "x"}`;
+
   return (
     <div ref={shellRef} className="w-full">
       <div className={`${UI.surface} overflow-hidden`}>
         <div className="h-0.5 w-full bg-gradient-to-r from-blue-600 to-indigo-500" />
-        <div className={`${UI.pad}`}>
+
+        <div className={`${UI.pad} min-h-0`}>
           <AnimatePresence mode="wait" initial={false}>
-            {/* SELECT */}
-            {stage === "select" ? (
-              <Section key="select">
-                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 min-w-0">
-                  <Tile>
-                    <CategoryTile title="Residency" onClickAction={() => startTrack("residency")} />
-                  </Tile>
-                  <Tile>
-                    <CategoryTile title="Citizenship" onClickAction={() => startTrack("citizenship")} />
-                  </Tile>
-                  <Tile>
-                    <CategoryTile title="Corporate" onClickAction={() => startTrack("corporate")} />
-                  </Tile>
-                  <Tile>
-                    <CategoryTile title="Skilled" onClickAction={() => startTrack("skilled")} />
-                  </Tile>
-                </div>
-              </Section>
-            ) : null}
+            <motion.div
+              key={stageKey}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={reduceMotion ? undefined : SPRING}
+            >
+              {stage === "select" && (
+                <Section>
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 min-w-0">
+                    <Tile>
+                      <CategoryTile
+                        title="Residency"
+                        onClickAction={() => startTrack("residency")}
+                      />
+                    </Tile>
+                    <Tile>
+                      <CategoryTile
+                        title="Citizenship"
+                        onClickAction={() => startTrack("citizenship")}
+                      />
+                    </Tile>
+                    <Tile>
+                      <CategoryTile
+                        title="Corporate"
+                        onClickAction={() => startTrack("corporate")}
+                      />
+                    </Tile>
+                    <Tile>
+                      <CategoryTile
+                        title="Skilled"
+                        onClickAction={() => startTrack("skilled")}
+                      />
+                    </Tile>
+                  </div>
+                </Section>
+              )}
 
-            {/* QUIZ */}
-            {stage === "quiz" && track ? (
-              <Section key="quiz">
-                <TopBar back={back} onChangePathway={goToSelect} changeLabel="Change pathway">
-                  <span className="inline-flex items-center gap-2 rounded-full ring-1 ring-black/10 dark:ring-white/20 bg-black/5 dark:bg-white/10 px-2 py-1 text-xs font-medium">
-                    {TRACK_LABEL[track]}
-                  </span>
-                  <span className="text-xs md:text-sm opacity-80" aria-live="polite">
-                    {progressText} • {etaText}
-                  </span>
-                </TopBar>
+              {stage === "quiz" && track && (
+                <Section>
+                  <TopBar
+                    back={back}
+                    onChangePathway={goToSelect}
+                    changeLabel="Change pathway"
+                  >
+                    <span className="inline-flex items-center gap-2 rounded-full ring-1 ring-black/10 dark:ring-white/20 bg-black/5 dark:bg-white/10 px-2 py-1 text-xs font-medium">
+                      {TRACK_LABEL[track]}
+                    </span>
+                    <span
+                      className="text-xs md:text-sm opacity-80"
+                      aria-live="polite"
+                    >
+                      {progressText} • {etaText}
+                    </span>
+                  </TopBar>
 
-                <div className="mt-2">
-                  <ProgressBar value={progressPct} text={progressText} />
-                </div>
+                  <div className="mt-2">
+                    <ProgressBar value={progressPct} text={progressText} />
+                  </div>
 
-                <motion.div
-                  key={questions[stepIndex]?.key ?? `q-${stepIndex}`}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={reduceMotion ? undefined : SPRING}
-                  layout
-                  className="mt-2 will-change-transform"
-                >
-                  {questions[stepIndex] ? (
-                    <QuestionCard
-                      question={questions[stepIndex]!}
-                      value={answers[questions[stepIndex]!.key]}
-                      onSubmitAction={(val) => onAnswer(questions[stepIndex]!.key, val)}
+                  <motion.div
+                    key={questions[stepIndex]?.key ?? `q-${stepIndex}`}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={reduceMotion ? undefined : SPRING}
+                    className="mt-2"
+                  >
+                    {questions[stepIndex] ? (
+                      <QuestionCard
+                        question={questions[stepIndex]!}
+                        value={answers[questions[stepIndex]!.key]}
+                        onSubmitAction={(val) =>
+                          onAnswer(questions[stepIndex]!.key, val)
+                        }
+                        onBackAction={back}
+                      />
+                    ) : null}
+                  </motion.div>
+                </Section>
+              )}
+
+              {stage === "lead" && track && (
+                <Section>
+                  <TopBar
+                    back={back}
+                    onChangePathway={goToSelect}
+                    changeLabel="Change pathway"
+                  >
+                    <span className="text-xs opacity-80">Almost done</span>
+                  </TopBar>
+
+                  <div className="mt-2 mb-2">
+                    <ProgressBar value={100} text="Almost done" />
+                  </div>
+
+                  <div className="relative z-10 pointer-events-auto">
+                    <LeadGate
+                      track={track}
+                      answers={answers}
+                      name={name}
+                      setName={setName}
+                      email={email}
+                      setEmail={setEmail}
+                      phone={phone}
+                      setPhone={setPhone}
+                      onSubmitAction={submitLead}
+                    />
+                  </div>
+                </Section>
+              )}
+
+              {stage === "result" && track && (
+                <Section>
+                  <TopBar
+                    back={back}
+                    onChangePathway={goToSelect}
+                    changeLabel="Start over"
+                  >
+                    <span className="text-xs opacity-80">Results</span>
+                  </TopBar>
+
+                  <div className="relative z-10 pointer-events-auto">
+                    <ResultCard
+                      track={track}
+                      result={scoreAssessment(track, answers)}
+                      name={name}
+                      answers={answers}
                       onBackAction={back}
                     />
-                  ) : null}
-                </motion.div>
-              </Section>
-            ) : null}
-
-            {/* LEAD */}
-            {stage === "lead" && track ? (
-              <Section key="lead">
-                <TopBar back={back} onChangePathway={goToSelect} changeLabel="Change pathway">
-                  <span className="text-xs opacity-80">Almost done</span>
-                </TopBar>
-
-                <div className="mt-2 mb-2">
-                  <ProgressBar value={100} text="Almost done" />
-                </div>
-
-                <div className="relative z-10 pointer-events-auto">
-                  <LeadGate
-                    track={track}
-                    answers={answers}
-                    name={name}
-                    setName={setName}
-                    email={email}
-                    setEmail={setEmail}
-                    phone={phone}
-                    setPhone={setPhone}
-                    onSubmitAction={submitLead}
-                  />
-                </div>
-              </Section>
-            ) : null}
-
-            {/* RESULT */}
-            {stage === "result" && track ? (
-              <Section key="result">
-                <TopBar back={back} onChangePathway={goToSelect} changeLabel="Start over">
-                  <span className="text-xs opacity-80">Results</span>
-                </TopBar>
-
-                <div className="relative z-10 pointer-events-auto">
-                  <ResultCard
-                    track={track}
-                    result={scoreAssessment(track, answers)}
-                    name={name}
-                    answers={answers}
-                    onBackAction={back}
-                  />
-                </div>
-              </Section>
-            ) : null}
+                  </div>
+                </Section>
+              )}
+            </motion.div>
           </AnimatePresence>
         </div>
       </div>
@@ -392,7 +459,6 @@ function Section({ children }: { children: React.ReactNode }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -6 }}
       transition={reduceMotion ? undefined : SPRING}
-      layout
       className="pointer-events-auto"
     >
       {children}

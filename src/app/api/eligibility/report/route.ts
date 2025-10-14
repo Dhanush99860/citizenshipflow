@@ -1,126 +1,113 @@
 import { NextRequest, NextResponse } from "next/server";
 import { scoreAssessment } from "@/lib/eligibility/scoring";
 import type { Track, AnswerMap } from "@/lib/eligibility/types";
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { PDFDocument, rgb } from "pdf-lib";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 
-/** ---------- Config (customize or set via env) ---------- */
-const COMPANY_NAME =
-  process.env.NEXT_PUBLIC_COMPANY_NAME || "XIPHIAS Immigration";
+export const runtime = "nodejs";
+
+/** ---------- Brand / Config ---------- */
+const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || "XIPHIAS Immigration";
 const REPORT_TITLE = "Eligibility Report";
+const PDF_LOGO_BASE64 = process.env.PDF_LOGO_BASE64 || ""; // data:image/png;base64,...
 
-/** Optional: base64 PNG logo data URL (e.g. 'data:image/png;base64,iVBORw0…') */
-const PDF_LOGO_BASE64 = process.env.PDF_LOGO_BASE64 || "";
-
-/** Footer line: address • email • phone • website (in that order) */
 const FOOTER_ADDRESS =
   process.env.NEXT_PUBLIC_PDF_ADDRESS ||
   "Aurbis Prime No. 1, Koramangala, Bengaluru, India 560034";
 const FOOTER_EMAIL = process.env.NEXT_PUBLIC_PDF_EMAIL || "immigration@xiphias.in";
 const FOOTER_PHONE = process.env.NEXT_PUBLIC_PDF_PHONE || "+91 90194 00500";
-const FOOTER_WEBSITE =
-  process.env.NEXT_PUBLIC_PDF_WEBSITE || "www.xiphiasimmigration.com";
+const FOOTER_WEBSITE = process.env.NEXT_PUBLIC_PDF_WEBSITE || "www.xiphiasimmigration.com";
 
-/** Palette (letterhead-style with a small gold accent line; adjust as needed) */
-const COLOR_TEXT = rgb(0, 0, 0);
-const COLOR_MUTED = rgb(0.28, 0.28, 0.32);
-const COLOR_ACCENT = rgb(0.85, 0.69, 0.15); // gold line
-const COLOR_HEADER_BG = rgb(0.95, 0.97, 1); // very light blue
-const COLOR_CARD_BORDER = rgb(0.75, 0.75, 0.78);
+/** ---------- Palette & Layout ---------- */
+const COLOR_TEXT = rgb(0.07, 0.07, 0.09);
+const COLOR_MUTED = rgb(0.34, 0.36, 0.40);
+const COLOR_ACCENT = rgb(0.85, 0.69, 0.15);
+const COLOR_HEADER_BG = rgb(0.96, 0.97, 1);
+const COLOR_CARD_BORDER = rgb(0.82, 0.82, 0.84);
+const COLOR_DIVIDER = rgb(0.92, 0.92, 0.94);
 
-/** Layout */
-const PAGE_SIZE: [number, number] = [595.28, 841.89]; // A4
-const MARGIN_X = 56; // left/right
-const HEADER_HEIGHT = 76;
-const FOOTER_HEIGHT = 64; // includes divider + footer text
-const LINE = 14; // content line height
-const TITLE_SIZE = 16;
-const H1_SIZE = 20;
-const H2_SIZE = 12;
-const TEXT_SIZE = 10;
+const A4: [number, number] = [595.28, 841.89];
+const MARGIN_X = 56;
+const HEADER_H = 78;
+const FOOTER_H = 64;
+const LINE = 14;
 
-/** ---------- Utilities ---------- */
+const SIZE_H1 = 20;
+const SIZE_H2 = 12;
+const SIZE_TEXT = 10;
 
-function titleCase(k: string) {
-  return k
-    .replace(/[_\-]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+type Fonts = { regular: any; bold: any };
+
+/** ---------- Helpers ---------- */
+function labelize(k: string) {
+  return k.replace(/[_\-]/g, " ").replace(/\s+/g, " ").trim().replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-function toStr(v: unknown): string {
+function toStr(v: unknown) {
   if (typeof v === "boolean") return v ? "Yes" : "No";
   if (v == null) return "-";
   if (typeof v === "object") return JSON.stringify(v);
   return String(v);
 }
 
-/** Split text to fit width using font metrics */
-function wrapText(
-  text: string,
-  maxWidth: number,
-  font: any,
-  size: number
-): string[] {
+function wrap(text: string, maxWidth: number, font: any, size: number): string[] {
   const words = String(text).split(/\s+/);
   const lines: string[] = [];
   let line = "";
   for (const w of words) {
-    const test = line ? `${line} ${w}` : w;
-    if (font.widthOfTextAtSize(test, size) > maxWidth) {
+    const t = line ? `${line} ${w}` : w;
+    if (font.widthOfTextAtSize(t, size) > maxWidth) {
       if (line) lines.push(line);
       line = w;
     } else {
-      line = test;
+      line = t;
     }
   }
   if (line) lines.push(line);
   return lines;
 }
 
-/** Optional logo embeddder */
-async function embedLogo(pdf: PDFDocument) {
-  if (!PDF_LOGO_BASE64 || !PDF_LOGO_BASE64.includes("base64")) return null;
-  const base64 = PDF_LOGO_BASE64.split(",").pop()!;
-  const bytes = Buffer.from(base64, "base64");
+async function loadFontBytes(file: string) {
   try {
+    const p = path.join(process.cwd(), "public", "fonts", file);
+    return await fs.readFile(p);
+  } catch {
+    return null;
+  }
+}
+
+async function embedLogo(pdf: PDFDocument) {
+  if (!PDF_LOGO_BASE64.includes("base64")) return null;
+  try {
+    const base64 = PDF_LOGO_BASE64.split(",").pop()!;
+    const bytes = Buffer.from(base64, "base64");
     return await pdf.embedPng(bytes);
   } catch {
     return null;
   }
 }
 
-/** Draw page header, returns the starting y for content */
-function drawHeader(
-  page: any,
-  fonts: { regular: any; bold: any },
-  logo: any | null
-) {
-  const { height, width } = page.getSize();
-  // header background band (very subtle)
-  page.drawRectangle({
-    x: 0,
-    y: height - HEADER_HEIGHT,
-    width,
-    height: HEADER_HEIGHT,
-    color: COLOR_HEADER_BG,
-  });
+function drawHeader(page: any, fonts: Fonts, logo: any | null) {
+  const { width, height } = page.getSize();
 
-  // optional logo (small, centered)
+  page.drawRectangle({ x: 0, y: height - HEADER_H, width, height: HEADER_H, color: COLOR_HEADER_BG });
+
   if (logo) {
     const logoW = 56;
     const logoH = (logoW / logo.width) * logo.height;
     page.drawImage(logo, {
       x: MARGIN_X,
-      y: height - HEADER_HEIGHT + (HEADER_HEIGHT - logoH) / 2,
+      y: height - HEADER_H + (HEADER_H - logoH) / 2,
       width: logoW,
       height: logoH,
     });
   }
 
-  // Company + report title
+  const x0 = MARGIN_X + (logo ? 64 : 0) + 4;
+
   page.drawText(COMPANY_NAME, {
-    x: MARGIN_X + (logo ? 64 : 0) + 4,
+    x: x0,
     y: height - 28,
     size: 11,
     font: fonts.regular,
@@ -128,59 +115,49 @@ function drawHeader(
   });
 
   page.drawText(REPORT_TITLE, {
-    x: MARGIN_X + (logo ? 64 : 0) + 4,
+    x: x0,
     y: height - 44,
-    size: H1_SIZE,
+    size: SIZE_H1,
     font: fonts.bold,
     color: COLOR_TEXT,
   });
 
-  // thin gold line
   page.drawRectangle({
     x: MARGIN_X,
-    y: height - HEADER_HEIGHT - 1,
+    y: height - HEADER_H - 1,
     width: width - MARGIN_X * 2,
-    height: 1,
+    height: 1.2,
     color: COLOR_ACCENT,
   });
 
-  return height - HEADER_HEIGHT - 18; // starting y for content
+  return height - HEADER_H - 18;
 }
 
-function drawFooter(
-  page: any,
-  fonts: { regular: any },
-  pageNum: number,
-  total: number
-) {
+function drawFooter(page: any, fonts: Fonts, pageNum: number, total: number) {
   const { width } = page.getSize();
-  const y = FOOTER_HEIGHT - 32;
 
-  // divider
   page.drawRectangle({
     x: MARGIN_X,
-    y: FOOTER_HEIGHT - 10,
+    y: FOOTER_H - 10,
     width: width - MARGIN_X * 2,
     height: 0.8,
-    color: rgb(0.92, 0.92, 0.94),
+    color: COLOR_DIVIDER,
   });
 
-  // left-aligned footer info (spaced bullets)
-  const footerStr = `${FOOTER_ADDRESS}  ·  ${FOOTER_EMAIL}  ·  ${FOOTER_PHONE}  ·  ${FOOTER_WEBSITE}`;
-  page.drawText(footerStr, {
+  const footer = `${FOOTER_ADDRESS}  ·  ${FOOTER_EMAIL}  ·  ${FOOTER_PHONE}  ·  ${FOOTER_WEBSITE}`;
+  page.drawText(footer, {
     x: MARGIN_X,
-    y,
+    y: FOOTER_H - 32,
     size: 8.5,
     font: fonts.regular,
     color: COLOR_MUTED,
   });
 
-  // right-aligned page number
   const pn = `Page ${pageNum} of ${total}`;
   const pnWidth = fonts.regular.widthOfTextAtSize(pn, 8.5);
   page.drawText(pn, {
     x: MARGIN_X + (width - MARGIN_X * 2) - pnWidth,
-    y,
+    y: FOOTER_H - 32,
     size: 8.5,
     font: fonts.regular,
     color: COLOR_MUTED,
@@ -188,10 +165,10 @@ function drawFooter(
 }
 
 function newPage(pdf: PDFDocument) {
-  return pdf.addPage(PAGE_SIZE);
+  return pdf.addPage(A4);
 }
 
-/** ---------- Main handler ---------- */
+/** ---------- API ---------- */
 export async function POST(req: NextRequest) {
   const { name, track, answers } = (await req.json()) as {
     name: string;
@@ -200,179 +177,174 @@ export async function POST(req: NextRequest) {
   };
 
   if (!name || !track || !answers) {
-    return NextResponse.json(
-      { ok: false, error: "Missing fields" },
-      { status: 400 }
-    );
+    return NextResponse.json({ ok: false, error: "Missing fields" }, { status: 400 });
   }
 
   const result = scoreAssessment(track, answers);
 
   const pdf = await PDFDocument.create();
-  const regular = await pdf.embedFont(StandardFonts.Helvetica);
-  const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
+
+  // Try custom fonts first; gracefully fall back to built-ins
+  let regular: any;
+  let bold: any;
+  const regBytes = await loadFontBytes("Inter-Regular.ttf");
+  const boldBytes = await loadFontBytes("Inter-Bold.ttf");
+  if (regBytes && boldBytes) {
+    regular = await pdf.embedFont(regBytes, { subset: true });
+    bold = await pdf.embedFont(boldBytes, { subset: true });
+  } else {
+    const { StandardFonts } = await import("pdf-lib");
+    regular = await pdf.embedFont(StandardFonts.Helvetica);
+    bold = await pdf.embedFont(StandardFonts.HelveticaBold);
+  }
+
   const logo = await embedLogo(pdf);
 
   let page = newPage(pdf);
   let y = drawHeader(page, { regular, bold }, logo);
-  const usableWidth = PAGE_SIZE[0] - MARGIN_X * 2;
-  const colWidth = (usableWidth - 24) / 2; // for two-column blocks
 
-  const ensureSpace = (needed: number) => {
-    if (y - needed < FOOTER_HEIGHT + 24) {
+  const usableW = A4[0] - MARGIN_X * 2;
+  const ensure = (need: number) => {
+    if (y - need < FOOTER_H + 24) {
       page = newPage(pdf);
       y = drawHeader(page, { regular, bold }, logo);
     }
   };
 
-  const drawLabel = (label: string) => {
-    page.drawText(label, {
-      x: MARGIN_X,
-      y,
-      size: H2_SIZE,
-      font: bold,
-      color: COLOR_TEXT,
-    });
-    y -= LINE;
-  };
-
-  const drawTextBlock = (text: string, size = TEXT_SIZE) => {
-    const lines = wrapText(text, usableWidth, regular, size);
+  const write = (text: string, size = SIZE_TEXT) => {
+    const lines = wrap(text, usableW, regular, size);
     for (const ln of lines) {
       page.drawText(ln, { x: MARGIN_X, y, size, font: regular, color: COLOR_TEXT });
       y -= LINE;
     }
   };
 
-  // Meta (Name/Track/Generated)
-  ensureSpace(LINE * 4);
-  page.drawText(`Name: ${name || "-"}`, {
-    x: MARGIN_X,
-    y,
-    size: TEXT_SIZE,
-    font: regular,
-    color: COLOR_TEXT,
-  });
-  y -= LINE;
-  page.drawText(`Track: ${track}`, {
-    x: MARGIN_X,
-    y,
-    size: TEXT_SIZE,
-    font: regular,
-    color: COLOR_TEXT,
-  });
-  y -= LINE;
-  page.drawText(`Generated: ${new Date().toLocaleString()}`, {
-    x: MARGIN_X,
-    y,
-    size: TEXT_SIZE,
-    font: regular,
-    color: COLOR_TEXT,
-  });
-  y -= LINE;
+  const section = (title: string) => {
+    page.drawText(title, { x: MARGIN_X, y, size: SIZE_H2, font: bold, color: COLOR_TEXT });
+    y -= LINE;
+  };
 
-  // Summary
-  ensureSpace(LINE * 4);
-  drawLabel("Summary");
-  drawTextBlock(`${result.tier} — ${result.summary}`);
+  /* --- Meta --- */
+  ensure(LINE * 4);
+  write(`Name: ${name || "-"}`);
+  write(`Track: ${track}`);
+  write(`Generated: ${new Date().toLocaleString()}`);
 
-  // Suggested Programs (card)
+  /* --- Summary --- */
+  ensure(LINE * 4);
+  section("Summary");
+  write(`${result.tier} — ${result.summary}`);
+
+  /* --- Highlight card (first program) --- */
   if (result.programs?.length) {
-    ensureSpace(90);
+    ensure(92);
     const cardX = MARGIN_X;
-    const cardY = y - 70;
-    const cardW = usableWidth;
-    const cardH = 70;
+    const cardW = usableW;
+    const cardH = 82;
+    const cardY = y - cardH + 6;
 
-    // border
     page.drawRectangle({
       x: cardX,
       y: cardY,
       width: cardW,
       height: cardH,
+      color: rgb(1, 1, 1),
       borderColor: COLOR_CARD_BORDER,
       borderWidth: 1,
-      color: rgb(1, 1, 1), // white fill
     });
 
-    // program title
     const p0 = result.programs[0];
     page.drawText(p0?.name ?? "Suggested Program", {
-      x: cardX + 10,
+      x: cardX + 12,
       y: cardY + cardH - 22,
-      size: H2_SIZE,
+      size: SIZE_H2,
       font: bold,
       color: COLOR_TEXT,
     });
 
-    // reason
-    const lines = wrapText(
-      p0?.why ?? "Based on your profile",
-      cardW - 20,
-      regular,
-      TEXT_SIZE
-    );
+    const lines = wrap(p0?.why ?? "Based on your profile.", cardW - 24, regular, SIZE_TEXT);
     let yy = cardY + cardH - 22 - LINE;
     for (const ln of lines) {
-      page.drawText(ln, {
-        x: cardX + 10,
-        y: yy,
-        size: TEXT_SIZE,
-        font: regular,
-        color: COLOR_MUTED,
-      });
+      page.drawText(ln, { x: cardX + 12, y: yy, size: SIZE_TEXT, font: regular, color: COLOR_MUTED });
       yy -= LINE;
     }
 
-    y = cardY - 10;
+    y = cardY - 12;
   }
 
-  // Your Inputs (two columns)
-  ensureSpace(LINE * 6);
-  drawLabel("Your Inputs");
+  /* --- Additional programs --- */
+  const rest = (result.programs || []).slice(1, 5);
+  if (rest.length) {
+    ensure(LINE * (rest.length * 3));
+    section("Additional Options");
+    for (const p of rest) {
+      const text = `${p.name}${p.why ? ` — ${p.why}` : ""}`;
+      const lines = wrap(text, usableW - 14, regular, SIZE_TEXT);
+      page.drawText("•", { x: MARGIN_X, y, size: SIZE_TEXT, font: bold, color: COLOR_TEXT });
+      let yy = y;
+      for (const ln of lines) {
+        page.drawText(ln, { x: MARGIN_X + 12, y: yy, size: SIZE_TEXT, font: regular, color: COLOR_TEXT });
+        yy -= LINE;
+      }
+      y = yy;
+    }
+  }
 
-  // Split keys half/half into two columns
+  /* --- Your Inputs (strict two-column grid) --- */
+  ensure(LINE * 6);
+  section("Your Inputs");
+
   const entries = Object.entries(answers);
   const half = Math.ceil(entries.length / 2);
   const left = entries.slice(0, half);
   const right = entries.slice(half);
 
-  const drawColumn = (items: [string, unknown][], x: number) => {
-    let yCol = y;
+  // exact grid: two columns, each column has fixed label width
+  const gap = 24;
+  const colW = (usableW - gap) / 2;
+  const labelW = 92;
+
+  const drawCol = (items: [string, unknown][], x: number) => {
+    let yy = y;
     for (const [k, v] of items) {
-      page.drawText(`${titleCase(k)}:`, {
-        x,
-        y: yCol,
-        size: TEXT_SIZE,
-        font: bold,
-        color: COLOR_TEXT,
-      });
-      const val = toStr(v);
-      const valLines = wrapText(val, colWidth - 80, regular, TEXT_SIZE); // keep label room
-      let yy = yCol;
-      for (const ln of valLines) {
+      // label
+      page.drawText(`${labelize(k)}:`, { x, y: yy, size: SIZE_TEXT, font: bold, color: COLOR_TEXT });
+
+      // value (wrapped), start after labelW
+      const text = toStr(v);
+      const lines = wrap(text, colW - labelW, regular, SIZE_TEXT);
+      let vy = yy;
+      for (const ln of lines) {
         page.drawText(ln, {
-          x: x + 80,
-          y: yy,
-          size: TEXT_SIZE,
+          x: x + labelW,
+          y: vy,
+          size: SIZE_TEXT,
           font: regular,
           color: COLOR_TEXT,
         });
-        yy -= LINE;
+        vy -= LINE;
       }
-      yCol = yy - 4;
+      yy = Math.min(yy - LINE, vy) - 2; // step row down uniformly
     }
-    return yCol;
+    return yy;
   };
 
-  const yLeftEnd = drawColumn(left, MARGIN_X);
-  const yRightEnd = drawColumn(right, MARGIN_X + colWidth + 24);
-  y = Math.min(yLeftEnd, yRightEnd) - 8;
+  const yLeft = drawCol(left, MARGIN_X);
+  const yRight = drawCol(right, MARGIN_X + colW + gap);
+  y = Math.min(yLeft, yRight) - 8;
 
-  // After all content is laid out, draw the footer with page numbers
+  /* --- Next steps --- */
+  ensure(LINE * 4);
+  section("Next Steps");
+  write(
+    `Book a free consultation to review your profile, documents and timelines. ` +
+      `Contact ${FOOTER_EMAIL} or visit ${FOOTER_WEBSITE}.`
+  );
+
+  /* --- Footer on each page --- */
   const pages = pdf.getPages();
   for (let i = 0; i < pages.length; i++) {
-    drawFooter(pages[i], { regular }, i + 1, pages.length);
+    drawFooter(pages[i], { regular, bold }, i + 1, pages.length);
   }
 
   const bytes = await pdf.save();
