@@ -6,18 +6,30 @@ import * as React from "react";
 type FAQ = { q: string; a: string };
 
 const DEFAULT_FAQS: FAQ[] = [
-  { q: "How does my journey with XIPHIAS start?",
-    a: "With a private discovery call (20–30 mins). We clarify your goals—relocation, work, investment, family, or a second home—along with timelines and budget. You leave with a shortlist of routes and a first roadmap tailored to your profile." },
-  { q: "What happens after the consultation?",
-    a: "We complete structured profile diligence (work history, education, assets, source of funds, travel history, dependants) and lock the best-fit program. You receive milestones, documentation lists, fees, and estimated decision windows." },
-  { q: "Which documents will I need to prepare?",
-    a: "Typically: passports, civil status, education/work proofs, bank statements, and police clearances. Investment/business routes may require source-of-funds and company papers. We provide checklists, templates, and QC guidance for each step." },
-  { q: "How long does the process usually take?",
-    a: "It varies by country and route. Fast-track visas: ~1–3 months. Investment PR/Golden Visa: ~3–9 months. Some citizenship-by-exception routes: ~4–8 months. We keep a milestone tracker and update you if authorities request more evidence." },
-  { q: "Can my family be included in the same file?",
-    a: "Yes. Most programs include spouse and dependent children; some allow parents. We plan sequencing so school/work schedules face minimal disruption and everyone moves through the process smoothly." },
-  { q: "What support do I get post-approval and on landing?",
-    a: "We guide visa stamping, landing formalities, IDs/tax numbers, and local registrations. Our relocation desk coordinates housing, schools, banking, insurance and—on business routes—entity setup and light compliance so you can settle quickly." },
+  {
+    q: "How does my journey with XIPHIAS start?",
+    a: "With a private discovery call (20–30 mins). We clarify your goals—relocation, work, investment, family, or a second home—along with timelines and budget. You leave with a shortlist of routes and a first roadmap tailored to your profile.",
+  },
+  {
+    q: "What happens after the consultation?",
+    a: "We complete structured profile diligence (work history, education, assets, source of funds, travel history, dependants) and lock the best-fit program. You receive milestones, documentation lists, fees, and estimated decision windows.",
+  },
+  {
+    q: "Which documents will I need to prepare?",
+    a: "Typically: passports, civil status, education/work proofs, bank statements, and police clearances. Investment/business routes may require source-of-funds and company papers. We provide checklists, templates, and QC guidance for each step.",
+  },
+  {
+    q: "How long does the process usually take?",
+    a: "It varies by country and route. Fast-track visas: ~1–3 months. Investment PR/Golden Visa: ~3–9 months. Some citizenship-by-exception routes: ~4–8 months. We keep a milestone tracker and update you if authorities request more evidence.",
+  },
+  {
+    q: "Can my family be included in the same file?",
+    a: "Yes. Most programs include spouse and dependent children; some allow parents. We plan sequencing so school/work schedules face minimal disruption and everyone moves through the process smoothly.",
+  },
+  {
+    q: "What support do I get post-approval and on landing?",
+    a: "We guide visa stamping, landing formalities, IDs/tax numbers, and local registrations. Our relocation desk coordinates housing, schools, banking, insurance and—on business routes—entity setup and light compliance so you can settle quickly.",
+  },
 ];
 
 export default function FAQSectionXiphas({
@@ -25,8 +37,8 @@ export default function FAQSectionXiphas({
   title = "Your journey with XIPHIAS — Top FAQs",
   subtitle = "A quick overview from first consultation to post-landing support.",
   className = "",
-  hashMode = "replace",      // "replace" | "push"
-  clearHashOnClose = false,  // if true, clears hash when closing the last open panel
+  hashMode = "replace", // "replace" | "push"
+  clearHashOnClose = false,
 }: {
   faqs?: FAQ[];
   title?: string;
@@ -35,39 +47,41 @@ export default function FAQSectionXiphas({
   hashMode?: "replace" | "push";
   clearHashOnClose?: boolean;
 }) {
-  // Open first item by default (no hash write on load)
   const [openIndex, setOpenIndex] = React.useState<number | null>(0);
-
-  // Tracks whether the last change came from a USER click
   const userChangedRef = React.useRef(false);
 
-  // Slugs for anchors
   const slugs = React.useMemo(() => (faqs ?? []).map((f) => slugify(f.q)), [faqs]);
 
-  // If page loads with a hash, open that item (no URL write here)
+  // On load: if hash matches a question, open it and scroll to it.
   React.useEffect(() => {
     if (typeof window === "undefined") return;
     const hash = decodeURIComponent(window.location.hash.replace("#", ""));
     if (!hash) return;
     const idx = slugs.indexOf(hash);
-    if (idx >= 0) setOpenIndex(idx);
+    if (idx >= 0) {
+      setOpenIndex(idx);
+      // scroll to anchor on initial load
+      requestAnimationFrame(() => scrollToSlug(hash));
+    }
   }, [slugs]);
 
-  // Only write/clear the hash AFTER a user toggles
+  // After a USER toggle, write/clear hash and scroll to the opened item.
   React.useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!userChangedRef.current) return; // ignore initial programmatic state changes
+    if (typeof window === "undefined" || !userChangedRef.current) return;
 
     const base = `${window.location.pathname}${window.location.search}`;
-    const write = (url: string) => {
-      if (hashMode === "push") window.history.pushState?.(null, "", url);
-      else window.history.replaceState?.(null, "", url);
-    };
+    const write = (url: string) =>
+      hashMode === "push"
+        ? window.history.pushState?.(null, "", url)
+        : window.history.replaceState?.(null, "", url);
 
     if (openIndex === null) {
-      if (clearHashOnClose) write(base); // optionally clear hash
+      if (clearHashOnClose) write(base);
     } else {
-      write(`${base}#${slugs[openIndex]}`);
+      const slug = slugs[openIndex];
+      write(`${base}#${slug}`);
+      // smooth scroll to newly opened item
+      scrollToSlug(slug);
     }
     userChangedRef.current = false;
   }, [openIndex, slugs, hashMode, clearHashOnClose]);
@@ -84,34 +98,33 @@ export default function FAQSectionXiphas({
       id="faq"
       role="region"
       aria-label="Frequently asked questions"
-      className={`relative py-10 sm:py-12 md:py-14 ${className}`}
+      className={`py-10 sm:py-12 md:py-14 ${className}`}
     >
-      {/* soft background accents */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-24 -left-16 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute -bottom-28 -right-10 h-64 w-64 rounded-full bg-secondary/10 blur-3xl" />
-      </div>
-
-      <div className="container mx-auto lg:max-w-screen-2xl px-4">
+      <div className="container mx-auto lg:max-w-screen-2xl px-4 sm:px-6 lg:px-8 overflow-x-clip">
         <header className="mb-6 sm:mb-8 md:mb-10">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-950 dark:text-white break-words">
             {title}
           </h2>
           {subtitle && (
-            <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-3xl">
+            <p className="mt-2 max-w-3xl text-sm sm:text-base text-zinc-700 dark:text-zinc-300 break-words">
               {subtitle}
             </p>
           )}
         </header>
 
-        {/* Elegant accordion */}
-        <div className="overflow-visible rounded-2xl bg-gradient-to-br from-slate-50 to-white dark:from-neutral-900/60 dark:to-neutral-900/20 ring-1 ring-slate-200/70 dark:ring-neutral-800/70 shadow-sm divide-y divide-slate-200/70 dark:divide-neutral-800/70">
+        {/* Simple, clean accordion */}
+        <div className="overflow-hidden rounded-2xl bg-white ring-1 ring-zinc-200 shadow-sm dark:bg-white/5 dark:ring-white/10 divide-y divide-zinc-200 dark:divide-white/10">
           {faqs.slice(0, 6).map((f, i) => {
             const isOpen = openIndex === i;
-            const panelId = `faq-panel-${i}-${slugs[i]}`;
-            const buttonId = `faq-button-${i}-${slugs[i]}`;
+            const slug = slugs[i];
+            const panelId = `faq-panel-${i}-${slug}`;
+            const buttonId = `faq-button-${i}-${slug}`;
+
             return (
               <div key={panelId} className="px-4 sm:px-5">
+                {/* anchor target so #hash scrolls correctly */}
+                <span id={slug} className="block scroll-mt-28" aria-hidden />
+
                 <h3 className="m-0">
                   <button
                     id={buttonId}
@@ -119,12 +132,12 @@ export default function FAQSectionXiphas({
                     aria-expanded={isOpen}
                     aria-controls={panelId}
                     onClick={() => onToggle(i)}
-                    className="group flex w-full items-center justify-between gap-3 py-4 sm:py-5 text-left text-[15px] sm:text-base font-semibold rounded-lg hover:bg-white/60 dark:hover:bg-neutral-900/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500/60 text-neutral-900 dark:text-neutral-100 transition"
+                    className="group flex w-full items-center justify-between gap-3 py-4 sm:py-5 text-left text-[15px] sm:text-base font-semibold rounded-lg hover:bg-zinc-50/80 dark:hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 text-zinc-900 dark:text-zinc-100 transition"
                   >
-                    <span className="pr-2">{f.q}</span>
+                    <span className="pr-2 break-words">{f.q}</span>
                     <Chevron
                       className={[
-                        "h-5 w-5 shrink-0 text-neutral-600 dark:text-neutral-300 transition-transform duration-300",
+                        "h-5 w-5 shrink-0 text-zinc-600 dark:text-zinc-300 transition-transform duration-300",
                         isOpen ? "rotate-180" : "rotate-0",
                       ].join(" ")}
                     />
@@ -141,7 +154,7 @@ export default function FAQSectionXiphas({
                   ].join(" ")}
                 >
                   <div className="overflow-hidden">
-                    <div className="pb-4 sm:pb-5 text-[15px] leading-7 text-black/80 dark:text-gray-200 whitespace-pre-line">
+                    <div className="pb-4 sm:pb-5 text-[15px] leading-7 text-zinc-800 dark:text-zinc-200 whitespace-pre-line">
                       {f.a}
                     </div>
                   </div>
@@ -151,7 +164,7 @@ export default function FAQSectionXiphas({
           })}
         </div>
 
-        <p className="mt-6 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+        <p className="mt-6 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
           Still curious? Book a private consultation—we’ll map your best options, documents and timelines.
         </p>
       </div>
@@ -177,14 +190,24 @@ function slugify(s: string) {
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
 }
+
 function Chevron({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" aria-hidden="true" fill="none"
-         stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="m6 9 6 6 6-6" />
     </svg>
   );
 }
+
 function buildFaqLd(faqs: FAQ[]) {
   return {
     "@context": "https://schema.org",
@@ -195,4 +218,18 @@ function buildFaqLd(faqs: FAQ[]) {
       acceptedAnswer: { "@type": "Answer", text: f.a },
     })),
   };
+}
+
+/** Smoothly scrolls to the anchor for a slug (respects reduced motion). */
+function scrollToSlug(slug: string) {
+  try {
+    const el = document.getElementById(slug);
+    if (!el) return;
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  } catch {
+    /* no-op */
+  }
 }
