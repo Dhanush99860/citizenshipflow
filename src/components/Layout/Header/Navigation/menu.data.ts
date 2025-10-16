@@ -1,6 +1,6 @@
-// FILE: src/components/Layout/Header/menu.data.ts
-// (ONE file used by both desktop and mobile)
-import type { HeaderItem } from '../menu.types';
+// Auto-generated menu data based on the latest sitemap.
+// Only links that exist in the current sitemap are retained.
+import type { HeaderItem } from '../menu.types'
 
 /**
  * Notes:
@@ -14,41 +14,15 @@ import type { HeaderItem } from '../menu.types';
 // ---------------------------
 const residencyCountries: HeaderItem[] = [
   {
-    label: 'Argentina',
-    href: '/residency/argentina',
-    // @ts-ignore
-    meta: { code: 'AR' },
-    submenu: [
-      { label: 'Investor Visa', href: '/residency/argentina/investor-visa' },
-      { label: 'Entrepreneur Path', href: '/residency/argentina/entrepreneur' },
-    ],
-  },
-  {
-    label: 'Australia',
-    href: '/residency/australia',
-    // @ts-ignore
-    meta: { code: 'AU' },
-    submenu: [
-      { label: 'Innovation Visa', href: '/residency/australia/innovation-visa' },
-      { label: '186 ENS', href: '/residency/australia/186' },
-      { label: '189 Skilled Independent', href: '/residency/australia/189' },
-      { label: '190 Skilled Nominee', href: '/residency/australia/190' },
-      { label: '482 TSS', href: '/residency/australia/482' },
-    ],
-  },
-  {
-    label: 'Austria',
-    href: '/residency/austria',
-    // @ts-ignore
-    meta: { code: 'AT' },
-    submenu: [{ label: 'Residency by Investment', href: '/residency/austria/investment' }],
-  },
-  {
     label: 'Bulgaria',
     href: '/residency/bulgaria',
     // @ts-ignore
     meta: { code: 'BG' },
-    submenu: [{ label: 'Residency by Investment', href: '/residency/bulgaria/investment' }],
+    submenu: [
+      { label: 'AIF Residency', href: '/residency/bulgaria/bulgaria-aif-residency' },
+      { label: 'Government Bonds Residency', href: '/residency/bulgaria/bulgaria-government-bonds-residency' },
+      { label: 'Real Estate Residency', href: '/residency/bulgaria/bulgaria-real-estate-residency' },
+    ],
   },
   {
     label: 'Canada',
@@ -56,10 +30,17 @@ const residencyCountries: HeaderItem[] = [
     // @ts-ignore
     meta: { code: 'CA' },
     submenu: [
-      { label: 'PNP (Entrepreneur)', href: '/residency/canada/pnp' },
-      { label: 'Quebec', href: '/residency/canada/quebec' },
-      { label: 'Self Employed', href: '/residency/canada/self-employed' },
-      { label: 'C11', href: '/residency/canada/c11' },
+      { label: 'Startup Visa', href: '/residency/canada/startupvisa' },
+    ],
+  },
+  {
+    label: 'Curacao',
+    href: '/residency/curacao',
+    // @ts-ignore
+    meta: { code: 'CW' },
+    submenu: [
+      { label: '3-Year Active Investor', href: '/residency/curacao/3-year-active-investor' },
+      { label: 'Indefinite Investor Residency', href: '/residency/curacao/indefinite-investor-residency' },
     ],
   },
   {
@@ -67,16 +48,11 @@ const residencyCountries: HeaderItem[] = [
     href: '/residency/cyprus',
     // @ts-ignore
     meta: { code: 'CY' },
-    submenu: [{ label: 'Golden Visa', href: '/residency/cyprus/golden-visa' }],
-  },
-  {
-    label: 'France',
-    href: '/residency/france',
-    // @ts-ignore
-    meta: { code: 'FR' },
     submenu: [
-      { label: 'Business Creation', href: '/residency/france/business-creation' },
-      { label: 'Business Investment', href: '/residency/france/business-investment' },
+      { label: 'Business Investment', href: '/residency/cyprus/business-investment' },
+      { label: 'Commercial Property', href: '/residency/cyprus/commercial-property' },
+      { label: 'Fund Investment', href: '/residency/cyprus/fund-investment' },
+      { label: 'Residential Property', href: '/residency/cyprus/residential-property' },
     ],
   },
   {
@@ -84,47 +60,62 @@ const residencyCountries: HeaderItem[] = [
     href: '/residency/greece',
     // @ts-ignore
     meta: { code: 'GR' },
-    submenu: [{ label: 'Golden Visa', href: '/residency/greece/golden-visa' }],
+    submenu: [
+      { label: 'Capital Investment', href: '/residency/greece/greece-capital-investment' },
+      { label: 'Real Estate Investment', href: '/residency/greece/greece-real-estate-investment' },
+    ],
   },
   {
     label: 'Hungary',
     href: '/residency/hungary',
     // @ts-ignore
     meta: { code: 'HU' },
-    submenu: [{ label: 'Guest Investor Visa', href: '/residency/hungary/guest-investor' }],
+    submenu: [
+      { label: 'Donation Public Trust', href: '/residency/hungary/hungary-donation-public-trust' },
+      { label: 'Real Estate Fund', href: '/residency/hungary/hungary-real-estate-fund' },
+    ],
   },
   {
-    label: 'Italy',
-    href: '/residency/italy',
+    label: 'Latvia',
+    href: '/residency/latvia',
     // @ts-ignore
-    meta: { code: 'IT' },
-    submenu: [{ label: 'Italian Golden Visa', href: '/residency/italy/golden-visa' }],
-  },
-  {
-    label: 'Luxembourg',
-    href: '/residency/luxembourg',
-    // @ts-ignore
-    meta: { code: 'LU' },
-    submenu: [{ label: 'Residence by Investment', href: '/residency/luxembourg/investment' }],
+    meta: { code: 'LV' },
+    submenu: [
+      { label: 'Bank Deposit', href: '/residency/latvia/latvia-bank-deposit' },
+      { label: 'Business Investment', href: '/residency/latvia/latvia-business-investment' },
+      { label: 'Government Bonds', href: '/residency/latvia/latvia-government-bonds' },
+      { label: 'Real Estate Investment', href: '/residency/latvia/latvia-real-estate-investment' },
+    ],
   },
   {
     label: 'Malta',
     href: '/residency/malta',
     // @ts-ignore
     meta: { code: 'MT' },
-    submenu: [{ label: 'Permanent Residence Programme', href: '/residency/malta/permanent-residence' }],
+    submenu: [
+      { label: 'Government Contribution', href: '/residency/malta/malta-government-contribution' },
+      { label: 'Property Lease Residency', href: '/residency/malta/malta-property-lease-residency' },
+      { label: 'Property Purchase', href: '/residency/malta/malta-property-purchase' },
+    ],
+  },
+  {
+    label: 'Monaco',
+    href: '/residency/monaco',
+    // @ts-ignore
+    meta: { code: 'MC' },
+    submenu: [
+      { label: 'Bank Deposit', href: '/residency/monaco/monaco-residency-bank-deposit' },
+      { label: 'Property Investment', href: '/residency/monaco/monaco-residency-property-investment' },
+    ],
   },
   {
     label: 'Portugal',
     href: '/residency/portugal',
     // @ts-ignore
     meta: { code: 'PT' },
-    // @ts-ignore – badge supported by your MenuNode
-    badge: { text: 'Popular', tone: 'success' },
     submenu: [
-      { label: 'Golden Visa', href: '/residency/portugal/golden-visa' },
-      { label: 'D7 Visa', href: '/residency/portugal/d7' },
-      { label: 'D9 Tech Visa', href: '/residency/portugal/d9' },
+      { label: 'Business Investment', href: '/residency/portugal/portugal-business-investment' },
+      { label: 'Capital Transfer', href: '/residency/portugal/portugal-capital-transfer' },
     ],
   },
   {
@@ -133,37 +124,40 @@ const residencyCountries: HeaderItem[] = [
     // @ts-ignore
     meta: { code: 'SG' },
     submenu: [
-      { label: 'Global Investor Programme', href: '/residency/singapore/global-investor' },
-      { label: 'Family Office', href: '/residency/singapore/family-office' },
+      { label: 'GIP Business Investment', href: '/residency/singapore/singapore-gip-business-investment' },
+      { label: 'GIP Fund Investment', href: '/residency/singapore/singapore-gip-fund-investment' },
+      { label: 'GIP SFO Residency', href: '/residency/singapore/singapore-gip-sfo-residency' },
     ],
-  },
-  {
-    label: 'Spain',
-    href: '/residency/spain',
-    // @ts-ignore
-    meta: { code: 'ES' },
-    submenu: [{ label: 'Non-Lucrative Visa', href: '/residency/spain/non-lucrative' }],
   },
   {
     label: 'Switzerland',
     href: '/residency/switzerland',
     // @ts-ignore
     meta: { code: 'CH' },
-    submenu: [{ label: 'Residency by Investment', href: '/residency/switzerland/investment' }],
+    submenu: [
+      { label: 'Business Investment', href: '/residency/switzerland/switzerland-business-investment' },
+      { label: 'Lump Sum Tax', href: '/residency/switzerland/switzerland-lump-sum-tax' },
+    ],
   },
   {
     label: 'UAE',
     href: '/residency/uae',
     // @ts-ignore
     meta: { code: 'AE' },
-    submenu: [{ label: 'Golden Visa', href: '/residency/uae/golden-visa' }],
+    submenu: [
+      { label: 'Real Estate', href: '/residency/uae/uae-real-estate' },
+      { label: 'Specialized Talent', href: '/residency/uae/uae-specialized-talent' },
+    ],
   },
   {
     label: 'USA',
     href: '/residency/usa',
     // @ts-ignore
     meta: { code: 'US' },
-    submenu: [{ label: 'EB-5 Program', href: '/residency/usa/eb5' }],
+    submenu: [
+      { label: 'EB-5 Non-Targeted Employment Area', href: '/residency/usa/eb5-non-targeted-employment-area' },
+      { label: 'EB-5 Targeted Employment Area', href: '/residency/usa/eb5-targeted-employment-area' },
+    ],
   },
 ];
 
@@ -191,57 +185,116 @@ export const headerMenu: HeaderItem[] = [
         href: '/citizenship/antigua-barbuda',
         // @ts-ignore
         meta: { code: 'AG' },
-        submenu: [{ label: 'CBI Program', href: '/citizenship/antigua-barbuda/program' }],
+        submenu: [
+          { label: 'Business Investment', href: '/citizenship/antigua-barbuda/business-investment' },
+          { label: 'National Development Fund', href: '/citizenship/antigua-barbuda/national-development-fund' },
+          { label: 'Real Estate', href: '/citizenship/antigua-barbuda/real-estate' },
+        ],
       },
       {
         label: 'Dominica',
         href: '/citizenship/dominica',
         // @ts-ignore
         meta: { code: 'DM' },
-        submenu: [{ label: 'CBI Program', href: '/citizenship/dominica/program' }],
+        submenu: [
+          { label: 'Real Estate', href: '/citizenship/dominica/real-estate' },
+          { label: 'Economic Diversification Fund', href: '/citizenship/dominica/economic-diversification-fund' },
+        ],
       },
       {
-        label: 'St. Kitts & Nevis',
-        href: '/citizenship/st-kitts-nevis',
+        label: 'Egypt',
+        href: '/citizenship/egypt',
         // @ts-ignore
-        meta: { code: 'KN' },
+        meta: { code: 'EJ' },
         // @ts-ignore
         badge: { text: 'Fast Track', tone: 'info' },
-        submenu: [{ label: 'CBI Program', href: '/citizenship/st-kitts-nevis/program' }],
+        submenu: [
+          { label: 'Bank Deposit', href: '/citizenship/egypt/bank-deposit' },
+          { label: 'Business Investment', href: '/citizenship/egypt/business-investment' },
+          { label: 'Donation', href: '/citizenship/egypt/donation' },
+          { label: 'Real Estate', href: '/citizenship/egypt/real-estate' },
+        ],
       },
       {
-        label: 'Türkiye',
-        href: '/citizenship/turkiye',
+        label: 'Grenada',
+        href: '/citizenship/grenada',
+        // @ts-ignore
+        meta: { code: 'GD' },
+        submenu: [
+          { label: 'Real Estate', href: '/citizenship/grenada/real-estate' },
+          { label: 'National Transformation Fund', href: '/citizenship/grenada/national-transformation-fund' },
+        ],
+      },
+      {
+        label: 'Nauru',
+        href: '/citizenship/nauru',
+        // @ts-ignore
+        meta: { code: 'NR' },
+        submenu: [
+          { label: 'Investment', href: '/citizenship/nauru/investment' },
+        ],
+      },
+      {
+        label: 'Saint Lucia',
+        href: '/citizenship/saint-lucia',
+        // @ts-ignore
+        meta: { code: 'LC' },
+        submenu: [
+          { label: 'National Economic Fund', href: '/citizenship/saint-lucia/national-economic-fund' },
+          { label: 'Real Estate', href: '/citizenship/saint-lucia/real-estate' },
+        ],
+      },
+      {
+        label: 'Saotome',
+        href: '/citizenship/saotome',
+        // @ts-ignore
+        meta: { code: 'ST' },
+        submenu: [
+          { label: 'NTF', href: '/citizenship/saotome/ntf' },
+        ],
+      },
+      {
+        label: 'Saintkitts',
+        href: '/citizenship/saintkitts',
+        // @ts-ignore
+        meta: { code: 'KN' },
+        submenu: [
+          { label: 'Approved Public Benefit Project', href: '/citizenship/saintkitts/approved-public-benefit-project' },
+          { label: 'Real Estate', href: '/citizenship/saintkitts/real-estate' },
+          { label: 'Sustainable Island State Contribution', href: '/citizenship/saintkitts/sustainable-island-state-contribution' },
+        ],
+      },
+      {
+        label: 'Turkey',
+        href: '/citizenship/turkey',
         // @ts-ignore
         meta: { code: 'TR' },
-        submenu: [{ label: 'CBI Program', href: '/citizenship/turkiye/program' }],
+        submenu: [
+          { label: 'Bank Deposit', href: '/citizenship/turkey/bank-deposit' },
+          { label: 'Business Investment', href: '/citizenship/turkey/business-investment' },
+          { label: 'Fund Investment', href: '/citizenship/turkey/fund-investment' },
+          { label: 'Government Bonds', href: '/citizenship/turkey/government-bonds' },
+          { label: 'Job Creation', href: '/citizenship/turkey/job-creation' },
+          { label: 'Real Estate', href: '/citizenship/turkey/real-estate' },
+        ],
       },
       {
         label: 'Vanuatu',
         href: '/citizenship/vanuatu',
         // @ts-ignore
         meta: { code: 'VU' },
-        submenu: [{ label: 'CBI Program', href: '/citizenship/vanuatu/program' }],
+        submenu: [
+          { label: 'VDSP Donation', href: '/citizenship/vanuatu/vdsp-donation' },
+        ],
       },
     ],
   },
 
-  // Corporate formation
+  // Corporate formation (only countries with valid pages)
   {
     label: 'Corporate',
     href: '/#corporate',
     submenu: [
-      {
-        label: 'UAE',
-        href: '/corporate/uae',
-        // @ts-ignore
-        meta: { code: 'AE' },
-        submenu: [
-          { label: 'FTZ – Company Setup', href: '/corporate/uae/ftz' },
-          { label: 'Mainland – Setup', href: '/corporate/uae/mainland' },
-          { label: 'Offshore – Setup', href: '/corporate/uae/offshore' },
-        ],
-      },
       {
         label: 'Singapore',
         href: '/corporate/singapore',
@@ -249,46 +302,25 @@ export const headerMenu: HeaderItem[] = [
         meta: { code: 'SG' },
         submenu: [
           { label: 'EP – Company Setup', href: '/corporate/singapore/ep' },
-          { label: 'GIP – Company Setup', href: '/corporate/singapore/global-investor' },
-        ],
-      },
-      {
-        label: 'Switzerland',
-        href: '/corporate/switzerland',
-        // @ts-ignore
-        meta: { code: 'CH' },
-        submenu: [
-          { label: 'Holding Company', href: '/corporate/switzerland/holding' },
-          { label: 'Trading Company', href: '/corporate/switzerland/trading' },
         ],
       },
     ],
   },
 
-  // Skilled migration
+  // Skilled migration (only countries with valid pages)
   {
     label: 'Skilled',
     href: '/#skilled',
     submenu: [
       {
-        label: 'USA',
-        href: '/skilled/usa',
+        label: 'Australia',
+        href: '/skilled/australia',
         // @ts-ignore
-        meta: { code: 'US' },
+        meta: { code: 'AU' },
         submenu: [
-          { label: 'EB1A Extraordinary', href: '/skilled/usa/eb1a' },
-          { label: 'EB2 NIW', href: '/skilled/usa/eb2-niw' },
-          { label: 'H1B', href: '/skilled/usa/h1b' },
-        ],
-      },
-      {
-        label: 'UK',
-        href: '/skilled/uk',
-        // @ts-ignore
-        meta: { code: 'GB' },
-        submenu: [
-          { label: 'Global Talent', href: '/skilled/uk/global-talent' },
-          { label: 'Expansion Worker', href: '/skilled/uk/expansion-worker' },
+          { label: 'Global Talent', href: '/skilled/australia/global-talent' },
+          { label: 'Skilled Independent 189', href: '/skilled/australia/skilled-independent-189' },
+          { label: 'Skilled Nominated 190', href: '/skilled/australia/skilled-nominated-190' },
         ],
       },
       {
@@ -298,23 +330,21 @@ export const headerMenu: HeaderItem[] = [
         meta: { code: 'CA' },
         submenu: [
           { label: 'Express Entry', href: '/skilled/canada/express-entry' },
-          { label: 'Provincial Nominee', href: '/skilled/canada/pnp' },
+          { label: 'Provincial Nominee', href: '/skilled/canada/provincial-nominee' },
         ],
       },
     ],
   },
 
-  // Resources (new) — helpful for HNIs/B2B/consumers
+  // Resources section with available pages from the sitemap
   {
     label: 'Resources',
     href: '/#resources',
     submenu: [
-      { label: 'Pricing & Fees', href: '/resources/pricing' },
-      { label: 'Case Studies', href: '/resources/case-studies' },
-      { label: 'Guides & Playbooks', href: '/resources/guides' },
-      { label: 'Webinars & Events', href: '/resources/webinars' },
       { label: 'Blog', href: '/blog' },
-      { label: 'FAQ', href: '/resources/faq' },
+      { label: 'Insights', href: '/insights' },
+      { label: 'Media', href: '/media' },
+      { label: 'News', href: '/news' },
     ],
   },
 
