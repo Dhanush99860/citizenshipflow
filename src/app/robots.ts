@@ -1,20 +1,41 @@
-// src/app/robots.ts
-import type { MetadataRoute } from 'next'
-import { headers } from 'next/headers'
+﻿import type { MetadataRoute } from "next";
+import { getSiteUrl } from "../lib/seo/site";
 
-// Needed if you read per-request values like headers:
-export const dynamic = 'force-dynamic'
+export default function robots(): MetadataRoute.Robots {
+  const production =
+    process.env.VERCEL_ENV === "production" ||
+    process.env.NODE_ENV === "production";
 
-export default async function robots(): Promise<MetadataRoute.Robots> {
-  const h = await headers(); // <- await here
+  const host = getSiteUrl();
 
-  // In proxies (Vercel, etc.), prefer x-forwarded-* first:
-  const host  = h.get('x-forwarded-host') ?? h.get('host') ?? 'localhost:3000'
-  const proto = h.get('x-forwarded-proto') ?? 'http'
-  const base  = `${proto}://${host}`
+  if (!production) {
+    // DO NOT index preview/dev
+    return {
+      rules: [{ userAgent: "*", disallow: "/" }],
+      sitemap: `${host}/sitemap.xml`,
+      host,
+    };
+  }
 
   return {
-    rules: [{ userAgent: '*', allow: '/' }],
-    sitemap: `${base}/sitemap.xml`,
-  }
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: [
+          "/api/",
+          "/search",
+          "/thank-you",
+          "/login",
+          "/profile",
+          "/cart",
+          "/admin",
+          "/dashboard",
+          "/personalbooking",
+        ],
+      },
+    ],
+    sitemap: `${host}/sitemap.xml`,
+    host,
+  };
 }
