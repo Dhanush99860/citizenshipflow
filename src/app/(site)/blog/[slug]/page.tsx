@@ -5,12 +5,12 @@ import { getInsightBySlug } from "@/lib/insights-content";
 
 export const revalidate = 86400;
 
-type PageProps = { params: { slug: string } };
+// types stay near identical; just wrap in Promise
+type PageProps = { params: Promise<{ slug: string }> };
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
-  const record = await getInsightBySlug("blog", params.slug);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;            // ⟵ await here
+  const record = await getInsightBySlug("blog", slug);
   if (!record) return { title: "Not Found" };
   const description = record.summary || `Blog: ${record.title}`;
   return {
@@ -33,7 +33,8 @@ export async function generateMetadata({
 }
 
 export default async function Page({ params }: PageProps) {
-  const record = await getInsightBySlug("blog", params.slug);
+  const { slug } = await params;            // ⟵ await here
+  const record = await getInsightBySlug("blog", slug);
   if (!record) return <div className="py-20 text-center">Not found</div>;
   return (
     <>

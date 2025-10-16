@@ -5,15 +5,13 @@ import InsightsList from "@/components/Insights/InsightsList";
 
 export const revalidate = 86400;
 
-type PageProps = {
-  searchParams: { page?: string };
-};
+type PageProps = { searchParams: Promise<{ page?: string }> };
 
 export default async function BlogListPage({ searchParams }: PageProps) {
-  const page = Math.max(1, Number(searchParams.page || "1"));
+  const { page: pageParam } = await searchParams;     // ⟵ await here
+  const page = Math.max(1, Number(pageParam || "1"));
   const pageSize = 12;
 
-  // getAllInsights already supports pagination + returns total
   const { items, total } = await getAllInsights({
     kind: "blog",
     page,

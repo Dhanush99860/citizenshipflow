@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+
+<head>
+  <!-- Google Tag Manager Checkout Funnel -->
+  <script>
+  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src="https://load.d.neilpatel.com/3cb1bwbylavu.js?"+i;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','5rpwx2u=HBJcKy0vWjU4PCMkTzhRFEhET11fBhlfGxMIAAkDAwcZWAIDFA%3D%3D');
+  </script>
+  <!-- End Google Tag Manager Checkout Funnel -->
+  <!-- Google Tag Manager -->
+  <script>
+    ; (function (w, d, s, l, i) {
+      w[l] = w[l] || []
+      w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' })
+      var f = d.getElementsByTagName(s)[0],
+        j = d.createElement(s),
+        dl = l != 'dataLayer' ? '&l=' + l : ''
+      j.async = true
+      j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl
+      f.parentNode.insertBefore(j, f)
+    })(window, document, 'script', 'dataLayer', 'GTM-WMJBH6Z')
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <!-- Kissmetrics -->
+  <script defer type="text/javascript">
+    window._kmq = window._kmq || []
+    var _kmk = _kmk || '0e8fa074fc4d17a80aa45ffd1f04404b2aad7c67'
+    function _kms(u) {
+      setTimeout(function () {
+        var d = document,
+          f = d.getElementsByTagName('script')[0],
+          s = d.createElement('script')
+        s.type = 'text/javascript'
+        s.async = true
+        s.src = u
+        f.parentNode.insertBefore(s, f)
+      }, 1)
+    }
+    _kms('//i.kissmetrics.io/i.js')
+    _kms('//scripts.kissmetrics.io/' + _kmk + '.2.js')
+  </script>
+  <!-- Kissmetrics End -->
+
+  <!-- Start of ubersuggest Zendesk Widget script -->
+  <script id="ze-snippet"
+    src="https://static.zdassets.com/ekr/snippet.js?key=fb916b7d-48ea-4f54-a836-ece41c533df8"></script>
+  <!-- End of ubersuggest Zendesk Widget script -->
+
+  <!-- Mutiny Snippet -->
+  <script>
+      ; (function () {
+        var a = (window.mutiny = window.mutiny || {})
+        if (!window.mutiny.client) {
+          a.client = { _queue: {} }
+          var b = ['identify', 'trackConversion']
+          var c = [].concat(b, ['defaultOptOut', 'optOut', 'optIn'])
+          var d = function factory(c) {
+            return function () {
+              for (
+                var d = arguments.length, e = new Array(d), f = 0;
+                f < d;
+                f++
+              ) {
+                e[f] = arguments[f]
+              }
+              a.client._queue[c] = a.client._queue[c] || []
+              if (b.includes(c)) {
+                return new Promise(function (b, d) {
+                  a.client._queue[c].push({ args: e, resolve: b, reject: d })
+                  setTimeout(d, 500)
+                })
+              } else {
+                a.client._queue[c].push({ args: e })
+              }
+            }
+          }
+          c.forEach(function (b) {
+            a.client[b] = d(b)
+          })
+        }
+      })()
+  </script>
+
+  <!-- Hotjar Snippet -->
+  <script>
+      (function (h, o, t, j, a, r) {
+        h.hj = h.hj || function () { (h.hj.q = h.hj.q || []).push(arguments) };
+        h._hjSettings = { hjid: parseInt('5290286', 10), hjsv: 6 };
+        a = o.getElementsByTagName('head')[0];
+        r = o.createElement('script'); r.async = 1;
+        r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
+        a.appendChild(r);
+      })(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
+  </script>
+  <!-- Hotjar Snippet End -->
+
+  <script>
+    var ChurnZero = ChurnZero || [];
+    (function (a, b, c, d) { var cz = a.createElement(b); cz.type = c; cz.async = true; cz.src = d; var s = a.getElementsByTagName(b)[0]; s.parentNode.insertBefore(cz, s); })(document, "script", 'text/javascript', 'https://ubersuggest.us1app.churnzero.net/churnzero.js');
+
+    ChurnZero.push(['setAppKey', '1!LLYsUK1uQYKtVXsFIpo2ST0KFrPWc3VHclu2M7-VLZot1572']);
+  </script>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="google-site-verification" content="phr6PvNu-EKXTM4rD-g4QPt47nUtXUIZpSBdpRlPNl8" />
+  <!--
+      manifest.json provides metadata used when your web app is added to the
+      homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
+    -->
+  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="Ubersuggest" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+  <!-- Start of HubSpot Embed Code -->
+  <script defer type="text/javascript" id="hs-script-loader" async defer
+    src="//js-eu1.hs-scripts.com/25525864.js"></script>
+  <!-- End of HubSpot Embed Code -->
+
+
+  <script id="profitwell-js" data-pw-auth="ebcaa55409d82056bce4187274657ec8">
+    (function (i, s, o, g, r, a, m) { i[o] = i[o] || function () { (i[o].q = i[o].q || []).push(arguments) }; a = s.createElement(g); m = s.getElementsByTagName(g)[0]; a.async = 1; a.src = r + '?auth=' + s.getElementById(o + '-js').getAttribute('data-pw-auth'); m.parentNode.insertBefore(a, m); })(window, document, 'profitwell', 'script', 'https://public.profitwell.com/js/profitwell.js');
+  </script>
+
+  <script src="https://js.recurly.com/v4/recurly.js"></script>
+
+  <!-- Fonts -->
+  <!-- Noto Sans JP -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=Roboto:wght@400;500;700;900&display=swap"
+    rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+
+  <title>Ubersuggest</title>
+  <meta name="description"
+    content="Sign up for Ubersuggest to access powerful SEO and keyword research tools. Increase your website traffic and improve your rankings today!">
+  <script type="module" crossorigin src="/assets/index-CwSmjBJM.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-HUnVgrd8.css">
+</head>
+
+<body>
+  <!-- Google Tag Manager Checkout Funnel (noscript) -->
+  <noscript><iframe src="https://load.d.neilpatel.com/ns.html?id=GTM-WMJBH6Z" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager Checkout Funnel (noscript) -->
+  <noscript>Sign up for Ubersuggest to access powerful SEO and keyword research tools. Increase your website traffic
+    and improve your rankings today!</noscript>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="ns " height="0" width="0" style="display: none; visibility: hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+  <div id="root"></div>
+  <div id="prompt-modal-page"></div>
+  <div id="prompt-modal-global"></div>
+  <div id="prompt-modal-upgrade"></div>
+  <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  <div id="prompt-modal-create-project"></div>
+  <div id="onboarding-modal-root"></div>
+</body>
+
+</html>
