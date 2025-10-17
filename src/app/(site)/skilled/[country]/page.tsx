@@ -15,7 +15,7 @@ import MediaHero from "@/components/Residency/MediaHero";
 import ContactForm from "@/components/ContactForm";
 import Breadcrumb from "@/components/Common/Breadcrumb";
 
-import SidebarStatsPanel from "@/components/Residency/Country/SidebarStatsPanel";
+import SidebarStatsPanel from "@/components/Skilled/SidebarStatsPanel";
 import SidebarProgramsList from "@/components/Residency/Country/SidebarProgramsList";
 import SidebarHighlights from "@/components/Residency/Country/SidebarHighlights";
 import AboutCountrySection from "@/components/Residency/Country/AboutCountrySection";
@@ -175,7 +175,6 @@ export default async function CountryPage(props: {
         <aside className="md:col-span-4 space-y-6">
           <SidebarStatsPanel
             programsCount={programs.length}
-            investRange={minInvestmentRange}
             timelineRange={timelineRange}
           />
           <SidebarProgramsList country={countryName} programs={programs} />

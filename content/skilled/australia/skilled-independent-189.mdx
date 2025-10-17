@@ -9,42 +9,87 @@ programSlug: skilled-independent-189
 tagline: "Permanent residency with no employer or state sponsor — invitation via SkillSelect."
 currency: AUD
 timelineMonths: 12
-tags: ["PR", "points-tested", "no sponsor", "family"]
+tags: ["PR", "points-tested", "no sponsor", "family", "189"]
+
+seo:
+  title: "Australia Subclass 189 (Skilled Independent) — Points-tested PR"
+  description: "Subclass 189 is a points-tested pathway to Australian permanent residency with no employer or state sponsor required. Submit an EOI in SkillSelect, meet the pass mark, and get invited."
+  keywords:
+    - Australia PR
+    - Subclass 189
+    - Skilled Independent
+    - points tested visa
+    - SkillSelect
+    - no sponsor visa
 
 heroImage: "/images/skilled/Australia/Australia.webp"
 heroVideo: "/images/personal/video/sample.mp4"
 heroPoster: "/images/skilled/Australia/Australia.webp"
 
-brochure: "/images/citizenship/antigua/antigua.pdf"
+# brochure path
+brochure: "/brochures/skilled/australia/skilled-independent-189.pdf"
 
-# Route metadata
-routeType: points-tested
-lastUpdated: "2025-09-13"
+# Route metadata (conforms to ProgramMeta)
+routeType: points
+lastUpdated: "2025-10-17"
+jobOfferRequired: false
+jobOfferNote: "Independent GSM route — no employer or state nomination required."
 
-# Quick-facts wiring (NEW)
-points:
-  max: 65
-  gridUrl: "https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/skilled-independent-189/points-tested"
+# Language — keep both for compat with old + new components
+language:
+  tests: ["IELTS", "PTE", "OET", "TOEFL iBT (where accepted)"]
+  minLevel: "Competent English (IELTS 6.0 each or accepted equivalents)"
 languageMin:
-  test: "IELTS"
+  test: "IELTS (or PTE/OET equivalents)"
   overall: 6
   bands:
     listening: 6
     reading: 6
     writing: 6
     speaking: 6
+
+# Points — pass mark (also expose threshold for filters/chips)
+points:
+  max: 65
+  gridUrl: "https://immi.homeaffairs.gov.au/visas/working-in-australia/skilled-independent-visa-subclass-189"
+pointsThreshold: 65
+
 occupationListUrl: "https://immi.homeaffairs.gov.au/visas/working-in-australia/skill-occupation-list"
 
-# Price blocks (program-staged + gov fees)
+# Optional points table (renders if present)
+pointsGrid:
+  - category: "Age"
+    max: 30
+  - category: "English language"
+    max: 20
+  - category: "Skilled employment (overseas/Australia)"
+    max: 20
+  - category: "Qualifications"
+    max: 20
+  - category: "Other factors (Aust. study, specialist education, partner, regional, CCL)"
+    max: 25
+
+# Optional occupation hints (lists and sample ANZSCO codes)
+occupationCodes: ["261313", "233211", "254418", "341111"]
+occupationLists:
+  - listName: "Common eligible occupations (examples)"
+    occupations:
+      - "Software Engineer (ANZSCO 261313)"
+      - "Civil Engineer (ANZSCO 233211)"
+      - "Registered Nurse (ANZSCO 254418)"
+      - "Electrician (General) (ANZSCO 341111)"
+
+# Program-stage costs (indicative typicals)
 prices:
   - label: "Visa application charge (primary applicant)"
     amount: 4910
+    notes: "Official VAC; additional applicant charges apply."
   - label: "Skills assessment (typical)"
     amount: 600
-    notes: "Varies by assessing authority; check your authority’s schedule."
+    notes: "Varies by assessing authority."
   - label: "English test (IELTS/PTE typical)"
     amount: 410
-    notes: "Provider-dependent; book early."
+    notes: "Provider dependent."
   - label: "Health exams (typical)"
     amount: 350
     notes: "Panel physician pricing varies by city."
@@ -53,12 +98,12 @@ governmentFees:
   - label: "Subclass 189 — primary applicant VAC (from)"
     amount: 4910
     currency: AUD
-    sourceLabel: "Home Affairs — 189 (points-tested)"
-    sourceUrl: "https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/skilled-independent-189/points-tested"
+    sourceLabel: "Home Affairs — visa pricing"
+    sourceUrl: "https://immi.homeaffairs.gov.au/visas/visa-pricing-estimator"
   - label: "Additional applicant charges (18+ / <18) — see official pricing table"
     currency: AUD
-    sourceLabel: "Current Visa Pricing Table"
-    sourceUrl: "https://immi.homeaffairs.gov.au/visas/getting-a-visa/fees-and-charges/current-visa-pricing"
+    sourceLabel: "Current visa pricing table"
+    sourceUrl: "https://immi.homeaffairs.gov.au/visas/visa-pricing-estimator"
   - label: "Possible 2nd instalment (certain low-English cases) — if applicable"
     currency: AUD
     sourceLabel: "English levels & second instalment policy"
@@ -68,7 +113,7 @@ benefits:
   - "Permanent residency on grant; live and work anywhere in Australia."
   - "No job offer, sponsor or state nomination required."
   - "Partner and dependent children can be included."
-  - "Clear, published points test and invitation rounds."
+  - "Transparent points test and published invitation activity."
 
 requirements:
   - "Under 45 **at the time of invitation**."
@@ -83,8 +128,9 @@ disqualifiers:
   - "Age ≥ 45 **on the invitation date** (not eligible for GSM)."
 
 riskNotes:
-  - "Invitation competitiveness varies by occupation; higher points often required than the 65-point pass mark."
-  - "Occupation lists and invitation policies can change; always re-check before paying fees."
+  - "Invitation competitiveness varies by occupation; many occupations require higher points than the 65-point pass mark."
+  - "Occupation lists and invitation policies change periodically; confirm before paying fees."
+  - "EOI validity is 2 years; keep details updated as changes can affect your points."
 
 complianceNotes:
   - "Provide documentary proof for each claimed point (education, experience, partner, Australian study, etc.)."
@@ -150,25 +196,27 @@ processSteps:
   - title: "English test"
     description: "Book IELTS/PTE/OET and meet at least **Competent English**."
   - title: "Expression of Interest (SkillSelect)"
-    description: "Submit EOI with accurate points claims; monitor invitation rounds."
+    description: "Submit EOI with accurate points claims; monitor invitation rounds. EOI stays active for 2 years (update if details change)."
   - title: "Invitation & visa lodgement"
     description: "On invitation, lodge the 189 application and pay the VAC."
   - title: "Biometrics, health & character"
-    description: "Complete any requested checks; upload police certificates."
+    description: "Complete requested checks; upload police certificates."
   - title: "Decision"
-    description: "PR grant if approved; activate within visa initial entry period."
+    description: "PR grant if approved; activate within the initial entry period."
 
 faq:
   - q: "What is the pass mark?"
-    a: "65 points. In practice, recent invitations for many occupations have required higher points."
-  - q: "Do I need a job offer?"
-    a: "No. 189 is independent; no employer or state sponsor is required."
+    a: "65 points. In practice, cut-offs vary by occupation and round."
+  - q: "Do I need a job offer or sponsor?"
+    a: "No. 189 is independent; no employer or state/territory sponsor is required."
   - q: "How long does it take?"
-    a: "Home Affairs’ median for **Skilled (Permanent)** sits around ~12 months; cases vary month-to-month."
+    a: "Many Skilled (Permanent) decisions land around ~12 months, but timings vary by case and policy."
+  - q: "How long is my EOI valid?"
+    a: "EOIs remain active for **2 years**; you can update them any time before invitation."
   - q: "Can I include family?"
     a: "Yes — partner and dependent children can be included as secondary applicants."
   - q: "Where can I check invitation activity?"
-    a: "Home Affairs publishes **SkillSelect invitation rounds** with the date and outcomes."
+    a: "Home Affairs publishes SkillSelect invitation outcomes periodically."
 
 # Optional interactive estimator (simple)
 costEstimator:
@@ -192,30 +240,26 @@ costEstimator:
       label: "Health exams (typical)"
       amount: 350
       per: "application"
-
-seo:
-  title: "Australia Subclass 189 — Skilled Independent (Points-tested PR)"
-  description: "Permanent residency without sponsorship. Check 189 points, English, occupation list, fees and timeline, then speak to an advisor."
-  keywords:
-    - "subclass 189"
-    - "Skilled Independent"
-    - "Australia PR points"
 ---
 
 ### Overview
 
-Subclass 189 is a **points-tested permanent residence** visa for invited workers. You must submit an **EOI in SkillSelect**, meet the **65-point pass mark**, be **under 45 at invitation**, have a **positive skills assessment**, and meet at least **Competent English**.
+Subclass 189 is a **points-tested permanent residence** visa for invited workers. You must submit an **EOI in SkillSelect**, meet the **65-point pass mark**, be **under 45 at invitation**, hold a **positive skills assessment**, and meet at least **Competent English**.
+
+### Salary overview
+
+There is **no minimum salary requirement tied to visa grant** for 189 and **no sponsoring employer**. After PR, employment must comply with Australian workplace laws and market rates. You may work for any employer in any state/territory.
 
 ### Why Australia (189)
 
-- PR on grant; live and work anywhere
-- No sponsor or state nomination required
-- Transparent points system and published invitation rounds
+- PR on grant; live and work anywhere  
+- No sponsor or state nomination required  
+- Transparent points system and published invitation activity
 
 ### Comparison
 
-**189 vs 190 (state nominated)** — 189 has no nomination obligations but is often more competitive on points. **190** grants PR as well, and nomination provides **+5 points**, but you must meet state criteria and settlement expectations.
+**189 vs 190 (state nominated)** — 189 has no nomination obligations but is often more competitive on points. **190** grants PR as well and nomination provides **+5 points**, but you must meet state criteria and settlement expectations.
 
-### Notes on Competitiveness
+### Notes on competitiveness
 
-Recent national invitation rounds show fluctuating volumes by occupation. Higher points and recent experience/English often improve competitiveness.
+Invitation volumes and occupational ceilings fluctuate. Higher points, recent relevant experience and stronger English typically improve competitiveness.

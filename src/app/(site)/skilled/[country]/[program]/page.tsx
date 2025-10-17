@@ -1,37 +1,46 @@
-// src/app/(site)/skilled/[country]/[program]/page.tsx
-// (same visuals; now EVERYTHING awaited + normalized so no /undefined links)
+// Skilled detail page — skilled-only UX (no investment/cost blocks), plus Insights & Related.
+
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import * as React from "react";
+import { Target, Timer, Briefcase } from "lucide-react";
 
 import {
   getSkilledCountrySlugs,
   getSkilledPrograms,
   loadProgramPageSections,
+  getInsightsForProgram, // insights helper exported in lib
 } from "@/lib/skilled-content";
-import {
-  baseFromCategory,
-  pickSectionKey,
-  investmentLabel,
-} from "@/lib/section-helpers";
+import { baseFromCategory, pickSectionKey } from "@/lib/section-helpers";
 
-import MediaHero from "@/components/Residency/MediaHero";
-import QuickFacts from "@/components/Residency/QuickFacts";
+import MediaHero from "@/components/Skilled/MediaHero";
+import ProgramQuickNav from "@/components/Residency/ProgramQuickNav";
 import ProcessTimeline from "@/components/Residency/ProcessTimeline";
 import FAQAccordion from "@/components/Residency/FAQAccordion";
-import { JsonLd, breadcrumbLd, faqLd } from "@/lib/seo";
 import ContactForm from "@/components/ContactForm";
-import ProgramQuickNav from "@/components/Residency/ProgramQuickNav";
+import SocialProof from "@/components/Residency/SocialProof";
 import Breadcrumb from "@/components/Common/Breadcrumb";
 import { Prose } from "@/components/ui/Prose";
+import { JsonLd, breadcrumbLd, faqLd } from "@/lib/seo";
+
+/* —— Skilled-specific blocks —— */
+import LanguageRequirements from "@/components/Skilled/LanguageRequirements";
+import OccupationLists from "@/components/Skilled/OccupationLists";
+import PointsGridTable from "@/components/Skilled/PointsGridTable";
+import Overoffer from "@/components/Skilled/Overoffer";
+import TestimonialCarousel from "@/components/Skilled/TestimonialCarousel";
+
+/* —— Shared rich blocks reused from citizenship —— */
 import EligibilityQuickCheck from "@/components/Residency/EligibilityQuickCheck";
-import SocialProof from "@/components/Residency/SocialProof";
-import Prices from "@/components/Residency/Prices";
+import DocumentChecklist from "@/components/Citizenship/DocumentChecklist";
+import FamilyMatrix from "@/components/Citizenship/FamilyMatrix";
+import GovernmentFees from "@/components/Citizenship/GovernmentFees";
 
 export const revalidate = 86400;
 export const dynamicParams = true;
 
+/** SSG params */
 export async function generateStaticParams() {
   const countries = await getSkilledCountrySlugs();
   const params: { country: string; program: string }[] = [];
@@ -46,15 +55,12 @@ export async function generateStaticParams() {
   return params;
 }
 
-export async function generateMetadata(props: {
-  params: Promise<{ country: string; program: string }>;
-}): Promise<Metadata> {
-  const params = await props.params;
+/** SEO */
+export async function generateMetadata(
+  { params }: { params: { country: string; program: string } }
+): Promise<Metadata> {
   try {
-    const { meta } = await loadProgramPageSections(
-      params.country,
-      params.program,
-    );
+    const { meta } = await loadProgramPageSections(params.country, params.program);
     const heroImage = (meta as any).heroImage as string | undefined;
     const title =
       (meta as any).seo?.title ??
@@ -97,6 +103,7 @@ export async function generateMetadata(props: {
   }
 }
 
+/** tiny scorer for “Related” */
 function similarityScore(
   base: { title: string; tags?: string[] },
   cand: { title: string; tags?: string[] },
@@ -125,15 +132,129 @@ type RelatedItem = {
   score: number;
 };
 
-export default async function ProgramPage(props: {
-  params: Promise<{ country: string; program: string }>;
+type InsightItem = {
+  title: string;
+  url: string;
+  source?: string;
+  date?: string; // ISO
+  tag?: string;
+  excerpt?: string;
+};
+
+function SkilledFacts({
+  timelineMonths,
+  passMark,
+  jobOfferRequired,
+}: {
+  timelineMonths?: number;
+  passMark?: number;
+  jobOfferRequired?: boolean;
 }) {
-  const params = await props.params;
+  // Build the cards list with icon + accent color + optional hint
+  const items = [
+    passMark != null
+      ? {
+          key: "pass-mark",
+          label: "Pass mark",
+          value: `${passMark} points`,
+          Icon: Target,
+          accent: "from-emerald-500/15 to-emerald-500/5",
+          hint: "Minimum to be eligible; recent invitation cut-offs can be higher by occupation.",
+        }
+      : null,
+    timelineMonths != null
+      ? {
+          key: "timeline",
+          label: "Typical timeline",
+          value: `${timelineMonths} months`,
+          Icon: Timer,
+          accent: "from-sky-500/15 to-sky-500/5",
+          hint: "Indicative end-to-end processing; varies by case.",
+        }
+      : null,
+    jobOfferRequired != null
+      ? {
+          key: "job-offer",
+          label: "Job offer",
+          value: jobOfferRequired ? "Required" : "Not required",
+          Icon: Briefcase,
+          accent: jobOfferRequired
+            ? "from-amber-500/15 to-amber-500/5"
+            : "from-emerald-500/15 to-emerald-500/5",
+          badge: jobOfferRequired ? { text: "Requirement", tone: "amber" } : { text: "Independent", tone: "emerald" },
+          hint: jobOfferRequired
+            ? "A qualifying offer is needed for this route."
+            : "No employer sponsorship is needed.",
+        }
+      : null,
+  ].filter(Boolean) as Array<{
+    key: string;
+    label: string;
+    value: string;
+    Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+    accent: string;
+    hint?: string;
+    badge?: { text: string; tone: "emerald" | "amber" };
+  }>;
+
+  if (!items.length) return null;
+
+  // Responsive column count based on how many items we actually have
+  const gridCols =
+    items.length === 1 ? "sm:grid-cols-1" : items.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3";
+
+  return (
+    <section aria-label="Quick facts" className="relative overflow-hidden">
+      {/* subtle gradient sheen */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5" />
+      <div className={`grid grid-cols-1 ${gridCols} gap-3`}>
+        {items.map(({ key, label, value, Icon, accent, badge, hint }) => (
+          <article
+            key={key}
+            className="group relative isolate overflow-hidden rounded-xl ring-1 ring-neutral-200/70 dark:ring-neutral-800/70 bg-gradient-to-br"
+          >
+            <div className={`absolute inset-0 bg-gradient-to-br ${accent}`} aria-hidden="true" />
+            <div className="relative flex items-start gap-3 p-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/70 dark:bg-neutral-900/60 ring-1 ring-neutral-200/70 dark:ring-neutral-800/70">
+                <Icon className="h-5 w-5 opacity-80" aria-hidden="true" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-[11px] uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
+                    {label}
+                  </h3>
+                  {badge ? (
+                    <span
+                      className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] ring-1 ${
+                        badge.tone === "emerald"
+                          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 ring-emerald-500/30"
+                          : "bg-amber-500/10 text-amber-700 dark:text-amber-300 ring-amber-500/30"
+                      }`}
+                    >
+                      {badge.text}
+                    </span>
+                  ) : null}
+                </div>
+                <p className="mt-0.5 text-lg font-semibold leading-6 text-neutral-900 dark:text-white">
+                  {value}
+                </p>
+                {hint ? (
+                  <p className="mt-1 text-[12px] leading-5 text-neutral-600/80 dark:text-neutral-300/80" title={hint}>
+                    {hint}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export default async function ProgramPage({ params }: { params: { country: string; program: string } }) {
   try {
-    const { meta, sections } = await loadProgramPageSections(
-      params.country,
-      params.program,
-    );
+    const { meta, sections } = await loadProgramPageSections(params.country, params.program);
 
     const videoSrc = (meta as any).heroVideo as string | undefined;
     const poster = (meta as any).heroPoster as string | undefined;
@@ -143,50 +264,92 @@ export default async function ProgramPage(props: {
       `/brochures/skilled/${params.country}/${params.program}.pdf`;
 
     const processSteps: any[] = (meta as any).processSteps ?? [];
-    const quickCheck = (meta as any).quickCheck as any | undefined;
-    const prices = (meta as any).prices as
-      | {
-          label: string;
-          amount?: number;
-          currency?: string;
-          when?: string;
-          notes?: string;
-        }[]
-      | undefined;
-    const proofOfFunds = (meta as any).proofOfFunds as
-      | { label?: string; amount: number; currency?: string; notes?: string }[]
-      | undefined;
     const disqualifiers: string[] = (meta as any).disqualifiers ?? [];
+
+    // Skilled features
+    const jobOffer = {
+      required: (meta as any).jobOfferRequired as boolean | undefined,
+      note: (meta as any).jobOfferNote as string | undefined,
+      ...((meta as any).jobOffer ?? {}),
+    };
+    const pointsGrid = (meta as any).pointsGrid;
+    const passMark = (meta as any).points?.max as number | undefined;
+
+    // Normalize LanguageRequirements prop
+    const langMin = (meta as any).languageRequirements ?? (meta as any).languageMin;
+    const languageReq =
+      langMin
+        ? ({
+            tests:
+              Array.isArray(langMin.tests)
+                ? langMin.tests
+                : langMin.test
+                ? [langMin.test]
+                : undefined,
+            minLevel:
+              langMin.minLevel ??
+              (typeof langMin.overall === "number"
+                ? langMin.overall >= 7
+                  ? "Proficient"
+                  : "Competent"
+                : undefined),
+          } as any)
+        : undefined;
+
+    const occupations = (meta as any).occupationLists;
+
+    // Extra rich sections from MDX
+    const quickCheck = (meta as any).quickCheck as any | undefined;
+    const documentChecklist =
+      (meta as any).documentChecklist as { group: string; documents: string[]; notes?: string }[] | undefined;
+    const familyMatrix =
+      (meta as any).familyMatrix as
+        | { childrenUpTo?: number; parentsFromAge?: number; siblings?: boolean; spouse?: boolean }
+        | undefined;
+    const governmentFees =
+      (meta as any).governmentFees as {
+        label: string;
+        amount?: number;
+        currency?: string;
+        sourceLabel?: string;
+        sourceUrl?: string;
+      }[] | undefined;
+
+    // Insights (from skilled-content wrapper around insights-content)
+    let insights: InsightItem[] = [];
+    try {
+      insights =
+        (await getInsightsForProgram({
+          country: params.country,
+          program: params.program,
+          tags: ((meta as any).tags ?? []) as string[],
+        })) ?? [];
+    } catch {
+      // safe no-op
+    }
 
     const otherProgramsRaw = await getSkilledPrograms(params.country);
     const otherPrograms = (otherProgramsRaw as any[])
       .map((p) => ({ ...p, programSlug: p.programSlug ?? p.slug }))
       .filter((p) => p.programSlug !== params.program);
 
+    // Related (cross-country too)
     const allCountrySlugs = await getSkilledCountrySlugs();
     const candidateTasks: Promise<RelatedItem | null>[] = [];
-
     for (const ctry of allCountrySlugs) {
       const progs = await getSkilledPrograms(ctry);
       for (const p of progs as any[]) {
         const progSlug = p.programSlug ?? p.slug;
         if (!progSlug) continue;
         if (ctry === params.country && progSlug === params.program) continue;
-
         candidateTasks.push(
           (async () => {
             try {
-              const { meta: candMeta } = await loadProgramPageSections(
-                ctry,
-                progSlug,
-              );
+              const { meta: candMeta } = await loadProgramPageSections(ctry, progSlug);
               const candTitle =
                 (candMeta as any).title ?? (candMeta as any).name ?? progSlug;
               const score = similarityScore(
-                {
-                  title: (meta as any).title ?? params.program,
-                  tags: (meta as any).tags,
-                },
+                { title: (meta as any).title ?? params.program, tags: (meta as any).tags },
                 { title: candTitle, tags: (candMeta as any).tags },
               );
               if (score <= 0) return null;
@@ -194,13 +357,9 @@ export default async function ProgramPage(props: {
                 url: `${baseFromCategory("skilled")}/${ctry}/${progSlug}`,
                 title: candTitle as string,
                 country: (candMeta as any).country ?? ctry,
-                minInvestment: (candMeta as any).minInvestment as
-                  | number
-                  | undefined,
+                minInvestment: (candMeta as any).minInvestment as number | undefined,
                 currency: (candMeta as any).currency as string | undefined,
-                timelineMonths: (candMeta as any).timelineMonths as
-                  | number
-                  | undefined,
+                timelineMonths: (candMeta as any).timelineMonths as number | undefined,
                 tags: ((candMeta as any).tags ?? []) as string[],
                 heroImage: (candMeta as any).heroImage as string | undefined,
                 score,
@@ -212,10 +371,7 @@ export default async function ProgramPage(props: {
         );
       }
     }
-
-    const relatedRaw = (await Promise.all(candidateTasks)).filter(
-      Boolean,
-    ) as RelatedItem[];
+    const relatedRaw = (await Promise.all(candidateTasks)).filter(Boolean) as RelatedItem[];
     const relatedPrograms = relatedRaw
       .sort((a, b) => {
         if (a.score !== b.score) return b.score - a.score;
@@ -228,94 +384,80 @@ export default async function ProgramPage(props: {
       })
       .slice(0, 6);
 
+    // MDX sections
     const overviewKey = pickSectionKey(sections, ["overview"]);
-    const compensationKey = pickSectionKey(sections, [
+    const compKey = pickSectionKey(sections, [
       "salary-overview",
-      "investment-overview",
+      // intentionally DO NOT include "investment-overview" for skilled pages
       "package-overview",
     ]);
     const comparisonKey = pickSectionKey(sections, [
-      "comparison-with-provincial-entrepreneur-programs",
       "comparison",
       "alternatives",
+      "comparison-with-provincial-entrepreneur-programs",
     ]);
     const whyCountryKey = pickSectionKey(sections, [
       `why-${params.country.toLowerCase()}`,
-      `why-${(meta as any).country?.toLowerCase?.() ?? ""}`,
+      `${(meta as any).country?.toLowerCase?.() ?? ""}`.startsWith("why-")
+        ? (meta as any).country?.toLowerCase?.()
+        : `why-${(meta as any).country?.toLowerCase?.() ?? ""}`,
       "why-country",
     ]);
 
-    const compLabel = investmentLabel["skilled"]; // "Compensation"
+    // Presence flags (no costs/proof-of-funds in skilled)
+    const hasRequirements = !!(meta as any).requirements?.length;
+    const hasBenefits = !!(meta as any).benefits?.length;
+    const hasProcess = processSteps.length > 0;
+    const hasFAQ = !!(meta as any).faq?.length;
+    const hasRelated = relatedPrograms.length > 0;
+    const hasGovFees = !!governmentFees?.length;
+
+    const hasPoints = !!pointsGrid?.length || !!passMark;
+    const hasLanguage = !!languageReq;
+    const hasOccupations = !!(Array.isArray(occupations) ? occupations.length : occupations);
+    const hasQuickCheck = !!quickCheck?.questions?.length;
+    const hasDocs = !!documentChecklist?.length;
+    const hasDeps = !!familyMatrix;
+    const hasInsights = insights.length > 0;
+
+    // QuickNav: mirrors on-page order (no Prices / Investment)
     const sectionsForNav: { id: string; label: string }[] = [
-      { id: "quick-facts", label: "Quick Facts" },
-      { id: "overview", label: "Overview" },
-      { id: "investment", label: compLabel },
-      ...(prices?.length || proofOfFunds?.length
-        ? [{ id: "prices", label: "Costs & Funds" }]
+      { id: "quick-facts", label: "Quick facts" },
+      ...(hasPoints ? [{ id: "points", label: "Points grid" }] : []),
+      ...(hasLanguage ? [{ id: "language", label: "Language" }] : []),
+      ...(hasOccupations ? [{ id: "occupations", label: "Occupations" }] : []),
+      ...(overviewKey && sections[overviewKey] ? [{ id: "overview", label: "Overview" }] : []),
+      ...(compKey && sections[compKey] ? [{ id: "salary", label: "Salary overview" }] : []),
+      ...(hasGovFees ? [{ id: "gov-fees", label: "Government fees" }] : []),
+      ...(hasRequirements ? [{ id: "requirements", label: "Eligibility" }] : []),
+      ...(hasBenefits ? [{ id: "benefits", label: "Benefits" }] : []),
+      ...(hasDocs ? [{ id: "documents", label: "Documents" }] : []),
+      ...(hasDeps ? [{ id: "dependents", label: "Dependents" }] : []),
+      ...(hasProcess ? [{ id: "process", label: "Process" }] : []),
+      ...(comparisonKey && sections[comparisonKey] ? [{ id: "comparison", label: "Comparison" }] : []),
+      ...(whyCountryKey && sections[whyCountryKey]
+        ? [{ id: "why-country", label: `Why ${(meta as any).country ?? params.country}` }]
         : []),
-      ...(((meta as any).requirements?.length ?? 0)
-        ? [{ id: "requirements", label: "Eligibility" }]
-        : []),
-      ...(((meta as any).benefits?.length ?? 0)
-        ? [{ id: "benefits", label: "Benefits" }]
-        : []),
-      ...(processSteps.length ? [{ id: "process", label: "Process" }] : []),
-      { id: "comparison", label: "Comparison" },
-      ...(whyCountryKey
-        ? [
-            {
-              id: "why-country",
-              label: `Why ${(meta as any).country ?? params.country}`,
-            },
-          ]
-        : []),
-      { id: "faq", label: "FAQ" },
-      ...(disqualifiers.length
-        ? [{ id: "not-a-fit", label: "Not a fit?" }]
-        : []),
-      ...(otherPrograms.length
-        ? [{ id: "other-programs", label: "Other Programs" }]
-        : []),
-      ...(relatedPrograms.length ? [{ id: "related", label: "Related" }] : []),
+      ...(disqualifiers.length ? [{ id: "not-a-fit", label: "Not a fit?" }] : []),
+      ...(hasFAQ ? [{ id: "faq", label: "FAQ" }] : []),
+      ...(hasRelated ? [{ id: "related", label: "Related" }] : []),
+      ...(hasInsights ? [{ id: "insights", label: "Insights" }] : []),
     ];
 
+    // JSON-LD (HowTo only; no AggregateOffer for skilled pages)
     const howToLdData =
       processSteps.length > 0
         ? {
             "@context": "https://schema.org",
             "@type": "HowTo",
             name: `${(meta as any).title ?? params.program} Application Process`,
-            description:
-              (meta as any).seo?.description ?? (meta as any).tagline,
+            description: (meta as any).seo?.description ?? (meta as any).tagline,
             step: processSteps.map((step: any, index: number) => ({
               "@type": "HowToStep",
               position: index + 1,
               name: step.title,
               text: step.description,
             })),
-          }
-        : null;
-
-    const offerLd =
-      prices && prices.length
-        ? {
-            "@context": "https://schema.org",
-            "@type": "AggregateOffer",
-            priceCurrency:
-              prices.find((p) => p.currency)?.currency ||
-              (meta as any).currency ||
-              "USD",
-            offers: prices
-              .filter((p) => typeof p.amount === "number")
-              .map((p) => ({
-                "@type": "Offer",
-                name: p.label,
-                price: p.amount,
-                priceCurrency: p.currency || (meta as any).currency || "USD",
-                category: p.when || undefined,
-                description: p.notes || undefined,
-                availability: "https://schema.org/InStock",
-              })),
           }
         : null;
 
@@ -329,11 +471,7 @@ export default async function ProgramPage(props: {
 
     return (
       <main
-        className="
-          relative container mx-auto px-4
-          bg-light_bg dark:bg-dark_bg text-black dark:text-white
-          pb-32 sm:pb-16
-        "
+        className="relative container mx-auto px-4 sm:px-6 lg:px-8 pb-24 text-black dark:text-white"
         style={{ scrollBehavior: "smooth" } as React.CSSProperties}
       >
         {/* JSON-LD */}
@@ -350,14 +488,10 @@ export default async function ProgramPage(props: {
             },
           ])}
         />
-        {(meta as any).faq?.length ? (
-          <JsonLd data={faqLd((meta as any).faq)!} />
-        ) : null}
-        {howToLdData ? (
-          <JsonLd data={{ ...howToLdData, "@id": "#application-howto" }} />
-        ) : null}
+        {(meta as any).faq?.length ? <JsonLd data={faqLd((meta as any).faq)!} /> : null}
+        {howToLdData ? <JsonLd data={{ ...howToLdData, "@id": "#application-howto" }} /> : null}
         <JsonLd data={webPageLd} />
-        {offerLd ? <JsonLd data={offerLd} /> : null}
+
         {/* HERO */}
         <div className="pt-4 pb-4">
           <div className="rounded-3xl bg-white/80 dark:bg-dark_bg/80 shadow-lg backdrop-blur">
@@ -369,132 +503,190 @@ export default async function ProgramPage(props: {
               imageSrc={heroImage}
               actions={[
                 {
-                  href: "/personalbooking",
-                  label: "Book a Free Consultation",
+                  href: `/skilled/eligibility-check`,
+                  label: "Check Eligibility",
                   variant: "primary",
                 },
                 {
                   href: brochure,
                   label: "Download Brochure",
-                  variant: "ghost",
+                  variant: "primary",
                   download: true,
+                },
+                {
+                  href: "/personalbooking",
+                  label: "Book a Free Consultation",
+                  variant: "ghost",
                 },
               ]}
             />
           </div>
           <Breadcrumb />
         </div>
+
+        {/* Quick Check — mobile near top, desktop in sidebar */}
+        {hasQuickCheck ? (
+          <section
+            id="quick-check-mobile"
+            className="sm:hidden scroll-mt-28 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 ring-1 ring-emerald-200/60 dark:ring-emerald-800/60 p-4"
+          >
+            <EligibilityQuickCheck config={quickCheck} />
+          </section>
+        ) : null}
+
+        {/* In-page Quick Nav */}
         <ProgramQuickNav sections={sectionsForNav} />
+
         {/* BODY */}
-        <div className="flex flex-col gap-8 pt-5 pb-16 sm:px-6 lg:grid lg:grid-cols-12 lg:gap-8 lg:px-8">
+        <div className="flex flex-col gap-8 pt-5 pb-16 lg:grid lg:grid-cols-12 lg:gap-8">
           {/* MAIN */}
           <div className="order-2 lg:order-1 lg:col-span-8 xl:col-span-8 space-y-10">
+            {/* Quick facts (top on mobile too) */}
             <section id="quick-facts" className="scroll-mt-28">
-              <QuickFacts
-                minInvestment={(meta as any).minInvestment}
-                currency={(meta as any).currency}
+              <SkilledFacts
                 timelineMonths={(meta as any).timelineMonths}
-                tags={(meta as any).tags}
+                passMark={passMark}
+                jobOfferRequired={jobOffer.required}
               />
             </section>
 
-            {quickCheck?.questions?.length ? (
-              <section
-                id="quick-check-mobile"
-                className="sm:hidden scroll-mt-28 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 ring-1 ring-emerald-200/60 dark:ring-emerald-800/60 p-4"
-              >
-                <EligibilityQuickCheck config={quickCheck} />
+            {/* Points grid — keep near top, right after Quick facts */}
+            {hasPoints ? (
+              <section id="points" className="scroll-mt-28">
+                <PointsGridTable grid={pointsGrid as any} threshold={passMark} />
               </section>
             ) : null}
 
-            {overviewKey && sections[overviewKey] && (
+            {/* Language */}
+            {hasLanguage ? (
+              <section id="language" className="scroll-mt-28">
+                <header className="mb-3">
+                  <h2 className="text-xl font-semibold">Language requirements</h2>
+                </header>
+                <LanguageRequirements language={languageReq as any} />
+              </section>
+            ) : null}
+
+            {/* Occupation lists */}
+            {hasOccupations ? (
+              <section id="occupations" className="scroll-mt-28">
+                <header className="mb-3">
+                  <h2 className="text-xl font-semibold">Occupation lists</h2>
+                </header>
+                <OccupationLists lists={occupations as any} />
+              </section>
+            ) : null}
+
+            {/* Overview (MDX) */}
+            {overviewKey && sections[overviewKey] ? (
               <section id="overview" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">Program overview</h2>
                 </header>
                 <Prose>{sections[overviewKey]}</Prose>
               </section>
+            ) : null}
+
+            {/* Salary overview (NOT "Investment") */}
+            {compKey && sections[compKey] ? (
+              <section id="salary" className="scroll-mt-28">
+                <header className="mb-3">
+                  <h2 className="text-xl font-semibold">Salary overview</h2>
+                </header>
+                <Prose>{sections[compKey]}</Prose>
+              </section>
+            ) : null}
+
+            {/* Government fees (if provided) */}
+            {hasGovFees ? (
+              <section id="gov-fees" className="scroll-mt-28">
+                <GovernmentFees
+                  fees={governmentFees}
+                  defaultCurrency={(meta as any).currency || "AUD"}
+                />
+              </section>
+            ) : null}
+
+            {/* Eligibility + Benefits */}
+            {(hasRequirements || hasBenefits) && (
+              <div className="grid gap-6 lg:grid-cols-2">
+                {hasRequirements ? (
+                  <section
+                    id="requirements"
+                    aria-labelledby="eligibility-title"
+                    className="scroll-mt-28 rounded-2xl bg-sky-50 dark:bg-sky-950/30 ring-1 ring-sky-200/60 dark:ring-sky-900/50 p-6"
+                  >
+                    <header className="mb-3">
+                      <h2 id="eligibility-title" className="text-xl font-semibold">
+                        Eligibility
+                      </h2>
+                    </header>
+                    <ul className="list-disc pl-5 space-y-2 text-[15px] leading-7">
+                      {(meta as any).requirements.map((r: string) => (
+                        <li key={r}>{r}</li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
+
+                {hasBenefits ? (
+                  <section
+                    id="benefits"
+                    aria-labelledby="benefits-title"
+                    className="scroll-mt-28 rounded-2xl bg-emerald-50 dark:bg-emerald-950/25 ring-1 ring-emerald-200/60 dark:ring-emerald-900/40 p-6"
+                  >
+                    <header className="mb-3">
+                      <h2 id="benefits-title" className="text-xl font-semibold">
+                        Key benefits
+                      </h2>
+                    </header>
+                    <ul className="list-disc pl-5 space-y-2 text-[15px] leading-7">
+                      {(meta as any).benefits.map((b: string) => (
+                        <li key={b}>{b}</li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
+              </div>
             )}
 
-            {compensationKey && sections[compensationKey] && (
-              <section id="investment" className="scroll-mt-28">
-                <header className="mb-3">
-                  <h2 className="text-xl font-semibold">
-                    {investmentLabel["skilled"]} overview
-                  </h2>
-                </header>
-                <Prose>{sections[compensationKey]}</Prose>
+            {/* Documents & Dependents */}
+            {hasDocs ? (
+              <section id="documents" className="scroll-mt-28">
+                <DocumentChecklist
+                  groups={documentChecklist}
+                  note="Documents vary by profile; we’ll tailor your list."
+                />
               </section>
-            )}
-
-            {prices?.length || proofOfFunds?.length ? (
-              <section id="prices" className="scroll-mt-28 overflow-visible">
-                <header className="mb-3">
-                  <h2 className="text-xl font-semibold">
-                    Costs & proof of funds
-                  </h2>
-                </header>
-                <div className="w-full overflow-visible">
-                  <Prices
-                    items={prices ?? []}
-                    proofOfFunds={proofOfFunds ?? []}
-                    defaultCurrency={(meta as any).currency}
-                  />
-                </div>
+            ) : null}
+            {hasDeps ? (
+              <section id="dependents" className="scroll-mt-28">
+                <FamilyMatrix {...familyMatrix!} />
               </section>
             ) : null}
 
-            {(meta as any).requirements?.length ? (
-              <section
-                id="requirements"
-                className="scroll-mt-28 rounded-2xl bg-sky-50 dark:bg-sky-950/30 ring-1 ring-sky-200/60 dark:ring-sky-900/50 p-6"
-              >
-                <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Eligibility</h2>
-                </header>
-                <ul className="list-disc pl-5 space-y-2 text-[15px] leading-7">
-                  {(meta as any).requirements.map((r: string) => (
-                    <li key={r}>{r}</li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-
-            {(meta as any).benefits?.length ? (
-              <section
-                id="benefits"
-                className="scroll-mt-28 rounded-2xl bg-emerald-50 dark:bg-emerald-950/25 ring-1 ring-emerald-200/60 dark:ring-emerald-900/40 p-6"
-              >
-                <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Key benefits</h2>
-                </header>
-                <ul className="list-disc pl-5 space-y-2 text-[15px] leading-7">
-                  {(meta as any).benefits.map((b: string) => (
-                    <li key={b}>{b}</li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-
-            {processSteps.length > 0 && (
+            {/* Process */}
+            {hasProcess ? (
               <section id="process" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">Application process</h2>
                 </header>
                 <ProcessTimeline steps={processSteps} />
               </section>
-            )}
+            ) : null}
 
-            {comparisonKey && sections[comparisonKey] && (
+            {/* Comparison */}
+            {comparisonKey && sections[comparisonKey] ? (
               <section id="comparison" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">Comparison</h2>
                 </header>
                 <Prose>{sections[comparisonKey]}</Prose>
               </section>
-            )}
+            ) : null}
 
-            {whyCountryKey && sections[whyCountryKey] && (
+            {/* Why country */}
+            {whyCountryKey && sections[whyCountryKey] ? (
               <section id="why-country" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">
@@ -503,8 +695,9 @@ export default async function ProgramPage(props: {
                 </header>
                 <Prose>{sections[whyCountryKey]}</Prose>
               </section>
-            )}
+            ) : null}
 
+            {/* Not a fit */}
             {disqualifiers.length ? (
               <section
                 id="not-a-fit"
@@ -533,168 +726,97 @@ export default async function ProgramPage(props: {
               </section>
             ) : null}
 
+            {/* Insights */}
+            {hasInsights ? (
+              <section id="insights" className="scroll-mt-28">
+                <header className="mb-3">
+                  <h2 className="text-xl font-semibold">Insights</h2>
+                  <p className="text-sm opacity-80">
+                    News, media, blogs & articles relevant to this program.
+                  </p>
+                </header>
+                <div className="space-y-3">
+                  {insights.map((it) => (
+                    <a
+                      key={it.url}
+                      href={it.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block rounded-xl ring-1 ring-neutral-200 dark:ring-neutral-800 p-4 hover:bg-neutral-50 dark:hover:bg-neutral-900/40"
+                    >
+                      <div className="text-base font-medium">{it.title}</div>
+                      <div className="text-xs opacity-70 mt-0.5">
+                        {it.source ?? ""}{it.source && it.date ? " • " : ""}{it.date ?? ""}
+                      </div>
+                      {it.excerpt ? <p className="text-sm mt-2 opacity-90">{it.excerpt}</p> : null}
+                    </a>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {/* Related programs */}
+            {hasRelated ? (
+              <section id="related" className="scroll-mt-28">
+                <header className="mb-3">
+                  <h2 className="text-xl font-semibold">Related programs</h2>
+                </header>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {relatedPrograms.map((r) => (
+                    <Link
+                      key={r.url}
+                      href={r.url}
+                      className="group rounded-xl ring-1 ring-neutral-200 dark:ring-neutral-800 overflow-hidden hover:shadow-md bg-white/70 dark:bg-neutral-900/40"
+                    >
+                      <div
+                        className="h-32 w-full bg-cover bg-center"
+                        style={{ backgroundImage: `url(${r.heroImage ?? "/og.jpg"})` }}
+                        aria-hidden="true"
+                      />
+                      <div className="p-4">
+                        <div className="text-sm opacity-70">{r.country}</div>
+                        <div className="font-semibold group-hover:underline">{r.title}</div>
+                        {typeof r.timelineMonths === "number" ? (
+                          <div className="text-xs mt-1 opacity-70">~{r.timelineMonths} months</div>
+                        ) : null}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {/* FAQ */}
             {(meta as any).faq?.length ? (
               <section id="faq" className="scroll-mt-28">
                 <header className="mb-3">
-                  <h2 className="text-xl font-semibold">
-                    Frequently asked questions
-                  </h2>
+                  <h2 className="text-xl font-semibold">Frequently asked questions</h2>
                 </header>
                 <FAQAccordion faqs={(meta as any).faq} />
               </section>
             ) : null}
 
-            {otherPrograms.length ? (
-              <section id="other-programs" className="scroll-mt-28">
-                <header className="mb-4 flex items-center gap-2">
-                  <span className="inline-flex items-center rounded-md bg-slate-600/10 px-2 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Explore
-                  </span>
-                  <h2 className="text-xl font-semibold">
-                    Other programs in {(meta as any).country ?? params.country}
-                  </h2>
-                </header>
-
-                <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {otherPrograms.map((prog: any) => (
-                    <li key={prog.programSlug}>
-                      <Link
-                        href={`${baseFromCategory("skilled")}/${params.country}/${prog.programSlug}`}
-                        className="group block rounded-xl p-4 ring-1 ring-neutral-200/80 dark:ring-neutral-800/80 bg-white/80 dark:bg-neutral-900/40 hover:-translate-y-0.5 hover:shadow-md transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-                        aria-label={`View ${prog.title}`}
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <div>
-                            <h3 className="text-base font-semibold leading-6">
-                              {prog.title}
-                            </h3>
-                            <p className="mt-0.5 text-xs opacity-70">
-                              {(meta as any).country ?? params.country} · same
-                              country
-                            </p>
-                          </div>
-                          <span
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-full ring-1 ring-neutral-200 dark:ring-neutral-700 bg-black/5 dark:bg-white/10 transition group-hover:bg-black/10 group-hover:dark:bg-white/15"
-                            aria-hidden
-                          >
-                            <svg
-                              viewBox="0 0 24 24"
-                              className="h-4 w-4"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <path d="M5 12h14M13 5l7 7-7 7" />
-                            </svg>
-                          </span>
-                        </div>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-
-            {relatedPrograms.length ? (
-              <section id="related" className="scroll-mt-28">
-                <header className="mb-4 flex items-center gap-2">
-                  <span className="inline-flex items-center rounded-md bg-indigo-600/10 px-2 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
-                    Related
-                  </span>
-                  <h2 className="text-xl font-semibold">
-                    Programs similar to {(meta as any).title ?? params.program}
-                  </h2>
-                </header>
-
-                <ul className="grid gap-5 sm:grid-cols-2">
-                  {relatedPrograms.map((r) => {
-                    const hasImg = !!r.heroImage;
-                    const price =
-                      typeof r.minInvestment === "number"
-                        ? `${r.currency ?? ""} ${r.minInvestment.toLocaleString()}`
-                        : "No minimum";
-                    const time = r.timelineMonths
-                      ? `${r.timelineMonths} mo`
-                      : "Varies";
-                    return (
-                      <li key={r.url}>
-                        <Link
-                          href={r.url}
-                          className="group block overflow-hidden rounded-2xl ring-1 ring-neutral-200/80 dark:ring-neutral-800/80 bg-white/80 dark:bg-neutral-900/40 hover:-translate-y-0.5 hover:shadow-md transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-                          aria-label={`View ${r.title}`}
-                        >
-                          <div className="relative aspect-[16/9] overflow-hidden">
-                            {hasImg ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={r.heroImage!}
-                                alt=""
-                                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                              />
-                            ) : (
-                              <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-100 dark:from-neutral-800 dark:to-neutral-700 grid place-items-center">
-                                <span className="text-xs opacity-70">
-                                  {r.country}
-                                </span>
-                              </div>
-                            )}
-                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                          </div>
-                          <div className="p-4 sm:p-5">
-                            <div className="flex items-start justify-between gap-3">
-                              <div>
-                                <h3 className="text-base font-semibold leading-6">
-                                  {r.title}
-                                </h3>
-                                <p className="mt-0.5 text-xs opacity-70">
-                                  {r.country}
-                                </p>
-                              </div>
-                              {!!r.tags?.length && (
-                                <div className="hidden md:flex flex-wrap gap-1 max-w-[220px] justify-end">
-                                  {r.tags.slice(0, 3).map((t) => (
-                                    <span
-                                      key={t}
-                                      className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] opacity-80 ring-1 ring-neutral-200 dark:ring-neutral-700"
-                                    >
-                                      {t}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                            <div className="mt-3 grid grid-cols-2 gap-2 text-[13px]">
-                              <div className="rounded-xl p-2 bg-black/5 dark:bg-white/10 ring-1 ring-neutral-200 dark:ring-neutral-700">
-                                <div className="font-medium tabular-nums">
-                                  {price}
-                                </div>
-                                <div className="text-[11px] opacity-70">
-                                  Minimum investment
-                                </div>
-                              </div>
-                              <div className="rounded-xl p-2 bg-black/5 dark:bg-white/10 ring-1 ring-neutral-200 dark:ring-neutral-700">
-                                <div className="font-medium">{time}</div>
-                                <div className="text-[11px] opacity-70">
-                                  Timeline
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </section>
-            ) : null}
+            {/* Testimonials & Our Offer */}
+            <section id="testimonials" className="scroll-mt-28">
+              <TestimonialCarousel
+                items={
+                  (meta as any).testimonials ?? [
+                    { quote: "Seamless employer-sponsor coordination and PR plan.", author: "Tech Lead, Toronto" },
+                    { quote: "Crystal-clear on points and language strategy.", author: "Data Scientist, Sydney" },
+                  ]
+                }
+              />
+            </section>
+            <section id="our-offer" className="scroll-mt-28">
+              <Overoffer />
+            </section>
 
             <div className="sm:hidden h-24" aria-hidden="true" />
           </div>
 
+          {/* SIDEBAR */}
           <aside className="order-1 lg:order-2 lg:col-span-4 xl:col-span-4 space-y-6 self-start lg:sticky lg:top-24">
-            {quickCheck?.questions?.length ? (
+            {hasQuickCheck ? (
               <div className="hidden lg:block">
                 <EligibilityQuickCheck config={quickCheck} />
               </div>
@@ -706,9 +828,7 @@ export default async function ProgramPage(props: {
 
             <div className="hidden lg:block rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 ring-1 ring-neutral-200/70 dark:ring-neutral-800/70 p-6">
               <h3 className="text-base font-semibold">Brochure</h3>
-              <p className="text-sm opacity-80 mt-1">
-                Full details, requirements, and timelines.
-              </p>
+              <p className="text-sm opacity-80 mt-1">Full details, requirements, and timelines.</p>
               <a
                 href={brochure}
                 download
