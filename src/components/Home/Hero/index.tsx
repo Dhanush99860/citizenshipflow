@@ -21,7 +21,6 @@ export default function Hero() {
     initial: { x: reduce ? 0 : -18, opacity: reduce ? 1 : 0 },
     animate: { x: 0, opacity: 1, transition: { duration: 0.45 } },
   };
-
   const rightMotion = {
     initial: { x: reduce ? 0 : 18, opacity: reduce ? 1 : 0 },
     animate: { x: 0, opacity: 1, transition: { duration: 0.45, delay: 0.05 } },
@@ -45,9 +44,10 @@ export default function Hero() {
 
       <div className="container mx-auto px-4 lg:max-w-screen-2xl">
         {/* ===================== TOP GRID ===================== */}
-        <div className="grid grid-cols-12 items-center gap-y-10 gap-x-6 pt-16 md:pt-20 lg:pt-24">
+        {/* Balanced columns & tighter horizontal rhythm on lg+ */}
+        <div className="grid grid-cols-12 items-start gap-y-10 gap-x-6 lg:gap-x-12 pt-16 md:pt-20 lg:pt-24">
           {/* LEFT: Text + CTAs */}
-          <motion.div {...leftMotion} className="col-span-12 lg:col-span-6 xl:col-span-5">
+          <motion.div {...leftMotion} className="col-span-12 lg:col-span-7 xl:col-span-6">
             {/* Eyebrow */}
             <div className="mb-4 flex items-center justify-center gap-3 lg:justify-start">
               <Image
@@ -160,10 +160,14 @@ export default function Hero() {
             </div>
           </motion.div>
 
-          {/* RIGHT: Desktop form */}
-          <motion.aside {...rightMotion} className="relative col-span-12 hidden lg:col-span-6 lg:block">
+          {/* RIGHT: Desktop form (right-aligned, sticky) */}
+          <motion.aside
+            {...rightMotion}
+            className="relative col-span-12 hidden lg:col-span-5 xl:col-span-6 lg:block"
+          >
             <div className="lg:sticky lg:top-24">
-              <div className="mx-auto max-w-xl rounded-2xl bg-white/10 p-4 backdrop-blur-sm ring-1 ring-white/20 shadow-[0_8px_30px_rgba(0,0,0,0.20)]">
+              {/* align to the right edge, controlled width */}
+              <div className="ml-auto w-full max-w-md rounded-2xl bg-white/10 p-4 backdrop-blur ring-1 ring-white/20 shadow-[0_8px_30px_rgba(0,0,0,0.20)]">
                 <ContactForm />
               </div>
             </div>
@@ -190,8 +194,7 @@ export default function Hero() {
             url: "https://www.xiphiasimmigration.com",
             potentialAction: {
               "@type": "SearchAction",
-              target:
-                "https://www.xiphiasimmigration.com/search?q={search_term_string}",
+              target: "https://www.xiphiasimmigration.com/search?q={search_term_string}",
               "query-input": "required name=search_term_string",
             },
           }),
