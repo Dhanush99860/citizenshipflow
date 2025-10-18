@@ -55,22 +55,23 @@ function getDate(i: any) {
 }
 
 // Build priority list; guarantee a minimum count for a nice rail.
-function buildHighlights(src: Item[], minSlides = 6) {
-  const news = src.filter(s => getKind(s) === "News");
-  const articles = src.filter(s => getKind(s) === "Article");
-  const media = src.filter(s => getKind(s) === "Media");
-  const blog = src.filter(s => getKind(s) === "Blog");
+function buildHighlights(src: Item[], minSlides = 4) {
+  const news = src.filter((s) => getKind(s) === "News");
+  const articles = src.filter((s) => getKind(s) === "Article");
+  const media = src.filter((s) => getKind(s) === "Media");
+  const blog = src.filter((s) => getKind(s) === "Blog");
 
-  // Always start with News when present.
-  let items: Item[] = [...news, ...articles, ...media, ...blog];
-
-  // Pick topKind for header/CTA.
+  // NOTE: const (NOT let) so ESLint is happy on Vercel
+  const items = [...news, ...articles, ...media, ...blog];
   const topKind = items.length ? getKind(items[0]) : "Article";
 
-  // Ensure we have enough to slide smoothly on desktop.
+  // ensure the rail/slider has at least minSlides
   if (items.length > 0 && items.length < minSlides) {
-    const dupes = [...items];
-    while (items.length < minSlides) items.push(dupes[items.length % dupes.length]);
+    const cloned = [...items];
+    while (cloned.length < minSlides) {
+      cloned.push(items[cloned.length % items.length]);
+    }
+    return { items: cloned, topKind };
   }
   return { items, topKind };
 }

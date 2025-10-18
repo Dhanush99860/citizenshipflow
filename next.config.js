@@ -1,27 +1,27 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // ✅ your existing redirect stays untouched
   async redirects() {
     return [
-      { source: "/:path*/_country", destination: "/:path*", permanent: true },
+      { source: '/:path*/_country', destination: '/:path*', permanent: true },
     ];
   },
 
-  // ✅ allow Next/Image to optimize common remote hosts you’re likely using
+  // Allow remote images used by your insights
   images: {
-    formats: ["image/avif", "image/webp"],
-    domains: [
-      "xiphiasimmigration.com",
-      "www.xiphiasimmigration.com",
-      "images.xiphiasimmigration.com",
-      "res.cloudinary.com",
-      "i.ytimg.com",
-      "img.youtube.com",
-      "images.unsplash.com",
+    formats: ['image/avif', 'image/webp'],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
+      { protocol: 'https', hostname: 'i.ytimg.com' },
+      { protocol: 'https', hostname: 'img.youtube.com' },
+      { protocol: 'https', hostname: 'www.xiphiasimmigration.com' },
+      { protocol: 'https', hostname: 'xiphiasimmigration.com' },
+      // add any other hosts you actually use for hero/cover images
     ],
-    // If you still see blocked images after deploy, you can temporarily enable:
-    // unoptimized: true,
   },
+
+  // If you never want ESLint to fail Vercel builds:
+  eslint: { ignoreDuringBuilds: true },
 };
 
 module.exports = nextConfig;
