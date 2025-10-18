@@ -286,7 +286,7 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
               advisorName="Varun Singh"
               role="CBI & RBI - MD XIPHIAS"
               avatarSrc="/images/avtar/varun-singh.png"
-              bookingUrl="/personalbooking"
+              bookingUrl="/personal-booking"
               brochureUrl="/brochures/citizenship/grenada/real-estate.pdf"
               priceOptions={[
                 {

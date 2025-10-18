@@ -18,7 +18,7 @@ type Props = {
 const STORAGE_KEY = "stickyInquiryDock:hiddenUntil";
 
 export default function StickyInquiryDock({
-  bookingUrl = "/personalbooking",
+  bookingUrl = "/personal-booking",
   brochureUrl = "/brochures/citizenship/guide.pdf",
   text = "Questions about eligibility or timelines?",
   className = "",

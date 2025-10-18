@@ -31,7 +31,7 @@ export default function robots(): MetadataRoute.Robots {
           "/cart",
           "/admin",
           "/dashboard",
-          "/personalbooking",
+          "/personal-booking",
         ],
       },
     ],

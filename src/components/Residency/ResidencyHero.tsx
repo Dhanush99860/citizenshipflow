@@ -21,7 +21,7 @@ type Props = {
 export default function HeroPremium({
   title = "Discover Your Ideal Residency by Investment",
   subtitle = "Concierge guidance across donation and real-estate routes. Transparent costs, rigorous compliance, and end-to-end execution.",
-  primaryHref = "/personalbooking",
+  primaryHref = "/personal-booking",
   primaryText = "Book a Free Consultation",
   secondaryHref = "/images/citizenship/Brochure/projectbrochure.pdf",
   secondaryText = "Download Guide",

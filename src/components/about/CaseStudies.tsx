@@ -129,7 +129,7 @@ export default function CaseStudies() {
               </div>
               <div className="flex flex-wrap gap-2">
                 <Link
-                  href="/personalbooking"
+                  href="/personal-booking"
                   prefetch={false}
                   className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-3.5 py-2 text-white ring-1 ring-blue-700/20 transition hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
                 >

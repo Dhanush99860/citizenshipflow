@@ -129,7 +129,7 @@ export default async function CountryPage(props: {
           imageSrc={heroImage}
           actions={[
             {
-              href: "/personalbooking",
+              href: "/personal-booking",
               label: "Book Consultation",
               variant: "primary",
             },

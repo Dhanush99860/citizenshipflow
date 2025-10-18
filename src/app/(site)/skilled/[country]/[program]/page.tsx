@@ -514,7 +514,7 @@ export default async function ProgramPage({ params }: { params: { country: strin
                   download: true,
                 },
                 {
-                  href: "/personalbooking",
+                  href: "/personal-booking",
                   label: "Book a Free Consultation",
                   variant: "ghost",
                 },

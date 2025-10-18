@@ -592,7 +592,7 @@ export default function ExploreGrid({
           <header className="mb-3 flex items-center justify-between">
             <h2 className="text-xl font-semibold">Explore by country</h2>
             <Link
-              href="/personalbooking"
+              href="/personal-booking"
               className="text-blue-700 hover:underline dark:text-blue-300"
             >
               Need advice?

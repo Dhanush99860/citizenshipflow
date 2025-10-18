@@ -474,7 +474,7 @@ export default function Footer() {
                   { href: "tel:+919019400500", icon: "mdi:phone", label: "Call" },
                   { href: "https://wa.me/919019400500", icon: "mdi:whatsapp", label: "WhatsApp", ext: true },
                   { href: "mailto:immigration@xiphias.in", icon: "mdi:email-outline", label: "Email" },
-                  { href: "/personalbooking", icon: "mdi:calendar-clock", label: "Personal Paid Consultation" },
+                  { href: "/personal-booking", icon: "mdi:calendar-clock", label: "Personal Paid Consultation" },
                 ].map(({ href, icon, label, ext }) => (
                   <Link
                     key={label}

@@ -258,7 +258,7 @@ export default function Header() {
 
                 {/* Desktop CTA */}
                 <Link
-                  href="/personalbooking"
+                  href="/personal-booking"
                   aria-label="Book a personal consultation"
                   className="hidden lg:inline-flex items-center rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-sm font-semibold text-white hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
                 >

@@ -1,151 +1,202 @@
 "use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import dynamic from "next/dynamic";
 import CardSlider from "./slider";
 
-// ✅ Lazy load ContactForm only after mount (improves TBT/LCP)
+// Lazy-load ContactForm on the client only
 const ContactForm = dynamic(() => import("@/components/ContactForm/index"), {
   ssr: false,
   loading: () => null,
 });
 
-const Hero = () => {
-  const leftAnimation = {
-    initial: { x: "-100%", opacity: 0 },
-    animate: { x: 0, opacity: 1 },
-    exit: { x: "-100%", opacity: 0 },
-    transition: { duration: 0.6 },
+export default function Hero() {
+  const reduce = useReducedMotion();
+  const [showForm, setShowForm] = useState(false);
+
+  const leftMotion = {
+    initial: { x: reduce ? 0 : -18, opacity: reduce ? 1 : 0 },
+    animate: { x: 0, opacity: 1, transition: { duration: 0.45 } },
   };
 
-  const rightAnimation = {
-    initial: { x: "100%", opacity: 0 },
-    animate: { x: 0, opacity: 1 },
-    exit: { x: "100%", opacity: 0 },
-    transition: { duration: 0.6 },
+  const rightMotion = {
+    initial: { x: reduce ? 0 : 18, opacity: reduce ? 1 : 0 },
+    animate: { x: 0, opacity: 1, transition: { duration: 0.45, delay: 0.05 } },
   };
 
   return (
-    <section
-      className="relative pb-10 overflow-hidden z-1"
-      id="main-banner"
-    >
-      {/* ✅ Background Image with fetchPriority */}
+    <section id="main-banner" aria-labelledby="home-hero-title" className="relative z-1 overflow-hidden">
+      {/* Background image (critical) */}
       <div className="absolute inset-0 -z-10">
         <Image
           src="/images/hero/silhouettes.webp"
-          alt="Immigration and investment opportunities background"
+          alt="Background silhouettes"
           fill
-          className="object-cover object-center"
           priority
           fetchPriority="high"
+          className="object-cover object-center"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-blue-600/90" />
+        <div className="absolute inset-0 bg-blue-700/85 md:bg-blue-700/80" />
       </div>
 
-      <div className="container mx-auto lg:max-w-screen-2xl px-4">
-        <div className="grid grid-cols-12">
-          {/* ✅ Left Content */}
-          <motion.div {...leftAnimation} className="lg:col-span-5 col-span-12">
-            <div className="flex gap-6 items-center lg:justify-start justify-center mb-5 mt-24">
+      <div className="container mx-auto px-4 lg:max-w-screen-2xl">
+        {/* ===================== TOP GRID ===================== */}
+        <div className="grid grid-cols-12 items-center gap-y-10 gap-x-6 pt-16 md:pt-20 lg:pt-24">
+          {/* LEFT: Text + CTAs */}
+          <motion.div {...leftMotion} className="col-span-12 lg:col-span-6 xl:col-span-5">
+            {/* Eyebrow */}
+            <div className="mb-4 flex items-center justify-center gap-3 lg:justify-start">
               <Image
                 src="/images/icons/icon-bag.svg"
-                alt="Residency and citizenship icon"
-                width={40}
-                height={40}
+                alt=""
+                width={36}
+                height={36}
+                loading="lazy"
+                decoding="async"
+                className="h-9 w-9"
               />
-              <p className="text-white sm:text-24 text-18 mb-0">
-                Residency & Citizenship{" "}
-                <span className="text-secondary">Made Easy</span>
+              <p className="mb-0 text-[15px] text-white/90">
+                Residency & Citizenship <span className="text-secondary">Made Easy</span>
               </p>
             </div>
 
-            <h1 className="font-medium lg:text-76 md:text-70 text-54 lg:text-start text-center text-white mb-10">
-              Secure Your <span className="text-secondary">Future</span> with
-              Global <span className="text-secondary">Investment Visas</span>!
+            {/* Title */}
+            <h1
+              id="home-hero-title"
+              className="mx-auto max-w-[18ch] text-center font-semibold leading-tight text-white lg:text-left"
+              style={{ fontSize: "clamp(2rem, 6vw, 4.75rem)" }}
+            >
+              Secure Your <span className="text-secondary">Future</span> with Global{" "}
+              <span className="text-secondary">Investment Visas</span>!
             </h1>
 
-            {/* ✅ Buttons with accessible roles */}
-            <div className="flex items-center md:justify-start justify-center gap-4 md:gap-8">
+            {/* CTAs */}
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-4 md:gap-6 lg:justify-start">
               <Link
                 href="/eligibility"
                 aria-label="Check your visa eligibility"
-                className="bg-secondary border border-secondary rounded-lg 
-                text-base md:text-[21px] leading-tight md:leading-normal 
-                font-medium text-white 
-                hover:bg-transparent hover:text-secondary 
-                py-2 px-4 md:px-7 z-50 transition"
+                className="inline-flex items-center justify-center rounded-lg border border-secondary bg-secondary px-5 py-2.5 text-base font-medium text-white transition hover:bg-transparent hover:text-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               >
                 Check your Eligibility
               </Link>
 
               <Link
                 href="/images/residency/xiphias-corporate-mobility.pdf"
-                aria-label="Download immigration guide"
-                className="bg-transparent border border-secondary rounded-lg 
-                text-base md:text-[21px] leading-tight md:leading-normal 
-                font-medium text-white 
-                hover:bg-secondary hover:text-white 
-                py-2 px-4 md:px-7 transition"
+                aria-label="Download immigration guide (PDF)"
+                className="inline-flex items-center justify-center rounded-lg border border-secondary bg-transparent px-5 py-2.5 text-base font-medium text-white transition hover:bg-secondary hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               >
                 Download Guide
               </Link>
             </div>
 
-            {/* ✅ App Store Links */}
-            <div className="flex items-center md:justify-start justify-center gap-12 mt-20">
+            {/* Store badges */}
+            <div className="mt-10 flex items-center justify-center gap-8 lg:justify-start">
               <Link
                 href="https://play.google.com/store/apps/details?id=com.xiphiasimmigration"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Download our app from Google Play Store"
-                className="hover:scale-110 duration-300"
+                aria-label="Get the app on Google Play"
+                className="transition hover:scale-[1.03]"
               >
                 <Image
                   src="/images/hero/playstore.png"
-                  alt="Google Play Store"
-                  width={240}
-                  height={72}
-                  priority={false}
+                  alt="Get it on Google Play"
+                  width={200}
+                  height={60}
+                  loading="lazy"
+                  decoding="async"
+                  sizes="(max-width: 640px) 160px, 200px"
                 />
               </Link>
+
               <Link
-                href="https://apps.apple.com/app/idXXXXXXXX" // Replace with real app link
+                href="https://apps.apple.com/app/idXXXXXXXX" // TODO: replace with real App Store link
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Download our app from Apple App Store"
-                className="hover:scale-110 duration-300"
+                aria-label="Download on the App Store"
+                className="transition hover:scale-[1.03]"
               >
                 <Image
                   src="/images/hero/applestore.png"
-                  alt="Apple App Store"
-                  width={240}
-                  height={72}
+                  alt="Download on the App Store"
+                  width={200}
+                  height={60}
+                  loading="lazy"
+                  decoding="async"
+                  sizes="(max-width: 640px) 160px, 200px"
                 />
               </Link>
             </div>
-          </motion.div>
 
-          {/* ✅ Right Side (lazy ContactForm) */}
-          <motion.div
-            {...rightAnimation}
-            className="col-span-7 lg:block hidden"
-          >
-            <div className="ml-12 -mr-[13rem] p-[200px]">
-              <ContactForm />
+            {/* MOBILE: Show/Hide Contact Form */}
+            <div className="mt-8 lg:hidden">
+              <button
+                type="button"
+                onClick={() => setShowForm((s) => !s)}
+                aria-expanded={showForm}
+                aria-controls="mobile-consultation-form"
+                className="w-full rounded-xl bg-white/10 px-5 py-3 text-sm font-semibold text-white ring-1 ring-white/20 backdrop-blur transition hover:bg-white/15"
+              >
+                {showForm ? "Hide consultation form" : "Book a FREE consultation"}
+              </button>
+
+              <div
+                id="mobile-consultation-form"
+                className={[
+                  "grid overflow-hidden transition-all duration-300 ease-out",
+                  showForm ? "mt-4 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+                ].join(" ")}
+              >
+                <div className="overflow-hidden">
+                  <div className="rounded-2xl bg-white/10 p-4 backdrop-blur ring-1 ring-white/20">
+                    <ContactForm />
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
+
+          {/* RIGHT: Desktop form */}
+          <motion.aside {...rightMotion} className="relative col-span-12 hidden lg:col-span-6 lg:block">
+            <div className="lg:sticky lg:top-24">
+              <div className="mx-auto max-w-xl rounded-2xl bg-white/10 p-4 backdrop-blur-sm ring-1 ring-white/20 shadow-[0_8px_30px_rgba(0,0,0,0.20)]">
+                <ContactForm />
+              </div>
+            </div>
+          </motion.aside>
         </div>
 
-        <CardSlider />
+        {/* ===================== SLIDER ===================== */}
+        <div className="mt-8 md:mt-10 lg:mt-12">
+          <CardSlider />
+        </div>
       </div>
 
-      {/* Background blur bubble */}
-      <div className="absolute w-50 h-50 bg-gradient-to-bl from-secondary/30 via-secondary/10 to-secondary/20 blur-[120px] rounded-full -top-64 -right-14 -z-10"></div>
+      {/* Subtle glow */}
+      <div className="pointer-events-none absolute -right-16 -top-56 -z-10 h-64 w-64 rounded-full bg-secondary/30 blur-[120px] md:h-80 md:w-80" />
+
+      {/* Tiny SEO JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "XIPHIAS Immigration",
+            url: "https://www.xiphiasimmigration.com",
+            potentialAction: {
+              "@type": "SearchAction",
+              target:
+                "https://www.xiphiasimmigration.com/search?q={search_term_string}",
+              "query-input": "required name=search_term_string",
+            },
+          }),
+        }}
+      />
     </section>
   );
-};
-
-export default Hero;
+}

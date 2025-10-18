@@ -303,23 +303,40 @@ function FeatureList({
 
   return (
     <div className="py-8 lg:max-w-screen-2xl bg-[var(--c-bg)] text-[var(--c-text)]">
-      {/* Header */}
-      <div className="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">{title}</h1>
-          <p className="mt-2 text-base md:text-lg leading-relaxed">{description}</p>
-        </div>
+{/* Header */}
+<div className="relative mb-6 overflow-hidden rounded-2xl border border-[var(--c-border)] bg-[var(--c-card)] p-4 sm:p-5 md:p-6 shadow-sm ring-1 ring-black/[0.03] dark:ring-white/10">
+  {/* soft background accents (clipped inside) */}
+  <div aria-hidden className="pointer-events-none absolute inset-0">
+    <div className="absolute -top-20 -left-24 h-56 w-56 rounded-full bg-blue-300/20 blur-3xl dark:bg-blue-700/10" />
+    <div className="absolute -bottom-24 -right-20 h-64 w-64 rounded-full bg-indigo-300/20 blur-3xl dark:bg-indigo-700/10" />
+    <div className="absolute inset-0 opacity-40 dark:opacity-20 [mask-image:radial-gradient(70%_70%_at_10%_10%,black,transparent_75%)]">
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.06)_1px,transparent_1px)] bg-[size:22px_22px]" />
+    </div>
+  </div>
 
-        {/* Desktop header CTA (right-aligned) */}
-        <div className="hidden md:flex items-center gap-3">
-          <Link
-            href={viewAllHref}
-            className="inline-flex items-center gap-2 rounded-xl border border-[var(--c-border)] bg-[var(--c-card)] px-5 py-2.5 text-sm font-semibold hover:bg-[var(--c-primary)] hover:text-[var(--c-invert)]"
-          >
-            {ctaText} ({list.length}) <span>→</span>
-          </Link>
-        </div>
-      </div>
+  {/* content */}
+  <div className="relative flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+    <div className="min-w-0">
+      <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--c-primary)] break-words">
+        {title}
+      </h1>
+      <p className="mt-2 text-base md:text-lg leading-relaxed text-black/80 dark:text-white/80 break-words">
+        {description}
+      </p>
+    </div>
+
+    {/* Desktop header CTA (right-aligned) */}
+    <div className="hidden md:flex items-center gap-3">
+      <Link
+        href={viewAllHref}
+        className="inline-flex items-center gap-2 rounded-xl border border-[var(--c-border)] bg-[var(--c-card)] px-5 py-2.5 text-sm font-semibold shadow-sm hover:bg-[var(--c-primary)] hover:text-[var(--c-invert)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--c-secondary)] transition"
+      >
+        {ctaText} ({list.length}) <span>→</span>
+      </Link>
+    </div>
+  </div>
+</div>
+
 
       {/* Grid: Left 60% | Right 40% */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-start">

@@ -28,7 +28,6 @@ import CostCalculator from "@/components/Citizenship/CostCalculator";
 import DocumentChecklist from "@/components/Citizenship/DocumentChecklist";
 import FamilyMatrix from "@/components/Citizenship/FamilyMatrix";
 import AdvisorConsultationCard from "@/components/Citizenship/AdvisorConsultationCard";
-import StickyInquiryDock from "@/components/Citizenship/StickyInquiryDock";
 import { FileSignature, Hourglass, CalendarClock } from "lucide-react";
 import GovernmentFees from "@/components/Citizenship/GovernmentFees";
 
@@ -409,7 +408,7 @@ export default async function ProgramPage(props: {
               imageSrc={heroImage}
               actions={[
                 {
-                  href: "/personalbooking",
+                  href: "/personal-booking",
                   label: "Book a Free Consultation",
                   variant: "primary",
                 },
@@ -793,7 +792,7 @@ export default async function ProgramPage(props: {
                 </ul>
                 <div className="mt-4">
                   <a
-                    href="/personalbooking"
+                    href="/personal-booking"
                     className="inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
                   >
                     Discuss vetted projects
@@ -1011,7 +1010,7 @@ export default async function ProgramPage(props: {
                 advisorName="Varun Singh"
                 role="CBI & RBI - MD XIPHIAS"
                 avatarSrc="/images/avtar/varun-singh.png"
-                bookingUrl="/personalbooking"
+                bookingUrl="/personal-booking"
                 brochureUrl="/brochures/citizenship/grenada/real-estate.pdf"
                 priceOptions={[
                   {
@@ -1067,8 +1066,6 @@ export default async function ProgramPage(props: {
             </div>
           </aside>
         </div>
-        {/* Sticky inquiry dock for mobile/desktop */}
-        <StickyInquiryDock brochureUrl={brochure} />
       </main>
     );
   } catch (e) {

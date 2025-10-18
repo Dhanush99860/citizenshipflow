@@ -364,7 +364,7 @@ export default async function ProgramPage(props: {
               imageSrc={heroImage}
               actions={[
                 {
-                  href: "/personalbooking",
+                  href: "/personal-booking",
                   label: "Book a Free Consultation",
                   variant: "primary",
                 },
