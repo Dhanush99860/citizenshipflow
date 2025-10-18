@@ -12,6 +12,7 @@ import SkilledOffer from "@/components/Skilled/Overoffer";
 import SkilledTestimonialCarousel from "@/components/Skilled/TestimonialCarousel";
 import InsightsPreview from "@/components/Insights/InsightsPreview";
 import { JsonLd } from "@/lib/seo";
+// ✅ normal import (the component itself is "use client")
 import SkilledExploreGrid from "@/components/Skilled/SkilledExploreGrid";
 
 export const revalidate = 86400;
@@ -39,7 +40,8 @@ function pickTopProgramsForLd(all: ProgramMeta[], n = 5): ProgramMeta[] {
     const iB = b.minInvestment ?? Number.MAX_SAFE_INTEGER;
     if (iA !== iB) return iA - iB;
 
-    return key(a).localeCompare(key(b), undefined, { sensitivity: "base" });
+    // 👇 use a fixed locale to avoid SSR/CSR differences
+    return key(a).localeCompare(key(b), "en", { sensitivity: "base" });
   });
 
   return ranked.slice(0, n);
@@ -90,7 +92,6 @@ export default function SkilledPage() {
       <main className="max-w-screen-2xl mx-auto px-4 py-10 text-black dark:text-white">
         <SkilledHero className="mb-6" />
         <SkilledExploreGrid countries={countries} programs={programs} />
-
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
           <SkilledOffer className="lg:col-span-2" />
           <SkilledTestimonialCarousel

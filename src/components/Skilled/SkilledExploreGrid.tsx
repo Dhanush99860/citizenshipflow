@@ -51,16 +51,18 @@ function inferSkilledRouteTypeFromTags(tags?: string[]): SkilledRoute | undefine
   return undefined;
 }
 
+const STABLE_LOCALE = "en"; // <- keep output identical on server & client
+
 function toCurrency(amount?: number, currency = "USD") {
   if (typeof amount !== "number") return "";
   try {
-    return new Intl.NumberFormat(undefined, {
+    return new Intl.NumberFormat(STABLE_LOCALE, {
       style: "currency",
       currency,
       maximumFractionDigits: 0,
     }).format(amount);
   } catch {
-    return `${currency} ${amount.toLocaleString()}`;
+    return `${currency} ${amount.toLocaleString(STABLE_LOCALE)}`;
   }
 }
 
@@ -84,7 +86,7 @@ function rankPrograms(all: ProgramMeta[]) {
     const iB = b.minInvestment ?? Number.MAX_SAFE_INTEGER;
     if (iA !== iB) return iA - iB;
 
-    return key(a).localeCompare(key(b), undefined, { sensitivity: "base" });
+    return key(a).localeCompare(key(b), STABLE_LOCALE, { sensitivity: "base" });
   });
 }
 
@@ -114,9 +116,9 @@ function availableRouteTypes(programs?: ProgramMeta[]) {
 function hasNoJobOfferRequirement(p: ProgramMeta) {
   const t = ((p as any).tags ?? []).map((s: string) => s.toLowerCase());
   // common hints
-  if (t.some((s) => s.includes("no job offer") || s.includes("without job offer"))) return true;
-  if (t.some((s) => s.includes("points") || s.includes("points-based"))) return true;
-  if (t.some((s) => s.includes("independent"))) return true;
+  if (t.some((s: string) => s.includes("no job offer") || s.includes("without job offer"))) return true;
+  if (t.some((s: string) => s.includes("points") || s.includes("points-based"))) return true;
+  if (t.some((s: string) => s.includes("independent"))) return true;
   return false;
 }
 
@@ -288,7 +290,7 @@ export default function ExploreGrid({
         arr.sort((a, b) =>
           String(a?.c?.country ?? "").localeCompare(
             String(b?.c?.country ?? ""),
-            undefined,
+            STABLE_LOCALE,
             { sensitivity: "base" },
           ),
         );
