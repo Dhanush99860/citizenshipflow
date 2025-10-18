@@ -3,13 +3,12 @@ import { NextResponse } from "next/server";
 import { getAllInsights } from "@/lib/insights-content";
 import type { InsightMeta, InsightKind } from "@/types/insights";
 
-// IMPORTANT: do not cache; always compute fresh.
-// (If you want caching later, set `revalidate = 60` instead.)
+// We read MDX from disk => must be Node runtime.
+export const runtime = "nodejs";
+// Always compute fresh (you can switch to a number later if you want ISR).
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-export const runtime = "nodejs";
 
-// Priority buckets
 const PRIORITY: InsightKind[] = ["news", "articles", "media", "blog"];
 
 function sortByDateDesc(a: InsightMeta, b: InsightMeta) {
@@ -22,20 +21,26 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const limit = Math.max(1, Math.min(24, Number(url.searchParams.get("limit")) || 16));
 
-  // Pull many (we sort below)
-  const { items } = await getAllInsights({ page: 1, pageSize: 800 });
+  // Pull a lot, then we trim. (This is fast because we already cache the
+  // MDX scan inside insights-content on prod.)
+  const { items } = await getAllInsights({ page: 1, pageSize: 1000 });
 
-  // Bucket + sort each bucket by recency
-  const bucket = new Map<InsightKind, InsightMeta[]>(PRIORITY.map(k => [k, []]));
+  // Bucket and sort each bucket, remove duplicates by URL.
+  const buckets = new Map<InsightKind, InsightMeta[]>(PRIORITY.map(k => [k, []]));
+  const seen = new Set<string>();
   for (const m of items) {
-    if (bucket.has(m.kind)) bucket.get(m.kind)!.push(m);
+    if (!buckets.has(m.kind)) continue;
+    const key = (m.url || `${m.kind}:${m.slug}`).toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    buckets.get(m.kind)!.push(m);
   }
-  for (const k of PRIORITY) bucket.get(k)!.sort(sortByDateDesc);
+  for (const k of PRIORITY) buckets.get(k)!.sort(sortByDateDesc);
 
-  // Fill by priority order
+  // Fill by priority: News → Articles → Media → Blog.
   const out: InsightMeta[] = [];
   for (const k of PRIORITY) {
-    for (const m of bucket.get(k)!) {
+    for (const m of buckets.get(k)!) {
       out.push(m);
       if (out.length >= limit) break;
     }

@@ -8,7 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FaRegNewspaper } from "react-icons/fa";
 
-// Optional local fallback (remove if you don't want it)
+// Optional local fallback (kept to avoid empty UI in early deploys)
 import { cardData } from "@/app/api/data";
 
 type Item = {
@@ -32,6 +32,7 @@ const FALLBACK_IMG =
     `<svg xmlns='http://www.w3.org/2000/svg' width='300' height='160'><defs><linearGradient id='g' x1='0' x2='1'><stop stop-color='#e5e7eb' offset='0'/><stop stop-color='#f3f4f6' offset='1'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/></svg>`
   );
 
+// ── helpers ────────────────────────────────────────────────────────────────
 function getKind(item: any): "News" | "Article" | "Media" | "Blog" {
   const raw = (item?.kind || item?.type || "").toString().toLowerCase();
   if (raw.startsWith("news")) return "News";
@@ -53,58 +54,61 @@ function getDate(i: any) {
   return isNaN(d.getTime()) ? "" : d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
-function buildHighlights(src: Item[], minSlides = 4) {
+// Build priority list; guarantee a minimum count for a nice rail.
+function buildHighlights(src: Item[], minSlides = 6) {
   const news = src.filter(s => getKind(s) === "News");
   const articles = src.filter(s => getKind(s) === "Article");
   const media = src.filter(s => getKind(s) === "Media");
   const blog = src.filter(s => getKind(s) === "Blog");
 
-  const items = [...news, ...articles, ...media, ...blog];
+  // Always start with News when present.
+  let items: Item[] = [...news, ...articles, ...media, ...blog];
+
+  // Pick topKind for header/CTA.
   const topKind = items.length ? getKind(items[0]) : "Article";
 
-  // Ensure we have at least `minSlides` so the carousel slides smoothly
+  // Ensure we have enough to slide smoothly on desktop.
   if (items.length > 0 && items.length < minSlides) {
-    const cloned = [...items];
-    while (cloned.length < minSlides) cloned.push(items[cloned.length % items.length]);
-    return { items: cloned, topKind };
+    const dupes = [...items];
+    while (items.length < minSlides) items.push(dupes[items.length % dupes.length]);
   }
   return { items, topKind };
 }
 
+// ── component ─────────────────────────────────────────────────────────────
 export default function CardSlider() {
   const [raw, setRaw] = useState<Item[] | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let alive = true;
-
     (async () => {
       try {
-        const res = await fetch("/api/highlights?limit=16", { cache: "no-store", credentials: "same-origin" });
+        const res = await fetch("/api/highlights?limit=16", {
+          cache: "no-store",
+          credentials: "same-origin",
+        });
         if (res.ok) {
           const json = await res.json();
           if (alive) setRaw(Array.isArray(json?.items) ? json.items : []);
-        } else {
-          if (alive) setRaw([]);
-        }
+        } else if (alive) setRaw([]);
       } catch {
         if (alive) setRaw([]);
       } finally {
         if (alive) setLoading(false);
       }
     })();
-
     return () => {
       alive = false;
     };
   }, []);
 
-  // Fallback to local cardData if API empty
-  const source = raw && raw.length > 0 ? raw : (cardData as any[] || []);
-  const { items, topKind } = useMemo(() => buildHighlights(source, 4), [source]);
+  // Fallback to local data if API returns empty
+  const source = raw && raw.length > 0 ? raw : (cardData as Item[]);
+  const { items, topKind } = useMemo(() => buildHighlights(source, 6), [source]);
 
-  // Slider config (mobile-first)
-  const slidesToShowBase = Math.min(Math.max(items.length, 1), 5);
+  // slick settings (cap at 6 max per row on very wide, 5 on xl, etc.)
+  const slidesToShowBase = Math.max(1, Math.min(items.length, 6));
   const settings = useMemo(
     () => ({
       autoplay: true,
@@ -117,16 +121,16 @@ export default function CardSlider() {
       slidesToScroll: 1,
       cssEase: "ease-in-out",
       responsive: [
-        { breakpoint: 1536, settings: { slidesToShow: Math.min(slidesToShowBase, 5) } },
-        { breakpoint: 1280, settings: { slidesToShow: Math.min(slidesToShowBase, 4) } },
-        { breakpoint: 1024, settings: { slidesToShow: Math.min(slidesToShowBase, 3) } },
+        { breakpoint: 1536, settings: { slidesToShow: Math.min(slidesToShowBase, 6) } },
+        { breakpoint: 1280, settings: { slidesToShow: Math.min(slidesToShowBase, 5) } },
+        { breakpoint: 1024, settings: { slidesToShow: Math.min(slidesToShowBase, 4) } },
         { breakpoint: 768, settings: { slidesToShow: Math.min(slidesToShowBase, 2) } },
       ],
     }),
     [slidesToShowBase]
   );
 
-  // Small tile
+  // Tile
   const MiniTile = ({ item }: { item: Item }) => {
     const kind = getKind(item);
     return (
@@ -144,6 +148,9 @@ export default function CardSlider() {
             className="object-cover"
             loading="lazy"
             decoding="async"
+            // Important: ensures remote images show up on Vercel
+            // even if images.domains is not configured yet.
+            unoptimized
           />
           <span className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent" />
         </span>
@@ -167,7 +174,7 @@ export default function CardSlider() {
     );
   };
 
-  // Skeleton placeholders while loading
+  // Skeleton while loading
   const Skeleton = () => (
     <div className="h-[86px] w-full rounded-xl border border-blue-100/60 bg-white/70 p-3 ring-1 ring-black/5 backdrop-blur dark:border-white/10 dark:bg-white/5 dark:ring-white/5">
       <div className="flex h-full items-center gap-3">
@@ -180,7 +187,6 @@ export default function CardSlider() {
     </div>
   );
 
-  // Always render the header (even if zero items)
   const headerLabel = items.length ? (topKind === "News" ? "Top News" : `Latest ${topKind}`) : "Latest";
 
   return (
@@ -198,12 +204,17 @@ export default function CardSlider() {
         {/* Header */}
         <div className="relative mb-3">
           <div className="flex items-center gap-2 rounded-2xl border border-blue-100/70 bg-white/80 px-2.5 py-2 ring-1 ring-black/5 backdrop-blur dark:border-white/10 dark:bg-white/5 dark:ring-white/5">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-600/10 px-2 py-[5px] text-[11px] font-medium text-blue-700 dark:text-blue-300 ring-1 ring-blue-200/60 dark:ring-blue-800/60">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-600/10 px-2 py-[5px] text-[11px] font-medium text-blue-700 ring-1 ring-blue-200/60 dark:text-blue-300 dark:ring-blue-800/60">
               <FaRegNewspaper className="text-[12px]" /> Latest
             </span>
             <p className="truncate text-[12px] text-slate-700 dark:text-slate-200">{headerLabel}</p>
             <Link
-              href={topKind === "News" ? "/news" : topKind === "Article" ? "/articles" : topKind === "Media" ? "/media" : "/blog"}
+              href={
+                topKind === "News" ? "/news"
+                : topKind === "Article" ? "/articles"
+                : topKind === "Media" ? "/media"
+                : "/blog"
+              }
               className="ml-auto rounded-lg border border-blue-100/70 bg-white/80 px-2 py-1 text-[11px] font-semibold text-slate-900 transition hover:bg-blue-600 hover:text-white dark:border-white/10 dark:bg-white/5 dark:text-white"
             >
               View All →
@@ -211,7 +222,7 @@ export default function CardSlider() {
           </div>
         </div>
 
-        {/* MOBILE rail */}
+        {/* MOBILE rail (snap) */}
         <div className="relative -mx-1.5 px-1.5 md:hidden">
           <ul className="flex snap-x snap-mandatory gap-2.5 overflow-x-auto pb-1 no-scrollbar">
             {(loading ? Array.from({ length: 3 }) : items).map((it: any, i: number) => (
