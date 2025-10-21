@@ -43,21 +43,43 @@ function ensureAbsoluteForImage(src?: string) {
   return `/${src.replace(/^\.?\/*/, "")}`;
 }
 
-function fmtCurrency(amount?: number, cur = "USD") {
+// locale is pinned to avoid SSR/CSR differences
+function fmtCurrency(amount?: number, cur = "USD", locale = "en-US") {
   if (typeof amount !== "number") return "Varies";
   try {
-    return new Intl.NumberFormat(undefined, {
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency: cur.toUpperCase(),
       maximumFractionDigits: 0,
     }).format(amount);
   } catch {
-    return `${amount.toLocaleString()} ${cur.toUpperCase()}`;
+    return `${amount.toLocaleString(locale)} ${cur.toUpperCase()}`;
   }
 }
+
 function plural(n?: number, s = "mo") {
   if (typeof n !== "number") return "Varies";
   return `${n} ${s}${n === 1 ? "" : "s"}`;
+}
+
+function slugify(s: string) {
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+// Stable, deterministic IDs (no useId)
+function stableIds(country: AnyCountry, title: string) {
+  const base =
+    "cc-" +
+    (country.countrySlug
+      ? slugify(country.countrySlug)
+      : slugify(title || "untitled"));
+  return {
+    headingId: `${base}-h`,
+    descId: `${base}-d`,
+  };
 }
 
 /* ---------------- component ---------------- */
@@ -91,11 +113,10 @@ export default function CountryCard({
     ? `${baseFromCategory(country.category)}/${country.countrySlug}`
     : undefined;
 
-  const price = fmtCurrency(minInvestment, currency);
+  const price = fmtCurrency(minInvestment, currency, "en-US");
   const time = plural(timelineMonths, "mo");
 
-  const headingId = React.useId();
-  const descId = React.useId();
+  const { headingId, descId } = stableIds(country, title);
 
   const CardShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const common = [
@@ -171,16 +192,6 @@ export default function CountryCard({
               </span>
             </div>
           )}
-
-          {/* soft overlay & badge */}
-          {/* <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 via-black/5 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
-          <span
-            className="pointer-events-none absolute left-3 top-3 inline-flex items-center gap-1 rounded-md bg-white/85 px-2 py-1 text-[11px] font-medium text-neutral-900 ring-1 ring-neutral-200 backdrop-blur
-                       dark:bg-neutral-900/70 dark:text-neutral-100 dark:ring-neutral-700"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-blue-600" aria-hidden />
-            Residency
-          </span> */}
         </div>
 
         {/* Body */}
@@ -191,6 +202,7 @@ export default function CountryCard({
           >
             {title}
           </h3>
+
           {summary ? (
             <p
               id={descId}

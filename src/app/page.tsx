@@ -1,8 +1,10 @@
-// src/app/page.tsx
 import React from "react";
 import type { Metadata } from "next";
 
 import Header from "@/components/Layout/Header";
+
+// render the dynamic subtree on the client to avoid SSR/CSR differences
+import ClientOnly from "@/components/Common/ClientOnly";
 
 import Hero from "@/components/Home/Hero";
 import WhyChooseUs from "@/components/Home/whychooseus";
@@ -10,7 +12,6 @@ import FAQJourney from "@/components/Home/FAQJourney";
 import BottomContactBar from "@/components/Common/BottomContactBar";
 
 import InsightsPreview from "@/components/Insights/InsightsPreview";
-
 import ResidencyPreview from "@/components/Residency/ResidencyPreview";
 import SkilledPreview from "@/components/Skilled/SkilledPreview";
 import CitizenshipPreview from "@/components/Citizenship/CitizenshipPreview";
@@ -24,9 +25,7 @@ export const metadata: Metadata = {
   title: "XIPHIAS Immigration – Global Residency & Citizenship Solutions",
   description:
     "XIPHIAS Immigration is a leading immigration consultancy offering Residency by Investment, Citizenship by Investment, Business, and Skilled Migration solutions.",
-  alternates: {
-    canonical: "/",
-  },
+  alternates: { canonical: "/" },
   openGraph: {
     title: "XIPHIAS Immigration – Global Residency & Citizenship Solutions",
     description:
@@ -35,7 +34,7 @@ export const metadata: Metadata = {
     siteName: "XIPHIAS Immigration",
     locale: "en_US",
     type: "website",
-    images: ["/og.jpg"], // 1200x630 in /public
+    images: ["/og.jpg"],
   },
   twitter: {
     card: "summary_large_image",
@@ -53,41 +52,52 @@ export default function Home() {
 
       {/* Use id="main" so a skip-link can target it from layout.tsx */}
       <main id="main" className="min-h-screen">
-        <Hero />
-        <WhyChooseUs />
-        <CitizenshipPreview />
-        <ResidencyPreview />
-        {/* ADVISOR SPOTLIGHT (component) */}
-        <section className="scroll-mt-28 mx-auto lg:max-w-screen-2xl sm:px-6 lg:px-4">
-          <AdvisorConsultationCard
-            advisorName="Varun Singh"
-            role="CBI & RBI - MD XIPHIAS"
-            avatarSrc="/images/avtar/varun-singh.png"
-            bookingUrl="/personal-booking"
-            brochureUrl="/brochures/citizenship/grenada/real-estate.pdf"
-            priceOptions={[
-              {
-                id: "std", label: "45–60 mins", price: "₹15,500", best: true, bullets: [
-                  "Eligibility triage & risk pointers",
-                  "Route comparison (donation vs real estate)",
-                  "Project shortlist & checklist",
-                ]
-              },
-              {
-                id: "deep", label: "90 mins (in-depth)", price: "₹25,500", bullets: [
-                  "Everything in Standard",
-                  "File strategy & timeline modeling",
-                  "Follow-up summary & next steps",
-                ]
-              },
-            ]}
-          />
-        </section>
-        <CorporatePreview />
-        <SkilledPreview />
-        <FAQJourney />
-        <InsightsPreview />
-        <BottomContactBar />
+        <ClientOnly>
+          <Hero />
+          <WhyChooseUs />
+          <CitizenshipPreview />
+          <ResidencyPreview />
+
+          {/* ADVISOR SPOTLIGHT (component) */}
+          <section className="scroll-mt-28 mx-auto lg:max-w-screen-2xl sm:px-6 lg:px-4">
+            <AdvisorConsultationCard
+              advisorName="Varun Singh"
+              role="CBI & RBI - MD XIPHIAS"
+              avatarSrc="/images/avtar/varun-singh.png"
+              bookingUrl="/personal-booking"
+              brochureUrl="/brochures/citizenship/grenada/real-estate.pdf"
+              priceOptions={[
+                {
+                  id: "std",
+                  label: "45–60 mins",
+                  price: "₹15,500",
+                  best: true,
+                  bullets: [
+                    "Eligibility triage & risk pointers",
+                    "Route comparison (donation vs real estate)",
+                    "Project shortlist & checklist",
+                  ],
+                },
+                {
+                  id: "deep",
+                  label: "90 mins (in-depth)",
+                  price: "₹25,500",
+                  bullets: [
+                    "Everything in Standard",
+                    "File strategy & timeline modeling",
+                    "Follow-up summary & next steps",
+                  ],
+                },
+              ]}
+            />
+          </section>
+
+          <CorporatePreview />
+          <SkilledPreview />
+          <FAQJourney />
+          <InsightsPreview />
+          <BottomContactBar />
+        </ClientOnly>
       </main>
     </>
   );

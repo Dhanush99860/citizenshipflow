@@ -43,7 +43,7 @@ const DEFAULT_VERDICT: VerdictText = {
 const DEFAULT_CTAS: Required<QuickCheckCTAs> = {
   primaryHref: "/personal-booking",
   primaryText: "Book a Free Consultation",
-  secondaryHref: "/residency/eligibility",
+  secondaryHref: "/eligibility",
   secondaryText: "Full eligibility checker",
 };
 
