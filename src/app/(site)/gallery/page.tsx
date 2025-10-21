@@ -1,7 +1,7 @@
 // src/app/gallery/page.tsx
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import GalleryGrid from "@/components/gallery/GalleryGrid";
+import GalleryGrid from "@/components/Gallery/GalleryGrid";
 import { getGallery } from "@/lib/gallery";
 import Breadcrumb from "@/components/Common/Breadcrumb";
 
