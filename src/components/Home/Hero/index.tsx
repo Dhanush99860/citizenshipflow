@@ -175,7 +175,7 @@ export default function Hero() {
         </div>
 
         {/* ===================== SLIDER ===================== */}
-        <div className="mt-8 md:mt-10 lg:mt-12">
+        <div className="py-10">
           <CardSlider />
         </div>
       </div>

@@ -1,17 +1,20 @@
+// src/app/(site)/media/[slug]/page.tsx
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import InsightDetailView from "@/components/Insights/InsightDetailView";
 import InsightJsonLd from "@/components/SEO/InsightJsonLd";
 import { getInsightBySlug } from "@/lib/insights-content";
 
 export const revalidate = 86400;
 
-type PageProps = { params: { slug: string } };
+// Next 15: params is a Promise
+type PageProps = { params: Promise<{ slug: string }> };
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
-  const record = await getInsightBySlug("media", params.slug);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params; // ✅ await
+  const record = await getInsightBySlug("media", slug);
   if (!record) return { title: "Not Found" };
+
   const description = record.summary || `Media: ${record.title}`;
   return {
     title: record.title,
@@ -33,8 +36,10 @@ export async function generateMetadata({
 }
 
 export default async function Page({ params }: PageProps) {
-  const record = await getInsightBySlug("media", params.slug);
-  if (!record) return <div className="py-20 text-center">Not found</div>;
+  const { slug } = await params; // ✅ await
+  const record = await getInsightBySlug("media", slug);
+  if (!record) return notFound(); // ✅ proper 404
+
   return (
     <>
       <InsightJsonLd record={record} />

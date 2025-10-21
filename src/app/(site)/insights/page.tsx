@@ -1,3 +1,4 @@
+// src/app/(site)/insights/page.tsx
 import Link from "next/link";
 import InsightsList from "@/components/Insights/InsightsList";
 import FiltersBar from "@/components/Insights/FiltersBar";
@@ -6,31 +7,26 @@ import type { InsightKind } from "@/types/insights";
 
 export const revalidate = 86400;
 
+// In Next 15, dynamic APIs like searchParams are Promises
 type PageProps = {
-  searchParams: {
-    q?: string;
-    kind?: InsightKind;
-    country?: string;
-    program?: string;
-    tag?: string;
-    page?: string;
-  };
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
+const first = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v);
+
 export default async function InsightsPage({ searchParams }: PageProps) {
-  const page = Math.max(1, Number(searchParams.page || "1"));
+  const sp = await searchParams;
+
+  const q = (first(sp.q) ?? "") as string;
+  const kind = first(sp.kind) as InsightKind | undefined;
+  const country = first(sp.country);
+  const program = first(sp.program);
+  const tag = first(sp.tag);
+  const page = Math.max(1, Number(first(sp.page) ?? "1"));
   const pageSize = 12;
 
   const [{ items, total }, facets] = await Promise.all([
-    getAllInsights({
-      q: searchParams.q,
-      kind: searchParams.kind,
-      country: searchParams.country,
-      program: searchParams.program,
-      tag: searchParams.tag,
-      page,
-      pageSize,
-    }),
+    getAllInsights({ q, kind, country, program, tag, page, pageSize }),
     getInsightsFacets(),
   ]);
 
@@ -40,45 +36,45 @@ export default async function InsightsPage({ searchParams }: PageProps) {
 
   const makePageHref = (p: number) => {
     const params = new URLSearchParams();
-    if (searchParams.q) params.set("q", searchParams.q);
-    if (searchParams.kind) params.set("kind", searchParams.kind);
-    if (searchParams.country) params.set("country", searchParams.country);
-    if (searchParams.program) params.set("program", searchParams.program);
-    if (searchParams.tag) params.set("tag", searchParams.tag);
+    if (q) params.set("q", q);
+    if (kind) params.set("kind", kind);
+    if (country) params.set("country", country);
+    if (program) params.set("program", program);
+    if (tag) params.set("tag", tag);
     if (p > 1) params.set("page", String(p));
     const qs = params.toString();
     return `/insights${qs ? `?${qs}` : ""}`;
   };
 
-  // Build compact page number list with ellipses (desktop & tablet)
+  // Compact page number list with ellipses
   const pageNumbers = (() => {
     const pages: (number | "...")[] = [];
     const add = (n: number | "...") => pages.push(n);
 
-    const window = 1;
-    const first = 1;
-    const last = totalPages;
+    const pad = 1;
+    const firstPage = 1;
+    const lastPage = totalPages;
 
     if (totalPages <= 7) {
       for (let i = 1; i <= totalPages; i++) add(i);
       return pages;
     }
 
-    add(first);
-    if (page > first + window + 1) add("...");
+    add(firstPage);
+    if (page > firstPage + pad + 1) add("...");
     for (
-      let i = Math.max(first + 1, page - window);
-      i <= Math.min(last - 1, page + window);
+      let i = Math.max(firstPage + 1, page - pad);
+      i <= Math.min(lastPage - 1, page + pad);
       i++
     ) {
-      if (i !== first && i !== last) add(i);
+      if (i !== firstPage && i !== lastPage) add(i);
     }
-    if (page < last - window - 1) add("...");
-    add(last);
+    if (page < lastPage - pad - 1) add("...");
+    add(lastPage);
     return pages;
   })();
 
-  // Shared styles (no gray: only black/white with opacity)
+  // Shared styles (only black/white with opacity)
   const baseBtn =
     "inline-flex items-center justify-center rounded-md px-4 py-2 text-base sm:text-sm " +
     "border text-black dark:text-white border-black/20 dark:border-white/20 " +
@@ -109,13 +105,10 @@ export default async function InsightsPage({ searchParams }: PageProps) {
           </p>
         </div>
 
-        {/* Compact mobile filters toggle */}
+        {/* Mobile filters */}
         <div className="sm:hidden mt-2">
           <details className="group rounded-lg border border-black/15 dark:border-white/20">
-            <summary
-              className="list-none cursor-pointer px-4 py-3 rounded-lg flex items-center justify-between
-                         text-black dark:text-white"
-            >
+            <summary className="list-none cursor-pointer px-4 py-3 rounded-lg flex items-center justify-between text-black dark:text-white">
               <span className="text-base font-medium">Filters</span>
               <span
                 className="ml-3 inline-flex items-center justify-center rounded-md border border-black/20 dark:border-white/20
@@ -127,25 +120,25 @@ export default async function InsightsPage({ searchParams }: PageProps) {
             </summary>
             <div className="px-4 pb-4 pt-2 border-t border-black/10 dark:border-white/10">
               <FiltersBar
-                initialQuery={searchParams.q || ""}
-                initialKind={searchParams.kind}
-                initialCountry={searchParams.country}
-                initialProgram={searchParams.program}
-                initialTag={searchParams.tag}
+                initialQuery={q}
+                initialKind={kind}
+                initialCountry={country}
+                initialProgram={program}
+                initialTag={tag}
                 facets={facets}
               />
             </div>
           </details>
         </div>
 
-        {/* Full filters on tablet/desktop */}
+        {/* Desktop filters */}
         <div className="hidden sm:block sm:w-full sm:max-w-xl">
           <FiltersBar
-            initialQuery={searchParams.q || ""}
-            initialKind={searchParams.kind}
-            initialCountry={searchParams.country}
-            initialProgram={searchParams.program}
-            initialTag={searchParams.tag}
+            initialQuery={q}
+            initialKind={kind}
+            initialCountry={country}
+            initialProgram={program}
+            initialTag={tag}
             facets={facets}
           />
         </div>
@@ -169,7 +162,7 @@ export default async function InsightsPage({ searchParams }: PageProps) {
         <InsightsList items={items} />
       </section>
 
-      {/* Desktop/Tablet Pagination (top of footer) */}
+      {/* Desktop/Tablet Pagination */}
       {totalPages > 1 && (
         <nav
           className="mt-6 sm:mt-8 hidden sm:flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
@@ -193,7 +186,6 @@ export default async function InsightsPage({ searchParams }: PageProps) {
             </Link>
           </div>
 
-          {/* Numbered pages (scrollable on small tablets) */}
           <ul
             className="flex items-center gap-2 max-w-full overflow-x-auto no-scrollbar px-1"
             aria-label="Page list"
@@ -242,25 +234,16 @@ export default async function InsightsPage({ searchParams }: PageProps) {
         </nav>
       )}
 
-      {/* Mobile Pagination: compact, sticky bottom bar */}
+      {/* Mobile Pagination */}
       {totalPages > 1 && (
         <>
-          {/* Compact inline pager for quick jumps (mobile only) */}
           <div className="sm:hidden mt-5">
             <div className="flex items-center justify-center">
               <div className="flex items-center gap-2 max-w-full overflow-x-auto no-scrollbar px-1">
-                {/* Show at most 5 around current on phones for clarity */}
                 {Array.from(
                   new Set(
-                    [
-                      1,
-                      page - 2,
-                      page - 1,
-                      page,
-                      page + 1,
-                      page + 2,
-                      totalPages,
-                    ].filter((n) => n >= 1 && n <= totalPages)
+                    [1, page - 2, page - 1, page, page + 1, page + 2, totalPages]
+                      .filter((n) => n >= 1 && n <= totalPages)
                   )
                 ).map((n) =>
                   n === page ? (
@@ -277,7 +260,6 @@ export default async function InsightsPage({ searchParams }: PageProps) {
             </div>
           </div>
 
-          {/* Sticky bottom bar with big Prev/Next buttons */}
           <div
             className="sm:hidden fixed inset-x-0 bottom-0 z-30 bg-white/95 dark:bg-black/90 backdrop-blur
                        border-t border-black/10 dark:border-white/10"

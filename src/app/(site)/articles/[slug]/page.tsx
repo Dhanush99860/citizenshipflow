@@ -1,16 +1,16 @@
+// app/(site)/articles/[slug]/page.tsx
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import InsightDetailView from "@/components/Insights/InsightDetailView";
 import InsightJsonLd from "@/components/SEO/InsightJsonLd";
 import { getInsightBySlug } from "@/lib/insights-content";
 
 export const revalidate = 86400;
 
-type PageProps = { params: { slug: string } };
+type PageProps = { params: Promise<{ slug: string }> }; // ✅ Next 15 typing
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
-  const { slug } = await params; // ⬅️ Next 15
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params; // ✅ await params
   const record = await getInsightBySlug("articles", slug);
   if (!record) return { title: "Not Found" };
 
@@ -35,9 +35,9 @@ export async function generateMetadata({
 }
 
 export default async function Page({ params }: PageProps) {
-  const { slug } = await params; // ⬅️ Next 15
+  const { slug } = await params; // ✅ await params
   const record = await getInsightBySlug("articles", slug);
-  if (!record) return <div className="py-20 text-center">Not found</div>;
+  if (!record) return notFound(); // ✅ proper 404
 
   return (
     <>

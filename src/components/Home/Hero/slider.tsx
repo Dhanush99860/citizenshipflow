@@ -1,23 +1,16 @@
+// src/components/Home/Hero/slider.tsx
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import Image from "next/image";
 import Link from "next/link";
-import { FaRegNewspaper } from "react-icons/fa";
-
-// Optional local fallback (kept to avoid empty UI in early deploys)
-import { cardData } from "@/app/api/data";
 
 type Item = {
   kind?: "news" | "articles" | "media" | "blog" | string;
   title?: string;
-  summary?: string;
-  short?: string;
   url?: string;
   link?: string;
+  slug?: string;
   hero?: string;
   image?: string;
   cover?: string;
@@ -29,63 +22,91 @@ type Item = {
 const FALLBACK_IMG =
   "data:image/svg+xml;charset=UTF-8," +
   encodeURIComponent(
-    `<svg xmlns='http://www.w3.org/2000/svg' width='300' height='160'><defs><linearGradient id='g' x1='0' x2='1'><stop stop-color='#e5e7eb' offset='0'/><stop stop-color='#f3f4f6' offset='1'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/></svg>`
+    `<svg xmlns='http://www.w3.org/2000/svg' width='300' height='160'><rect width='100%' height='100%' fill='#eef2f7'/></svg>`
   );
 
-// ── helpers ────────────────────────────────────────────────────────────────
-function getKind(item: any): "News" | "Article" | "Media" | "Blog" {
-  const raw = (item?.kind || item?.type || "").toString().toLowerCase();
+/* ─ helpers ─ */
+
+function getKind(item: Item): "News" | "Article" | "Media" | "Blog" {
+  const raw = (item?.kind || (item as any)?.type || "").toString().toLowerCase();
   if (raw.startsWith("news")) return "News";
   if (raw.startsWith("article")) return "Article";
   if (raw.startsWith("media")) return "Media";
   if (raw.startsWith("blog")) return "Blog";
   return "Article";
 }
-function getImg(i: any) {
-  return i?.hero || i?.image || i?.cover || i?.thumbnail || FALLBACK_IMG;
+const getImg = (i: Item) => i?.hero || i?.image || i?.cover || i?.thumbnail || FALLBACK_IMG;
+
+const INTERNAL_HOSTS = new Set([
+  "xiphiasimmigration.com",
+  "www.xiphiasimmigration.com",
+  "localhost",
+  "127.0.0.1",
+  "0.0.0.0",
+  "::1",
+]);
+
+function normalizeHref(raw?: string, item?: Item) {
+  let out = raw || "#";
+  try {
+    const base =
+      typeof window !== "undefined" ? window.location.origin : "https://www.xiphiasimmigration.com";
+    const u = new URL(out, base);
+    if (INTERNAL_HOSTS.has(u.hostname)) out = u.pathname + u.search + u.hash;
+  } catch {}
+  out = out.replace(/^\/insights\/(news|articles|media|blog)\//, "/$1/");
+  if ((!out || out === "#") && item?.kind && item?.slug) {
+    const k = String(item.kind).toLowerCase();
+    if (["news", "articles", "media", "blog"].includes(k)) out = `/${k}/${item.slug}`;
+  }
+  return out || "#";
 }
-function getUrl(i: any) {
-  return i?.url || i?.link || "#";
-}
-function getDate(i: any) {
+const getUrl = (i: Item) => normalizeHref(i?.url || i?.link, i);
+
+function getDate(i: Item) {
   const raw = i?.updated || i?.date;
   if (!raw) return "";
   const d = new Date(raw);
-  return isNaN(d.getTime()) ? "" : d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  return isNaN(d.getTime())
+    ? ""
+    : d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
-// Build priority list; guarantee a minimum count for a nice rail.
-function buildHighlights(src: Item[], minSlides = 4) {
-  const news = src.filter((s) => getKind(s) === "News");
-  const articles = src.filter((s) => getKind(s) === "Article");
-  const media = src.filter((s) => getKind(s) === "Media");
-  const blog = src.filter((s) => getKind(s) === "Blog");
+function buildHighlights(src: Item[], minSlides = 10) {
+  const buckets = {
+    News: src.filter((s) => getKind(s) === "News"),
+    Article: src.filter((s) => getKind(s) === "Article"),
+    Media: src.filter((s) => getKind(s) === "Media"),
+    Blog: src.filter((s) => getKind(s) === "Blog"),
+  };
+  const items = [...buckets.News, ...buckets.Article, ...buckets.Media, ...buckets.Blog];
+  const topKind = (buckets.News.length
+    ? "News"
+    : buckets.Article.length
+    ? "Article"
+    : buckets.Media.length
+    ? "Media"
+    : "Blog") as "News" | "Article" | "Media" | "Blog";
 
-  // NOTE: const (NOT let) so ESLint is happy on Vercel
-  const items = [...news, ...articles, ...media, ...blog];
-  const topKind = items.length ? getKind(items[0]) : "Article";
-
-  // ensure the rail/slider has at least minSlides
-  if (items.length > 0 && items.length < minSlides) {
-    const cloned = [...items];
-    while (cloned.length < minSlides) {
-      cloned.push(items[cloned.length % items.length]);
-    }
-    return { items: cloned, topKind };
+  if (items.length && items.length < minSlides) {
+    const clone = [...items];
+    while (clone.length < minSlides) clone.push(items[clone.length % items.length]);
+    return { items: clone, topKind };
   }
   return { items, topKind };
 }
 
-// ── component ─────────────────────────────────────────────────────────────
-export default function CardSlider() {
-  const [raw, setRaw] = useState<Item[] | null>(null);
+/* ─ component ─ */
+
+export default function HighlightsRail() {
+  const [raw, setRaw] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
-        const res = await fetch("/api/highlights?limit=16", {
+        const res = await fetch("/api/highlights?limit=20", {
           cache: "no-store",
           credentials: "same-origin",
         });
@@ -104,164 +125,131 @@ export default function CardSlider() {
     };
   }, []);
 
-  // Fallback to local data if API returns empty
-  const source = raw && raw.length > 0 ? raw : (cardData as Item[]);
-  const { items, topKind } = useMemo(() => buildHighlights(source, 6), [source]);
+  const { items } = useMemo(() => buildHighlights(raw ?? [], 10), [raw]);
+  const loopItems = useMemo(() => (items.length ? [...items, ...items] : []), [items]);
 
-  // slick settings (cap at 6 max per row on very wide, 5 on xl, etc.)
-  const slidesToShowBase = Math.max(1, Math.min(items.length, 6));
-  const settings = useMemo(
-    () => ({
-      autoplay: true,
-      dots: false,
-      arrows: false,
-      infinite: true,
-      autoplaySpeed: 2400,
-      speed: 600,
-      slidesToShow: slidesToShowBase,
-      slidesToScroll: 1,
-      cssEase: "ease-in-out",
-      responsive: [
-        { breakpoint: 1536, settings: { slidesToShow: Math.min(slidesToShowBase, 6) } },
-        { breakpoint: 1280, settings: { slidesToShow: Math.min(slidesToShowBase, 5) } },
-        { breakpoint: 1024, settings: { slidesToShow: Math.min(slidesToShowBase, 4) } },
-        { breakpoint: 768, settings: { slidesToShow: Math.min(slidesToShowBase, 2) } },
-      ],
-    }),
-    [slidesToShowBase]
-  );
+  // animation speed scales with count (and is clamped)
+  const durationSec = Math.max(22, Math.min(70, Math.max(items.length, 10) * 3.5));
+  const trackStyle = { ["--duration" as any]: `${durationSec}s` } as React.CSSProperties;
 
-  // Tile
-  const MiniTile = ({ item }: { item: Item }) => {
+  const Tile = ({ item }: { item: Item }) => {
+    const href = getUrl(item);
     const kind = getKind(item);
+
     return (
       <Link
-        href={getUrl(item)}
-        className="group flex h-[86px] w-full items-center gap-3 rounded-xl border border-blue-100/70 bg-white/85 px-3 py-2 ring-1 ring-black/5 backdrop-blur transition hover:bg-white/95 dark:border-white/10 dark:bg-white/5 dark:ring-white/5"
-        aria-label={item?.title}
+        href={href}
+        prefetch={false}
+        aria-label={item?.title || "Highlight"}
+        className="group flex w-[270px] sm:w-[310px] md:w-[340px] lg:w-[360px] xl:w-[380px]
+                   items-center gap-3 border border-neutral-200 dark:border-neutral-800 rounded-xl
+                   bg-white dark:bg-neutral-900 px-3 py-2 shadow-sm hover:shadow
+                   transition"
       >
-        <span className="relative h-[60px] w-[88px] shrink-0 overflow-hidden rounded-md">
+        <span className="relative h-[64px] w-[96px] shrink-0 overflow-hidden">
           <Image
             src={getImg(item)}
-            alt={item?.title || "highlight"}
+            alt={item?.title || "highlight image"}
             fill
-            sizes="120px"
+            sizes="160px"
             className="object-cover"
             loading="lazy"
             decoding="async"
-            // Important: ensures remote images show up on Vercel
-            // even if images.domains is not configured yet.
             unoptimized
           />
-          <span className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent" />
         </span>
 
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 text-[10px]">
-            <span className="rounded-full bg-yellow-200/90 px-1.5 py-[2px] font-semibold text-yellow-900 dark:bg-yellow-900/40 dark:text-yellow-100">
-              {kind}
+          <div className="flex items-center gap-2 text-[10px] leading-none">
+            <span className="inline-flex items-center gap-1">
+              <i className="h-[8px] w-[2px] bg-neutral-900 dark:bg-neutral-100 block" />
+              <span className="font-medium text-neutral-700 dark:text-neutral-300">{kind}</span>
             </span>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400">{getDate(item)}</span>
+            <time className="text-neutral-500 dark:text-neutral-400">{getDate(item)}</time>
           </div>
-          <h3 className="mt-1 line-clamp-2 text-[13px] font-semibold leading-5 text-slate-900 dark:text-white">
+          <h3 className="mt-1 line-clamp-2 text-[13px] font-semibold leading-5 text-neutral-900 dark:text-neutral-100">
             {item?.title}
           </h3>
         </div>
 
-        <span className="ml-1 text-[13px] font-bold text-blue-600 opacity-70 transition group-hover:opacity-100 dark:text-blue-300">
+        <span className="ml-1 text-[13px] font-bold text-neutral-400 group-hover:text-neutral-700 dark:group-hover:text-neutral-200">
           →
         </span>
       </Link>
     );
   };
 
-  // Skeleton while loading
   const Skeleton = () => (
-    <div className="h-[86px] w-full rounded-xl border border-blue-100/60 bg-white/70 p-3 ring-1 ring-black/5 backdrop-blur dark:border-white/10 dark:bg-white/5 dark:ring-white/5">
-      <div className="flex h-full items-center gap-3">
-        <div className="h-[60px] w-[88px] animate-pulse rounded-md bg-slate-200/70 dark:bg-white/10" />
-        <div className="min-w-0 flex-1 space-y-2">
-          <div className="h-3 w-20 animate-pulse rounded bg-slate-200/70 dark:bg-white/10" />
-          <div className="h-4 w-[85%] animate-pulse rounded bg-slate-200/70 dark:bg-white/10" />
-        </div>
+    <div className="flex w-[270px] sm:w-[310px] md:w-[340px] lg:w-[360px] xl:w-[380px] items-center gap-3 border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-3 py-2 shadow-sm">
+      <div className="h-[64px] w-[96px] animate-pulse bg-neutral-200 dark:bg-neutral-800" />
+      <div className="min-w-0 flex-1 space-y-2">
+        <div className="h-3 w-24 animate-pulse bg-neutral-200 dark:bg-neutral-800" />
+        <div className="h-4 w-[85%] animate-pulse bg-neutral-200 dark:bg-neutral-800" />
       </div>
     </div>
   );
 
-  const headerLabel = items.length ? (topKind === "News" ? "Top News" : `Latest ${topKind}`) : "Latest";
-
   return (
-    <section className="mt-6 md:mt-8">
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-sky-50 via-white to-indigo-50 p-3 ring-1 ring-blue-100/80 dark:from-blue-950/30 dark:via-transparent dark:to-indigo-950/20 dark:ring-blue-900/40">
-        {/* soft accents */}
-        <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-20 -right-20 h-56 w-56 rounded-full bg-blue-300/20 blur-3xl dark:bg-blue-700/10" />
-          <div className="absolute -bottom-24 -left-10 h-64 w-64 rounded-full bg-indigo-300/20 blur-3xl dark:bg-indigo-700/10" />
-          <div className="absolute inset-0 opacity-[0.35] dark:opacity-[0.18] [mask-image:radial-gradient(60%_60%_at_50%_40%,black,transparent_80%)]">
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.06)_1px,transparent_1px)] bg-[size:22px_22px]" />
+    <section className="mt-2 sm:mt-4">
+      {/* BOXED panel (no curves/gradient) */}
+      <div className="border border-neutral-200 dark:border-neutral-800 bg-white/95 dark:bg-neutral-900/80 shadow-md px-3 py-2">
+        {/* simple header (no pills, no buttons) */}
+        <div className="mb-2 flex items-center gap-2">
+          <span className="h-3 w-[3px] bg-neutral-900 dark:bg-neutral-100" />
+          <h2 className="text-xs font-semibold tracking-wide text-neutral-800 dark:text-neutral-200">
+            Highlights
+          </h2>
+        </div>
+
+        {/* horizontal loop with edge fade (subtle) */}
+        <div
+          className="relative -mx-1 px-1"
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent)",
+            maskImage:
+              "linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent)",
+          }}
+        >
+          <div className="overflow-hidden">
+            <ul role="list" className="marquee-track flex gap-3" style={trackStyle}>
+              {loading
+                ? Array.from({ length: 8 }).map((_, i) => (
+                    <li key={`sk-${i}`}>
+                      <Skeleton />
+                    </li>
+                  ))
+                : loopItems.map((it, idx) => (
+                    <li key={`hl-${idx}`}>
+                      <Tile item={it} />
+                    </li>
+                  ))}
+            </ul>
           </div>
-        </div>
-
-        {/* Header */}
-        <div className="relative mb-3">
-          <div className="flex items-center gap-2 rounded-2xl border border-blue-100/70 bg-white/80 px-2.5 py-2 ring-1 ring-black/5 backdrop-blur dark:border-white/10 dark:bg-white/5 dark:ring-white/5">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-600/10 px-2 py-[5px] text-[11px] font-medium text-blue-700 ring-1 ring-blue-200/60 dark:text-blue-300 dark:ring-blue-800/60">
-              <FaRegNewspaper className="text-[12px]" /> Latest
-            </span>
-            <p className="truncate text-[12px] text-slate-700 dark:text-slate-200">{headerLabel}</p>
-            <Link
-              href={
-                topKind === "News" ? "/news"
-                : topKind === "Article" ? "/articles"
-                : topKind === "Media" ? "/media"
-                : "/blog"
-              }
-              className="ml-auto rounded-lg border border-blue-100/70 bg-white/80 px-2 py-1 text-[11px] font-semibold text-slate-900 transition hover:bg-blue-600 hover:text-white dark:border-white/10 dark:bg-white/5 dark:text-white"
-            >
-              View All →
-            </Link>
-          </div>
-        </div>
-
-        {/* MOBILE rail (snap) */}
-        <div className="relative -mx-1.5 px-1.5 md:hidden">
-          <ul className="flex snap-x snap-mandatory gap-2.5 overflow-x-auto pb-1 no-scrollbar">
-            {(loading ? Array.from({ length: 3 }) : items).map((it: any, i: number) => (
-              <li key={i} className="basis-[92%] shrink-0 snap-start">
-                {loading ? <Skeleton /> : <MiniTile item={it} />}
-              </li>
-            ))}
-            <li className="basis-2 shrink-0" />
-          </ul>
-        </div>
-
-        {/* DESKTOP/TABLET carousel */}
-        <div className="relative hidden md:block">
-          {loading ? (
-            <div className="grid grid-cols-3 gap-3 lg:grid-cols-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} />
-              ))}
-            </div>
-          ) : (
-            <Slider {...(settings as any)}>
-              {items.map((it, i) => (
-                <div key={i} className="px-1.5">
-                  <MiniTile item={it} />
-                </div>
-              ))}
-            </Slider>
-          )}
         </div>
       </div>
 
       <style jsx global>{`
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
+        @keyframes x-scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
         }
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
+        .marquee-track {
+          width: max-content;
+          animation: x-scroll var(--duration, 40s) linear infinite;
+        }
+        .marquee-track:hover {
+          animation-play-state: paused;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .marquee-track {
+            animation: none;
+            transform: translateX(0);
+          }
         }
       `}</style>
     </section>

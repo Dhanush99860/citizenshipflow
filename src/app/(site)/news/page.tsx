@@ -5,12 +5,16 @@ import InsightsList from "@/components/Insights/InsightsList";
 
 export const revalidate = 86400;
 
+// Next 15: searchParams is a Promise and values can be string | string[]
 type PageProps = {
-  searchParams: { page?: string };
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
+const first = (v?: string | string[]) => (Array.isArray(v) ? v[0] : v);
+
 export default async function NewsListPage({ searchParams }: PageProps) {
-  const page = Math.max(1, Number(searchParams.page || "1"));
+  const sp = await searchParams; // ✅ await
+  const page = Math.max(1, Number(first(sp.page) ?? "1"));
   const pageSize = 12;
 
   // getAllInsights already supports pagination and returns total
@@ -46,15 +50,15 @@ export default async function NewsListPage({ searchParams }: PageProps) {
   // Numbered page list with ellipses (desktop/tablet)
   const pageNumbers = (() => {
     const arr: (number | "...")[] = [];
-    const first = 1, last = totalPages, window = 1;
+    const firstPage = 1, last = totalPages, window = 1;
     if (totalPages <= 7) {
       for (let i = 1; i <= totalPages; i++) arr.push(i);
       return arr;
     }
-    arr.push(first);
-    if (page > first + window + 1) arr.push("...");
-    for (let i = Math.max(first + 1, page - window); i <= Math.min(last - 1, page + window); i++) {
-      if (i !== first && i !== last) arr.push(i);
+    arr.push(firstPage);
+    if (page > firstPage + window + 1) arr.push("...");
+    for (let i = Math.max(firstPage + 1, page - window); i <= Math.min(last - 1, page + window); i++) {
+      if (i !== firstPage && i !== last) arr.push(i);
     }
     if (page < last - window - 1) arr.push("...");
     arr.push(last);
@@ -127,7 +131,8 @@ export default async function NewsListPage({ searchParams }: PageProps) {
           <div className="sm:hidden mt-5">
             <div className="flex items-center justify-center">
               <div className="flex items-center gap-2 max-w-full overflow-x-auto no-scrollbar px-1">
-                {Array.from(new Set([1, page - 2, page - 1, page, page + 1, page + 2, totalPages].filter(n => n >= 1 && n <= totalPages))).map(n =>
+                {Array.from(new Set([1, page - 2, page - 1, page, page + 1, page + 2, totalPages]
+                  .filter(n => n >= 1 && n <= totalPages))).map(n =>
                   n === page ? (
                     <span key={`m-${n}`} aria-current="page" className={pagePillActive}>{n}</span>
                   ) : (
