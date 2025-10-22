@@ -168,7 +168,6 @@ export default async function CountryPage(props: {
           <ProcessSteps steps={applicationProcess} />
           <EligibilityRequirements items={requirements} />
           <FAQSection faqs={faq} />
-          <MDXDetailsSection country={meta.country} content={content} />
           <div className="md:hidden">
             <ContactForm />
           </div>

@@ -25,26 +25,7 @@ type CurrencyCode =
   | "AUD"
   | "SGD";
 
-export type CountryMeta = {
-  title: string;
-  category: "corporate";
-  country: string;
-  countrySlug: string;
-  summary?: string;
-  tagline?: string;
-  heroImage?: string;
-  heroVideo?: string;
-  heroPoster?: string;
-  introPoints?: string[];
-  tags?: string[];
-  seo?: { title?: string; description?: string; keywords?: string[] };
-  draft?: boolean;
-
-  // Optional extras used by some pages; safe to ignore elsewhere
-  region?: string;
-  lastUpdated?: string; // ISO
-};
-
+export type FAQ = { q: string; a: string };
 export type Step = { title: string; description?: string };
 
 export type PriceRow = {
@@ -70,6 +51,75 @@ export type QuickCheckConfig = {
     type: "boolean" | "select" | "number" | "text";
     options?: string[];
   }[];
+  ctas?: {
+    primaryHref?: string;
+    primaryText?: string;
+    secondaryHref?: string;
+    secondaryText?: string;
+  };
+};
+
+export type DocumentChecklistGroup = {
+  group: string;
+  documents: string[];
+  notes?: string;
+};
+
+export type FamilyMatrixConfig = {
+  childrenUpTo?: number;
+  parentsFromAge?: number;
+  siblings?: boolean;
+  spouse?: boolean;
+};
+
+export type LanguageMin =
+  | {
+      test?: string;
+      overall?: number;
+      bands?: {
+        listening?: number;
+        reading?: number;
+        writing?: number;
+        speaking?: number;
+      };
+    }
+  | undefined;
+
+export type LanguageRequirements =
+  | {
+      tests?: string[];
+      minLevel?: string; // human-readable, e.g., "CLB 5" / "Competent"
+    }
+  | undefined;
+
+export type Testimonial = { quote: string; author?: string };
+
+export type CountryMeta = {
+  title: string;
+  category: "corporate";
+  country: string;
+  countrySlug: string;
+  summary?: string;
+  tagline?: string;
+  heroImage?: string;
+  heroVideo?: string;
+  heroPoster?: string;
+  introPoints?: string[];
+  tags?: string[];
+  seo?: { title?: string; description?: string; keywords?: string[] };
+  draft?: boolean;
+
+  // Optional extras used by some pages
+  region?: string;
+  lastUpdated?: string; // ISO
+
+  // Rich content used by country page (parity with skilled/residency)
+  overview?: string;
+  keyPoints?: string[];
+  facts?: Record<string, unknown>;
+  applicationProcess?: Step[];
+  requirements?: string[];
+  faq?: FAQ[];
 };
 
 export type ProgramMeta = {
@@ -78,23 +128,46 @@ export type ProgramMeta = {
   country: string;
   countrySlug: string;
   programSlug: string;
+
   tagline?: string;
   minInvestment?: number;
   currency?: CurrencyCode;
   timelineMonths?: number;
+
   tags?: string[];
   benefits?: string[];
   requirements?: string[];
   processSteps?: Step[];
-  faq?: { q: string; a: string }[];
+  faq?: FAQ[];
   brochure?: string;
   prices?: PriceRow[];
   proofOfFunds?: ProofOfFundsRow[];
   disqualifiers?: string[];
   quickCheck?: QuickCheckConfig;
+
+  // Rich sections & sidebar helpers (shared components)
+  documentChecklist?: DocumentChecklistGroup[];
+  familyMatrix?: FamilyMatrixConfig;
+
+  // Language / sponsorship (for corp programs that require it)
+  languageRequirements?: LanguageRequirements;
+  languageMin?: LanguageMin;
+  jobOfferRequired?: boolean;
+  jobOfferNote?: string;
+  jobOffer?: {
+    required?: boolean;
+    note?: string;
+  };
+
+  // Media
   heroImage?: string;
   heroVideo?: string;
   heroPoster?: string;
+
+  // Testimonials (carousel at bottom)
+  testimonials?: Testimonial[];
+
+  // SEO
   seo?: { title?: string; description?: string; keywords?: string[] };
   draft?: boolean;
 
@@ -103,7 +176,10 @@ export type ProgramMeta = {
     label: string;
     amount?: number;
     currency?: CurrencyCode;
+    sourceLabel?: string;
+    sourceUrl?: string;
   }[];
+
   lastUpdated?: string; // ISO
 };
 
@@ -169,7 +245,7 @@ const baseMdxOptions = {
   rehypePlugins: [
     rehypeSlug,
     [rehypeAutolinkHeadings, { behavior: "wrap" }],
-    rehypeFixInvalidLinkChildren, // ← add this
+    rehypeFixInvalidLinkChildren,
   ],
 };
 
@@ -267,11 +343,13 @@ function normalizeCountry(
     meta.title ||
     (typeof country === "string" ? country : toTitle(countrySlug));
 
-  // Clean array-ish fields (YAML mapping → readable string)
+  // Clean array-ish fields
   meta.introPoints = sanitizeStringArray(meta.introPoints);
   meta.tags = sanitizeStringArray(meta.tags);
+  meta.keyPoints = sanitizeStringArray(meta.keyPoints);
+  meta.requirements = sanitizeStringArray(meta.requirements);
 
-  // Images: enforce root-absolute; **keep your existing fallback**
+  // Images: enforce root-absolute; keep sensible fallbacks
   const fallbackHero = `/images/${countrySlug}.jpg`;
   meta.heroImage = toAbsolute(meta.heroImage, fallbackHero);
   meta.heroPoster = toAbsolute(
@@ -298,18 +376,11 @@ function normalizeProgram(
   meta.countrySlug = meta.countrySlug || cSlug;
   meta.category = "corporate";
 
+  // numbers
   if (meta.minInvestment !== undefined)
     meta.minInvestment = coerceNum(meta.minInvestment);
   if (meta.timelineMonths !== undefined)
     meta.timelineMonths = coerceNum(meta.timelineMonths);
-
-  // Arrays cleanup (handles accidental object items)
-  meta.tags = sanitizeStringArray(meta.tags);
-  meta.benefits = sanitizeStringArray(meta.benefits);
-  meta.requirements = sanitizeStringArray(meta.requirements);
-  meta.disqualifiers = sanitizeStringArray(meta.disqualifiers);
-
-  // Prices & proof of funds coercion
   if (Array.isArray(meta.prices)) {
     meta.prices = meta.prices.map((row: any) => ({
       ...row,
@@ -322,8 +393,6 @@ function normalizeProgram(
       amount: coerceNum(row?.amount) ?? 0,
     }));
   }
-
-  // Government fees (optional)
   if (Array.isArray(meta.governmentFees)) {
     meta.governmentFees = meta.governmentFees.map((row: any) => ({
       ...row,
@@ -331,7 +400,46 @@ function normalizeProgram(
     }));
   }
 
-  // Images: enforce root-absolute; fallback to country image
+  // arrays cleanup
+  meta.tags = sanitizeStringArray(meta.tags);
+  meta.benefits = sanitizeStringArray(meta.benefits);
+  meta.requirements = sanitizeStringArray(meta.requirements);
+  meta.disqualifiers = sanitizeStringArray(meta.disqualifiers);
+
+  // language normalization (keep both shapes supported)
+  if (meta.languageRequirements && typeof meta.languageRequirements === "object") {
+    const lr = meta.languageRequirements as any;
+    if (lr.tests && !Array.isArray(lr.tests)) {
+      lr.tests = [String(lr.tests)].filter(Boolean);
+    }
+    if (lr.minLevel != null) lr.minLevel = String(lr.minLevel);
+  }
+  if (meta.languageMin && typeof meta.languageMin === "object") {
+    const lm = meta.languageMin as any;
+    if (lm.overall != null) lm.overall = coerceNum(lm.overall);
+    if (lm.bands && typeof lm.bands === "object") {
+      const b = lm.bands;
+      b.listening = coerceNum(b.listening);
+      b.reading = coerceNum(b.reading);
+      b.writing = coerceNum(b.writing);
+      b.speaking = coerceNum(b.speaking);
+    }
+  }
+
+  // sponsorship
+  if (typeof meta.jobOfferRequired === "string") {
+    meta.jobOfferRequired = /^(true|yes|1)$/i.test(meta.jobOfferRequired);
+  }
+  if (meta.jobOffer && typeof meta.jobOffer === "object") {
+    if (typeof meta.jobOffer.required === "string") {
+      meta.jobOffer.required = /^(true|yes|1)$/i.test(meta.jobOffer.required);
+    }
+    if (!meta.jobOfferNote && meta.jobOffer.note) {
+      meta.jobOfferNote = String(meta.jobOffer.note);
+    }
+  }
+
+  // media paths: enforce absolute; fallback to country image
   const fallbackHero = `/images/${cSlug}.jpg`;
   meta.heroImage = toAbsolute(meta.heroImage, fallbackHero);
   if (meta.heroPoster)
@@ -339,6 +447,23 @@ function normalizeProgram(
       meta.heroPoster,
       `/images/${cSlug}-hero-poster.jpg`,
     );
+  if (meta.brochure) meta.brochure = toAbsolute(meta.brochure, meta.brochure);
+
+  // testimonials shape guard
+  if (Array.isArray(meta.testimonials)) {
+    meta.testimonials = meta.testimonials
+      .map((t: any) => {
+        if (!t) return null;
+        if (typeof t === "string") return { quote: t };
+        if (typeof t === "object") {
+          const quote = (t as any).quote ?? String((t as any).q ?? "");
+          const author = (t as any).author ?? (t as any).a;
+          return quote ? { quote: String(quote), author: author ? String(author) : undefined } : null;
+        }
+        return null;
+      })
+      .filter(Boolean);
+  }
 
   return meta as ProgramMeta;
 }

@@ -20,7 +20,13 @@ import Breadcrumb from "@/components/Common/Breadcrumb";
 import { Prose } from "@/components/ui/Prose";
 import EligibilityQuickCheck from "@/components/Residency/EligibilityQuickCheck";
 import SocialProof from "@/components/Residency/SocialProof";
-import Prices from "@/components/Residency/Prices";
+import GovernmentFees from "@/components/Citizenship/GovernmentFees";
+
+/* 🔥 NEW corporate components */
+import CompanySnapshot from "@/components/Corporate/CompanySnapshot";
+import SponsorshipRules from "@/components/Corporate/SponsorshipRules";
+import PostSetupChecklist from "@/components/Corporate/PostSetupChecklist";
+import AuthorityNotes from "@/components/Corporate/AuthorityNotes";
 
 /** Cache once/day */
 export const revalidate = 86400;
@@ -93,7 +99,7 @@ function similarityScore(
   });
   const b = base.title.toLowerCase();
   const c = cand.title.toLowerCase();
-  // Keywords biased to corporate flows
+  // corporate keywords
   [
     "company",
     "business",
@@ -128,19 +134,48 @@ export default async function ProgramPage(props: {
       `/brochures/corporate/${params.country}/${params.program}.pdf`;
 
     const processSteps: any[] = (meta as any).processSteps ?? [];
-    const quickCheck = (meta as any).quickCheck as any | undefined; // from MDX
-    const prices = (meta as any).prices as
+    const quickCheck = (meta as any).quickCheck as any | undefined;
+
+    /* Govt fees kept (corporate-relevant) */
+    const governmentFees =
+      ((meta as any).governmentFees as
+        | {
+            label: string;
+            amount?: number;
+            currency?: string;
+            sourceLabel?: string;
+            sourceUrl?: string;
+          }[]
+        | undefined) ?? [];
+
+    /* NEW: optional corporate-frontmatter blocks (all defensive) */
+    const snapshot = (meta as any).snapshot as
       | {
-          label: string;
-          amount?: number;
-          currency?: string;
-          when?: string;
-          notes?: string;
-        }[]
+          structure?: string;
+          ownership?: string;
+          office?: string;
+          visaQuota?: number | string;
+          bankReady?: boolean | string;
+          highlights?: string[];
+        }
       | undefined;
-    const proofOfFunds = (meta as any).proofOfFunds as
-      | { label?: string; amount: number; currency?: string; notes?: string }[]
+
+    const sponsorship = (meta as any).sponsorship as
+      | {
+          title?: string;
+          thresholds?: { level: string; amount?: number; currency?: string; note?: string }[];
+          notes?: string[];
+        }
       | undefined;
+
+    const postSetup = (meta as any).postSetup as
+      | { title?: string; items?: string[] }
+      | undefined;
+
+    const authorityNotes = (meta as any).authorityNotes as
+      | Array<{ authority: string; points: string[]; badgeTone?: "indigo" | "emerald" | "amber" | "slate" }>
+      | undefined;
+
     const disqualifiers: string[] = (meta as any).disqualifiers ?? [];
 
     /** Programs in same country */
@@ -213,18 +248,15 @@ export default async function ProgramPage(props: {
       })
       .slice(0, 6);
 
-    /** Section keys (more resilient across countries) */
+    /** Section keys */
     const overviewKey = "overview";
-    const investmentKey = "investment-overview";
-
     const countrySlugFromTitle = String(meta.country || "")
       .toLowerCase()
       .replace(/&/g, "and")
       .replace(/[^a-z0-9\s-]/gi, "")
       .trim()
       .replace(/\s+/g, "-");
-
-    const whyKey = `why-${countrySlugFromTitle}`; // e.g., "why-singapore"
+    const whyKey = `why-${countrySlugFromTitle}`;
     const comparisonKey =
       "comparison-with-provincial-entrepreneur-programs" in sections
         ? "comparison-with-provincial-entrepreneur-programs"
@@ -232,25 +264,28 @@ export default async function ProgramPage(props: {
           ? "comparison"
           : null;
 
-    /** In-page Quick Nav */
+    /** Quick Nav — corporate */
     const sectionsForNav: { id: string; label: string }[] = [
       { id: "quick-facts", label: "Quick Facts" },
+      { id: "company", label: "Company" },
       { id: "overview", label: "Overview" },
-      { id: "investment", label: "Investment" },
-      ...(prices?.length || proofOfFunds?.length
-        ? [{ id: "prices", label: "Costs & Funds" }]
+      ...(sponsorship?.thresholds?.length || sponsorship?.notes?.length
+        ? [{ id: "sponsorship", label: "Sponsorship" }]
         : []),
+      ...(governmentFees?.length ? [{ id: "gov-fees", label: "Govt. Fees" }] : []),
       ...(((meta as any).requirements?.length ?? 0)
         ? [{ id: "requirements", label: "Eligibility" }]
         : []),
       ...(((meta as any).benefits?.length ?? 0)
         ? [{ id: "benefits", label: "Benefits" }]
         : []),
+      ...(postSetup?.items?.length ? [{ id: "post-setup", label: "Post-setup" }] : []),
       ...(processSteps.length ? [{ id: "process", label: "Process" }] : []),
       ...(comparisonKey ? [{ id: "comparison", label: "Comparison" }] : []),
       ...(sections[whyKey]
         ? [{ id: "why-country", label: `Why ${meta.country}` }]
         : []),
+      ...(authorityNotes?.length ? [{ id: "authority-notes", label: "Authority notes" }] : []),
       { id: "faq", label: "FAQ" },
       ...(disqualifiers.length
         ? [{ id: "not-a-fit", label: "Not a fit?" }]
@@ -276,29 +311,6 @@ export default async function ProgramPage(props: {
               name: step.title,
               text: step.description,
             })),
-          }
-        : null;
-
-    const offerLd =
-      prices && prices.length
-        ? {
-            "@context": "https://schema.org",
-            "@type": "AggregateOffer",
-            priceCurrency:
-              prices.find((p) => p.currency)?.currency ||
-              (meta as any).currency ||
-              "USD",
-            offers: prices
-              .filter((p) => typeof p.amount === "number")
-              .map((p) => ({
-                "@type": "Offer",
-                name: p.label,
-                price: p.amount,
-                priceCurrency: p.currency || (meta as any).currency || "USD",
-                category: p.when || undefined,
-                description: p.notes || undefined,
-                availability: "https://schema.org/InStock",
-              })),
           }
         : null;
 
@@ -337,22 +349,7 @@ export default async function ProgramPage(props: {
           <JsonLd data={{ ...howToLdData, "@id": "#application-howto" }} />
         ) : null}
         <JsonLd data={webPageLd} />
-        {offerLd ? <JsonLd data={offerLd} /> : null}
-        {relatedPrograms.length ? (
-          <JsonLd
-            data={{
-              "@context": "https://schema.org",
-              "@type": "ItemList",
-              name: `Related programs similar to ${meta.title}`,
-              itemListElement: relatedPrograms.map((r, idx) => ({
-                "@type": "ListItem",
-                position: idx + 1,
-                url: `https://yourdomain.com${r.url}`,
-                name: r.title,
-              })),
-            }}
-          />
-        ) : null}
+
         {/* HERO */}
         <div className="pt-4 pb-4">
           <div className="rounded-3xl bg-white/80 dark:bg-dark_bg/80 shadow-lg backdrop-blur">
@@ -379,8 +376,10 @@ export default async function ProgramPage(props: {
           </div>
           <Breadcrumb />
         </div>
+
         {/* IN-PAGE QUICK NAV */}
         <ProgramQuickNav sections={sectionsForNav} />
+
         {/* BODY */}
         <div className="flex flex-col gap-8 pt-5 pb-16 sm:px-6 lg:grid lg:grid-cols-12 lg:gap-8 lg:px-8">
           {/* MAIN */}
@@ -405,6 +404,30 @@ export default async function ProgramPage(props: {
               </section>
             ) : null}
 
+            {/* COMPANY SNAPSHOT */}
+            {(snapshot?.structure ||
+              snapshot?.ownership ||
+              snapshot?.office ||
+              snapshot?.visaQuota != null ||
+              snapshot?.bankReady != null ||
+              snapshot?.highlights?.length) && (
+              <section id="company" className="scroll-mt-28">
+                <CompanySnapshot
+  structure="Free Zone (FZ-LLC)"
+  ownership="100% foreign ownership"
+  office="Flexi-desk (upgradeable)"
+  visaQuota={3}
+  bankReady="Yes (most banks)"
+  zone="IFZA"
+  license="Professional"
+  establishmentCard="Issued"
+  eChannels="Active"
+  highlights={["Digital visas", "Sponsor dependants", "Fast setup"]}
+/>
+
+              </section>
+            )}
+
             {/* OVERVIEW */}
             {sections[overviewKey] && (
               <section id="overview" className="scroll-mt-28">
@@ -415,31 +438,27 @@ export default async function ProgramPage(props: {
               </section>
             )}
 
-            {/* INVESTMENT */}
-            {sections[investmentKey] && (
-              <section id="investment" className="scroll-mt-28">
-                <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Investment overview</h2>
-                </header>
-                <Prose>{sections[investmentKey]}</Prose>
+            {/* SPONSORSHIP / SALARY RULES */}
+            {(sponsorship?.thresholds?.length || sponsorship?.notes?.length) && (
+              <section id="sponsorship" className="scroll-mt-28">
+                <SponsorshipRules
+                  title={sponsorship?.title}
+                  thresholds={sponsorship?.thresholds}
+                  notes={sponsorship?.notes}
+                />
               </section>
             )}
 
-            {/* COSTS & FUNDS */}
-            {prices?.length || proofOfFunds?.length ? (
-              <section id="prices" className="scroll-mt-28 overflow-visible">
+            {/* GOVERNMENT FEES */}
+            {governmentFees?.length ? (
+              <section id="gov-fees" className="scroll-mt-28">
                 <header className="mb-3">
-                  <h2 className="text-xl font-semibold">
-                    Costs & proof of funds
-                  </h2>
+                  <h2 className="text-xl font-semibold">Government fees</h2>
                 </header>
-                <div className="w-full overflow-visible">
-                  <Prices
-                    items={prices ?? []}
-                    proofOfFunds={proofOfFunds ?? []}
-                    defaultCurrency={(meta as any).currency}
-                  />
-                </div>
+                <GovernmentFees
+                  fees={governmentFees}
+                  defaultCurrency={(meta as any).currency || "USD"}
+                />
               </section>
             ) : null}
 
@@ -477,6 +496,16 @@ export default async function ProgramPage(props: {
               </section>
             ) : null}
 
+            {/* POST-SETUP CHECKLIST */}
+            {postSetup?.items?.length ? (
+              <section id="post-setup" className="scroll-mt-28">
+                <PostSetupChecklist
+                  title={postSetup?.title}
+                  items={postSetup.items}
+                />
+              </section>
+            ) : null}
+
             {/* PROCESS */}
             {processSteps.length > 0 && (
               <section id="process" className="scroll-mt-28">
@@ -506,6 +535,20 @@ export default async function ProgramPage(props: {
                 <Prose>{sections[whyKey]}</Prose>
               </section>
             )}
+
+            {/* AUTHORITY NOTES */}
+            {authorityNotes?.length ? (
+              <section id="authority-notes" className="scroll-mt-28 space-y-5">
+                {authorityNotes.map((b, i) => (
+                  <AuthorityNotes
+                    key={`${b.authority}-${i}`}
+                    authority={b.authority}
+                    points={b.points ?? []}
+                    badgeTone={(b.badgeTone as any) ?? "indigo"}
+                  />
+                ))}
+              </section>
+            ) : null}
 
             {/* NOT A FIT? */}
             {disqualifiers.length ? (
