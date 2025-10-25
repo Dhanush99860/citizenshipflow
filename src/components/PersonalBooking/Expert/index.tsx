@@ -1,6 +1,7 @@
+// src/components/PersonalBooking/Expert/index.tsx
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import * as React from "react";
 import Link from "next/link";
 import {
   Calendar,
@@ -9,93 +10,99 @@ import {
   ShieldCheck,
   Sparkles,
   Award,
-  Play,
-  Pause,
 } from "lucide-react";
 
-/**
- * AboutSection (updated)
- * - If a VIDEO is provided → always render in LANDSCAPE (16:9), native controls enabled.
- * - If NO video → render IMAGE in PORTRAIT (4:5) on ALL breakpoints.
- * - Keeps rounded card, gloss overlay, and verified badge.
- * - Respects reduced motion (no autoplay).
- */
 
-export default function AboutSection() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+type Highlight = { icon: React.ReactNode; text: React.ReactNode };
+type Fact = { label: string; value: string };
 
-  // 👉 Set your sources
-  const imageSrc = "/images/avtar/varun-singh-md-xiphias.jpg"; // portrait image
-  const videoSrc = ""; // e.g. "/images/personal/video/sample.mp4" (leave empty to force image)
+/* ------------------------------ Content ------------------------------ */
 
-  const hasVideo = Boolean(videoSrc); // video takes priority when present
+const NAME = "Varun Singh";
+const ROLE = "Managing Director, XIPHIAS Immigration";
 
-  const toggleVideo = () => {
-    if (!videoRef.current) return;
-    if (videoRef.current.paused) {
-      videoRef.current.play();
-      setIsPlaying(true);
-    } else {
-      videoRef.current.pause();
-      setIsPlaying(false);
-    }
-  };
+const PORTRAIT_SRC: string = "/images/avtar/varun-singh-md-xiphias.jpg";
+/** Set to an MP4 path if you want video; keep empty string to force portrait image */
+const VIDEO_SRC: string | undefined = ""; // e.g. "/videos/varun-singh.mp4"
 
-  // Respect reduced motion (don’t autoplay)
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (!videoRef.current) return;
-    if (mq.matches) {
-      videoRef.current.pause();
-      setIsPlaying(false);
-    }
+/** SAFE narrowing: never call .trim() until we've proven it's a string */
+const HAS_VIDEO: boolean =
+  typeof VIDEO_SRC === "string" && VIDEO_SRC.trim().length > 0;
+
+// Keep copy neutral (no unverified claims)
+const BIO: string =
+  "Varun leads the advisory practice at XIPHIAS Immigration, focusing on compliant, transparent pathways in residency and citizenship planning for entrepreneurs, professionals, and families.";
+
+const HIGHLIGHTS: Highlight[] = [
+  {
+    icon: <Award className="w-5 h-5 text-primary relative z-10" />,
+    text: (
+      <>
+        <span className="font-semibold">Leadership in immigration advisory</span>
+      </>
+    ),
+  },
+  {
+    icon: <Globe className="w-5 h-5 text-primary relative z-10" />,
+    text: (
+      <>
+        Exposure to multiple <span className="font-semibold">destination programs</span>
+      </>
+    ),
+  },
+  {
+    icon: <Sparkles className="w-5 h-5 text-primary relative z-10" />,
+    text: (
+      <>
+        <span className="font-semibold">Process-led</span> and client-first
+      </>
+    ),
+  },
+  {
+    icon: <ShieldCheck className="w-5 h-5 text-primary relative z-10" />,
+    text: (
+      <>
+        Strong emphasis on <span className="font-semibold">ethics & compliance</span>
+      </>
+    ),
+  },
+];
+
+const FACTS: Fact[] = [
+  { label: "Role", value: "Managing Director" },
+  { label: "Approach", value: "Transparent & process-led" },
+];
+
+/* ----------------------------- Component ----------------------------- */
+
+export default function Expert() {
+  const videoRef = React.useRef<HTMLVideoElement | null>(null);
+
+  // Respect reduced motion (no autoplay even if you add it later)
+  React.useEffect(() => {
+    const mq =
+      typeof window !== "undefined"
+        ? window.matchMedia("(prefers-reduced-motion: reduce)")
+        : null;
+    if (!mq || !videoRef.current) return;
+    if (mq.matches) videoRef.current.pause();
   }, []);
 
-  const highlights = [
-    {
-      icon: <Award className="w-5 h-5 text-primary relative z-10" />,
-      text: (
-        <>
-          Over <span className="font-semibold">15&nbsp;years of leadership</span>
-        </>
-      ),
-    },
-    {
-      icon: <User className="w-5 h-5 text-primary relative z-10" />,
-      text: (
-        <>
-          Certified <span className="font-semibold">IMC professional</span>
-        </>
-      ),
-    },
-    {
-      icon: <Globe className="w-5 h-5 text-primary relative z-10" />,
-      text: (
-        <>
-          <span className="font-semibold">10,000+ clients</span> empowered
-        </>
-      ),
-    },
-    {
-      icon: <ShieldCheck className="w-5 h-5 text-primary relative z-10" />,
-      text: (
-        <>
-          Multiple <span className="font-semibold">industry awards</span>
-        </>
-      ),
-    },
-  ];
-
   return (
+    <div className="mx-auto max-w-screen-2xl px-4 py-5">
     <section
-      className="relative w-full py-16 sm:py-20 bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 overflow-hidden"
-      aria-labelledby="about-title"
+      className={[
+        "relative w-full py-12 sm:py-16",
+        "bg-gradient-to-br from-slate-50 via-white to-slate-100",
+        "dark:from-slate-950 dark:via-slate-900 dark:to-slate-950",
+        "overflow-hidden",
+      ].join(" ")}
+      aria-labelledby="expert-title"
     >
-      {/* Decorative background mesh */}
+      {/* Background accents */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <div className="absolute -top-24 -right-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute -bottom-28 -left-24 h-80 w-80 rounded-full bg-secondary/20 blur-3xl" />
+        <div className="absolute -bottom-28 -left-24 h-80 w-80 rounded-full bg-blue-400/10 blur-3xl" />
         <div
           className="absolute inset-0 opacity-[0.08] dark:opacity-[0.12]"
           style={{
@@ -107,158 +114,151 @@ export default function AboutSection() {
         />
       </div>
 
-      <div className="relative max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* LEFT CONTENT */}
+      <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid items-center gap-8 md:grid-cols-2 lg:gap-12">
+          {/* LEFT: Content */}
           <div className="space-y-6 text-center md:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 dark:bg-slate-800/60 backdrop-blur border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 shadow-sm">
-              <ShieldCheck className="w-4 h-4" />
-              Certified IMC – Trusted Advisor
+            <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-3 py-1 text-xs text-slate-600 shadow-sm backdrop-blur dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300">
+              <ShieldCheck className="h-4 w-4" />
+              Trusted Advisor
             </div>
 
-            <h2
-              id="about-title"
-              className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100"
-            >
-              Meet{" "}
-              <span className="bg-gradient-to-r from-primary/80 to-primary bg-clip-text text-transparent">
-                Varun&nbsp;Singh
-              </span>
-            </h2>
+            <div>
+              <h2
+                id="expert-title"
+                className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl dark:text-slate-100"
+              >
+                Meet{" "}
+                <span className="bg-gradient-to-r from-primary/80 to-primary bg-clip-text text-transparent">
+                  {NAME}
+                </span>
+              </h2>
+              <p className="mt-1 text-sm font-medium text-slate-700/90 dark:text-slate-300/90">
+                {ROLE}
+              </p>
+            </div>
 
-            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto md:mx-0">
-              A visionary leader and certified investment migration consultant,
-              Varun founded XIPHIAS in 2009 and has since dedicated his career
-              to helping entrepreneurs, investors and families worldwide become
-              global citizens. His mission: turn your dreams of international
-              opportunity into reality.
+            <p className="mx-auto max-w-2xl text-base leading-relaxed text-slate-600 dark:text-slate-300 md:mx-0">
+              {BIO}
             </p>
 
+            {/* Pill list */}
             <ul className="grid grid-cols-2 gap-3 text-sm text-slate-700 dark:text-slate-200">
-              <li className="flex items-center justify-center md:justify-start gap-2">
-                <Sparkles className="w-4 h-4 text-primary" /> Mission-driven
+              <li className="flex items-center justify-center gap-2 md:justify-start">
+                <Sparkles className="h-4 w-4 text-primary" />
+                Mission-driven
               </li>
-              <li className="flex items-center justify-center md:justify-start gap-2">
-                <User className="w-4 h-4 text-primary" /> Client-focused
+              <li className="flex items-center justify-center gap-2 md:justify-start">
+                <User className="h-4 w-4 text-primary" />
+                Client-first
               </li>
-              <li className="flex items-center justify-center md:justify-start gap-2">
-                <Globe className="w-4 h-4 text-primary" /> Global perspective
+              <li className="flex items-center justify-center gap-2 md:justify-start">
+                <Globe className="h-4 w-4 text-primary" />
+                Global programs
               </li>
-              <li className="flex items-center justify-center md:justify-start gap-2">
-                <ShieldCheck className="w-4 h-4 text-primary" /> Ethical practice
+              <li className="flex items-center justify-center gap-2 md:justify-start">
+                <ShieldCheck className="h-4 w-4 text-primary" />
+                Ethics & compliance
               </li>
             </ul>
 
-            <h3 className="text-lg sm:text-xl font-semibold text-slate-800 dark:text-slate-200 pt-2">
-              Credentials & Impact
+            {/* Highlights */}
+            <h3 className="pt-1 text-lg font-semibold text-slate-800 dark:text-slate-200 sm:text-xl">
+              Focus & Impact
             </h3>
-            <div className="grid sm:grid-cols-2 gap-4">
-              {highlights.map((item, i) => (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {HIGHLIGHTS.map((item: Highlight, i: number) => (
                 <div
                   key={i}
-                  className="flex items-start gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm hover:shadow-md transition"
+                  className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white/80 p-4 shadow-sm backdrop-blur-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-800/80"
                 >
-                  <div className="shrink-0 flex items-center justify-center w-11 h-11 rounded-full bg-primary/10 dark:bg-primary/20 border border-primary/20 relative shadow-inner overflow-hidden">
+                  <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-primary/20 bg-primary/10 shadow-inner dark:bg-primary/20">
                     <span className="absolute inset-0 rounded-full bg-gradient-to-br from-white/60 to-transparent opacity-70" />
                     {item.icon}
                   </div>
-                  <p className="text-slate-700 dark:text-slate-200 text-[15px] sm:text-base leading-relaxed font-medium">
+                  <p className="text-[15px] leading-relaxed text-slate-700 dark:text-slate-200 sm:text-base">
                     {item.text}
                   </p>
                 </div>
               ))}
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center md:items-start gap-3 pt-2">
+            {/* Facts row */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-1 text-xs text-slate-600 dark:text-slate-400 md:justify-start">
+              {FACTS.map((f: Fact) => (
+                <span
+                  key={`${f.label}-${f.value}`}
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-3 py-1 dark:border-slate-700 dark:bg-slate-800/60"
+                >
+                  <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
+                  <span className="font-medium">{f.label}:</span> {f.value}
+                </span>
+              ))}
+            </div>
+
+            {/* CTAs */}
+            <div className="flex flex-col items-center gap-3 pt-2 sm:flex-row md:items-start">
               <Link
                 href="/contact"
-                className="group inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3 rounded-2xl bg-primary text-white font-semibold shadow-lg hover:shadow-xl transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary/80"
+                className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 font-semibold text-white shadow-lg transition hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/80 focus-visible:ring-offset-2"
                 aria-label="Reserve your consultation"
               >
-                <Calendar className="w-5 h-5" />
+                <Calendar className="h-5 w-5" />
                 <span>Reserve Your Consultation</span>
               </Link>
               <Link
-                href="/articles"
-                className="inline-flex items-center justify-center px-5 sm:px-6 py-3 rounded-2xl bg-white/70 dark:bg-white/10 text-slate-800 dark:text-slate-100 border border-slate-200/70 dark:border-slate-700 hover:bg-white/90 dark:hover:bg-white/15 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-300"
+                href="/programs"
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white/70 px-5 py-3 text-slate-800 transition hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 dark:border-slate-700 dark:bg-white/10 dark:text-slate-100 dark:hover:bg-white/15"
               >
-                Explore his insights
+                Explore Programs
               </Link>
-            </div>
-
-            <div className="pt-4 flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs text-slate-500 dark:text-slate-400">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-                Trusted by 10k+ clients
-              </span>
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-                <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
-                15+ years of excellence
-              </span>
             </div>
           </div>
 
-          {/* RIGHT CONTENT — Media
-              - Image: always portrait (4:5) -> no crop surprises
-              - Video: always landscape (16:9) with native controls
-          */}
+          {/* RIGHT: Media (portrait if no video; landscape if video) */}
           <div
-            className={`relative order-first md:order-none rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 ${
-              hasVideo ? "aspect-[16/9]" : "aspect-[4/5]"
-            }`}
+            className={[
+              "relative order-first overflow-hidden rounded-3xl border border-slate-200 shadow-2xl",
+              "bg-slate-100 dark:border-slate-700 dark:bg-slate-800",
+              HAS_VIDEO ? "aspect-[16/9]" : "aspect-[4/5]",
+              "md:order-none",
+            ].join(" ")}
           >
-            {/* Subtle gloss */}
+            {/* gloss */}
             <div
               aria-hidden
-              className="absolute inset-0 rounded-3xl pointer-events-none bg-gradient-to-tr from-white/40 via-white/10 to-transparent"
+              className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-tr from-white/40 via-white/10 to-transparent"
             />
-
-            {/* Media */}
-            {hasVideo ? (
+            {HAS_VIDEO ? (
               <video
                 ref={videoRef}
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
                 controls
-                controlsList="nodownload"
                 playsInline
                 preload="metadata"
-                poster={imageSrc || undefined}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
+                poster={PORTRAIT_SRC}
               >
-                <source src={videoSrc} type="video/mp4" />
+                <source src={VIDEO_SRC} type="video/mp4" />
                 Your browser does not support video.
               </video>
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={imageSrc}
-                alt="Varun Singh portrait"
-                className="absolute inset-0 w-full h-full object-cover object-[50%_20%]"
+                src={PORTRAIT_SRC}
+                alt={`${NAME} portrait`}
+                className="absolute inset-0 h-full w-full object-cover object-[50%_20%]"
               />
             )}
 
-            {/* Play/Pause helper (optional; native controls already shown for video) */}
-            {hasVideo && (
-              <button
-                onClick={toggleVideo}
-                className="absolute bottom-4 right-4 inline-flex items-center gap-2 bg-white/90 dark:bg-slate-900/90 text-slate-900 dark:text-slate-100 rounded-full px-4 py-2 shadow-lg backdrop-blur hover:scale-[1.02] transition"
-                aria-pressed={isPlaying}
-                aria-label={isPlaying ? "Pause video" : "Play video"}
-              >
-                {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-                <span className="hidden sm:inline">{isPlaying ? "Pause" : "Play"}</span>
-              </button>
-            )}
-
-            {/* Corner badge */}
-            <div className="absolute top-4 right-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-900/80 text-xs text-slate-700 dark:text-slate-200 shadow">
-              <ShieldCheck className="w-4 h-4 text-primary" />
+            {/* badge */}
+            <div className="absolute right-4 top-4 inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1 text-xs text-slate-700 shadow dark:bg-slate-900/80 dark:text-slate-200">
+              <ShieldCheck className="h-4 w-4 text-primary" />
               Verified Expert
             </div>
           </div>
         </div>
       </div>
     </section>
+    </div>
   );
 }

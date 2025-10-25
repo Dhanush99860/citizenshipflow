@@ -1,14 +1,13 @@
+// src/components/PersonalBooking/Sections/index.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
 import Expert from "@/components/PersonalBooking/Expert";
 import Awards from "@/components/PersonalBooking/Awards";
-import InvestmentStats from "@/components/PersonalBooking/Problem/index";
-import Solutions from "@/components/PersonalBooking/Solutions";
-import TestimonialSection from "@/components/Common/TestimonialSection/index";
+import TestimonialCarouselPro from "@/components//Common/TestimonialCarouselPro/index";
 import AdvisorConsultationCard from "@/components/Citizenship/AdvisorConsultationCard";
+import ProblemSolutionCompare from "@/components/PersonalBooking/ProblemSolution";
 
 import {
   User,
@@ -29,16 +28,16 @@ type ArticleMeta = {
   tags?: string[];
 };
 
-// Navigation labels and section anchors
 const navItems = [
   { label: "About", href: "#about", icon: User },
-  { label: "Why Consultation", href: "#why", icon: AlertTriangle },
-  { label: "Our Approach", href: "#approach", icon: Lightbulb },
+  { label: "ProblemSolutionCompare", href: "#problem", icon: AlertTriangle },
   { label: "Insights", href: "#articles", icon: FileText },
   { label: "Awards & Media", href: "#awards", icon: Award },
   { label: "Client Stories", href: "#testimonials", icon: MessageCircle },
   { label: "Pricing", href: "#pricing", icon: DollarSign },
-];
+] as const;
+
+const SECTION_IDS = navItems.map((n) => n.href.slice(1));
 
 function ArticleCard({ a }: { a: ArticleMeta }) {
   return (
@@ -69,100 +68,151 @@ function ArticleCard({ a }: { a: ArticleMeta }) {
 }
 
 export default function Sections({ articles }: { articles: ArticleMeta[] }) {
-  const [active, setActive] = useState("");
+  const [active, setActive] = useState<string>(SECTION_IDS[0]);
 
+  // Cache section elements once on mount
+  const sectionEls = useMemo(() => {
+    if (typeof window === "undefined") return {} as Record<string, HTMLElement>;
+    const map: Record<string, HTMLElement> = {};
+    SECTION_IDS.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) map[id] = el as HTMLElement;
+    });
+    return map;
+  }, []);
+
+  // 1) Initialize from hash; 2) hashchange listener (immediate underline on click/URL changes)
   useEffect(() => {
-    const observer = new IntersectionObserver(
+    const applyHash = () => {
+      const id = window.location.hash.slice(1);
+      if (SECTION_IDS.includes(id)) setActive(id);
+    };
+    applyHash();
+    window.addEventListener("hashchange", applyHash);
+    return () => window.removeEventListener("hashchange", applyHash);
+  }, []);
+
+  // IntersectionObserver keeps underline in sync while scrolling
+  useEffect(() => {
+    const ratios = new Map<string, number>(); // id -> last ratio
+
+    const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) setActive(entry.target.id);
+          const id = entry.target.id;
+          if (!SECTION_IDS.includes(id)) return;
+          ratios.set(id, entry.isIntersecting ? entry.intersectionRatio : 0);
         });
+
+        let bestId = active;
+        let bestRatio = -1;
+        SECTION_IDS.forEach((id) => {
+          const r = ratios.get(id) ?? 0;
+          if (r > bestRatio) {
+            bestRatio = r;
+            bestId = id;
+          }
+        });
+
+        if (bestId && bestId !== active) setActive(bestId);
       },
-      { rootMargin: "-50% 0px -50% 0px" }
+      {
+        root: null,
+        rootMargin: "-45% 0px -45% 0px",
+        threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
+      }
     );
 
-    navItems.forEach((item) => {
-      const el = document.querySelector(item.href);
-      if (el) observer.observe(el);
-    });
+    Object.values(sectionEls).forEach((el) => io.observe(el));
+    return () => io.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sectionEls]);
 
-    return () => observer.disconnect();
-  }, []);
+  // Optimistic highlight on click (so underline moves instantly)
+  const handleNavClick = (href: string) => {
+    const id = href.slice(1);
+    if (SECTION_IDS.includes(id)) setActive(id);
+  };
 
   return (
     <div className="w-full transition-colors duration-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100">
       {/* Sticky Top Nav (Desktop) */}
-      <section className="sticky top-0 z-40 hidden sm:block bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-700 p-5">
-        <div className="container mx-auto lg:max-w-screen-xl px-4">
-          <nav className="relative flex justify-between text-sm sm:text-base font-medium tracking-wide gap-6 sm:gap-10">
-            {navItems.map((item) => {
-              const isActive = active === item.href.replace("#", "");
-              const Icon = item.icon;
-              return (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className={`relative p-5 transition-all duration-300 ${isActive
-                      ? "text-black dark:text-white font-semibold"
-                      : "text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white p-1"
-                    }`}
-                >
-                  {item.label}
-                  {isActive && (
-                    <motion.div
-                      layoutId="underline"
-                      className="absolute left-0 right-0 -bottom-[20px] h-[3px] bg-black dark:bg-white rounded-full"
-                      transition={{ duration: 0.25, ease: "easeInOut" }}
-                    />
-                  )}
-                </a>
-              );
-            })}
-          </nav>
-        </div>
-      </section>
+<section className="sticky top-0 z-40 hidden sm:block bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-700">
+  <div className="mx-auto max-w-screen-2xl px-4 py-5">
+    <nav className="relative flex justify-between text-sm sm:text-base font-medium tracking-wide gap-6 sm:gap-10">
+      {navItems.map((item) => {
+        const isActive = active === item.href.replace("#", "");
+        return (
+          <a
+            key={item.href}
+            href={item.href}
+            onClick={() => handleNavClick(item.href)}
+            className={`relative p-5 transition-all duration-300 ${
+              isActive
+                ? "text-black dark:text-white font-semibold"
+                : "text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white p-1"
+            }`}
+          >
+            {item.label}
+            {isActive && (
+              <motion.div
+                layoutId="underline"
+                className="absolute left-0 right-0 -bottom-[20px] h-[3px] bg-black dark:bg-white rounded-full"
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+              />
+            )}
+          </a>
+        );
+      })}
+    </nav>
+  </div>
+</section>
 
-      {/* Floating Bottom Nav (Mobile) — improved */}
+
+      {/* Floating Bottom Nav (Mobile) */}
       <nav
         role="tablist"
         aria-label="Section navigation"
         className="
-    sm:hidden fixed left-1/2 -translate-x-1/2 z-50
-    bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl
-    border border-neutral-200/70 dark:border-neutral-700/70
-    rounded-2xl shadow-lg w-[92%] max-w-md
-  "
-        /* respect iOS home-indicator */
+          sm:hidden fixed left-1/2 -translate-x-1/2 z-50
+          bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl
+          border border-neutral-200/70 dark:border-neutral-700/70
+          rounded-2xl shadow-lg w-[92%] max-w-md
+        "
         style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)" }}
       >
-        {/* scrollable rail so 7 items aren’t squished */}
         <div className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory px-2 py-2 gap-1">
           {navItems.map((item) => {
             const isActive = active === item.href.replace("#", "");
             const Icon = item.icon;
-
             return (
               <a
                 key={item.href}
                 href={item.href}
+                onClick={() => handleNavClick(item.href)}
                 role="tab"
                 aria-selected={isActive}
                 aria-current={isActive ? "page" : undefined}
                 className={`
-            snap-center shrink-0 grow-0 basis-[84px]
-            flex flex-col items-center justify-center
-            h-16 rounded-xl transition-all
-            ${isActive
-                    ? "text-indigo-600 dark:text-indigo-400"
-                    : "text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white"}
-          `}
+                  snap-center shrink-0 grow-0 basis-[84px]
+                  flex flex-col items-center justify-center
+                  h-16 rounded-xl transition-all
+                  ${
+                    isActive
+                      ? "text-indigo-600 dark:text-indigo-400"
+                      : "text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white"
+                  }
+                `}
               >
-                {/* keep height stable so nothing jumps on active */}
                 <div
                   className={`
-              grid place-items-center h-9 w-9 rounded-xl
-              ${isActive ? "bg-indigo-50 dark:bg-indigo-900/40 ring-1 ring-indigo-200/60 dark:ring-indigo-800/60" : ""}
-            `}
+                    grid place-items-center h-9 w-9 rounded-xl
+                    ${
+                      isActive
+                        ? "bg-indigo-50 dark:bg-indigo-900/40 ring-1 ring-indigo-200/60 dark:ring-indigo-800/60"
+                        : ""
+                    }
+                  `}
                 >
                   <Icon size={18} strokeWidth={2} />
                 </div>
@@ -173,18 +223,15 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
             );
           })}
         </div>
-
-        {/* optional subtle handle to hint scrollability on very small screens */}
         <div className="pointer-events-none absolute -bottom-2 left-1/2 -translate-x-1/2 h-1.5 w-10 rounded-full bg-neutral-200 dark:bg-neutral-700" />
       </nav>
 
-
       {/* Sections */}
       <AnimatePresence mode="wait">
-        {/* About Section */}
         <motion.section
           id="about"
           key="about"
+          className="scroll-mt-28"
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 50 }}
@@ -193,34 +240,15 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
           <Expert />
         </motion.section>
 
-        {/* Why Consultation Section */}
-        <motion.section
-          id="why"
-          key="why"
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        >
-          <InvestmentStats />
-        </motion.section>
+        {/* Problem & Solution — no animation */}
+        <section id="problem" className="mt-10 scroll-mt-28">
+          <ProblemSolutionCompare />
+        </section>
 
-        {/* Our Approach Section */}
-        <motion.section
-          id="approach"
-          key="approach"
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        >
-          <Solutions />
-        </motion.section>
-
-        {/* Insights Section */}
         <motion.section
           id="articles"
           key="articles"
+          className="scroll-mt-28"
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 50 }}
@@ -240,17 +268,15 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 dark:text-gray-400">
-                No articles yet.
-              </p>
+              <p className="text-gray-500 dark:text-gray-400">No articles yet.</p>
             )}
           </div>
         </motion.section>
 
-        {/* Awards & Media Section */}
         <motion.section
           id="awards"
           key="awards"
+          className="scroll-mt-28"
           initial={{ opacity: 0, x: 50 }}
           whileInView={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -50 }}
@@ -259,28 +285,27 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
           <Awards />
         </motion.section>
 
-        {/* Client Stories / Testimonials Section */}
         <motion.section
           id="testimonials"
           key="testimonials"
+          className="scroll-mt-28"
           initial={{ opacity: 0, x: 50 }}
           whileInView={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -50 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
-          <TestimonialSection />
+          <TestimonialCarouselPro className="mt-2" />
         </motion.section>
 
-        {/* Pricing Section */}
         <motion.section
           id="pricing"
           key="pricing"
+          className="scroll-mt-28"
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 50 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
-          {/* ADVISOR SPOTLIGHT (component) */}
           <section className="scroll-mt-28 max-w-screen-xl mx-auto py-6 px-4">
             <AdvisorConsultationCard
               advisorName="Varun Singh"
@@ -290,18 +315,25 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
               brochureUrl="/brochures/citizenship/grenada/real-estate.pdf"
               priceOptions={[
                 {
-                  id: "std", label: "45–60 mins", price: "₹15,500", best: true, bullets: [
+                  id: "std",
+                  label: "45–60 mins",
+                  price: "₹15,500",
+                  best: true,
+                  bullets: [
                     "Eligibility triage & risk pointers",
                     "Route comparison (donation vs real estate)",
                     "Project shortlist & checklist",
-                  ]
+                  ],
                 },
                 {
-                  id: "deep", label: "90 mins (in-depth)", price: "₹25,500", bullets: [
+                  id: "deep",
+                  label: "90 mins (in-depth)",
+                  price: "₹25,500",
+                  bullets: [
                     "Everything in Standard",
                     "File strategy & timeline modeling",
                     "Follow-up summary & next steps",
-                  ]
+                  ],
                 },
               ]}
             />

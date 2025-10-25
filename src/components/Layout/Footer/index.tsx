@@ -533,7 +533,7 @@ export default function Footer() {
                     <Icon icon="mdi:certificate-outline" className="h-5 w-5 mt-0.5" />
                     <div>
                       <strong className="text-[13.5px]">Accreditations</strong>
-                      <p className="text-[13px] text-white/85">RCIC #R000000 • MARA #0000000</p>
+                      <p className="text-[13px] text-white/85">RCIC R516194 • MARA 0854840</p>
                     </div>
                   </div>
                 </li>

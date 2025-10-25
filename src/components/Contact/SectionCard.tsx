@@ -16,7 +16,7 @@ export default function SectionCard<E extends React.ElementType = "section">(
     <Tag
       {...rest}
       className={[
-        "rounded-3xl bg-white ring-1 ring-blue-100/80 p-6",
+        "rounded-3xl bg-white ring-1 ring-blue-100/80",
         "dark:bg-white/5 dark:ring-blue-900/30",
         "shadow-[0_1px_0_rgba(0,0,0,0.02)]",
         className,

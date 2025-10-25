@@ -1,11 +1,42 @@
-﻿import type { MetadataRoute } from "next";
+﻿// src/app/sitemap.ts
+import type { MetadataRoute } from "next";
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { getSiteUrl } from "../lib/seo/site";
 
+/* ------------------------------ config ---------------------------------- */
+
+const APP_DIR = path.join(process.cwd(), "src", "app");
+const CONTENT_DIRS = [
+  path.join(process.cwd(), "content"),
+  path.join(process.cwd(), "src", "content"),
+];
+
+// Keep this aligned with /app/robots.ts block list
+const BLOCKLIST: Array<string | RegExp> = [
+  /^\/api(\/|$)/,
+  /^\/search(\/|$)/,
+  /^\/thank-you(\/|$)/,
+  /^\/login(\/|$)/,
+  /^\/profile(\/|$)/,
+  /^\/admin(\/|$)/,
+  /^\/dashboard(\/|$)/,
+  /^\/preview(\/|$)/,
+  /^\/draft(\/|$)/,
+  /^\/private(\/|$)/,
+];
+
+/* ------------------------------ utils ----------------------------------- */
+
+function isBlocked(route: string): boolean {
+  return BLOCKLIST.some((rule) =>
+    typeof rule === "string" ? route === rule : rule.test(route),
+  );
+}
+
 /** Walk a directory recursively and return matching files */
-function walk(dir: string, filter: (f: string, d?: fs.Dirent) => boolean): string[] {
+function walk(dir: string, filter: (fullPath: string, d?: fs.Dirent) => boolean): string[] {
   const out: string[] = [];
   if (!fs.existsSync(dir)) return out;
   for (const d of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -18,14 +49,13 @@ function walk(dir: string, filter: (f: string, d?: fs.Dirent) => boolean): strin
 
 /** Remove route groups like (site) */
 function cleanSegment(seg: string) {
-  if (seg.startsWith("(") && seg.endsWith(")")) return "";
-  return seg;
+  return seg.startsWith("(") && seg.endsWith(")") ? "" : seg;
 }
 
 /** Build route path from a folder containing a page.* under src/app */
 function dirToRoute(dir: string): string | null {
-  const rel = path.relative(path.join(process.cwd(), "src", "app"), dir).replace(/\\/g, "/");
-  if (!rel) return "/";
+  const rel = path.relative(APP_DIR, dir).replace(/\\/g, "/");
+  if (!rel) return "/"; // app root
   const parts = rel.split("/").map(cleanSegment).filter(Boolean);
 
   // Skip dynamic segments and any segment starting with '_' (internal)
@@ -36,15 +66,14 @@ function dirToRoute(dir: string): string | null {
 
 /** Convert content path to route, supporting /content and /src/content */
 function contentPathToRoute(file: string): string | null {
-  const root1 = path.join(process.cwd(), "content");
-  const root2 = path.join(process.cwd(), "src", "content");
-  const base = file.startsWith(root2) ? root2 : root1;
+  const base = CONTENT_DIRS.find((root) => file.startsWith(root));
+  if (!base) return null;
 
   const rel = path.relative(base, file).replace(/\\/g, "/");
   const noExt = rel.replace(/\.mdx$/, "");
   let parts = noExt.split("/");
 
-  // If the leaf is "index" or starts with "_" (e.g., _country), drop it (map to parent)
+  // If leaf is "index" or starts with "_" (e.g. _country), drop it (map to parent)
   const leaf = parts[parts.length - 1];
   if (leaf === "index" || leaf.startsWith("_")) parts = parts.slice(0, -1);
 
@@ -61,47 +90,102 @@ function parseMaybeDate(v: unknown): Date | null {
   return Number.isNaN(t) ? null : new Date(t);
 }
 
+/** Infer changefreq & priority from route depth */
+function seoHintsFor(route: string): { changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number } {
+  if (route === "/") return { changeFrequency: "daily", priority: 1.0 };
+
+  const depth = route.split("/").filter(Boolean).length;
+  if (depth === 1) return { changeFrequency: "weekly", priority: 0.8 };
+  if (depth === 2) return { changeFrequency: "weekly", priority: 0.7 };
+  return { changeFrequency: "monthly", priority: 0.5 };
+}
+
+/* -------------------------------- main ---------------------------------- */
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = getSiteUrl();
+  const base = getSiteUrl().replace(/\/+$/, ""); // no trailing slash
   const urls: MetadataRoute.Sitemap = [];
 
   // 1) Static routes from src/app/**/page.*
-  const staticPageFiles = walk(path.join(process.cwd(), "src", "app"), (f) =>
-    /\/page\.(tsx|ts|jsx|js)$/.test(f.replace(/\\/g, "/"))
+  const staticPageFiles = walk(APP_DIR, (f) =>
+    /\/page\.(tsx|ts|jsx|js)$/.test(f.replace(/\\/g, "/")),
   );
+
   for (const file of staticPageFiles) {
     const routeDir = path.dirname(file);
     const route = dirToRoute(routeDir);
-    if (!route || route.startsWith("/api")) continue;
+    if (!route) continue;
+    if (isBlocked(route)) continue;
+
     const stat = fs.statSync(file);
-    urls.push({ url: `${base}${route}`.replace(/\/+$/, "") || base, lastModified: stat.mtime });
+    const { changeFrequency, priority } = seoHintsFor(route);
+    const url = `${base}${route === "/" ? "" : route}`;
+
+    urls.push({
+      url,
+      lastModified: stat.mtime,
+      changeFrequency,
+      priority,
+    });
   }
 
   // 2) Content-driven routes from /content/**/*.mdx and /src/content/**/*.mdx
-  const contentRoots = [path.join(process.cwd(), "content"), path.join(process.cwd(), "src", "content")];
-  for (const root of contentRoots) {
+  for (const root of CONTENT_DIRS) {
     const mdxFiles = walk(root, (f) => f.endsWith(".mdx"));
     for (const file of mdxFiles) {
       try {
         const raw = fs.readFileSync(file, "utf8");
         const { data } = matter(raw) as { data: Record<string, any> };
-        const lastmod = parseMaybeDate(data?.updatedAt) || parseMaybeDate(data?.date) || fs.statSync(file).mtime;
+
+        // Skip drafts / noindex from frontmatter
+        if (data?.draft === true || data?.noindex === true) continue;
+
         const route = contentPathToRoute(file);
-        if (!route) continue;
-        const url = `${base}${route}`.replace(/\/+$/, "");
-        urls.push({ url, lastModified: lastmod });
-      } catch {}
+        if (!route || isBlocked(route)) continue;
+
+        const lastmod =
+          parseMaybeDate(data?.updatedAt) ||
+          parseMaybeDate(data?.date) ||
+          fs.statSync(file).mtime;
+
+        const { changeFrequency, priority } = seoHintsFor(route);
+        const url = `${base}${route === "/" ? "" : route}`;
+
+        urls.push({
+          url,
+          lastModified: lastmod,
+          changeFrequency,
+          priority,
+        });
+      } catch {
+        // ignore bad files
+      }
     }
   }
 
   // 3) Ensure homepage exists
   if (!urls.some((u) => u.url === base || u.url === `${base}/`)) {
-    urls.push({ url: base, lastModified: new Date() });
+    urls.push({
+      url: base,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 1.0,
+    });
   }
 
-  // 4) Deduplicate
+  // 4) Deduplicate by URL and sort (homepage first, then lexicographically)
   const seen = new Set<string>();
-  const deduped = urls.filter((u) => !seen.has(u.url) && (seen.add(u.url), true));
+  const deduped = urls.filter((u) => {
+    if (seen.has(u.url)) return false;
+    seen.add(u.url);
+    return true;
+  });
+
+  deduped.sort((a, b) => {
+    if (a.url === base) return -1;
+    if (b.url === base) return 1;
+    return a.url.localeCompare(b.url);
+  });
 
   return deduped;
 }

@@ -1,7 +1,6 @@
 // src/app/personalbooking/page.tsx
 import Hero from "@/components/PersonalBooking/Hero";
 import Details from "@/components/PersonalBooking/Details";
-import PressReleased from "@/components/PersonalBooking/PressReleased";
 import FAQSection from "@/components/Common/FAQSection";
 import { getAllInsights } from "@/lib/insights-content";
 import type { Metadata } from "next";
@@ -9,7 +8,7 @@ import type { Metadata } from "next";
 export const revalidate = 86400; // 1 day
 
 export const metadata: Metadata = {
-  title: "Book a Private Consultation | XIPHIAS Immigration",
+  title: "Book a Private Consultation",
   description:
     "Book a personal consultation with XIPHIAS Immigration. With over 15 years of expertise and a 92% success rate in Golden Visa, PR, and Investment Migration programs, we empower investors, entrepreneurs, and families worldwide.",
   keywords: [
@@ -71,7 +70,6 @@ export default async function personalbookingPage() {
     <main className="bg-light_bg dark:bg-dark_bg text-light_text dark:text-dark_text">
       <Hero />
       <Details articles={articles} />
-      <PressReleased />
       <FAQSection />
 
       <script

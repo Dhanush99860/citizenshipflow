@@ -1,34 +1,78 @@
-// ============================
-// src/app/(site)/contact/page.tsx
-// ============================
+// src/app/contact/page.tsx
 import type { Metadata } from "next";
 import Script from "next/script";
 
-// Existing blocks
 import ContactHero from "@/components/Contact/ContactHero";
-import LocationsShowcase, { type Region, type Office } from "@/components/Contact/LocationsShowcase";
-
-// New composables
+import LocationsDirectory from "@/components/Contact/LocationsDirectory";
 import ContactChannels from "@/components/Contact/ContactChannels";
 import LeadTabs from "@/components/Contact/LeadTabs";
 import MapCard from "@/components/Contact/MapCard";
-import FAQ from "@/components/Contact/FAQ";
+import CardSlider from "@/components/Home/Hero/slider";
 
-import TrustBar, {
-  BadgeIcon,
-  AwardIcon,
-  UsersIcon,
-  GlobeIcon,
-} from "@/components/Contact/TrustBar";
+const CANONICAL = "/contact";
+const ABSOLUTE_URL = "https://www.xiphiasimmigration.com/contact";
+
+export const revalidate = 86400; // cache for 1 day
 
 export const metadata: Metadata = {
   title: "Contact XIPHIAS | Speak to an Immigration Expert",
   description:
-    "Talk to our licensed immigration experts. Call, WhatsApp, email, or book a callback. Bengaluru HQ with India, UAE and Canada presence.",
-  alternates: { canonical: "/contact" },
+    "Talk to licensed immigration experts at XIPHIAS. Call, WhatsApp, email, or book a callback. Bengaluru HQ with presence in India, UAE, and Canada.",
+  keywords: [
+    "XIPHIAS Immigration",
+    "Contact XIPHIAS",
+    "Immigration consultants",
+    "Residency by Investment contact",
+    "Citizenship by Investment contact",
+    "Golden Visa consultants",
+    "Global mobility advisors",
+  ],
+  alternates: {
+    canonical: CANONICAL,
+    languages: {
+      "en": CANONICAL,
+      "en-IN": CANONICAL,
+      "x-default": CANONICAL,
+    },
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
+  },
+  openGraph: {
+    title: "Contact XIPHIAS | Speak to an Immigration Expert",
+    description:
+      "Fast, discreet, compliant. Call, WhatsApp, email, or book a callback with XIPHIAS Immigration.",
+    url: ABSOLUTE_URL,
+    siteName: "XIPHIAS Immigration",
+    type: "website",
+    images: [
+      {
+        url: "/og.jpg", // reuse a known valid image to avoid 404s
+        width: 1200,
+        height: 630,
+        alt: "Contact XIPHIAS Immigration",
+      },
+    ],
+    locale: "en_IN",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Contact XIPHIAS | Speak to an Immigration Expert",
+    description:
+      "Talk to licensed experts. Bengaluru HQ with India, UAE & Canada presence.",
+    images: ["/og.jpg"],
+    creator: "@xiphiasimmig",
+  },
 };
 
-/* ------------------------------- content cfg ------------------------------ */
 const CONTACT = {
   headline: "Talk to an Immigration Expert",
   sub: "Fast, discreet, compliant. Choose the channel you prefer.",
@@ -51,49 +95,13 @@ const CONTACT = {
   ],
 } as const;
 
-const REGIONS: Region[] = [
-  { key: "india", label: "India" },
-  { key: "uae", label: "UAE" },
-  { key: "canada", label: "Canada" },
-  { key: "europe", label: "Europe" },
-];
-
-const OFFICES: Office[] = [
-  {
-    id: "blr",
-    city: "Bengaluru",
-    regionKey: "india",
-    regionLabel: "India",
-    address: [
-      "XIPHIAS IMMIGRATION PVT LTD",
-      "Aurbis Prime, 11, Kaveri Regent Coronet",
-      "80 Feet Road, 3rd Block, Koramangala, 560034",
-    ],
-    phone: "+91 90194 00500, +91 80105 00200",
-    email: "immigration@xiphias.in",
-    mapQuery: "Aurbis Prime, 80 Feet Road, 3rd Block Koramangala, Bengaluru 560034",
-    heroImage: "/images/offices/blr.jpg",
-  },
-  {
-    id: "ggn",
-    city: "Gurugram",
-    regionKey: "india",
-    regionLabel: "India",
-    address: [
-      "XIPHIAS IMMIGRATION PVT LTD",
-      "Augusta Point, Golf Course Rd, near Parsvnath Exotica",
-      "DLF Phase 5, Sector 53, Gurugram, Haryana 122002",
-    ],
-    phone: "+91 96675 20211",
-    email: "Gurgaon@xiphias.in",
-    heroImage: "/images/offices/ggn.jpg",
-  },
-];
-
 export default function ContactPage() {
   return (
-    <main className="container mx-auto max-w-6xl px-4 py-8 text-black dark:text-white">
-      {/* ------------------------------ hero ------------------------------ */}
+    <main
+      id="main"
+      className="container mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-4 text-black dark:text-white"
+    >
+      {/* Hero */}
       <ContactHero
         headline={CONTACT.headline}
         sub={CONTACT.sub}
@@ -101,8 +109,8 @@ export default function ContactPage() {
         email={CONTACT.email}
         whatsapp={CONTACT.whatsapp}
         responseNote={CONTACT.responseNote}
-        ctaHref="#enquiry"
-        ctaLabel="Make an enquiry"
+        ctaHref="/personal-booking"
+        ctaLabel="Book Paid Expert"
         stats={[
           { value: "24h", label: "Average response" },
           { value: "15+", label: "Years experience" },
@@ -110,62 +118,46 @@ export default function ContactPage() {
         ]}
       />
 
-      {/* --------------------------- trust signals -------------------------- */}
-      <TrustBar
-        className="mt-6"
-        items={[
-          { label: "RCIC • MARA", sub: "Accredited", icon: <BadgeIcon /> },
-          { label: "4.8★", sub: "1,000+ reviews", icon: <AwardIcon /> },
-          { label: "Secure", sub: "PCI / UPI", icon: <GlobeIcon /> },
-          { label: "Global", sub: "India · UAE · Canada", icon: <UsersIcon /> },
-        ]}
-      />
+      {/* Enquiry + Channels */}
+      <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,.9fr)] py-5">
+        <div>
+          <LeadTabs
+            id="enquiry"
+            emailTo={CONTACT.email}
+            phoneFallback={CONTACT.phonePrimary}
+          />
+        </div>
 
-      {/* --------------------- channels + enquiry tabs --------------------- */}
-      <div className="mt-8 grid gap-8 md:grid-cols-[1.15fr_.85fr]">
-        <section>
-          <LeadTabs id="enquiry" emailTo={CONTACT.email} phoneFallback={CONTACT.phonePrimary} />
-        </section>
-
-        <aside>
+        <aside className="lg:sticky lg:top-4">
           <ContactChannels
             phone={CONTACT.phonePrimary}
             altPhone={CONTACT.phoneAlt}
             email={CONTACT.email}
             whatsapp={CONTACT.whatsapp}
-            address={[...CONTACT.address]}   
+            address={[...CONTACT.address]}
             hours={CONTACT.hours}
-            socials={[...CONTACT.socials]}   
-            className="md:sticky md:top-6"
+            socials={[...CONTACT.socials]}
           />
-
-          {/* Generic, reusable map card */}
           <MapCard
-            className="mt-6"
+            className="mt-4 hidden sm:block"
             title="Bengaluru HQ"
             query="Aurbis Prime, 80 Feet Road, 3rd Block Koramangala, Bengaluru 560034"
-            address={[...CONTACT.address]} 
-            height={320}
+            address={[...CONTACT.address]}
+            height={300}
             zoom={14}
           />
         </aside>
       </div>
 
-      {/* ------------------------------ offices ----------------------------- */}
-      <LocationsShowcase
-        className="mt-10"
-        offices={OFFICES}
-        regions={REGIONS}
-        defaultRegion="india"
-        showBengaluruMap={false}
-        title="Worldwide locations"
-        subtitle="Find your nearest office and get directions."
-      />
+      {/* Locations (self-contained) */}
+      <LocationsDirectory className="mt-8" />
 
-      {/* -------------------------------- FAQ -------------------------------- */}
-      <FAQ className="mt-10" items={DEFAULT_FAQ} />
+      {/* Slider */}
+      <div className="py-10">
+        <CardSlider />
+      </div>
 
-      {/* --------------------------- structured data -------------------------- */}
+      {/* JSON-LD */}
       <Script id="contact-jsonld" type="application/ld+json">
         {JSON.stringify(buildContactJsonLd(CONTACT))}
       </Script>
@@ -173,47 +165,77 @@ export default function ContactPage() {
   );
 }
 
-const DEFAULT_FAQ = [
-  {
-    q: "How quickly will you respond?",
-    a: "We aim to respond within one business day (usually within a few hours during Mon–Fri, 9:00–18:00 IST).",
-  },
-  {
-    q: "Do you offer virtual consultations?",
-    a: "Yes. Phone, WhatsApp, and video consultations are available by appointment.",
-  },
-  {
-    q: "What should I include in my enquiry?",
-    a: "Your target country, visa category (if known), current location, and a brief summary of your situation help us route you to the right expert.",
-  },
-  {
-    q: "Where is your head office?",
-    a: "Bengaluru (Koramangala). We also have presence in Gurugram, and international desks in the UAE and Canada.",
-  },
-];
-
 function buildContactJsonLd(cfg: typeof CONTACT) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Organization",
+  const org = {
+    "@type": ["Organization", "LegalService"],
     name: "XIPHIAS Immigration",
-    url: "https://www.xiphias.in/contact",
+    url: "https://www.xiphiasimmigration.com",
+    logo: "https://www.xiphiasimmigration.com/logo.png",
+    sameAs: cfg.socials.map((s) => s.href),
     contactPoint: [
       {
         "@type": "ContactPoint",
         telephone: cfg.phonePrimary,
+        email: cfg.email ? `mailto:${cfg.email}` : undefined,
         contactType: "customer service",
         areaServed: "IN",
         availableLanguage: ["en", "hi"],
       },
-    ],
+    ].filter(Boolean),
     address: {
       "@type": "PostalAddress",
       streetAddress: cfg.address[1],
       addressLocality: "Bengaluru",
+      addressRegion: "KA",
       postalCode: "560034",
       addressCountry: "IN",
     },
-    sameAs: cfg.socials.map((s) => s.href),
+    openingHoursSpecification: [
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        opens: "09:00",
+        closes: "18:00",
+      },
+    ],
+    areaServed: "Worldwide",
+  };
+
+  const contactPage = {
+    "@type": "ContactPage",
+    name: "Contact XIPHIAS Immigration",
+    url: "https://www.xiphiasimmigration.com/contact",
+    inLanguage: "en",
+    about: { "@id": "#xiphias-org" },
+    breadcrumb: { "@id": "#breadcrumb" },
+    mainEntity: { "@id": "#xiphias-org" },
+  };
+
+  const breadcrumb = {
+    "@type": "BreadcrumbList",
+    "@id": "#breadcrumb",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://www.xiphiasimmigration.com/",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Contact",
+        item: "https://www.xiphiasimmigration.com/contact",
+      },
+    ],
+  };
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@id": "#xiphias-org", ...org },
+      contactPage,
+      breadcrumb,
+    ],
   };
 }
