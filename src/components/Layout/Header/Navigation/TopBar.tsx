@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Phone, Mail, Facebook, Twitter, Instagram } from 'lucide-react';
+import { Phone, Mail, Facebook, Twitter, Instagram, Youtube, Linkedin } from 'lucide-react';
 import GlobalSearch from '@/components/GlobalSearch';
 
 export default function TopBar() {
@@ -32,18 +32,23 @@ export default function TopBar() {
 
           {/* Social + Login */}
           <div className="flex items-center justify-end gap-1.5">
-            <CircleLink href="https://facebook.com" label="Facebook">
+            <CircleLink href="https://www.facebook.com/xiphiasimmigration" label="Facebook">
               <Facebook className="h-4 w-4" aria-hidden />
             </CircleLink>
-            <CircleLink href="https://twitter.com" label="Twitter">
-              <Twitter className="h-4 w-4" aria-hidden />
-            </CircleLink>
-            <CircleLink href="https://instagram.com" label="Instagram">
+            <CircleLink href="https://www.instagram.com/xiphias.immigration/" label="Instagram">
               <Instagram className="h-4 w-4" aria-hidden />
             </CircleLink>
-
+            <CircleLink href="https://x.com/XiphiasInfo" label="Twitter">
+              <Twitter className="h-4 w-4" aria-hidden />
+            </CircleLink>
+            <CircleLink href="https://www.youtube.com/@immigrationxiphias5228" label="Youtube">
+              <Youtube className="h-4 w-4" aria-hidden />
+            </CircleLink>
+            <CircleLink href="https://www.linkedin.com/company/xiphias-immigration-pvt-limited?trk=prof-following-company-logo" label="Linkedin">
+              <Linkedin className="h-4 w-4" aria-hidden />
+            </CircleLink>
             <Link
-              href="/login"
+              href="/XIPHIAS/Account/Login"
               className="ml-1 inline-flex h-8 items-center justify-center rounded-full bg-white/10 px-3 text-[12px] text-white/95 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
             >
               Login

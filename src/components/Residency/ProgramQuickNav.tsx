@@ -13,9 +13,18 @@ export default function ProgramQuickNav({ sections }: { sections: Section[] }) {
 
   /* ---------- helpers ---------- */
   const getTopOffset = () => {
-    const topBar = document.getElementById("program-top-nav");
-    const sticky = topBar && getComputedStyle(topBar).position === "sticky";
-    const topH = sticky ? topBar.offsetHeight : 0;
+    // Sum heights of any sticky/fixed top navs that may be visible
+    const maybeStickyIds = ["program-top-nav", "program-mobile-top-nav"];
+    let topH = 0;
+    for (const id of maybeStickyIds) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      const pos = getComputedStyle(el).position;
+      if (pos === "sticky" || pos === "fixed") {
+        // hidden elements (display:none) will have 0 height
+        topH += el.offsetHeight;
+      }
+    }
     return topH + 12; // breathing room
   };
 
@@ -127,7 +136,7 @@ export default function ProgramQuickNav({ sections }: { sections: Section[] }) {
   useEffect(() => {
     const t = setTimeout(() => {
       centerActive("program-top-nav-inner");
-      centerActive("program-bottom-nav-inner");
+      centerActive("program-mobile-top-nav-inner");
     }, 0);
     return () => clearTimeout(t);
   }, [activeId]);
@@ -146,7 +155,7 @@ export default function ProgramQuickNav({ sections }: { sections: Section[] }) {
   /* ---------- UI ---------- */
   return (
     <>
-      {/* Sticky Top Tabs (glossy underline, left-justified) */}
+      {/* Sticky Top Tabs (desktop and up) */}
       <nav
         id="program-top-nav"
         aria-label="Section navigation"
@@ -193,7 +202,6 @@ export default function ProgramQuickNav({ sections }: { sections: Section[] }) {
                     ].join(" ")}
                   >
                     {s.label}
-                    {/* gradient underline with soft glow */}
                     <span
                       aria-hidden
                       className={[
@@ -227,19 +235,18 @@ export default function ProgramQuickNav({ sections }: { sections: Section[] }) {
         </div>
       </nav>
 
-      {/* Floating Bottom Tabs (mobile) — glossy underline */}
+      {/* Sticky Top Tabs (mobile) — previously floating bottom */}
       <nav
-        id="program-bottom-nav"
+        id="program-mobile-top-nav"
         aria-label="Section navigation"
         className="
-          md:hidden fixed left-1/2 -translate-x-1/2
-          bottom-[calc(env(safe-area-inset-bottom)+80px)]
-          z-50 w-[94%] max-w-xl
-          rounded-2xl overflow-hidden
-          border border-white/30 dark:border-black/30
+          md:hidden sticky z-50
+          top-[env(safe-area-inset-top)]
+          w-full
+          border-b border-white/30 dark:border-black/30
           bg-white/65 dark:bg-neutral-900/65 backdrop-blur
           supports-[backdrop-filter]:bg-white/45 supports-[backdrop-filter]:dark:bg-neutral-900/45
-          shadow-[0_20px_40px_-20px_rgba(0,0,0,0.45)]
+          shadow-[0_10px_30px_-20px_rgba(0,0,0,0.45)]
         "
       >
         <div className="relative">
@@ -252,42 +259,59 @@ export default function ProgramQuickNav({ sections }: { sections: Section[] }) {
               dark:bg-[radial-gradient(130%_80%_at_50%_-40%,rgba(255,255,255,0.07),transparent_50%)]
             "
           />
-          <div
-            id="program-bottom-nav-inner"
-            className="
-              no-scrollbar flex items-end gap-4 overflow-x-auto whitespace-nowrap
-              px-3 py-2.5
-            "
-          >
-            {sections.map((s) => {
-              const isActive = activeId === s.id;
-              return (
-                <a
-                  key={s.id}
-                  href={`#${s.id}`}
-                  onClick={onLinkClick(s.id)}
-                  aria-current={isActive ? "page" : undefined}
-                  className={[
-                    "relative inline-flex items-center pb-2 pt-1 text-[12px] font-medium",
-                    "text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white",
-                    isActive ? "text-black dark:text-white" : "",
-                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded",
-                  ].join(" ")}
-                >
-                  {s.label}
-                  <span
-                    aria-hidden
+          <div className="container mx-auto">
+            <div
+              id="program-mobile-top-nav-inner"
+              className="
+                no-scrollbar flex items-end gap-4 overflow-x-auto whitespace-nowrap
+                px-3 py-2.5
+              "
+            >
+              {sections.map((s) => {
+                const isActive = activeId === s.id;
+                return (
+                  <a
+                    key={s.id}
+                    href={`#${s.id}`}
+                    onClick={onLinkClick(s.id)}
+                    aria-current={isActive ? "page" : undefined}
                     className={[
-                      "pointer-events-none absolute -bottom-0.5 left-0 right-0 h-[2px] origin-left rounded-full",
-                      "transition-transform duration-300 ease-out",
-                      isActive ? "scale-x-100" : "scale-x-0",
-                      "bg-gradient-to-r from-fuchsia-500 via-sky-400 to-emerald-400",
-                      "shadow-[0_0_10px_rgba(56,189,248,0.45)]",
+                      "relative inline-flex items-center pb-2 pt-1 text-[12px] font-medium",
+                      "text-black/80 hover:text-black dark:text-white/80 dark:hover:text-white",
+                      isActive ? "text-black dark:text-white" : "",
+                      "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded",
                     ].join(" ")}
-                  />
-                </a>
-              );
-            })}
+                  >
+                    {s.label}
+                    <span
+                      aria-hidden
+                      className={[
+                        "pointer-events-none absolute -bottom-0.5 left-0 right-0 h-[2px] origin-left rounded-full",
+                        "transition-transform duration-300 ease-out",
+                        isActive ? "scale-x-100" : "scale-x-0",
+                        "bg-gradient-to-r from-fuchsia-500 via-sky-400 to-emerald-400",
+                        "shadow-[0_0_10px_rgba(56,189,248,0.45)]",
+                      ].join(" ")}
+                    />
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* mobile progress bar */}
+          <div className="relative h-[2px]">
+            <div className="absolute inset-0 bg-black/5 dark:bg-white/10" />
+            <div
+              className="
+                absolute inset-y-0 left-0
+                bg-gradient-to-r from-fuchsia-500 via-sky-400 to-emerald-400
+                transition-[width] duration-300 ease-out
+                shadow-[0_0_8px_rgba(56,189,248,0.45)]
+              "
+              style={{ width: `${progressPct}%` }}
+              aria-hidden
+            />
           </div>
         </div>
       </nav>

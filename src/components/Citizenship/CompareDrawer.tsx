@@ -206,7 +206,7 @@ export default function CompareDrawer({
         type="button"
         onClick={() => setOpen(true)}
         className={[
-          "fixed bottom-20 right-4 z-40 inline-flex items-center gap-2 rounded-full px-4 py-2",
+          "fixed top-2 right-4 z-40 inline-flex items-center gap-2 rounded-full px-4 py-2",
           "bg-blue-600 text-white shadow-lg ring-1 ring-blue-700/20",
           "hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600",
         ].join(" ")}

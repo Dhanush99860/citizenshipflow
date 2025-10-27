@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import ScrollToTop from "@/components/ScrollToTop";
 import Aoscompo from "@/utils/aos";
 import MDXProviders from "@/components/MDX/MDXProviders";
+import BottomContactBar from "@/components/Common/BottomContactBar";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const sora = Sora({ subsets: ["latin"], variable: "--font-sora", display: "swap" });
@@ -182,6 +183,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {children}
             </MDXProviders>
             <Footer />
+            <BottomContactBar />
             <ScrollToTop />
           </Aoscompo>
         </ThemeProvider>

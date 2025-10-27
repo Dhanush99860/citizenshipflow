@@ -28,7 +28,7 @@ const RESOURCES = Object.freeze([
 
 const COMPANY = [
   { label: "About Us", href: "/about" },
-  { label: "Gallery & Awards", href: "/gallery" },
+  { label: "Gallery", href: "/gallery" },
   { label: "Careers", href: "/careers" },
   { label: "Blog", href: "/blog" },
   { label: "Articles", href: "/articles" },
@@ -46,7 +46,6 @@ const LEGAL = [
   { label: "Accessibility", href: "/accessibility" },
 ];
 
-// Add as many offices as you want — UI wraps automatically
 // Add as many offices as you want — UI wraps automatically
 const OFFICES = [
   {
@@ -239,7 +238,7 @@ export default function Footer() {
                   Free Eligibility Assessment
                 </Link>
                 <Link
-                  href="/consultation"
+                  href="/contact"
                   className="inline-flex items-center justify-center px-3.5 py-2.5 rounded-md text-sm font-medium bg-white/15 hover:bg-white/25 border border-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
                 >
                   <Icon icon="mdi:calendar-clock" className="h-5 w-5 mr-2" />
@@ -281,7 +280,7 @@ export default function Footer() {
                 <li className="inline-flex items-center gap-1">
                   <Icon icon="mdi:star" className="w-4 h-4" />
                   <strong>4.8/5</strong> · 1,200+ reviews{" "}
-                  <Link href="#" className="underline underline-offset-4 hover:text-white">
+                  <Link href="https://g.page/r/CTH8DQwm1lYnEAE/review" className="underline underline-offset-4 hover:text-white">
                     (Google)
                   </Link>
                 </li>
@@ -541,7 +540,7 @@ export default function Footer() {
                     <Icon icon="mdi:star-circle-outline" className="h-5 w-5 mt-0.5" />
                     <div>
                       <strong className="text-[13.5px]">Reviews</strong>
-                      <p className="text-[13px] text-white/85">4.8/5 on Google • <Link id="reviews" href="#" className="underline">Read reviews</Link></p>
+                      <p className="text-[13px] text-white/85">4.8/5 on Google • <Link id="reviews" href="https://g.page/r/CTH8DQwm1lYnEAE/review" className="underline">Read reviews</Link></p>
                     </div>
                   </div>
                 </li>
@@ -644,7 +643,7 @@ export default function Footer() {
         <div className="py-5 border-t border-white/15">
           <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <p className="text-[11.5px] text-white/80">©2011–{year} XIPHIAS Immigration. All rights reserved.</p>
-            <p className="text-[11.5px] text-white/75">Registered in India • CIN: L00000KA2011PLC000000 • Jurisdiction: Bengaluru, Karnataka</p>
+            <p className="text-[11.5px] text-white/75">Registered in India • CIN: U74900KA2015PTC078396 • Jurisdiction: Bengaluru, Karnataka</p>
           </div>
         </div>
       </div>

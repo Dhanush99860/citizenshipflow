@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { createPortal } from "react-dom";
+import { useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -11,49 +10,6 @@ type Action = {
   variant?: "primary" | "ghost";
   download?: boolean;
 };
-
-function MobileCTABar({ actions }: { actions: Action[] }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return null;
-
-  const preferred = actions.filter((a) => /broch|appoint|consult/i.test(a.label));
-  const mobileActions = (preferred.length ? preferred : actions).slice(0, 2);
-
-  if (mobileActions.length === 0) return null;
-
-  return createPortal(
-    <div
-      className="md:hidden fixed inset-x-0 bottom-0 z-[999]"
-      style={{ paddingBottom: "max(env(safe-area-inset-bottom), 12px)" }}
-    >
-      <div className="mx-auto max-w-screen-sm px-3">
-        <div className="flex w-full items-center gap-3 rounded-2xl border border-black/10 bg-white shadow-[0_10px_30px_rgba(0,0,0,0.12)] p-2">
-          {mobileActions.map((a) => {
-            const base =
-              "inline-flex flex-1 basis-1/2 items-center justify-center rounded-xl px-4 h-12 text-sm font-semibold transition";
-            const styles =
-              a.variant === "ghost"
-                ? "bg-white text-gray-900 ring-1 ring-gray-200 hover:bg-gray-50"
-                : "bg-primary text-white hover:brightness-110";
-            return (
-              <Link
-                key={`m-${a.label}`}
-                href={a.href}
-                prefetch={false}
-                download={a.download}
-                className={`${base} ${styles}`}
-              >
-                {a.label}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-    </div>,
-    document.body,
-  );
-}
 
 const isYouTubeUrl = (url: string) => /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//i.test(url);
 
@@ -81,13 +37,13 @@ export default function SkilledHero({
   actions = [
     {
       label: "Download Brochure",
-      href: "/brochures/skilled/australia.pdf", // Make this dynamic if needed
+      href: "/brochures/skilled/australia.pdf",
       variant: "ghost",
       download: true,
     },
     {
       label: "Check Eligibility",
-      href: "#eligibility", // or route to eligibility form/page
+      href: "#eligibility",
       variant: "primary",
     },
   ],
@@ -168,6 +124,7 @@ export default function SkilledHero({
         )}
       </div>
 
+      {/* Desktop-only overlay & CTAs */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/65 via-black/35 to-black/10 hidden md:block" />
       <div className="absolute inset-0 hidden md:flex items-end">
         <div className="p-6 md:p-10">
@@ -200,8 +157,6 @@ export default function SkilledHero({
           </div>
         </div>
       </div>
-
-      <MobileCTABar actions={actions} />
     </header>
   );
 }
