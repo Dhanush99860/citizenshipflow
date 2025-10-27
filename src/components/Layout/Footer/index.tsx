@@ -30,7 +30,7 @@ const RESOURCES = [
 
 const COMPANY = [
   { label: "About Us", href: "/about" },
-  { label: "Team", href: "/team" },
+  { label: "Gallery & Awards", href: "/gallery" },
   { label: "Careers", href: "/careers" },
   { label: "Blog", href: "/blog" },
   { label: "Articles", href: "/articles" },
@@ -286,10 +286,6 @@ export default function Footer() {
                   <Link href="#" className="underline underline-offset-4 hover:text-white">
                     (Google)
                   </Link>
-                </li>
-                <li className="opacity-75">•</li>
-                <li className="inline-flex items-center gap-1">
-                  <Icon icon="mdi:certificate-outline" className="w-4 h-4" /> RCIC #R000000 • MARA #0000000
                 </li>
                 <li className="opacity-75">•</li>
                 <li className="inline-flex items-center gap-1">

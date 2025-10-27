@@ -2,12 +2,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+// (Removed framer-motion imports)
 import Expert from "@/components/PersonalBooking/Expert";
-import Awards from "@/components/PersonalBooking/Awards";
 import TestimonialCarouselPro from "@/components//Common/TestimonialCarouselPro/index";
 import AdvisorConsultationCard from "@/components/Citizenship/AdvisorConsultationCard";
 import ProblemSolutionCompare from "@/components/PersonalBooking/ProblemSolution";
+import { Awards } from "@/components/awards";
 
 import {
   User,
@@ -81,7 +81,7 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
     return map;
   }, []);
 
-  // 1) Initialize from hash; 2) hashchange listener (immediate underline on click/URL changes)
+  // 1) Initialize from hash; 2) hashchange listener
   useEffect(() => {
     const applyHash = () => {
       const id = window.location.hash.slice(1);
@@ -137,37 +137,32 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
   return (
     <div className="w-full transition-colors duration-500 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100">
       {/* Sticky Top Nav (Desktop) */}
-<section className="sticky top-0 z-40 hidden sm:block bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-700">
-  <div className="mx-auto max-w-screen-2xl px-4 py-5">
-    <nav className="relative flex justify-between text-sm sm:text-base font-medium tracking-wide gap-6 sm:gap-10">
-      {navItems.map((item) => {
-        const isActive = active === item.href.replace("#", "");
-        return (
-          <a
-            key={item.href}
-            href={item.href}
-            onClick={() => handleNavClick(item.href)}
-            className={`relative p-5 transition-all duration-300 ${
-              isActive
-                ? "text-black dark:text-white font-semibold"
-                : "text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white p-1"
-            }`}
-          >
-            {item.label}
-            {isActive && (
-              <motion.div
-                layoutId="underline"
-                className="absolute left-0 right-0 -bottom-[20px] h-[3px] bg-black dark:bg-white rounded-full"
-                transition={{ duration: 0.25, ease: "easeInOut" }}
-              />
-            )}
-          </a>
-        );
-      })}
-    </nav>
-  </div>
-</section>
-
+      <section className="sticky top-0 z-40 hidden sm:block bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-700">
+        <div className="mx-auto max-w-screen-2xl px-4 py-5">
+          <nav className="relative flex justify-between text-sm sm:text-base font-medium tracking-wide gap-6 sm:gap-10">
+            {navItems.map((item) => {
+              const isActive = active === item.href.replace("#", "");
+              return (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => handleNavClick(item.href)}
+                  className={`relative p-5 transition-all duration-300 ${
+                    isActive
+                      ? "text-black dark:text-white font-semibold"
+                      : "text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white p-1"
+                  }`}
+                >
+                  {item.label}
+                  {isActive && (
+                    <div className="absolute left-0 right-0 -bottom-[20px] h-[3px] bg-black dark:bg-white rounded-full" />
+                  )}
+                </a>
+              );
+            })}
+          </nav>
+        </div>
+      </section>
 
       {/* Floating Bottom Nav (Mobile) */}
       <nav
@@ -226,120 +221,76 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
         <div className="pointer-events-none absolute -bottom-2 left-1/2 -translate-x-1/2 h-1.5 w-10 rounded-full bg-neutral-200 dark:bg-neutral-700" />
       </nav>
 
-      {/* Sections */}
-      <AnimatePresence mode="wait">
-        <motion.section
-          id="about"
-          key="about"
-          className="scroll-mt-28"
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 50 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        >
-          <Expert />
-        </motion.section>
+      {/* Sections (no animations) */}
+      <section id="about" className="scroll-mt-28">
+        <Expert />
+      </section>
 
-        {/* Problem & Solution — no animation */}
-        <section id="problem" className="mt-10 scroll-mt-28">
-          <ProblemSolutionCompare />
-        </section>
+      {/* Problem & Solution — unchanged */}
+      <section id="problem" className="mt-10 scroll-mt-28">
+        <ProblemSolutionCompare />
+      </section>
 
-        <motion.section
-          id="articles"
-          key="articles"
-          className="scroll-mt-28"
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 50 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        >
-          <div className="container mx-auto lg:max-w-screen-2xl px-4 py-8">
-            <div className="flex items-center justify-between mb-10">
-              <h2 className="text-2xl font-semibold">Latest Articles</h2>
-              <a href="/articles" className="text-blue-600 hover:underline">
-                View all
-              </a>
-            </div>
-            {articles?.length ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {articles.map((a) => (
-                  <ArticleCard key={a.url} a={a} />
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500 dark:text-gray-400">No articles yet.</p>
-            )}
+      <section id="articles" className="scroll-mt-28">
+        <div className="container mx-auto lg:max-w-screen-2xl px-4 py-8">
+          <div className="flex items-center justify-between mb-10">
+            <h2 className="text-2xl font-semibold">Latest Articles</h2>
+            <a href="/articles" className="text-blue-600 hover:underline">
+              View all
+            </a>
           </div>
-        </motion.section>
+          {articles?.length ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {articles.map((a) => (
+                <ArticleCard key={a.url} a={a} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 dark:text-gray-400">No articles yet.</p>
+          )}
+        </div>
+      </section>
 
-        <motion.section
-          id="awards"
-          key="awards"
-          className="scroll-mt-28"
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        >
-          <Awards />
-        </motion.section>
+      <Awards variant="preview" />
 
-        <motion.section
-          id="testimonials"
-          key="testimonials"
-          className="scroll-mt-28"
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        >
-          <TestimonialCarouselPro className="mt-2" />
-        </motion.section>
+      <section id="testimonials" className="scroll-mt-28">
+        <TestimonialCarouselPro className="mt-2" />
+      </section>
 
-        <motion.section
-          id="pricing"
-          key="pricing"
-          className="scroll-mt-28"
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 50 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        >
-          <section className="scroll-mt-28 max-w-screen-xl mx-auto py-6 px-4">
-            <AdvisorConsultationCard
-              advisorName="Varun Singh"
-              role="CBI & RBI - MD XIPHIAS"
-              avatarSrc="/images/avtar/varun-singh.png"
-              bookingUrl="/personal-booking"
-              brochureUrl="/brochures/citizenship/grenada/real-estate.pdf"
-              priceOptions={[
-                {
-                  id: "std",
-                  label: "45–60 mins",
-                  price: "₹15,500",
-                  best: true,
-                  bullets: [
-                    "Eligibility triage & risk pointers",
-                    "Route comparison (donation vs real estate)",
-                    "Project shortlist & checklist",
-                  ],
-                },
-                {
-                  id: "deep",
-                  label: "90 mins (in-depth)",
-                  price: "₹25,500",
-                  bullets: [
-                    "Everything in Standard",
-                    "File strategy & timeline modeling",
-                    "Follow-up summary & next steps",
-                  ],
-                },
-              ]}
-            />
-          </section>
-        </motion.section>
-      </AnimatePresence>
+      <section id="pricing" className="scroll-mt-28">
+        <section className="scroll-mt-28 max-w-screen-xl mx-auto py-6 px-4">
+          <AdvisorConsultationCard
+            advisorName="Varun Singh"
+            role="CBI & RBI - MD XIPHIAS"
+            avatarSrc="/images/avtar/varun-singh.png"
+            bookingUrl="/personal-booking"
+            brochureUrl="/brochures/citizenship/grenada/real-estate.pdf"
+            priceOptions={[
+              {
+                id: "std",
+                label: "45–60 mins",
+                price: "₹15,500",
+                best: true,
+                bullets: [
+                  "Eligibility triage & risk pointers",
+                  "Route comparison (donation vs real estate)",
+                  "Project shortlist & checklist",
+                ],
+              },
+              {
+                id: "deep",
+                label: "90 mins (in-depth)",
+                price: "₹25,500",
+                bullets: [
+                  "Everything in Standard",
+                  "File strategy & timeline modeling",
+                  "Follow-up summary & next steps",
+                ],
+              },
+            ]}
+          />
+        </section>
+      </section>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 // components/about/Credibility.tsx
 import React from "react";
 import awardsData from "@/app/api/contex/awardsData/awardsData";
+import { Awards } from "@/components/awards";
 
 type Brand = { name: string; abbr?: string; color?: string };
 
@@ -106,25 +107,9 @@ export default function Credibility() {
           <Divider />
 
           {/* AWARDS — larger, auto RTL marquee */}
-          <RowTitle>Achievements</RowTitle>
+          <RowTitle>Awards & Recognition</RowTitle>
           <div className="group relative overflow-hidden rounded-2xl border border-blue-100/70 bg-white/90 p-3 ring-1 ring-blue-100/70 backdrop-blur dark:border-white/10 dark:bg-white/5 dark:ring-blue-900/40">
-            <div className="relative h-[120px] sm:h-[130px] overflow-hidden">
-              <ul
-                className="marquee-track flex h-full w-max items-center gap-8 pr-8 animate-marquee-rtl motion-reduce:animate-none"
-                style={{ ["--marquee-duration" as any]: "26s" }}
-              >
-                {awardsMarquee.map((a, i) => (
-                  <li key={`${a.id}-${i}`} className="w-[190px] sm:w-[210px] shrink-0">
-                    <figure className="mx-auto flex w-full flex-col items-center">
-                      <AwardIcon variant={i % 5} />
-                      <figcaption className="mt-1 line-clamp-2 w-full text-center text-[11px] sm:text-[12px] leading-snug text-zinc-800 dark:text-zinc-200">
-                        {a.title}
-                      </figcaption>
-                    </figure>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <Awards variant="preview" />
             {/* edge fades */}
             <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white/95 to-transparent dark:from-[#0A0B0F]/80" />
             <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white/95 to-transparent dark:from-[#0A0B0F]/80" />

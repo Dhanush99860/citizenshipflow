@@ -30,7 +30,7 @@ export default function HeroPremium({
   subtitle = "Private, compliance-first advisory for Residency & Citizenship by Investment. We compare jurisdictions, build a DD-ready source-of-funds file, and map a primary + contingency route that fits your family, timelines, and risk profile.",
   primaryHref = "/personal-booking",
   primaryText = "Book Paid Consultation",
-  secondaryHref = "/images/citizenship/Brochure/projectbrochure.pdf",
+  secondaryHref = "/images/residency/xiphias-corporate-mobility.pdf",
   secondaryText = "Investment Programs Guide (PDF)",
   className = "",
   badge = "Private Client • Investment Migration",

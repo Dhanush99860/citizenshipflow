@@ -1,7 +1,7 @@
+// src/components/FAQWithForm/index.tsx
 "use client";
 
 import * as React from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import ContactForm from "@/components/ContactForm";
 
@@ -13,8 +13,10 @@ export type FAQWithFormProps = {
   highlight?: string;
   subtitle?: string;
   faqs?: FAQ[];
-  defaultOpen?: number;          // which FAQ is open initially (default 0)
-  peekOnHover?: boolean;         // open item on hover (default true on md+)
+  /** which FAQ is open initially; set to -1 for none */
+  defaultOpen?: number;
+  /** kept for backward-compat but ignored (hover-to-open removed) */
+  peekOnHover?: boolean;
   className?: string;
   /** Inject a custom form (defaults to your ContactForm) */
   formSlot?: React.ReactNode;
@@ -51,34 +53,30 @@ export default function FAQWithForm({
   subtitle = "Quick answers to common questions. If you don’t see yours, send us a message.",
   faqs = DEFAULT_FAQS,
   defaultOpen = 0,
-  peekOnHover = true,
+  // hover open removed; prop ignored to keep API stable
+  peekOnHover, // eslint-disable-line @typescript-eslint/no-unused-vars
   className = "",
   formSlot,
 }: FAQWithFormProps) {
-  const [openIdx, setOpenIdx] = React.useState<number>(Math.min(defaultOpen, faqs.length - 1));
-  const [hoverIdx, setHoverIdx] = React.useState<number | null>(null);
+  const initialOpen =
+    Number.isFinite(defaultOpen) && defaultOpen! >= 0 && defaultOpen! < faqs.length
+      ? defaultOpen!
+      : -1;
 
-  const useHover = peekOnHover; // simple flag; behavior is the same on all breakpoints
-
-  const activeIdx = useHover && hoverIdx !== null ? hoverIdx : openIdx;
+  const [openIdx, setOpenIdx] = React.useState<number>(initialOpen);
 
   const onToggle = (idx: number) => {
     setOpenIdx((prev) => (prev === idx ? -1 : idx));
   };
 
   return (
-    <section className={[ "container mx-auto px-4 lg:max-w-screen-xl", className, ].join(" ")}
+    <section
+      className={["container mx-auto px-4 lg:max-w-screen-2xl", className].join(" ")}
       aria-labelledby="faq-heading"
     >
       <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,.9fr)]">
         {/* ------------------ Left: FAQs ------------------ */}
-        <motion.div
-          initial={{ x: -40, opacity: 0 }}
-          whileInView={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          viewport={{ once: true, margin: "-10% 0px" }}
-          className="min-w-0"
-        >
+        <div className="min-w-0">
           {/* Header */}
           <div className="rounded-2xl ring-1 ring-blue-100/80 bg-white/80 p-4 dark:ring-blue-900/40 dark:bg-white/[0.03]">
             <div className="inline-flex items-center gap-2 text-[12px]">
@@ -96,17 +94,13 @@ export default function FAQWithForm({
           {/* List */}
           <ul className="mt-4 space-y-2">
             {faqs.map((item, idx) => {
-              const isOpen = activeIdx === idx;
+              const isOpen = openIdx === idx;
               const qId = `faq-q-${idx}`;
               const aId = `faq-a-${idx}`;
 
               return (
                 <li key={idx}>
-                  <div
-                    className="overflow-hidden rounded-xl ring-1 ring-blue-100/80 bg-white/90 dark:ring-blue-900/40 dark:bg-white/[0.03]"
-                    onMouseEnter={useHover ? () => setHoverIdx(idx) : undefined}
-                    onMouseLeave={useHover ? () => setHoverIdx(null) : undefined}
-                  >
+                  <div className="overflow-hidden rounded-xl ring-1 ring-blue-100/80 bg-white/90 dark:ring-blue-900/40 dark:bg-white/[0.03]">
                     <button
                       id={qId}
                       aria-expanded={isOpen}
@@ -120,49 +114,38 @@ export default function FAQWithForm({
                       <span className="min-w-0 truncate">{item.question}</span>
                       <ChevronDown
                         className={[
-                          "h-5 w-5 shrink-0 transition-transform",
-                          isOpen ? "rotate-180 text-blue-700 dark:text-blue-300" : "text-black/50 dark:text-white/60",
+                          "h-5 w-5 shrink-0", // no transition classes (no animations)
+                          isOpen
+                            ? "rotate-180 text-blue-700 dark:text-blue-300"
+                            : "text-black/50 dark:text-white/60",
                         ].join(" ")}
                         aria-hidden
                       />
                     </button>
 
-                    <AnimatePresence initial={false}>
-                      {isOpen && (
-                        <motion.div
-                          id={aId}
-                          role="region"
-                          aria-labelledby={qId}
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.35, ease: "easeInOut" }}
-                        >
-                          <div className="px-4 pb-4 text-sm text-zinc-800 dark:text-zinc-300">
-                            {item.answer}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    {isOpen && (
+                      <div
+                        id={aId}
+                        role="region"
+                        aria-labelledby={qId}
+                        className="px-4 pb-4 text-sm text-zinc-800 dark:text-zinc-300"
+                      >
+                        {item.answer}
+                      </div>
+                    )}
                   </div>
                 </li>
               );
             })}
           </ul>
-        </motion.div>
+        </div>
 
         {/* ------------------ Right: Form ------------------ */}
-        <motion.aside
-          initial={{ x: 40, opacity: 0 }}
-          whileInView={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut", delay: 0.05 }}
-          viewport={{ once: true, margin: "-10% 0px" }}
-          className="min-w-0 md:pl-2 lg:pl-3"
-        >
-          <div className="rounded-2xl ring-1 ring-blue-100/80 bg-white/90 p-3 sm:p-4 dark:ring-blue-900/40 dark:bg-white/[0.03]">
+        <aside className="min-w-0 md:pl-2 lg:pl-3">
+          <div className="pb-5">
             {formSlot ?? <ContactForm />}
           </div>
-        </motion.aside>
+        </aside>
       </div>
     </section>
   );

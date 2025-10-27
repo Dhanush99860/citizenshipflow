@@ -207,10 +207,10 @@ export default function Expert() {
                 <span>Reserve Your Consultation</span>
               </Link>
               <Link
-                href="/programs"
+                href="/about"
                 className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white/70 px-5 py-3 text-slate-800 transition hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 dark:border-slate-700 dark:bg-white/10 dark:text-slate-100 dark:hover:bg-white/15"
               >
-                Explore Programs
+                About XIPHIAS
               </Link>
             </div>
           </div>
