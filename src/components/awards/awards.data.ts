@@ -10,7 +10,69 @@ export type Award = {
 };
 
 export const awardsData: Award[] = [
-  // 2024–2023
+  // 2025
+  {
+    id: "most-trusted-global-mobility-brand-2025",
+    tag: "Most Trusted • 2025",
+    title: "India's Most Trusted Global Mobility Brand",
+    issuer: "Forbes India",
+    year: 2025,
+  },
+  {
+    id: "visionary-leader-inspiring-business-world-2025",
+    tag: "Visionary Leader • 2025",
+    title: "The 10 Most Visionary Leader Inspiring the Business World",
+    issuer: "Achiever Magazine",
+    year: 2025,
+  },
+  {
+    id: "best-leaders-to-watch-2025-varun-singh",
+    tag: "Leaders to Watch • 2025",
+    title:
+      "One of the Best Leaders to Watch Out For in 2025 – Varun Singh, Managing Director, XIPHIAS",
+    issuer: "The Cover Story",
+    year: 2025,
+  },
+
+  // 2024 (new)
+  {
+    id: "most-trusted-immigration-consultancy-india-2024",
+    tag: "Most Trusted • 2024",
+    title: "Most Trusted Immigration Consultancy 2024 – India",
+    issuer: "Corporate Vision",
+    year: 2024,
+  },
+  {
+    id: "top-influential-business-leaders-2024",
+    tag: "Influential Leaders • 2024",
+    title: "Top Influential business leaders to watch in 2024",
+    issuer: "The Times of India",
+    year: 2024,
+  },
+  {
+    id: "top-visionary-business-leaders-2024",
+    tag: "Visionary Leaders • 2024",
+    title: "Top Visionary Business Leaders to Watch in 2024",
+    issuer: "CEO Review Magazine",
+    year: 2024,
+  },
+  {
+    id: "ethical-leadership-investment-migration-2024",
+    tag: "Leadership Profile • 2024",
+    title:
+      "Varun Singh: Exemplifying Ethical Leadership in Global Investment Migration",
+    issuer: "CEO Review Magazine",
+    year: 2024,
+  },
+  {
+    id: "fastest-growing-immigration-companies-2024",
+    tag: "Fastest Growing • 2024",
+    title: "The Fastest Growing Immigration Companies in 2024",
+    issuer: "The Business Fame",
+    year: 2024,
+  },
+
+  // 2024 (existing)
   {
     id: "most-trusted-company-watch-2024",
     tag: "Most Trusted • 2024",
@@ -25,10 +87,12 @@ export const awardsData: Award[] = [
     issuer: "Business Connect India",
     year: 2024,
   },
+
+  // 2023
   {
     id: "most-trusted-consultant-india-2023",
     tag: "Most Trusted • 2023",
-    title: "India’s Most Trusted Immigration Consultant",
+    title: "India's Most Trusted Immigration Consultant",
     issuer: "The CIO Look India",
     year: 2023,
   },
@@ -71,8 +135,6 @@ export const awardsData: Award[] = [
     issuer: "Prime View Magazine",
     year: 2020,
   },
-
-  // 2019
   {
     id: "outstanding-immigration-citizenship-provider-2019-20",
     tag: "Outstanding Service",
@@ -81,6 +143,8 @@ export const awardsData: Award[] = [
     issuer: "Corporate Vision Magazine",
     year: 2020,
   },
+
+  // 2019
   {
     id: "most-admired-consultant-leaders-2019",
     tag: "Most Admired",
@@ -136,7 +200,7 @@ export const awardsData: Award[] = [
   },
   {
     id: "most-promising-immigration-company-2017",
-    tag: "Most Promising",
+    tag: "Most Promising • 2017",
     title: "Most Promising Immigration Consultancy Company of the Year",
     issuer: "Excellence Summit 2017",
     year: 2017,
@@ -146,6 +210,20 @@ export const awardsData: Award[] = [
     tag: "Leadership",
     title: "Global Business Leadership Award",
     issuer: "World Leadership Congress",
+    year: 2017,
+  },
+  {
+    id: "nelson-mandela-sadbhavana-award-2017",
+    tag: "Nelson Mandela Sadbhavana",
+    title: "Nelson Mandela Sadbhavana Award",
+    issuer: "AIBDA",
+    year: 2017,
+  },
+  {
+    id: "most-promising-performance-immigration-consulting-2017",
+    tag: "Most Promising • 2017",
+    title: "Most Promising Performance in the Field of Immigration Consulting",
+    issuer: "World Peace and Diplomacy Organisation",
     year: 2017,
   },
 
@@ -185,8 +263,15 @@ export const awardsData: Award[] = [
     issuer: "KVQA • DAC",
     year: 2016,
   },
+  {
+    id: "rising-star-of-india-2016",
+    tag: "Rising Star of India • 2016",
+    title: "Rising Star Of India – Corporate Immigration Service Provider",
+    issuer: "WBR Corp",
+    year: 2016,
+  },
 
-  // 2015–2014
+  // 2015
   {
     id: "best-entrepreneur-of-the-year-2015",
     tag: "Entrepreneurship",
@@ -202,9 +287,26 @@ export const awardsData: Award[] = [
     year: 2015,
   },
   {
+    id: "leadership-excellence-harvard-square-2015",
+    tag: "Leadership Excellence • 2015",
+    title:
+      "Member of Leadership Excellence – Member Leaders Excellence at Harvard Square",
+    issuer: "Leaders Excellence at Harvard Square (Harvard)",
+    year: 2015,
+  },
+
+  // 2014
+  {
     id: "most-promising-immigration-consultant-2014",
-    tag: "Most Promising",
+    tag: "Most Promising • 2014",
     title: "Most Promising Immigration Consultant",
+    issuer: "Silicon India",
+    year: 2014,
+  },
+  {
+    id: "top-5-immigration-consultant-2014",
+    tag: "Top 5 • 2014",
+    title: "TOP 5 IMMIGRATION CONSULTANT",
     issuer: "Silicon India",
     year: 2014,
   },

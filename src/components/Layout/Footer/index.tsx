@@ -19,14 +19,12 @@ const EXPLORE = [
   { label: "Skilled", href: "/skilled" },
 ];
 
-const RESOURCES = [
+const RESOURCES = Object.freeze([
   { label: "Eligibility Checker", href: "/eligibility" },
-  { label: "Country Guides", href: "/guides" },
-  { label: "Fees & Timelines", href: "/resources/pricing" },
-  { label: "Document Checklists", href: "/resources/checklists" },
-  { label: "Webinars", href: "/resources/webinars" },
-  { label: "FAQs", href: "/resources/faq" },
-];
+  { label: "Guides & Resources", href: "/guide" },
+  { label: "Awards & Recognition", href: "/awards" },
+]);
+
 
 const COMPANY = [
   { label: "About Us", href: "/about" },
@@ -81,7 +79,7 @@ const OFFICES = [
     phone: "+971 521 021 001",
     maps: "https://maps.google.com/?q=Platinum+Tower+JLT+Dubai",
   },
-  
+
   {
     name: "Qatar",
     street: "International Law Chambers LLC, Office 3402, Al Jazeera Tower, Conference Center Rd, West Bay",
@@ -112,7 +110,7 @@ const OFFICES = [
     phone: "+1 438 379 9101",
     maps: "https://maps.google.com/?q=3-133+Weber+St+N+Suite+514+Waterloo+ON+N2J+3G9",
   },
-  
+
 ];
 
 
@@ -150,12 +148,12 @@ const CTA: Record<string, string> = {
 };
 
 const PRESS = [
-   "/images/footer/cnm.png",
-   "/images/footer/money-control.png",
-   "/images/footer/ndtv.png",
-   "/images/footer/the-times-of-india.png",
-   "/images/footer/the-worlds-times.png",
-  ];
+  "/images/footer/cnm.png",
+  "/images/footer/money-control.png",
+  "/images/footer/ndtv.png",
+  "/images/footer/the-times-of-india.png",
+  "/images/footer/the-worlds-times.png",
+];
 
 // ---------- Mobile Collapsible (div-only) ----------
 function Collapsible({
@@ -337,13 +335,17 @@ export default function Footer() {
               <Collapsible title="Resources">
                 <ul className="space-y-1.5">
                   {RESOURCES.map((l) => (
-                    <li key={l.label}>
-                      <Link className="text-[13.5px] lg:text-[14px] text-white/85 hover:text-white underline-offset-4 hover:underline" href={l.href}>
+                    <li key={l.href}>
+                      <Link
+                        className="text-[13.5px] lg:text-[14px] text-white/85 hover:text-white underline-offset-4 hover:underline"
+                        href={l.href}
+                      >
                         {l.label}
                       </Link>
                     </li>
                   ))}
                 </ul>
+
               </Collapsible>
             </div>
 
@@ -373,7 +375,7 @@ export default function Footer() {
                   ))}
                 </ul>
               </Collapsible>
-              
+
             </div>
           </div>
         </div>
@@ -381,85 +383,85 @@ export default function Footer() {
         {/* ===== Utility Strip: App QR (kept) + Contact ===== */}
         <div className="py-6 border-b border-white/10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-{/* App QR card (improved links + a11y) */}
-<div
-  aria-label="Mobile app"
-  className="rounded-xl border border-white/15 bg-white/10 backdrop-blur-md p-3.5"
->
-  <div className="flex items-center gap-3">
-    {/* Make QR clickable → app landing */}
-    <a
-      href="/app"
-      className="h-16 w-16 shrink-0 rounded-lg bg-white/20 flex items-center justify-center ring-1 ring-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
-      aria-label="Open the XIPHIAS app landing page"
-      title="Open the XIPHIAS app landing page"
-    >
-      <img
-        src="/images/footer/qrcode.webp"
-        alt="QR code: open app landing"
-        className="h-12 w-12 object-contain"
-        loading="lazy"
-        decoding="async"
-      />
-    </a>
+            {/* App QR card (improved links + a11y) */}
+            <div
+              aria-label="Mobile app"
+              className="rounded-xl border border-white/15 bg-white/10 backdrop-blur-md p-3.5"
+            >
+              <div className="flex items-center gap-3">
+                {/* Make QR clickable → app landing */}
+                <a
+                  href="/app"
+                  className="h-16 w-16 shrink-0 rounded-lg bg-white/20 flex items-center justify-center ring-1 ring-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+                  aria-label="Open the XIPHIAS app landing page"
+                  title="Open the XIPHIAS app landing page"
+                >
+                  <img
+                    src="/images/footer/qrcode.webp"
+                    alt="QR code: open app landing"
+                    className="h-12 w-12 object-contain"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </a>
 
-    <div className="min-w-0">
-      <p className="text-sm text-white/95 font-medium">
-        XIPHIAS App — track docs &amp; case status
-      </p>
+                <div className="min-w-0">
+                  <p className="text-sm text-white/95 font-medium">
+                    XIPHIAS App — track docs &amp; case status
+                  </p>
 
-      <div className="mt-1 flex items-center gap-1 text-[12px] text-white/90">
-        <Icon icon="mdi:star" className="w-4 h-4" />
-        <strong>4.8</strong>
-        <span className="text-white/70">· 1,200+ reviews</span>
-      </div>
+                  <div className="mt-1 flex items-center gap-1 text-[12px] text-white/90">
+                    <Icon icon="mdi:star" className="w-4 h-4" />
+                    <strong>4.8</strong>
+                    <span className="text-white/70">· 1,200+ reviews</span>
+                  </div>
 
-      {/* Store badges (open in new tab) */}
-      <div className="flex items-center gap-2 mt-2">
-        <a
-          href="https://apps.apple.com/app/id0000000000?pt=000000&ct=footer_app_badge&mt=8"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Download on the App Store"
-          title="Download on the App Store"
-          className="focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 rounded"
-          data-store="apple"
-        >
-          <img
-            src="/images/footer/appstore.svg"
-            alt="Download on the App Store"
-            className="h-8 w-auto"
-            loading="lazy"
-            decoding="async"
-          />
-        </a>
+                  {/* Store badges (open in new tab) */}
+                  <div className="flex items-center gap-2 mt-2">
+                    <a
+                      href="https://apps.apple.com/app/id0000000000?pt=000000&ct=footer_app_badge&mt=8"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Download on the App Store"
+                      title="Download on the App Store"
+                      className="focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 rounded"
+                      data-store="apple"
+                    >
+                      <img
+                        src="/images/footer/appstore.svg"
+                        alt="Download on the App Store"
+                        className="h-8 w-auto"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </a>
 
-        <a
-          href="https://play.google.com/store/apps/details?id=com.xiphias.app&referrer=utm_source%3Dwebsite%26utm_medium%3Dfooter%26utm_campaign%3Dapp_badge"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Get it on Google Play"
-          title="Get it on Google Play"
-          className="focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 rounded"
-          data-store="google-play"
-        >
-          <img
-            src="/images/footer/playstore.65459def.svg"
-            alt="Get it on Google Play"
-            className="h-8 w-auto"
-            loading="lazy"
-            decoding="async"
-          />
-        </a>
-      </div>
+                    <a
+                      href="https://play.google.com/store/apps/details?id=com.xiphias.app&referrer=utm_source%3Dwebsite%26utm_medium%3Dfooter%26utm_campaign%3Dapp_badge"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Get it on Google Play"
+                      title="Get it on Google Play"
+                      className="focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 rounded"
+                      data-store="google-play"
+                    >
+                      <img
+                        src="/images/footer/playstore.65459def.svg"
+                        alt="Get it on Google Play"
+                        className="h-8 w-auto"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </a>
+                  </div>
 
-      {/* Optional deep-link row (hidden from layout; useful for crawlers) */}
-      <span className="sr-only">
-        iOS: apps.apple.com/app/id0000000000 — Android: play.google.com/store/apps/details?id=com.xiphias.app
-      </span>
-    </div>
-  </div>
-</div>
+                  {/* Optional deep-link row (hidden from layout; useful for crawlers) */}
+                  <span className="sr-only">
+                    iOS: apps.apple.com/app/id0000000000 — Android: play.google.com/store/apps/details?id=com.xiphias.app
+                  </span>
+                </div>
+              </div>
+            </div>
 
 
             {/* Contact chips + address (primary contact card) */}
@@ -572,70 +574,70 @@ export default function Footer() {
         </div>
 
         {/* ===== Awards/Press + Socials (enhanced) ===== */}
-<div className="py-6">
-  <div className="rounded-xl border border-white/15 bg-white/10 backdrop-blur-md px-3.5 py-4 lg:px-4 lg:py-4">
-    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="py-6">
+          <div className="rounded-xl border border-white/15 bg-white/10 backdrop-blur-md px-3.5 py-4 lg:px-4 lg:py-4">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
-      {/* Press / awards strip */}
-      <div
-        aria-label="Awards and press logos"
-        className="flex items-center gap-4 overflow-x-auto pr-1 scroll-smooth snap-x snap-mandatory"
-      >
-        {PRESS.map((src, i) => (
-          <span
-            key={i}
-            className="relative h-22 w-28 shrink-0 snap-start"
-            title="Press logo"
-          >
-            <img
-              src={src}
-              alt="Press logo"
-              loading="lazy"
-              decoding="async"
-              className="object-contain h-full w-full opacity-90 contrast-125"
-            />
-            {/* soft glow on hover */}
-            <span className="pointer-events-none absolute inset-0 rounded-md ring-0 hover:ring-2 hover:ring-white/20 transition" />
-          </span>
-        ))}
-      </div>
+              {/* Press / awards strip */}
+              <div
+                aria-label="Awards and press logos"
+                className="flex items-center gap-4 overflow-x-auto pr-1 scroll-smooth snap-x snap-mandatory"
+              >
+                {PRESS.map((src, i) => (
+                  <span
+                    key={i}
+                    className="relative h-22 w-28 shrink-0 snap-start"
+                    title="Press logo"
+                  >
+                    <img
+                      src={src}
+                      alt="Press logo"
+                      loading="lazy"
+                      decoding="async"
+                      className="object-contain h-full w-full opacity-90 contrast-125"
+                    />
+                    {/* soft glow on hover */}
+                    <span className="pointer-events-none absolute inset-0 rounded-md ring-0 hover:ring-2 hover:ring-white/20 transition" />
+                  </span>
+                ))}
+              </div>
 
-<div className="flex items-center gap-2 md:gap-3">
-  {SOCIALS.map(({ href, label, icon }) => {
-    const hover = HOVER[label] || "";
-    const cta = CTA[label] || CTA.default;
-    const external = href.startsWith("http");
-    return (
-      <Link
-        key={label}
-        href={href}
-        aria-label={label}
-        target={external ? "_blank" : undefined}
-        rel={external ? "noopener noreferrer" : undefined}
-        className={[
-          "group relative inline-flex items-center gap-2 rounded-full",
-          "px-3.5 py-2 text-[13px] leading-none",
-          "bg-white/8 ring-1 ring-white/15 text-white/90",
-          "transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80",
-          hover,
-        ].join(" ")}
-        title={label}
-      >
-        <Icon className="w-5 h-5" icon={icon} />
-        <span className="hidden md:inline">{cta}</span>
-        <span
-          className="pointer-events-none absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-black/70 px-2 py-1 text-[11px] text-white opacity-0 group-hover:opacity-100 transition"
-          role="tooltip"
-        >
-          {label}
-        </span>
-      </Link>
-    );
-  })}
-</div>
-    </div>
-  </div>
-</div>
+              <div className="flex items-center gap-2 md:gap-3">
+                {SOCIALS.map(({ href, label, icon }) => {
+                  const hover = HOVER[label] || "";
+                  const cta = CTA[label] || CTA.default;
+                  const external = href.startsWith("http");
+                  return (
+                    <Link
+                      key={label}
+                      href={href}
+                      aria-label={label}
+                      target={external ? "_blank" : undefined}
+                      rel={external ? "noopener noreferrer" : undefined}
+                      className={[
+                        "group relative inline-flex items-center gap-2 rounded-full",
+                        "px-3.5 py-2 text-[13px] leading-none",
+                        "bg-white/8 ring-1 ring-white/15 text-white/90",
+                        "transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80",
+                        hover,
+                      ].join(" ")}
+                      title={label}
+                    >
+                      <Icon className="w-5 h-5" icon={icon} />
+                      <span className="hidden md:inline">{cta}</span>
+                      <span
+                        className="pointer-events-none absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-black/70 px-2 py-1 text-[11px] text-white opacity-0 group-hover:opacity-100 transition"
+                        role="tooltip"
+                      >
+                        {label}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
 
 
         {/* ===== Bottom Legal Bar ===== */}

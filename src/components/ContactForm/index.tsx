@@ -311,7 +311,7 @@ export default function ContactForm({
           </button>
           <p className="mt-2 text-[12px] text-neutral-600 dark:text-neutral-400">
             We respond within one business day. By submitting, you accept our{" "}
-            <a href="/privacy" className="underline text-primary">
+            <a href="/privacy-policy" className="underline text-primary">
               privacy policy
             </a>
             .
