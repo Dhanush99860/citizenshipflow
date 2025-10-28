@@ -1,26 +1,10 @@
 "use client";
 
-import React, { useId, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Loader from "@/components/Common/Loader";
 import { FiMail, FiUser, FiPhone, FiMessageSquare } from "react-icons/fi";
-
-/**
- * ContactForm — reusable, attractive, “primary”-themed contact/callback form
- * ----------------------------------------------------------------------------
- * • Variants: "full" (name/phone/email/message) or "quick" (name/phone)
- * • Strong primary color accents (uses your Tailwind `primary` color)
- * • Polished UX: floating labels, inline validation, character counter,
- *   responsive 2-column layout on md+, non-jumpy focus rings, toast feedback
- * • A11y: labeled fields, aria-invalid, aria-live, keyboard-friendly
- * • SEO: ContactPage JSON-LD
- *
- * Backend wiring:
- * - Pass `apiEndpoint="/api/contact"` (or any URL) to POST JSON there.
- * - While `apiEndpoint` is undefined, the form simulates success locally.
- * - Optionally pass `onSuccessRedirect="/thanks"` to navigate after success.
- */
 
 type Props = {
   variant?: "full" | "quick";
@@ -29,11 +13,14 @@ type Props = {
   subheading?: string;
   defaults?: Partial<Record<"name" | "phone" | "email" | "message", string>>;
 
-  /** When ready to connect, set this to your POST URL (e.g. "/api/contact"). */
+  /** POST URL that will send both WhatsApp + Email. Defaults to /api/contact */
   apiEndpoint?: string;
 
   /** After a successful submit, navigate here (e.g. "/thanks"). */
   onSuccessRedirect?: string;
+
+  /** Optional: add an id prefix if you render multiple forms on the same page */
+  idPrefix?: string; // keeps ids stable to avoid hydration issues
 };
 
 export default function ContactForm({
@@ -42,8 +29,9 @@ export default function ContactForm({
   heading,
   subheading,
   defaults,
-  apiEndpoint, // ← set this when backend is ready
-  onSuccessRedirect, // ← optional redirect after success
+  apiEndpoint = "/api/contact",
+  onSuccessRedirect,
+  idPrefix = "contact",
 }: Props) {
   const isFull = variant === "full";
   const [loading, setLoading] = useState(false);
@@ -52,9 +40,8 @@ export default function ContactForm({
   const formRef = useRef<HTMLFormElement | null>(null);
   const router = useRouter();
 
-  // a11y ids
-  const baseId = useId();
-  const titleId = `${baseId}-title`;
+  // ---- a11y ids (stable / no useId to avoid hydration mismatches) ----
+  const titleId = `${idPrefix}-title`;
 
   // helpers to read values
   const get = (name: string) =>
@@ -87,7 +74,8 @@ export default function ContactForm({
     if (isFull && touched.message && !vMsg(message))
       e.message = "Please add at least 10 characters.";
     return e;
-  }, [touched, isFull]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [touched, isFull]); // values read from DOM
 
   function markTouched(name: string) {
     setTouched((t) => ({ ...t, [name]: true }));
@@ -115,35 +103,26 @@ export default function ContactForm({
     try {
       setLoading(true);
 
-      if (apiEndpoint) {
-        // Real submit: POST to your backend
-        const res = await fetch(apiEndpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...payload,
-            variant,
-            page:
-              typeof window !== "undefined" ? window.location.pathname : "",
-            referrer:
-              typeof document !== "undefined" ? document.referrer || "" : "",
-          }),
-        });
+      // Real submit: this route sends BOTH WhatsApp + Email
+      const res = await fetch(apiEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...payload,
+          variant,
+          page: typeof window !== "undefined" ? window.location.pathname : "",
+          referrer: typeof document !== "undefined" ? document.referrer || "" : "",
+        }),
+      });
 
-        if (!res.ok) {
-          // Try to read a server-provided error if any
-          let message = "Failed to send message.";
-          try {
-            const data = await res.json();
-            if (data?.error) message = String(data.error);
-          } catch {
-            /* ignore json parse */
-          }
-          throw new Error(message);
-        }
-      } else {
-        // Mock submit: simulate success while backend isn't ready
-        await new Promise((r) => setTimeout(r, 600));
+      if (!res.ok) {
+        // Try to read a server-provided error if any
+        let message = "Failed to send message.";
+        try {
+          const data = await res.json();
+          if (data?.error) message = String(data.error);
+        } catch {}
+        throw new Error(message);
       }
 
       toast.success(
@@ -157,10 +136,7 @@ export default function ContactForm({
       setTouched({});
       setMsgLen(0);
 
-      // Optional redirect
-      if (onSuccessRedirect) {
-        router.push(onSuccessRedirect);
-      }
+      if (onSuccessRedirect) router.push(onSuccessRedirect);
     } catch (err: any) {
       toast.error(err?.message || "Something went wrong. Please try again.");
     } finally {
@@ -224,6 +200,7 @@ export default function ContactForm({
         />
 
         <Field
+          id={`${idPrefix}-name`}
           name="name"
           label="Full name"
           icon={<FiUser />}
@@ -236,6 +213,7 @@ export default function ContactForm({
         />
 
         <Field
+          id={`${idPrefix}-phone`}
           name="phone"
           label="Phone number"
           icon={<FiPhone />}
@@ -251,6 +229,7 @@ export default function ContactForm({
 
         {isFull && (
           <Field
+            id={`${idPrefix}-email`}
             name="email"
             label="Email address"
             icon={<FiMail />}
@@ -267,6 +246,7 @@ export default function ContactForm({
 
         {isFull && (
           <Textarea
+            id={`${idPrefix}-message`}
             name="message"
             label="Your message"
             icon={<FiMessageSquare />}
@@ -340,6 +320,7 @@ export default function ContactForm({
 /* ====================== Sub-components ====================== */
 
 function Field({
+  id,
   name,
   label,
   icon,
@@ -354,6 +335,7 @@ function Field({
   pattern,
   onBlur,
 }: {
+  id: string;
   name: string;
   label: string;
   icon?: React.ReactNode;
@@ -368,7 +350,6 @@ function Field({
   pattern?: string;
   onBlur?: () => void;
 }) {
-  const id = useId();
   return (
     <div className={["relative", className].join(" ")}>
       <div className="relative">
@@ -432,6 +413,7 @@ function Field({
 }
 
 function Textarea({
+  id,
   name,
   label,
   icon,
@@ -445,6 +427,7 @@ function Textarea({
   onBlur,
   onInput,
 }: {
+  id: string;
   name: string;
   label: string;
   icon?: React.ReactNode;
@@ -458,7 +441,6 @@ function Textarea({
   onBlur?: () => void;
   onInput?: (length: number) => void;
 }) {
-  const id = useId();
   return (
     <div className={["relative", className].join(" ")}>
       <div className="relative">

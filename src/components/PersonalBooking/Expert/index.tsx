@@ -3,6 +3,8 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { BOOKING_PAID_ROUTE } from "@/components/PersonalBooking/booking-flow";
+
 import {
   Calendar,
   User,
@@ -198,14 +200,14 @@ export default function Expert() {
 
             {/* CTAs */}
             <div className="flex flex-col items-center gap-3 pt-2 sm:flex-row md:items-start">
-              <Link
-                href="/contact"
-                className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 font-semibold text-white shadow-lg transition hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/80 focus-visible:ring-offset-2"
-                aria-label="Reserve your consultation"
-              >
-                <Calendar className="h-5 w-5" />
-                <span>Reserve Your Consultation</span>
-              </Link>
+            <Link
+  href={BOOKING_PAID_ROUTE}
+  className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 font-semibold text-white shadow-lg transition hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/80 focus-visible:ring-offset-2"
+  aria-label="Reserve your consultation"
+>
+  <Calendar className="h-5 w-5" />
+  <span>Reserve Your Consultation</span>
+</Link>
               <Link
                 href="/about"
                 className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white/70 px-5 py-3 text-slate-800 transition hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 dark:border-slate-700 dark:bg-white/10 dark:text-slate-100 dark:hover:bg-white/15"

@@ -1,5 +1,7 @@
 // FILE: src/components/Home/WhyChooseUs.tsx
 import Link from "next/link";
+import { BOOKING_ROUTE } from "@/components/PersonalBooking/booking-flow";
+
 import {
   ArrowRight,
   ShieldCheck,
@@ -123,7 +125,7 @@ export default function WhyChooseUs() {
         {/* ======= CTA ROW ======= */}
         <div className="mt-8 flex flex-col items-start gap-3 sm:mt-10 sm:flex-row sm:items-center">
           <Link
-            href="/contact"
+            href={BOOKING_ROUTE}
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white shadow ring-1 ring-blue-700/20 transition hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
           >
             Book a Private Consultation

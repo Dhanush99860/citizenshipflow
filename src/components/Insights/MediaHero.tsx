@@ -466,8 +466,8 @@ export default function MediaHero({
         </div>
       </div>
 
-      {/* mobile CTA bar */}
-      <MobileCTABar actions={actions} />
+      {/* mobile CTA bar — removed per request */}
+      {/* <MobileCTABar actions={actions} /> */}
     </header>
   );
 

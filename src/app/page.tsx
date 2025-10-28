@@ -60,36 +60,7 @@ export default function Home() {
 
           {/* ADVISOR SPOTLIGHT (component) */}
           <section className="scroll-mt-28 mx-auto lg:max-w-screen-2xl sm:px-6 lg:px-4">
-            <AdvisorConsultationCard
-              advisorName="Varun Singh"
-              role="CBI & RBI - MD XIPHIAS"
-              avatarSrc="/images/avtar/varun-singh.png"
-              bookingUrl="/personal-booking"
-              brochureUrl="/brochures/citizenship/grenada/real-estate.pdf"
-              priceOptions={[
-                {
-                  id: "std",
-                  label: "45–60 mins",
-                  price: "₹15,500",
-                  best: true,
-                  bullets: [
-                    "Eligibility triage & risk pointers",
-                    "Route comparison (donation vs real estate)",
-                    "Project shortlist & checklist",
-                  ],
-                },
-                {
-                  id: "deep",
-                  label: "90 mins (in-depth)",
-                  price: "₹25,500",
-                  bullets: [
-                    "Everything in Standard",
-                    "File strategy & timeline modeling",
-                    "Follow-up summary & next steps",
-                  ],
-                },
-              ]}
-            />
+          <AdvisorConsultationCard bookingHref="/booking?book=paid" />
           </section>
 
           <CorporatePreview />

@@ -1006,29 +1006,7 @@ export default async function ProgramPage(props: {
 
             {/* ADVISOR SPOTLIGHT (component) */}
             <section id="advisor" className="scroll-mt-28">
-              <AdvisorConsultationCard
-                advisorName="Varun Singh"
-                role="CBI & RBI - MD XIPHIAS"
-                avatarSrc="/images/avtar/varun-singh.png"
-                bookingUrl="/personal-booking"
-                brochureUrl="/brochures/citizenship/grenada/real-estate.pdf"
-                priceOptions={[
-                  {
-                    id: "std", label: "45–60 mins", price: "₹15,500", best: true, bullets: [
-                      "Eligibility triage & risk pointers",
-                      "Route comparison (donation vs real estate)",
-                      "Project shortlist & checklist",
-                    ]
-                  },
-                  {
-                    id: "deep", label: "90 mins (in-depth)", price: "₹25,500", bullets: [
-                      "Everything in Standard",
-                      "File strategy & timeline modeling",
-                      "Follow-up summary & next steps",
-                    ]
-                  },
-                ]}
-              />
+            <AdvisorConsultationCard bookingHref="/booking?book=paid" />
             </section>
 
             {/* spacer for mobile floating nav */}
