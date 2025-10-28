@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import {
   getResidencyCountrySlugs,
   getResidencyPrograms,
@@ -12,6 +11,7 @@ import MediaHero from "@/components/Residency/MediaHero";
 import ContactForm from "@/components/ContactForm";
 import Breadcrumb from "@/components/Common/Breadcrumb";
 
+/* New modular sections */
 import SidebarStatsPanel from "@/components/Residency/Country/SidebarStatsPanel";
 import SidebarProgramsList from "@/components/Residency/Country/SidebarProgramsList";
 import SidebarHighlights from "@/components/Residency/Country/SidebarHighlights";
@@ -23,93 +23,68 @@ import FAQSection from "@/components/Residency/Country/FAQSection";
 import MDXDetailsSection from "@/components/Residency/Country/MDXDetailsSection";
 import RelatedCountriesSection from "@/components/Residency/Country/RelatedCountriesSection";
 
-export const runtime = "nodejs";
-export const revalidate = 86400;         // ISR (24h)
-export const dynamicParams = true;       // allow params not returned at build
+// Only include what you actually need. Examples:
+export const runtime = "nodejs"; // or 'edge'
+export const dynamic = "force-static"; // or 'force-dynamic'
+export const revalidate = 86400; // 24h — must be a literal number
+// export const preferredRegion = ['iad1'];  // if you used it before
 
-// Normalize to lowercase so /residency/bulgaria works on case-sensitive Linux
-function canonicalize(slug: string) {
-  const all = getResidencyCountrySlugs();
-  return (
-    all.find((s) => s.toLowerCase() === slug.toLowerCase()) ??
-    slug.toLowerCase()
-  );
-}
-
-/** Pre-render known slugs; normalize to lowercase */
+/** SSG params */
 export async function generateStaticParams() {
-  return getResidencyCountrySlugs().map((slug) => ({
-    country: slug.toLowerCase(),
-  }));
+  return getResidencyCountrySlugs().map((slug) => ({ country: slug }));
 }
 
 /** SEO */
-export async function generateMetadata({
-  params,
-}: {
-  params: { country: string };
+export async function generateMetadata(props: {
+  params: Promise<{ country: string }>;
 }): Promise<Metadata> {
-  const slug = canonicalize(params.country);
+  const params = await props.params;
+  const meta = getCountryFrontmatter(params.country);
+  const heroImage = (meta as any).heroImage as string | undefined;
+  const title = (meta as any).seo?.title ?? meta.title;
+  const description = (meta as any).seo?.description ?? meta.summary;
+  const keywords = (meta as any).seo?.keywords as string[] | undefined;
 
-  try {
-    const meta: any = getCountryFrontmatter(slug);
-    const heroImage = meta?.heroImage as string | undefined;
-    const title = meta?.seo?.title ?? meta?.title ?? "Residency";
-    const description = meta?.seo?.description ?? meta?.summary ?? "";
-    const keywords = (meta?.seo?.keywords as string[] | undefined) ?? undefined;
-
-    return {
+  return {
+    title,
+    description,
+    keywords,
+    alternates: { canonical: `/residency/${params.country}` },
+    openGraph: { title, description, images: [heroImage ?? "/og.jpg"] },
+    twitter: {
+      card: "summary_large_image",
       title,
       description,
-      keywords,
-      alternates: { canonical: `/residency/${slug}` },
-      openGraph: { title, description, images: [heroImage ?? "/og.jpg"] },
-      twitter: {
-        card: "summary_large_image",
-        title,
-        description,
-        images: [heroImage ?? "/og.jpg"],
-      },
-    };
-  } catch {
-    // If frontmatter is missing, don't crash the build
-    return { title: "Residency", description: "" };
-  }
+      images: [heroImage ?? "/og.jpg"],
+    },
+  };
 }
 
 /** Page */
-export default async function CountryPage({
-  params,
-}: {
-  params: { country: string };
+export default async function CountryPage(props: {
+  params: Promise<{ country: string }>;
 }) {
-  const slug = canonicalize(params.country);
+  const params = await props.params;
+  const { meta, content } = await loadCountryPage(params.country);
+  const programs = getResidencyPrograms(params.country);
 
-  let meta: any, content: any;
-  try {
-    ({ meta, content } = await loadCountryPage(slug));
-  } catch {
-    // Content not found -> proper 404
-    notFound();
-  }
+  // Hero media
+  const videoSrc = (meta as any).heroVideo as string | undefined;
+  const poster = (meta as any).heroPoster as string | undefined;
+  const heroImage = (meta as any).heroImage as string | undefined;
 
-  const programs = getResidencyPrograms(slug) ?? [];
-
-  const videoSrc = meta?.heroVideo as string | undefined;
-  const poster = meta?.heroPoster as string | undefined;
-  const heroImage = meta?.heroImage as string | undefined;
-
+  // Aggregates (ranges)
   const minInvestments = programs
-    .map((p: any) => p.minInvestment)
-    .filter((n: any) => typeof n === "number");
+    .map((p) => p.minInvestment)
+    .filter((n): n is number => typeof n === "number");
   const timelines = programs
-    .map((p: any) => p.timelineMonths)
-    .filter((n: any) => typeof n === "number");
+    .map((p) => p.timelineMonths)
+    .filter((n): n is number => typeof n === "number");
 
   const minInvestmentRange =
     minInvestments.length && programs[0]?.currency
       ? `${Math.min(...minInvestments).toLocaleString()}–${Math.max(
-          ...minInvestments
+          ...minInvestments,
         ).toLocaleString()} ${programs[0].currency}`
       : "Varies";
 
@@ -117,6 +92,7 @@ export default async function CountryPage({
     ? `${Math.min(...timelines)}–${Math.max(...timelines)} months`
     : "Varies";
 
+  // Optional fields from frontmatter
   const {
     overview,
     keyPoints,
@@ -125,33 +101,38 @@ export default async function CountryPage({
     requirements,
     faq,
     introPoints,
-  } = (meta ?? {}) as any;
+  } = meta as any;
 
+  // Related countries (simple: any other 2)
   const related = getResidencyCountries()
-    .filter((c: any) => (c.countrySlug ?? "").toLowerCase() !== slug)
+    .filter((c) => c.countrySlug !== params.country)
     .slice(0, 2);
 
   return (
     <main className="relative container mx-auto px-4 sm:px-6 lg:px-8 pb-12 text-black">
-      <h1 className="sr-only">Residency in {meta?.country ?? slug}</h1>
+      <h1 className="sr-only">Residency in {meta.country}</h1>
 
       <JsonLd
         data={breadcrumbLd([
           { name: "Residency", url: "/residency" },
-          { name: meta?.country ?? slug, url: `/residency/${slug}` },
+          { name: meta.country, url: `/residency/${params.country}` },
         ])}
       />
 
       {/* HERO */}
       <section className="pt-4">
         <MediaHero
-          title={meta?.title ?? "Residency"}
-          subtitle={meta?.summary ?? ""}
+          title={meta.title}
+          subtitle={meta.summary}
           videoSrc={videoSrc}
           poster={poster}
           imageSrc={heroImage}
           actions={[
-            { href: "/personal-booking", label: "Book Consultation", variant: "primary" },
+            {
+              href: "/personal-booking",
+              label: "Book Consultation",
+              variant: "primary",
+            },
           ]}
         />
       </section>
@@ -169,7 +150,7 @@ export default async function CountryPage({
             investRange={minInvestmentRange}
             timelineRange={timelineRange}
           />
-          <SidebarProgramsList country={meta?.country ?? slug} programs={programs} />
+          <SidebarProgramsList country={meta.country} programs={programs} />
           <SidebarHighlights points={introPoints} />
           <div className="hidden md:block">
             <ContactForm />
@@ -178,12 +159,16 @@ export default async function CountryPage({
 
         {/* Main content */}
         <div className="md:col-span-8 space-y-8">
-          <AboutCountrySection country={meta?.country ?? slug} overview={overview} facts={facts} />
-          <WhyCountrySection country={meta?.country ?? slug} points={keyPoints} />
+          <AboutCountrySection
+            country={meta.country}
+            overview={overview}
+            facts={facts}
+          />
+          <WhyCountrySection country={meta.country} points={keyPoints} />
           <ProcessSteps steps={applicationProcess} />
           <EligibilityRequirements items={requirements} />
           <FAQSection faqs={faq} />
-          <MDXDetailsSection country={meta?.country ?? slug} content={content} />
+          <MDXDetailsSection country={meta.country} content={content} />
           <div className="md:hidden">
             <ContactForm />
           </div>

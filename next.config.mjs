@@ -7,15 +7,13 @@ const withMDX = createMDX({ extension: /\.mdx?$/ });
 const nextConfig = {
   pageExtensions: ["ts", "tsx", "mdx"],
 
-  // Include on-disk MDX/content in the server bundle (needed on Vercel)
-  experimental: {
-    outputFileTracingIncludes: {
-      "/*": ["./content/**/*"],
-    },
-  },
+  // MDX from disk: include /content/** in the server bundle (Vercel)
+  outputFileTracingIncludes: { "*": ["./content/**/*"] },
 
   images: {
     formats: ["image/avif", "image/webp"],
+    // Allow all quality values you actually use in <Image quality={...}>
+    qualities: [75, 80],
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "res.cloudinary.com" },
@@ -23,6 +21,7 @@ const nextConfig = {
       { protocol: "https", hostname: "img.youtube.com" },
       { protocol: "https", hostname: "www.xiphiasimmigration.com" },
       { protocol: "https", hostname: "xiphiasimmigration.com" },
+      // Optional extras if your MDX/content uses these:
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
       { protocol: "https", hostname: "drive.google.com" },
       { protocol: "https", hostname: "dl.dropboxusercontent.com" },
@@ -41,11 +40,13 @@ const nextConfig = {
 
   async rewrites() {
     return [
+      // DETAIL pages
       { source: "/insights/news/:slug",     destination: "/news/:slug" },
       { source: "/insights/articles/:slug", destination: "/articles/:slug" },
       { source: "/insights/media/:slug",    destination: "/media/:slug" },
       { source: "/insights/blog/:slug",     destination: "/blog/:slug" },
 
+      // LIST pages (fixes your 404s on /insights/news etc.)
       { source: "/insights/news",     destination: "/news" },
       { source: "/insights/articles", destination: "/articles" },
       { source: "/insights/media",    destination: "/media" },
