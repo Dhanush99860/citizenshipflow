@@ -1,7 +1,9 @@
 // src/app/personalbooking/page.tsx
 import Hero from "@/components/PersonalBooking/Hero";
-import Details from "@/components/PersonalBooking/Details";
-import FAQSection from "@/components/Common/FAQSection";
+// Use dynamic imports for below-the-fold components to reduce the initial bundle size
+import nextDynamic from "next/dynamic";
+const Details = nextDynamic(() => import("@/components/PersonalBooking/Details"));
+const FAQSection = nextDynamic(() => import("@/components/Common/FAQSection"));
 import { getAllInsights } from "@/lib/insights-content";
 import type { Metadata } from "next";
 
@@ -27,6 +29,7 @@ export const metadata: Metadata = {
       "Trusted advisors with 15+ years of excellence and a 92% success rate in global investment migration programs. Book your private consultation today.",
     url: "https://www.xiphiasimmigration.com/personal-booking",
     siteName: "XIPHIAS Immigration",
+    locale: "en_US",
     images: [
       {
         url: "https://www.xiphiasimmigration.com/images/og-personal-booking.jpg",

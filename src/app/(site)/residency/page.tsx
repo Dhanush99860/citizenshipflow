@@ -6,12 +6,14 @@ import {
   CountryMeta,
 } from "@/lib/residency-content";
 import ResidencyHero from "@/components/Residency/ResidencyHero";
-import ResidencyLanding from "@/components/Residency/ResidencyLanding";
-import InsightsPreview from "@/components/Insights/InsightsPreview";
-import TestimonialCarousel from "@/components/Citizenship/TestimonialCarousel";
-import OurOffer from "@/components/Citizenship/OurOffer";
-
-import Footer from "@/components/Layout/Footer";
+// Use dynamic imports for heavy, below-the-fold components to reduce the initial JS bundle
+// size and improve Lighthouse performance【330944343751455†L23-L112】.
+import nextDynamic from "next/dynamic";
+const ResidencyLanding = nextDynamic(() => import("@/components/Residency/ResidencyLanding"));
+const InsightsPreview = nextDynamic(() => import("@/components/Insights/InsightsPreview"));
+const TestimonialCarousel = nextDynamic(() => import("@/components/Citizenship/TestimonialCarousel"));
+const OurOffer = nextDynamic(() => import("@/components/Citizenship/OurOffer"));
+const Footer = nextDynamic(() => import("@/components/Layout/Footer"));
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
@@ -19,8 +21,30 @@ export const metadata: Metadata = {
   description:
     "Explore residency pathways by country. Compare timelines, requirements and costs. Book a personal consultation.",
   alternates: { canonical: "/residency" },
-  openGraph: { images: ["/og.jpg"] },
-  twitter: { images: ["/og.jpg"], card: "summary_large_image" },
+  openGraph: {
+    title: "Residency Programs – Countries & Options",
+    description:
+      "Explore residency pathways by country. Compare timelines, requirements and costs. Book a personal consultation.",
+    url: "https://www.xiphiasimmigration.com/residency",
+    siteName: "XIPHIAS Immigration",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Residency Programs – Countries & Options – XIPHIAS Immigration",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Residency Programs – Countries & Options",
+    description:
+      "Explore residency pathways by country. Compare timelines, requirements and costs. Book a personal consultation.",
+    images: ["/og.jpg"],
+  },
 };
 
 function pickTopPrograms(all: ProgramMeta[], n = 10): ProgramMeta[] {

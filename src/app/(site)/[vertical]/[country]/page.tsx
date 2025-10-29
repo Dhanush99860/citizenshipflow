@@ -1,5 +1,6 @@
 // src/app/(site)/[vertical]/page.tsx
 import { getAllContentCached } from "@/lib/content";
+import type { Metadata } from "next";
 import type { Vertical, ProgramDoc } from "@/lib/content/types";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -58,4 +59,49 @@ export default function VerticalPage({ params }: { params: { vertical: Vertical 
       )}
     </main>
   );
+}
+
+/**
+ * Generate metadata for dynamic vertical pages.  The title and description
+ * reflect the specific vertical and country being viewed.  This function
+ * constructs Open Graph and Twitter metadata with an explicit canonical URL.
+ */
+export async function generateMetadata({ params }: { params: { vertical: Vertical; country: string } }): Promise<Metadata> {
+  const { vertical, country } = params;
+  if (!VERTICALS.includes(vertical) || !country) {
+    return { title: "Not found" };
+  }
+  const capVertical = vertical.charAt(0).toUpperCase() + vertical.slice(1);
+  const capCountry = country.charAt(0).toUpperCase() + country.slice(1);
+  const title = `${capCountry} – ${capVertical} Programs`;
+  const description = `Discover ${vertical} programs available in ${capCountry}. Compare your options and find the right path.`;
+  const canonicalPath = `/${vertical}/${country}`;
+  const canonicalUrl = `https://www.xiphiasimmigration.com${canonicalPath}`;
+  return {
+    title,
+    description,
+    alternates: { canonical: canonicalPath },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: "XIPHIAS Immigration",
+      locale: "en_US",
+      type: "website",
+      images: [
+        {
+          url: "/og.jpg",
+          width: 1200,
+          height: 630,
+          alt: `${title} – XIPHIAS Immigration`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/og.jpg"],
+    },
+  };
 }

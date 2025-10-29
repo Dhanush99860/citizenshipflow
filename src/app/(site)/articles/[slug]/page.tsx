@@ -1,8 +1,10 @@
 // app/(site)/articles/[slug]/page.tsx
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import InsightDetailView from "@/components/Insights/InsightDetailView";
-import InsightJsonLd from "@/components/SEO/InsightJsonLd";
+// Dynamically import heavy insight components to reduce initial bundle size and improve performance.
+import nextDynamic from "next/dynamic";
+const InsightDetailView = nextDynamic(() => import("@/components/Insights/InsightDetailView"));
+const InsightJsonLd = nextDynamic(() => import("@/components/SEO/InsightJsonLd"));
 import { getInsightBySlug } from "@/lib/insights-content";
 
 export const revalidate = 86400;
@@ -24,12 +26,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       type: "article",
       url: record.url,
-      images: record.hero ? [{ url: record.hero }] : undefined,
+      siteName: "XIPHIAS Immigration",
+      locale: "en_US",
+      images: record.hero
+        ? [
+            {
+              url: record.hero,
+              width: 1200,
+              height: 630,
+              alt: `${record.title} – XIPHIAS Immigration`,
+            },
+          ]
+        : undefined,
     },
     twitter: {
       card: record.hero ? "summary_large_image" : "summary",
       title: record.title,
       description,
+      images: record.hero ? [record.hero] : undefined,
     },
   };
 }

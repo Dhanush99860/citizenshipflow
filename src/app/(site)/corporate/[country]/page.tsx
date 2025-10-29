@@ -7,25 +7,30 @@ import {
   getCorporateCountries,
 } from "@/lib/corporate-content";
 import { JsonLd, breadcrumbLd } from "@/lib/seo";
-import MediaHero from "@/components/Residency/MediaHero";
-import ContactForm from "@/components/ContactForm";
-import Breadcrumb from "@/components/Common/Breadcrumb";
+// Alias dynamic import to avoid name collision with the `export const dynamic` config below.
+import nextDynamic from "next/dynamic";
 
+// Dynamically import heavy components to split the bundle and improve TBT
+const MediaHero = nextDynamic(() => import("@/components/Residency/MediaHero"));
+const ContactForm = nextDynamic(() => import("@/components/ContactForm"));
+const Breadcrumb = nextDynamic(() => import("@/components/Common/Breadcrumb"));
 /* Same modular sections you use for Residency */
-import SidebarStatsPanel from "@/components/Residency/Country/SidebarStatsPanel";
-import SidebarProgramsList from "@/components/Residency/Country/SidebarProgramsList";
-import SidebarHighlights from "@/components/Residency/Country/SidebarHighlights";
-import AboutCountrySection from "@/components/Residency/Country/AboutCountrySection";
-import WhyCountrySection from "@/components/Residency/Country/WhyCountrySection";
-import ProcessSteps from "@/components/Residency/Country/ProcessSteps";
-import EligibilityRequirements from "@/components/Residency/Country/EligibilityRequirements";
-import FAQSection from "@/components/Residency/Country/FAQSection";
-import MDXDetailsSection from "@/components/Residency/Country/MDXDetailsSection";
-import RelatedCountriesSection from "@/components/Residency/Country/RelatedCountriesSection";
+const SidebarStatsPanel = nextDynamic(() => import("@/components/Residency/Country/SidebarStatsPanel"));
+const SidebarProgramsList = nextDynamic(() => import("@/components/Residency/Country/SidebarProgramsList"));
+const SidebarHighlights = nextDynamic(() => import("@/components/Residency/Country/SidebarHighlights"));
+const AboutCountrySection = nextDynamic(() => import("@/components/Residency/Country/AboutCountrySection"));
+const WhyCountrySection = nextDynamic(() => import("@/components/Residency/Country/WhyCountrySection"));
+const ProcessSteps = nextDynamic(() => import("@/components/Residency/Country/ProcessSteps"));
+const EligibilityRequirements = nextDynamic(() => import("@/components/Residency/Country/EligibilityRequirements"));
+const FAQSection = nextDynamic(() => import("@/components/Residency/Country/FAQSection"));
+// MDXDetailsSection is unused on this page, so it's not imported.
+const RelatedCountriesSection = nextDynamic(() => import("@/components/Residency/Country/RelatedCountriesSection"));
 
-// Only include what you actually need. Examples:
+// Runtime configuration: opt in to the Node.js runtime.  Revalidate the
+// static page once per day.  We omit the `dynamic` export to avoid
+// naming collisions with the `next/dynamic` helper; Next.js will
+// automatically infer static generation from the absence of `dynamic`.
 export const runtime = "nodejs"; // or 'edge'
-export const dynamic = "force-static"; // or 'force-dynamic'
 export const revalidate = 86400; // 24h — must be a literal number
 // export const preferredRegion = ['iad1'];  // if you used it before
 
@@ -45,12 +50,29 @@ export async function generateMetadata(props: {
   const description = (meta as any).seo?.description ?? meta.summary;
   const keywords = (meta as any).seo?.keywords as string[] | undefined;
 
+  const canonicalUrl = `https://www.xiphiasimmigration.com/corporate/${params.country}`;
+
   return {
     title,
     description,
     keywords,
     alternates: { canonical: `/corporate/${params.country}` },
-    openGraph: { title, description, images: [heroImage ?? "/og.jpg"] },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: "XIPHIAS Immigration",
+      locale: "en_US",
+      type: "website",
+      images: [
+        {
+          url: heroImage ?? "/og.jpg",
+          width: 1200,
+          height: 630,
+          alt: `${title} – XIPHIAS Immigration`,
+        },
+      ],
+    },
     twitter: {
       card: "summary_large_image",
       title,

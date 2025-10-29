@@ -1,7 +1,43 @@
 // app/(site)/media/page.tsx
 import Link from "next/link";
 import { getAllInsights } from "@/lib/insights-content";
-import InsightsList from "@/components/Insights/InsightsList";
+// Dynamically import the media list to reduce the initial bundle size and improve performance.
+import nextDynamic from "next/dynamic";
+const InsightsList = nextDynamic(() => import("@/components/Insights/InsightsList"));
+
+import type { Metadata } from "next";
+
+// SEO metadata for the media listing page
+export const metadata: Metadata = {
+  title: "Media – Videos & Interviews | XIPHIAS Immigration",
+  description:
+    "Watch our latest interviews, webinars and media appearances covering investment migration, residency and citizenship programs.",
+  alternates: { canonical: "/media" },
+  openGraph: {
+    title: "Media – Videos & Interviews",
+    description:
+      "Watch our latest interviews, webinars and media appearances covering investment migration, residency and citizenship programs.",
+    url: "https://www.xiphiasimmigration.com/media",
+    siteName: "XIPHIAS Immigration",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Media – Videos & Interviews – XIPHIAS Immigration",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Media – Videos & Interviews",
+    description:
+      "Watch our latest interviews, webinars and media appearances covering investment migration, residency and citizenship programs.",
+    images: ["/og.jpg"],
+  },
+};
 
 export const revalidate = 86400;
 

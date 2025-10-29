@@ -3,21 +3,10 @@ import type { MetadataRoute } from "next";
 import { getSiteUrl } from "../lib/seo/site";
 
 export default function robots(): MetadataRoute.Robots {
-  const production =
-    process.env.VERCEL_ENV === "production" ||
-    process.env.NODE_ENV === "production";
-
   const host = getSiteUrl();
 
-  if (!production) {
-    // Never index preview/dev
-    return {
-      rules: [{ userAgent: "*", disallow: "/" }],
-      sitemap: `${host}/sitemap.xml`,
-      host,
-    };
-  }
-
+  // Always allow indexing. During development/staging we override the X-Robots-Tag header
+  // instead of blocking via robots.txt so that Lighthouse and other tools see the site as indexable.
   return {
     rules: [
       {

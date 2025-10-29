@@ -7,16 +7,18 @@ import Header from "@/components/Layout/Header";
 import ClientOnly from "@/components/Common/ClientOnly";
 
 import Hero from "@/components/Home/Hero";
-import WhyChooseUs from "@/components/Home/whychooseus";
-import FAQJourney from "@/components/Home/FAQJourney";
-import BottomContactBar from "@/components/Common/BottomContactBar";
+// Dynamically import heavier, below-the-fold components to reduce initial bundle size and improve performance.
+import dynamic from "next/dynamic";
 
-import InsightsPreview from "@/components/Insights/InsightsPreview";
-import ResidencyPreview from "@/components/Residency/ResidencyPreview";
-import SkilledPreview from "@/components/Skilled/SkilledPreview";
-import CitizenshipPreview from "@/components/Citizenship/CitizenshipPreview";
-import CorporatePreview from "@/components/Corporate/CorporatePreview";
-import AdvisorConsultationCard from "@/components/Citizenship/AdvisorConsultationCard";
+const WhyChooseUs = dynamic(() => import("@/components/Home/whychooseus"));
+const FAQJourney = dynamic(() => import("@/components/Home/FAQJourney"));
+const InsightsPreview = dynamic(() => import("@/components/Insights/InsightsPreview"));
+const ResidencyPreview = dynamic(() => import("@/components/Residency/ResidencyPreview"));
+const SkilledPreview = dynamic(() => import("@/components/Skilled/SkilledPreview"));
+const CitizenshipPreview = dynamic(() => import("@/components/Citizenship/CitizenshipPreview"));
+const CorporatePreview = dynamic(() => import("@/components/Corporate/CorporatePreview"));
+const AdvisorConsultationCard = dynamic(() => import("@/components/Citizenship/AdvisorConsultationCard"));
+const BottomContactBar = dynamic(() => import("@/components/Common/BottomContactBar"));
 
 // Revalidate home once per day (adjust as needed)
 export const revalidate = 86400; // seconds

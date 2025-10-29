@@ -1,7 +1,43 @@
 // app/(site)/blog/page.tsx
 import Link from "next/link";
 import { getAllInsights } from "@/lib/insights-content";
-import InsightsList from "@/components/Insights/InsightsList";
+// Dynamically import the blog listing component to reduce initial bundle size and improve performance.
+import nextDynamic from "next/dynamic";
+const InsightsList = nextDynamic(() => import("@/components/Insights/InsightsList"));
+
+import type { Metadata } from "next";
+
+// SEO metadata for the blog listing page
+export const metadata: Metadata = {
+  title: "Blog – Immigration Stories & Updates | XIPHIAS Immigration",
+  description:
+    "Read our latest blog posts on immigration stories, expert tips and program updates. Stay informed with XIPHIAS Immigration.",
+  alternates: { canonical: "/blog" },
+  openGraph: {
+    title: "Blog – Immigration Stories & Updates",
+    description:
+      "Read our latest blog posts on immigration stories, expert tips and program updates. Stay informed with XIPHIAS Immigration.",
+    url: "https://www.xiphiasimmigration.com/blog",
+    siteName: "XIPHIAS Immigration",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Blog – Immigration Stories & Updates – XIPHIAS Immigration",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog – Immigration Stories & Updates",
+    description:
+      "Read our latest blog posts on immigration stories, expert tips and program updates. Stay informed with XIPHIAS Immigration.",
+    images: ["/og.jpg"],
+  },
+};
 
 export const revalidate = 86400;
 

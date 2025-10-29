@@ -31,8 +31,8 @@ export default function Hero() {
       {/* Background image (critical) */}
       <div className="absolute inset-0 -z-10">
         <Image
-          src="/images/hero/silhouettes.webp"
-          alt="Background silhouettes"
+          src="/images/hero/top-immigration-counsultent.webp"
+          alt="top-immigration-counsultent"
           fill
           priority
           fetchPriority="high"

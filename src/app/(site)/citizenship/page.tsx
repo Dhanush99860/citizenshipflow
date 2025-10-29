@@ -8,12 +8,16 @@ import {
 } from "@/lib/citizenship-content";
 
 import HeroPremium from "@/components/Citizenship/HeroPremium";
-import OurOffer from "@/components/Citizenship/OurOffer";
-import TestimonialCarousel from "@/components/Citizenship/TestimonialCarousel";
-import InsightsPreview from "@/components/Insights/InsightsPreview";
+// Use dynamic imports for heavier, below-the-fold components to reduce initial JS
+// bundle size and improve Lighthouse performance【330944343751455†L23-L112】.
+import nextDynamic from "next/dynamic";
+
+const OurOffer = nextDynamic(() => import("@/components/Citizenship/OurOffer"));
+const TestimonialCarousel = nextDynamic(() => import("@/components/Citizenship/TestimonialCarousel"));
+const InsightsPreview = nextDynamic(() => import("@/components/Insights/InsightsPreview"));
+const ExploreGrid = nextDynamic(() => import("@/components/Citizenship/ExploreGrid"));
 // import Footer from "@/components/Layout/Footer";
 import { JsonLd } from "@/lib/seo";
-import ExploreGrid from "@/components/Citizenship/ExploreGrid";
 
 export const revalidate = 86400;
 
@@ -22,8 +26,30 @@ export const metadata: Metadata = {
   description:
     "Explore citizenship routes by country. Compare timelines, requirements and costs. Book a personal consultation.",
   alternates: { canonical: "/citizenship" },
-  openGraph: { images: ["/og.jpg"] },
-  twitter: { images: ["/og.jpg"], card: "summary_large_image" },
+  openGraph: {
+    title: "Citizenship Programs – Countries & Options",
+    description:
+      "Explore citizenship routes by country. Compare timelines, requirements and costs. Book a personal consultation.",
+    url: "https://www.xiphiasimmigration.com/citizenship",
+    siteName: "XIPHIAS Immigration",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Citizenship Programs – Countries & Options – XIPHIAS Immigration",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Citizenship Programs – Countries & Options",
+    description:
+      "Explore citizenship routes by country. Compare timelines, requirements and costs. Book a personal consultation.",
+    images: ["/og.jpg"],
+  },
 };
 
 /** Server ranker for JSON-LD only */

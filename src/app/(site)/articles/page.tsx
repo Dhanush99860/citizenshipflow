@@ -1,7 +1,44 @@
 // app/(site)/articles/page.tsx
 import Link from "next/link";
 import { getAllInsights } from "@/lib/insights-content";
-import InsightsList from "@/components/Insights/InsightsList";
+// Dynamically import the article list to reduce the initial JS bundle size and
+// improve performance. Static links are small and can remain.
+import nextDynamic from "next/dynamic";
+const InsightsList = nextDynamic(() => import("@/components/Insights/InsightsList"));
+
+import type { Metadata } from "next";
+
+// SEO metadata for the articles listing page
+export const metadata: Metadata = {
+  title: "Articles – Immigration Insights & Updates | XIPHIAS Immigration",
+  description:
+    "Stay informed with the latest articles on investment migration, residency and citizenship programs. Browse our expert insights and updates.",
+  alternates: { canonical: "/articles" },
+  openGraph: {
+    title: "Articles – Immigration Insights & Updates",
+    description:
+      "Stay informed with the latest articles on investment migration, residency and citizenship programs. Browse our expert insights and updates.",
+    url: "https://www.xiphiasimmigration.com/articles",
+    siteName: "XIPHIAS Immigration",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Articles – Immigration Insights & Updates – XIPHIAS Immigration",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Articles – Immigration Insights & Updates",
+    description:
+      "Stay informed with the latest articles on investment migration, residency and citizenship programs. Browse our expert insights and updates.",
+    images: ["/og.jpg"],
+  },
+};
 
 export const revalidate = 86400;
 

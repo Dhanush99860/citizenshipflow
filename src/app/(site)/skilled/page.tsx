@@ -7,13 +7,15 @@ import {
   type CountryMeta,
 } from "@/lib/skilled-content";
 
-import SkilledHero from "@/components/Skilled/SkilledHero";
-import SkilledOffer from "@/components/Skilled/Overoffer";
-import SkilledTestimonialCarousel from "@/components/Skilled/TestimonialCarousel";
-import InsightsPreview from "@/components/Insights/InsightsPreview";
+import nextDynamic from "next/dynamic";
+
+const SkilledHero = nextDynamic(() => import("@/components/Skilled/SkilledHero"));
+const SkilledOffer = nextDynamic(() => import("@/components/Skilled/Overoffer"));
+const SkilledTestimonialCarousel = nextDynamic(() => import("@/components/Skilled/TestimonialCarousel"));
+const InsightsPreview = nextDynamic(() => import("@/components/Insights/InsightsPreview"));
 import { JsonLd } from "@/lib/seo";
 // ✅ normal import (the component itself is "use client")
-import SkilledExploreGrid from "@/components/Skilled/SkilledExploreGrid";
+const SkilledExploreGrid = nextDynamic(() => import("@/components/Skilled/SkilledExploreGrid"));
 
 export const revalidate = 86400;
 
@@ -22,8 +24,30 @@ export const metadata: Metadata = {
   description:
     "Explore skilled migration routes by country: points-tested PR, employer sponsorships, and talent visas. Compare timelines, eligibility and costs.",
   alternates: { canonical: "/skilled" },
-  openGraph: { images: ["/og.jpg"] },
-  twitter: { images: ["/og.jpg"], card: "summary_large_image" },
+  openGraph: {
+    title: "Skilled Migration & Work Permits – Countries & Options",
+    description:
+      "Explore skilled migration routes by country: points-tested PR, employer sponsorships, and talent visas. Compare timelines, eligibility and costs.",
+    url: "https://www.xiphiasimmigration.com/skilled",
+    siteName: "XIPHIAS Immigration",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Skilled Migration & Work Permits – Countries & Options – XIPHIAS Immigration",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Skilled Migration & Work Permits – Countries & Options",
+    description:
+      "Explore skilled migration routes by country: points-tested PR, employer sponsorships, and talent visas. Compare timelines, eligibility and costs.",
+    images: ["/og.jpg"],
+  },
 };
 
 /** Server ranker for JSON-LD only (same logic as citizenship) */

@@ -5,19 +5,37 @@ export const metadata: Metadata = {
   title: "Corporate Immigration Eligibility Check (Free)",
   description:
     "Assess corporate immigration options for entity setup, sponsorship, and global mobility. Instant results + downloadable summary.",
+  keywords: [
+    "corporate immigration eligibility",
+    "entity setup",
+    "employer sponsorship",
+    "global mobility",
+    "business immigration check",
+  ],
   alternates: { canonical: "/corporate/eligibility-check" },
   openGraph: {
     title: "Corporate Immigration Eligibility Check (Free)",
     description:
       "Assess corporate immigration options for entity setup, sponsorship, and global mobility. Instant results + downloadable summary.",
-    url: "/corporate/eligibility-check",
+    url: "https://www.xiphiasimmigration.com/corporate/eligibility-check",
+    siteName: "XIPHIAS Immigration",
+    locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Corporate Immigration Eligibility Check – XIPHIAS Immigration",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Corporate Immigration Eligibility Check (Free)",
     description:
       "Assess corporate immigration options for entity setup, sponsorship, and global mobility. Instant results + downloadable summary.",
+    images: ["/og.jpg"],
   },
   robots: { index: true, follow: true },
 };

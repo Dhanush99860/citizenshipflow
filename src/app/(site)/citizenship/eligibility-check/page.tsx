@@ -5,19 +5,37 @@ export const metadata: Metadata = {
   title: "Citizenship Eligibility Check (Free) | Interactive Assessment",
   description:
     "See if you qualify for citizenship by investment, by descent, or through residency-to-naturalization. Instant results + downloadable PDF.",
+  keywords: [
+    "citizenship eligibility check",
+    "citizenship by investment",
+    "citizenship by descent",
+    "residency to naturalization",
+    "dual citizenship guidance",
+  ],
   alternates: { canonical: "/citizenship/eligibility-check" },
   openGraph: {
     title: "Citizenship Eligibility Check (Free) | Interactive Assessment",
     description:
       "Explore citizenship by investment, by descent, or via residency-to-naturalization. Instant results + downloadable summary.",
-    url: "/citizenship/eligibility-check",
+    url: "https://www.xiphiasimmigration.com/citizenship/eligibility-check",
+    siteName: "XIPHIAS Immigration",
+    locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Citizenship Eligibility Check – XIPHIAS Immigration",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Citizenship Eligibility Check (Free) | Interactive Assessment",
     description:
       "Explore citizenship by investment, by descent, or via residency-to-naturalization. Instant results + downloadable summary.",
+    images: ["/og.jpg"],
   },
   robots: { index: true, follow: true },
 };

@@ -14,28 +14,34 @@ import {
 } from "@/lib/skilled-content";
 import { baseFromCategory, pickSectionKey } from "@/lib/section-helpers";
 
-import MediaHero from "@/components/Skilled/MediaHero";
-import ProgramQuickNav from "@/components/Residency/ProgramQuickNav";
-import ProcessTimeline from "@/components/Residency/ProcessTimeline";
-import FAQAccordion from "@/components/Residency/FAQAccordion";
-import ContactForm from "@/components/ContactForm";
-import SocialProof from "@/components/Residency/SocialProof";
-import Breadcrumb from "@/components/Common/Breadcrumb";
 import { Prose } from "@/components/ui/Prose";
 import { JsonLd, breadcrumbLd, faqLd } from "@/lib/seo";
 
-/* —— Skilled-specific blocks —— */
-import LanguageRequirements from "@/components/Skilled/LanguageRequirements";
-import OccupationLists from "@/components/Skilled/OccupationLists";
-import PointsGridTable from "@/components/Skilled/PointsGridTable";
-import Overoffer from "@/components/Skilled/Overoffer";
-import TestimonialCarousel from "@/components/Skilled/TestimonialCarousel";
+// Dynamically import heavy UI sections to reduce the main bundle size.
+// Using next/dynamic helps lower Total Blocking Time and improves
+// Lighthouse performance【330944343751455†L23-L112】.
+import nextDynamic from "next/dynamic";
 
-/* —— Shared rich blocks reused from citizenship —— */
-import EligibilityQuickCheck from "@/components/Residency/EligibilityQuickCheck";
-import DocumentChecklist from "@/components/Citizenship/DocumentChecklist";
-import FamilyMatrix from "@/components/Citizenship/FamilyMatrix";
-import GovernmentFees from "@/components/Citizenship/GovernmentFees";
+const MediaHero = nextDynamic(() => import("@/components/Skilled/MediaHero"));
+const ProgramQuickNav = nextDynamic(() => import("@/components/Residency/ProgramQuickNav"));
+const ProcessTimeline = nextDynamic(() => import("@/components/Residency/ProcessTimeline"));
+const FAQAccordion = nextDynamic(() => import("@/components/Residency/FAQAccordion"));
+const ContactForm = nextDynamic(() => import("@/components/ContactForm"));
+const SocialProof = nextDynamic(() => import("@/components/Residency/SocialProof"));
+const Breadcrumb = nextDynamic(() => import("@/components/Common/Breadcrumb"));
+
+// Skilled-specific blocks
+const LanguageRequirements = nextDynamic(() => import("@/components/Skilled/LanguageRequirements"));
+const OccupationLists = nextDynamic(() => import("@/components/Skilled/OccupationLists"));
+const PointsGridTable = nextDynamic(() => import("@/components/Skilled/PointsGridTable"));
+const Overoffer = nextDynamic(() => import("@/components/Skilled/Overoffer"));
+const TestimonialCarousel = nextDynamic(() => import("@/components/Skilled/TestimonialCarousel"));
+
+// Shared rich blocks reused from citizenship
+const EligibilityQuickCheck = nextDynamic(() => import("@/components/Residency/EligibilityQuickCheck"));
+const DocumentChecklist = nextDynamic(() => import("@/components/Citizenship/DocumentChecklist"));
+const FamilyMatrix = nextDynamic(() => import("@/components/Citizenship/FamilyMatrix"));
+const GovernmentFees = nextDynamic(() => import("@/components/Citizenship/GovernmentFees"));
 
 export const revalidate = 86400;
 export const dynamicParams = true;
@@ -77,19 +83,29 @@ export async function generateMetadata(
       (meta as any).seo?.keywords ??
       [title, (meta as any).country ?? params.country, ...tags].join(", ");
 
-    const canonical = `${baseFromCategory("skilled")}/${params.country}/${params.program}`;
+    const canonicalPath = `${baseFromCategory("skilled")}/${params.country}/${params.program}`;
+    const canonicalUrl = `https://www.xiphiasimmigration.com${canonicalPath}`;
 
     return {
       title,
       description,
       keywords,
-      alternates: { canonical },
+      alternates: { canonical: canonicalPath },
       openGraph: {
         title,
         description,
         type: "article",
-        url: canonical,
-        images: [heroImage ?? "/og.jpg"],
+        url: canonicalUrl,
+        siteName: "XIPHIAS Immigration",
+        locale: "en_US",
+        images: [
+          {
+            url: heroImage ?? "/og.jpg",
+            width: 1200,
+            height: 630,
+            alt: `${title} – XIPHIAS Immigration`,
+          },
+        ],
       },
       twitter: {
         card: "summary_large_image",

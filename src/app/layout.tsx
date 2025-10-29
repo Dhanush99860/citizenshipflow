@@ -160,9 +160,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <head>
-        {/* Performance: font preconnects */}
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
         {/* Security/UX */}
         <meta name="referrer" content="strict-origin-when-cross-origin" />
       </head>

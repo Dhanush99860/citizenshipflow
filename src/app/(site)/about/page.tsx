@@ -3,17 +3,22 @@ import type { Metadata } from "next";
 
 // sections
 import HeroAbout from "@/components/about/HeroAbout";
-import Credibility from "@/components/about/Credibility";
-import Services from "@/components/about/Services";
-import WhyUs from "@/components/about/WhyUs";
-import OutcomesHNIs from "@/components/about/OutcomesHNIs";
-import ProgramsSpotlight from "@/components/about/ProgramsSpotlight";
-import PrivateClientDesk from "@/components/about/PrivateClientDesk";
-import CaseStudies from "@/components/about/CaseStudies";
-import Leadership from "@/components/about/Leadership";
-import Timeline from "@/components/about/Timeline";
-import Compliance from "@/components/about/Compliance";
-import FAQ from "@/components/about/FAQ";
+// Dynamically import below-the-fold sections to improve initial load performance.
+// Using next/dynamic splits these components into separate chunks and reduces
+// the main bundle size, which improves Lighthouse performance【330944343751455†L23-L112】.
+import nextDynamic from "next/dynamic";
+
+const Credibility = nextDynamic(() => import("@/components/about/Credibility"));
+const Services = nextDynamic(() => import("@/components/about/Services"));
+const WhyUs = nextDynamic(() => import("@/components/about/WhyUs"));
+const OutcomesHNIs = nextDynamic(() => import("@/components/about/OutcomesHNIs"));
+const ProgramsSpotlight = nextDynamic(() => import("@/components/about/ProgramsSpotlight"));
+const PrivateClientDesk = nextDynamic(() => import("@/components/about/PrivateClientDesk"));
+const CaseStudies = nextDynamic(() => import("@/components/about/CaseStudies"));
+const Leadership = nextDynamic(() => import("@/components/about/Leadership"));
+const Timeline = nextDynamic(() => import("@/components/about/Timeline"));
+const Compliance = nextDynamic(() => import("@/components/about/Compliance"));
+const FAQ = nextDynamic(() => import("@/components/about/FAQ"));
 
 export const metadata: Metadata = {
   title:
@@ -28,7 +33,10 @@ export const metadata: Metadata = {
       "Discover our mission, outcomes, flagship programs, leadership and why global clients choose us.",
     url: "https://www.xiphiasimmigration.com/about",
     siteName: "XIPHIAS Immigration",
-    images: [{ url: "/og/about.jpg", width: 1200, height: 630, alt: "XIPHIAS Immigration" }],
+    locale: "en_US",
+    images: [
+      { url: "/og/about.jpg", width: 1200, height: 630, alt: "XIPHIAS Immigration" },
+    ],
     type: "website",
   },
   robots: { index: true, follow: true },

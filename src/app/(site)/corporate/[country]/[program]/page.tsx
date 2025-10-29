@@ -9,24 +9,30 @@ import {
   loadProgramPageSections,
 } from "@/lib/corporate-content";
 
-import MediaHero from "@/components/Residency/MediaHero";
-import QuickFacts from "@/components/Residency/QuickFacts";
-import ProcessTimeline from "@/components/Residency/ProcessTimeline";
-import FAQAccordion from "@/components/Residency/FAQAccordion";
 import { JsonLd, breadcrumbLd, faqLd } from "@/lib/seo";
-import ContactForm from "@/components/ContactForm";
-import ProgramQuickNav from "@/components/Residency/ProgramQuickNav";
-import Breadcrumb from "@/components/Common/Breadcrumb";
 import { Prose } from "@/components/ui/Prose";
-import EligibilityQuickCheck from "@/components/Residency/EligibilityQuickCheck";
-import SocialProof from "@/components/Residency/SocialProof";
-import GovernmentFees from "@/components/Citizenship/GovernmentFees";
 
-/* 🔥 NEW corporate components */
-import CompanySnapshot from "@/components/Corporate/CompanySnapshot";
-import SponsorshipRules from "@/components/Corporate/SponsorshipRules";
-import PostSetupChecklist from "@/components/Corporate/PostSetupChecklist";
-import AuthorityNotes from "@/components/Corporate/AuthorityNotes";
+// Dynamically import heavier components to reduce initial JS payload.  Using
+// next/dynamic here splits these modules into separate chunks and helps
+// lower Total Blocking Time, which improves Lighthouse performance【330944343751455†L23-L112】.
+import nextDynamic from "next/dynamic";
+
+const MediaHero = nextDynamic(() => import("@/components/Residency/MediaHero"));
+const QuickFacts = nextDynamic(() => import("@/components/Residency/QuickFacts"));
+const ProcessTimeline = nextDynamic(() => import("@/components/Residency/ProcessTimeline"));
+const FAQAccordion = nextDynamic(() => import("@/components/Residency/FAQAccordion"));
+const ContactForm = nextDynamic(() => import("@/components/ContactForm"));
+const ProgramQuickNav = nextDynamic(() => import("@/components/Residency/ProgramQuickNav"));
+const Breadcrumb = nextDynamic(() => import("@/components/Common/Breadcrumb"));
+const EligibilityQuickCheck = nextDynamic(() => import("@/components/Residency/EligibilityQuickCheck"));
+const SocialProof = nextDynamic(() => import("@/components/Residency/SocialProof"));
+const GovernmentFees = nextDynamic(() => import("@/components/Citizenship/GovernmentFees"));
+
+// 🔥 NEW corporate components – dynamically imported
+const CompanySnapshot = nextDynamic(() => import("@/components/Corporate/CompanySnapshot"));
+const SponsorshipRules = nextDynamic(() => import("@/components/Corporate/SponsorshipRules"));
+const PostSetupChecklist = nextDynamic(() => import("@/components/Corporate/PostSetupChecklist"));
+const AuthorityNotes = nextDynamic(() => import("@/components/Corporate/AuthorityNotes"));
 
 /** Cache once/day */
 export const revalidate = 86400;
@@ -59,19 +65,33 @@ export async function generateMetadata(props: {
     const tags: string[] = (meta as any).tags ?? [];
     const keywords =
       (meta as any).seo?.keywords ?? [title, meta.country, ...tags].join(", ");
+    // Build an absolute canonical URL for SEO.  When `metadataBase` is
+    // configured in layout.tsx, relative canonicals will resolve correctly.
+    const canonicalPath = `/corporate/${params.country}/${params.program}`;
+    const canonicalUrl = `https://www.xiphiasimmigration.com${canonicalPath}`;
+
     return {
       title,
       description,
       keywords,
       alternates: {
-        canonical: `/corporate/${params.country}/${params.program}`,
+        canonical: canonicalPath,
       },
       openGraph: {
         title,
         description,
         type: "article",
-        url: `/corporate/${params.country}/${params.program}`,
-        images: [heroImage ?? "/og.jpg"],
+        url: canonicalUrl,
+        siteName: "XIPHIAS Immigration",
+        locale: "en_US",
+        images: [
+          {
+            url: heroImage ?? "/og.jpg",
+            width: 1200,
+            height: 630,
+            alt: `${title} – XIPHIAS Immigration`,
+          },
+        ],
       },
       twitter: {
         card: "summary_large_image",
@@ -413,17 +433,13 @@ export default async function ProgramPage(props: {
               snapshot?.highlights?.length) && (
               <section id="company" className="scroll-mt-28">
                 <CompanySnapshot
-  structure="Free Zone (FZ-LLC)"
-  ownership="100% foreign ownership"
-  office="Flexi-desk (upgradeable)"
-  visaQuota={3}
-  bankReady="Yes (most banks)"
-  zone="IFZA"
-  license="Professional"
-  establishmentCard="Issued"
-  eChannels="Active"
-  highlights={["Digital visas", "Sponsor dependants", "Fast setup"]}
-/>
+                  structure={snapshot?.structure}
+                  ownership={snapshot?.ownership}
+                  office={snapshot?.office}
+                  visaQuota={snapshot?.visaQuota}
+                  bankReady={snapshot?.bankReady}
+                  highlights={snapshot?.highlights}
+                />
 
               </section>
             )}

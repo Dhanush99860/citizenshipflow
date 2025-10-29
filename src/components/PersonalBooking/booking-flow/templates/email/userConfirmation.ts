@@ -6,7 +6,7 @@ export function userConfirmationHtml(args: {
     timeISO: string;
     timezone: string;
     joinUrl?: string;
-    priceINR: string; // e.g. ₹12,500.00
+    priceINR: string; // e.g. ₹25,500.00
   }) {
     const title = "Your Consultation is Confirmed";
     const when = `${new Date(args.dateISO).toLocaleDateString()} at ${args.timeISO} (${args.timezone})`;

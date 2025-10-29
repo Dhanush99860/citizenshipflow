@@ -7,12 +7,14 @@ import {
   type CountryMeta,
 } from "@/lib/corporate-content";
 
-import CorporateHero from "@/components/Corporate/CorporateHero";
-import SkilledOffer from "@/components/Skilled/Overoffer";
-import SkilledTestimonialCarousel from "@/components/Skilled/TestimonialCarousel";
-import InsightsPreview from "@/components/Insights/InsightsPreview";
+import dynamic from "next/dynamic";
+// Dynamically import heavier components to split the bundle and improve performance.
+const CorporateHero = dynamic(() => import("@/components/Corporate/CorporateHero"));
+const SkilledOffer = dynamic(() => import("@/components/Skilled/Overoffer"));
+const SkilledTestimonialCarousel = dynamic(() => import("@/components/Skilled/TestimonialCarousel"));
+const InsightsPreview = dynamic(() => import("@/components/Insights/InsightsPreview"));
+const CorporateExploreGrid = dynamic(() => import("@/components/Corporate/CorporateExploreGrid"));
 import { JsonLd } from "@/lib/seo";
-import CorporateExploreGrid from "@/components/Corporate/CorporateExploreGrid"; // corporate-ready grid
 
 export const revalidate = 86400;
 
@@ -21,8 +23,30 @@ export const metadata: Metadata = {
   description:
     "Explore corporate routes by country: free zone & mainland company formation, investor/entrepreneur options, employment/work permits, and residence sponsorship. Compare timelines, eligibility, and fees.",
   alternates: { canonical: "/corporate" },
-  openGraph: { images: ["/og.jpg"] },
-  twitter: { images: ["/og.jpg"], card: "summary_large_image" },
+  openGraph: {
+    title: "Corporate Setup & Employment Visas — Countries & Options",
+    description:
+      "Explore corporate routes by country: free zone & mainland company formation, investor/entrepreneur options, employment/work permits, and residence sponsorship. Compare timelines, eligibility, and fees.",
+    url: "https://www.xiphiasimmigration.com/corporate",
+    siteName: "XIPHIAS Immigration",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Corporate Setup & Employment Visas – XIPHIAS Immigration",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Corporate Setup & Employment Visas — Countries & Options",
+    description:
+      "Explore corporate routes by country: free zone & mainland company formation, investor/entrepreneur options, employment/work permits, and residence sponsorship. Compare timelines, eligibility, and fees.",
+    images: ["/og.jpg"],
+  },
 };
 
 /** Server ranker for JSON-LD only (same logic as other verticals) */

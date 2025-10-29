@@ -1,7 +1,43 @@
 // app/(site)/news/page.tsx
 import Link from "next/link";
 import { getAllInsights } from "@/lib/insights-content";
-import InsightsList from "@/components/Insights/InsightsList";
+// Dynamically import the news list to reduce the initial bundle size and improve performance.
+import nextDynamic from "next/dynamic";
+const InsightsList = nextDynamic(() => import("@/components/Insights/InsightsList"));
+
+import type { Metadata } from "next";
+
+// SEO metadata for the news listing page
+export const metadata: Metadata = {
+  title: "News – Immigration News & Updates | XIPHIAS Immigration",
+  description:
+    "Get the latest news and updates on immigration policies, programs and industry trends from XIPHIAS Immigration.",
+  alternates: { canonical: "/news" },
+  openGraph: {
+    title: "News – Immigration News & Updates",
+    description:
+      "Get the latest news and updates on immigration policies, programs and industry trends from XIPHIAS Immigration.",
+    url: "https://www.xiphiasimmigration.com/news",
+    siteName: "XIPHIAS Immigration",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "News – Immigration News & Updates – XIPHIAS Immigration",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "News – Immigration News & Updates",
+    description:
+      "Get the latest news and updates on immigration policies, programs and industry trends from XIPHIAS Immigration.",
+    images: ["/og.jpg"],
+  },
+};
 
 export const revalidate = 86400;
 

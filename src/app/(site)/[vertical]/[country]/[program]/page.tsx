@@ -6,6 +6,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { getAllContentCached } from "@/lib/content";
 import { getRelated } from "@/lib/content/related";
 import type { Vertical, ProgramDoc } from "@/lib/content/types";
+import type { Metadata } from "next";
 import { JsonLd } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -53,6 +54,62 @@ export async function generateStaticParams() {
 }
 
 export const dynamicParams = false;
+
+/**
+ * Generate SEO metadata for MDX program pages.  We derive the title,
+ * description and keywords from the cached ProgramDoc and construct a full
+ * canonical URL and rich Open Graph/Twitter metadata.  If the doc
+ * cannot be found (e.g. during pre-render), we return a fallback title.
+ */
+export async function generateMetadata({ params }: { params: { vertical: Vertical; country: string; program: string } }): Promise<Metadata> {
+  const { vertical, country, program } = params;
+  if (!VERTICALS.includes(vertical)) {
+    return { title: "Program not found" };
+  }
+  const doc = getAllContentCached().find(
+    (d): d is ProgramDoc =>
+      d.kind === "program" &&
+      d.vertical === vertical &&
+      d.country === country &&
+      d.program === program,
+  );
+  if (!doc) {
+    return { title: "Program not found" };
+  }
+  const title = doc.title;
+  const description = doc.summary || `Discover the ${doc.title} program in ${doc.country}.`;
+  const keywords = doc.tags?.join(", ");
+  const canonicalPath = doc.url;
+  const canonicalUrl = `https://www.xiphiasimmigration.com${canonicalPath}`;
+  return {
+    title,
+    description,
+    keywords,
+    alternates: { canonical: canonicalPath },
+    openGraph: {
+      title,
+      description,
+      type: "article",
+      url: canonicalUrl,
+      siteName: "XIPHIAS Immigration",
+      locale: "en_US",
+      images: [
+        {
+          url: doc.heroImage ?? "/og.jpg",
+          width: 1200,
+          height: 630,
+          alt: `${title} – XIPHIAS Immigration`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [doc.heroImage ?? "/og.jpg"],
+    },
+  };
+}
 
 export default async function ProgramPage({
   params,

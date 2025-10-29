@@ -5,19 +5,37 @@ export const metadata: Metadata = {
   title: "Residency Eligibility Check (Free) | Interactive Assessment",
   description:
     "Check your residency eligibility in minutes. Answer a few questions and get instant results plus a personalized PDF report.",
+  keywords: [
+    "residency eligibility check",
+    "residency by investment",
+    "residency by family",
+    "fast-track residency",
+    "global mobility eligibility",
+  ],
   alternates: { canonical: "/residency/eligibility-check" },
   openGraph: {
     title: "Residency Eligibility Check (Free) | Interactive Assessment",
     description:
       "Check your residency eligibility in minutes. Answer a few questions and get instant results plus a personalized PDF report.",
-    url: "/residency/eligibility-check",
+    url: "https://www.xiphiasimmigration.com/residency/eligibility-check",
+    siteName: "XIPHIAS Immigration",
+    locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Residency Eligibility Check – XIPHIAS Immigration",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Residency Eligibility Check (Free) | Interactive Assessment",
     description:
       "Check your residency eligibility in minutes. Answer a few questions and get instant results plus a personalized PDF report.",
+    images: ["/og.jpg"],
   },
   robots: { index: true, follow: true },
 };

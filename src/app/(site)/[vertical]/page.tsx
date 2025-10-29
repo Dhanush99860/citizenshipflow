@@ -1,5 +1,6 @@
 // src/app/(site)/[vertical]/page.tsx
 import { getAllContentCached } from "@/lib/content";
+import type { Metadata } from "next";
 import type { Vertical, ProgramDoc } from "@/lib/content/types";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -57,4 +58,52 @@ export default function VerticalPage({ params }: { params: { vertical: Vertical 
       )}
     </main>
   );
+}
+
+/**
+ * Generate page-level metadata for each vertical listing page.  We derive
+ * a descriptive title and description based on the selected vertical and
+ * construct rich Open Graph and Twitter metadata.  The canonical URL is
+ * relative to the site root; it is resolved against `metadataBase` in
+ * layout.tsx.  Including explicit width/height in the Open Graph image
+ * helps Lighthouse SEO scoring.
+ */
+export async function generateMetadata({ params }: { params: { vertical: Vertical } }): Promise<Metadata> {
+  const { vertical } = params;
+  // Return 404 metadata if the vertical isn't recognized
+  if (!VERTICALS.includes(vertical)) {
+    return { title: "Not found" };
+  }
+  const capVertical = vertical.charAt(0).toUpperCase() + vertical.slice(1);
+  const title = `${capVertical} Programs by Country`;
+  const description = `Browse our ${vertical} programs by country. Compare options and find the right path.`;
+  const canonicalPath = `/${vertical}`;
+  const canonicalUrl = `https://www.xiphiasimmigration.com${canonicalPath}`;
+  return {
+    title,
+    description,
+    alternates: { canonical: canonicalPath },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: "XIPHIAS Immigration",
+      locale: "en_US",
+      type: "website",
+      images: [
+        {
+          url: "/og.jpg",
+          width: 1200,
+          height: 630,
+          alt: `${title} – XIPHIAS Immigration`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/og.jpg"],
+    },
+  };
 }

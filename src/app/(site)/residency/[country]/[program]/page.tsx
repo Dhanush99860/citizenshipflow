@@ -9,19 +9,24 @@ import {
   getResidencyPrograms,
   loadProgramPageSections,
 } from "@/lib/residency-content";
-import MediaHero from "@/components/Residency/MediaHero";
-import QuickFacts from "@/components/Residency/QuickFacts";
-import ProcessTimeline from "@/components/Residency/ProcessTimeline";
-import FAQAccordion from "@/components/Residency/FAQAccordion";
+// Dynamically import heavy UI components to reduce the initial bundle size and
+// improve Total Blocking Time. Static imports for SEO utilities and MDX Prose
+// remain since they are lightweight.
+import nextDynamic from "next/dynamic";
+const MediaHero = nextDynamic(() => import("@/components/Residency/MediaHero"));
+const QuickFacts = nextDynamic(() => import("@/components/Residency/QuickFacts"));
+const ProcessTimeline = nextDynamic(() => import("@/components/Residency/ProcessTimeline"));
+const FAQAccordion = nextDynamic(() => import("@/components/Residency/FAQAccordion"));
 import { JsonLd, breadcrumbLd, faqLd } from "@/lib/seo";
-import ContactForm from "@/components/ContactForm";
-import ProgramQuickNav from "@/components/Residency/ProgramQuickNav";
-import Breadcrumb from "@/components/Common/Breadcrumb";
+const ContactForm = nextDynamic(() => import("@/components/ContactForm"));
+const ProgramQuickNav = nextDynamic(() => import("@/components/Residency/ProgramQuickNav"));
+const Breadcrumb = nextDynamic(() => import("@/components/Common/Breadcrumb"));
 import { Prose } from "@/components/ui/Prose";
-import EligibilityQuickCheck from "@/components/Residency/EligibilityQuickCheck";
-import SocialProof from "@/components/Residency/SocialProof";
-import Prices from "@/components/Residency/Prices";
-import RiskCompliance from "@/components/Citizenship/RiskCompliance";
+const EligibilityQuickCheck = nextDynamic(() => import("@/components/Residency/EligibilityQuickCheck"));
+const SocialProof = nextDynamic(() => import("@/components/Residency/SocialProof"));
+const Prices = nextDynamic(() => import("@/components/Residency/Prices"));
+// RiskCompliance is not used on residency pages; remove unused import to
+// reduce bundle size.
 /** Cache once/day */
 export const revalidate = 86400;
 export const dynamicParams = true;
@@ -53,19 +58,30 @@ export async function generateMetadata(props: {
     const tags: string[] = (meta as any).tags ?? [];
     const keywords =
       (meta as any).seo?.keywords ?? [title, meta.country, ...tags].join(", ");
+    const canonicalPath = `/residency/${params.country}/${params.program}`;
+    const absoluteUrl = `https://www.xiphiasimmigration.com${canonicalPath}`;
     return {
       title,
       description,
       keywords,
       alternates: {
-        canonical: `/residency/${params.country}/${params.program}`,
+        canonical: canonicalPath,
       },
       openGraph: {
         title,
         description,
         type: "article",
-        url: `/residency/${params.country}/${params.program}`,
-        images: [heroImage ?? "/og.jpg"],
+        url: absoluteUrl,
+        siteName: "XIPHIAS Immigration",
+        locale: "en_US",
+        images: [
+          {
+            url: heroImage ?? "/og.jpg",
+            width: 1200,
+            height: 630,
+            alt: `${title} – XIPHIAS Immigration`,
+          },
+        ],
       },
       twitter: {
         card: "summary_large_image",

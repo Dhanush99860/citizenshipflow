@@ -53,7 +53,7 @@ export default function PlanStep({
           active={value === "free"}
           value="free"
           title="Free Discovery Call"
-          subtitle="Understand fit, timelines & next steps"
+          subtitle="Understand fit, timelines & next steps (Team)"
           badge="Quick intro"
           price="₹0"
           duration="15m"
@@ -63,10 +63,10 @@ export default function PlanStep({
           active={value === "paid"}
           value="paid"
           title="Strategy Consultation"
-          subtitle="Senior advisor deep-dive & action plan"
+          subtitle="Senior advisor deep-dive & action plan (Varun Singh .  Fellow, IMC)"
           badge="Most thorough"
-          price="₹12,500"
-          duration="60m"
+          price="₹25,500"
+          duration="90m"
           onSelectAction={() => onChangePlanAction("paid")}
         />
       </div>
@@ -76,7 +76,7 @@ export default function PlanStep({
         <div className="text-zinc-800 dark:text-zinc-200">
           Selected:&nbsp;
           <strong className="text-zinc-950 dark:text-white">
-            {isPaid ? "Paid (60m)" : "Free (15m)"}
+            {isPaid ? "Paid (90m)" : "Free (15m)"}
           </strong>
           <span className="ml-2 text-zinc-500 dark:text-zinc-400">·</span>
           <span className="ml-2 text-zinc-700 dark:text-zinc-300">Duration {displayDur}</span>

@@ -7,21 +7,24 @@ import {
   getResidencyCountries,
 } from "@/lib/residency-content";
 import { JsonLd, breadcrumbLd } from "@/lib/seo";
-import MediaHero from "@/components/Residency/MediaHero";
-import ContactForm from "@/components/ContactForm";
-import Breadcrumb from "@/components/Common/Breadcrumb";
+// Dynamically import heavy UI sections.  Splitting these into separate
+// chunks reduces initial JS payload and improves Lighthouse performance【330944343751455†L23-L112】.
+import nextDynamic from "next/dynamic";
+const MediaHero = nextDynamic(() => import("@/components/Residency/MediaHero"));
+const ContactForm = nextDynamic(() => import("@/components/ContactForm"));
+const Breadcrumb = nextDynamic(() => import("@/components/Common/Breadcrumb"));
 
 /* New modular sections */
-import SidebarStatsPanel from "@/components/Residency/Country/SidebarStatsPanel";
-import SidebarProgramsList from "@/components/Residency/Country/SidebarProgramsList";
-import SidebarHighlights from "@/components/Residency/Country/SidebarHighlights";
-import AboutCountrySection from "@/components/Residency/Country/AboutCountrySection";
-import WhyCountrySection from "@/components/Residency/Country/WhyCountrySection";
-import ProcessSteps from "@/components/Residency/Country/ProcessSteps";
-import EligibilityRequirements from "@/components/Residency/Country/EligibilityRequirements";
-import FAQSection from "@/components/Residency/Country/FAQSection";
-import MDXDetailsSection from "@/components/Residency/Country/MDXDetailsSection";
-import RelatedCountriesSection from "@/components/Residency/Country/RelatedCountriesSection";
+const SidebarStatsPanel = nextDynamic(() => import("@/components/Residency/Country/SidebarStatsPanel"));
+const SidebarProgramsList = nextDynamic(() => import("@/components/Residency/Country/SidebarProgramsList"));
+const SidebarHighlights = nextDynamic(() => import("@/components/Residency/Country/SidebarHighlights"));
+const AboutCountrySection = nextDynamic(() => import("@/components/Residency/Country/AboutCountrySection"));
+const WhyCountrySection = nextDynamic(() => import("@/components/Residency/Country/WhyCountrySection"));
+const ProcessSteps = nextDynamic(() => import("@/components/Residency/Country/ProcessSteps"));
+const EligibilityRequirements = nextDynamic(() => import("@/components/Residency/Country/EligibilityRequirements"));
+const FAQSection = nextDynamic(() => import("@/components/Residency/Country/FAQSection"));
+const MDXDetailsSection = nextDynamic(() => import("@/components/Residency/Country/MDXDetailsSection"));
+const RelatedCountriesSection = nextDynamic(() => import("@/components/Residency/Country/RelatedCountriesSection"));
 
 // Only include what you actually need. Examples:
 export const runtime = "nodejs"; // or 'edge'
@@ -45,12 +48,33 @@ export async function generateMetadata(props: {
   const description = (meta as any).seo?.description ?? meta.summary;
   const keywords = (meta as any).seo?.keywords as string[] | undefined;
 
+  // Build canonical and absolute URLs for SEO.  Using the full domain in
+  // openGraph.url helps search engines and social platforms generate rich
+  // previews.
+  const canonicalPath = `/residency/${params.country}`;
+  const absoluteUrl = `https://www.xiphiasimmigration.com${canonicalPath}`;
+
   return {
     title,
     description,
     keywords,
-    alternates: { canonical: `/residency/${params.country}` },
-    openGraph: { title, description, images: [heroImage ?? "/og.jpg"] },
+    alternates: { canonical: canonicalPath },
+    openGraph: {
+      title,
+      description,
+      url: absoluteUrl,
+      siteName: "XIPHIAS Immigration",
+      locale: "en_US",
+      type: "website",
+      images: [
+        {
+          url: heroImage ?? "/og.jpg",
+          width: 1200,
+          height: 630,
+          alt: `${title} – XIPHIAS Immigration`,
+        },
+      ],
+    },
     twitter: {
       card: "summary_large_image",
       title,

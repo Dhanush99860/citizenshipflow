@@ -7,8 +7,8 @@ const Platform = () => {
       {/* Background image */}
       <div className="absolute inset-0 -z-10" aria-hidden="true">
         <Image
-          src="/images/hero/silhouettes.webp"
-          alt="Global Immigration Solutions Background"
+          src="/images/hero/top-immigration-counsultent.webp"
+          alt="XIPHIAS Immigration"
           fill
           className="object-cover object-center"
           priority

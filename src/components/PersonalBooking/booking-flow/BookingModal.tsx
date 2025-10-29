@@ -20,7 +20,7 @@ type Props = {
   defaultTimezone: string;
 };
 
-const paidDefaults = { durationMin: 60, priceCents: 1250000 }; // ₹12,500
+const paidDefaults = { durationMin: 90, priceCents: 2550000 }; // ₹25,500
 const freeDefaults = { durationMin: 15, priceCents: 0 };
 
 type Step = "plan" | "calendar" | "details" | "review" | "done";

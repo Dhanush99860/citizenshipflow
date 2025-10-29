@@ -2,8 +2,20 @@ import * as React from "react";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import Script from "next/script";
-import Flow from "./Flow";
-import EligibilityHero from "@/components/Eligibility/EligibilityHero";
+// Dynamically import heavy client components to reduce initial JavaScript and improve
+// Lighthouse performance scores. We explicitly select the default export because
+// some modules may not provide a default; this avoids passing the entire module object
+// to the client component (see awards page issue)【709169303420970†screenshot】.
+import nextDynamic from "next/dynamic";
+
+// Lazy-load the interactive eligibility flow; it’s a client component with heavy logic.
+const FlowComponent = nextDynamic(() => import("./Flow").then((mod) => mod.default));
+
+// Lazy-load the hero section. It contains decorative backgrounds and feature chips that aren’t critical
+// for the first paint, so loading it asynchronously reduces the main bundle size.
+const EligibilityHeroDynamic = nextDynamic(() =>
+  import("@/components/Eligibility/EligibilityHero").then((mod) => mod.default)
+);
 
 /* ── SEO ─────────────────────────────────────────────────────────────── */
 export const metadata: Metadata = {
@@ -11,7 +23,40 @@ export const metadata: Metadata = {
     "Free Immigration Eligibility Check | Residency • Citizenship • Corporate • Skilled",
   description:
     "Interactive global eligibility quiz. Answer a few smart questions and get instant results plus a personalized PDF by email.",
+  keywords: [
+    "eligibility check",
+    "residency eligibility",
+    "citizenship eligibility",
+    "corporate visa eligibility",
+    "skilled migration eligibility",
+  ],
   alternates: { canonical: "/eligibility" },
+  openGraph: {
+    title:
+      "Free Immigration Eligibility Check | Residency • Citizenship • Corporate • Skilled",
+    description:
+      "Interactive global eligibility quiz. Answer a few smart questions and get instant results plus a personalized PDF by email.",
+    url: "https://www.xiphiasimmigration.com/eligibility",
+    siteName: "XIPHIAS Immigration",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Free Immigration Eligibility Check – XIPHIAS Immigration",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title:
+      "Free Immigration Eligibility Check | Residency • Citizenship • Corporate • Skilled",
+    description:
+      "Answer a few smart questions and get instant eligibility results plus a personalized PDF.",
+    images: ["/og.jpg"],
+  },
 };
 
 /** Ensure this page is rendered dynamically (avoids SSG + searchParams bailouts) */
@@ -156,9 +201,9 @@ export default function EligibilityPage() {
       <main className="bg-white text-black dark:bg-black dark:text-white">
         {/* Single container wrapper */}
         <section className="container mx-auto lg:max-w-screen-2xl px-3 sm:px-4">
-          {/* HERO */}
+          {/* HERO (dynamically imported) */}
           <section className="py-6 text-center">
-            <EligibilityHero />
+            <EligibilityHeroDynamic />
           </section>
 
           {/* FLOW frame */}
@@ -193,7 +238,7 @@ export default function EligibilityPage() {
                         </div>
                       }
                     >
-                      <Flow />
+                      <FlowComponent />
                     </Suspense>
                   </div>
                 </div>
