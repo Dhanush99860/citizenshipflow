@@ -7,18 +7,14 @@ import { notFound } from "next/navigation";
 
 const VERTICALS: Vertical[] = ["residency", "citizenship", "skilled", "corporate"];
 
-type RouteParams = { vertical: Vertical };
-
 export function generateStaticParams() {
   return VERTICALS.map((v) => ({ vertical: v }));
 }
 
 export const dynamicParams = false;
 
-export default async function VerticalPage(
-  { params }: { params: Promise<RouteParams> }
-) {
-  const { vertical } = await params;
+export default function VerticalPage({ params }: { params: { vertical: Vertical } }) {
+  const { vertical } = params;
 
   // Hard guard (keeps Vercel build logs clean)
   if (!VERTICALS.includes(vertical)) return notFound();
@@ -64,12 +60,17 @@ export default async function VerticalPage(
   );
 }
 
-/** Metadata for a vertical landing page */
-export async function generateMetadata(
-  { params }: { params: Promise<RouteParams> }
-): Promise<Metadata> {
-  const { vertical } = await params;
-
+/**
+ * Generate page-level metadata for each vertical listing page.  We derive
+ * a descriptive title and description based on the selected vertical and
+ * construct rich Open Graph and Twitter metadata.  The canonical URL is
+ * relative to the site root; it is resolved against `metadataBase` in
+ * layout.tsx.  Including explicit width/height in the Open Graph image
+ * helps Lighthouse SEO scoring.
+ */
+export async function generateMetadata({ params }: { params: { vertical: Vertical } }): Promise<Metadata> {
+  const { vertical } = params;
+  // Return 404 metadata if the vertical isn't recognized
   if (!VERTICALS.includes(vertical)) {
     return { title: "Not found" };
   }
@@ -78,7 +79,6 @@ export async function generateMetadata(
   const description = `Browse our ${vertical} programs by country. Compare options and find the right path.`;
   const canonicalPath = `/${vertical}`;
   const canonicalUrl = `https://www.xiphiasimmigration.com${canonicalPath}`;
-
   return {
     title,
     description,

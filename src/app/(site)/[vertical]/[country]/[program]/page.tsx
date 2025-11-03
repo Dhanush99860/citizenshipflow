@@ -16,8 +16,6 @@ import path from "node:path";
 
 const VERTICALS: Vertical[] = ["residency", "citizenship", "skilled", "corporate"];
 
-type RouteParams = { vertical: Vertical; country: string; program: string };
-
 /** Build params ONLY from folder names; ignore front-matter completely. */
 export async function generateStaticParams() {
   const root = path.join(process.cwd(), "content");
@@ -58,31 +56,31 @@ export async function generateStaticParams() {
 export const dynamicParams = false;
 
 /**
- * Generate SEO metadata for MDX program pages.
+ * Generate SEO metadata for MDX program pages.  We derive the title,
+ * description and keywords from the cached ProgramDoc and construct a full
+ * canonical URL and rich Open Graph/Twitter metadata.  If the doc
+ * cannot be found (e.g. during pre-render), we return a fallback title.
  */
-export async function generateMetadata(
-  { params }: { params: Promise<RouteParams> }
-): Promise<Metadata> {
-  const { vertical, country, program } = await params;
-
-  if (!VERTICALS.includes(vertical)) return { title: "Program not found" };
-
+export async function generateMetadata({ params }: { params: { vertical: Vertical; country: string; program: string } }): Promise<Metadata> {
+  const { vertical, country, program } = params;
+  if (!VERTICALS.includes(vertical)) {
+    return { title: "Program not found" };
+  }
   const doc = getAllContentCached().find(
     (d): d is ProgramDoc =>
       d.kind === "program" &&
       d.vertical === vertical &&
       d.country === country &&
-      d.program === program
+      d.program === program,
   );
-
-  if (!doc) return { title: "Program not found" };
-
+  if (!doc) {
+    return { title: "Program not found" };
+  }
   const title = doc.title;
   const description = doc.summary || `Discover the ${doc.title} program in ${doc.country}.`;
   const keywords = doc.tags?.join(", ");
   const canonicalPath = doc.url;
   const canonicalUrl = `https://www.xiphiasimmigration.com${canonicalPath}`;
-
   return {
     title,
     description,
@@ -113,10 +111,12 @@ export async function generateMetadata(
   };
 }
 
-export default async function ProgramPage(
-  { params }: { params: Promise<RouteParams> }
-) {
-  const { vertical, country, program } = await params;
+export default async function ProgramPage({
+  params,
+}: {
+  params: { vertical: Vertical; country: string; program: string };
+}) {
+  const { vertical, country, program } = params;
 
   if (!VERTICALS.includes(vertical) || !country || !program) return notFound();
 

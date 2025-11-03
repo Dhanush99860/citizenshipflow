@@ -1,4 +1,4 @@
-// src/app/(site)/[vertical]/[country]/page.tsx
+// src/app/(site)/[vertical]/page.tsx
 import { getAllContentCached } from "@/lib/content";
 import type { Metadata } from "next";
 import type { Vertical, ProgramDoc } from "@/lib/content/types";
@@ -7,86 +7,76 @@ import { notFound } from "next/navigation";
 
 const VERTICALS: Vertical[] = ["residency", "citizenship", "skilled", "corporate"];
 
-type RouteParams = { vertical: Vertical; country: string };
-
-export async function generateStaticParams() {
-  const docs = getAllContentCached().filter(
-    (d): d is ProgramDoc => d.kind === "program"
-  );
-
-  const seen = new Set<string>();
-  const out: Array<{ vertical: string; country: string }> = [];
-
-  for (const d of docs) {
-    if (!d.vertical || !d.country) continue;
-    const key = `${d.vertical}|${d.country}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push({ vertical: d.vertical, country: d.country });
-  }
-
-  return out;
+export function generateStaticParams() {
+  return VERTICALS.map((v) => ({ vertical: v }));
 }
 
 export const dynamicParams = false;
 
-export default async function CountryPage(
-  { params }: { params: Promise<RouteParams> }
-) {
-  const { vertical, country } = await params;
+export default function VerticalPage({ params }: { params: { vertical: Vertical } }) {
+  const { vertical } = params;
 
-  if (!VERTICALS.includes(vertical) || !country) return notFound();
+  // Extra guard (shouldn’t hit with dynamicParams=false, but keeps Vercel logs clean)
+  if (!VERTICALS.includes(vertical)) return notFound();
 
   const docs = getAllContentCached();
+
+  // Narrow AnyDoc -> ProgramDoc
   const programs = docs.filter(
-    (d): d is ProgramDoc =>
-      d.kind === "program" && d.vertical === vertical && d.country === country
+    (d): d is ProgramDoc => d.kind === "program" && d.vertical === vertical
   );
 
-  if (programs.length === 0) return notFound();
+  // Aggregate counts by country
+  const byCountry = new Map<string, number>();
+  for (const p of programs) {
+    if (!p.country) continue; // safety
+    byCountry.set(p.country, (byCountry.get(p.country) ?? 0) + 1);
+  }
+
+  const countries = [...byCountry.entries()].sort((a, b) =>
+    a[0].localeCompare(b[0])
+  );
 
   return (
     <main className="mx-auto max-w-6xl space-y-6 p-6">
-      <h1 className="text-3xl font-semibold capitalize">
-        {country} – {vertical}
-      </h1>
+      <h1 className="text-3xl font-semibold capitalize">{vertical}</h1>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {programs.map((p) => {
-          const subtitle = p.tagline ?? p.summary; // ✅ safe fallback
-          return (
+      {countries.length === 0 ? (
+        <p className="text-neutral-600">No programs available yet.</p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {countries.map(([country, count]) => (
             <Link
-              key={p.url /* ensures uniqueness */}
-              href={p.url}
+              key={country}
+              href={`/${vertical}/${country}`}
               className="rounded-2xl border p-5 transition hover:bg-gray-50"
             >
-              <div className="text-lg font-medium">{p.title}</div>
-              {subtitle && <div className="text-sm opacity-70">{subtitle}</div>}
+              <div className="text-xl font-medium capitalize">{country}</div>
+              <div className="text-sm opacity-70">{count} programs</div>
             </Link>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
     </main>
   );
 }
 
-/** Metadata for a specific vertical + country listing */
-export async function generateMetadata(
-  { params }: { params: Promise<RouteParams> }
-): Promise<Metadata> {
-  const { vertical, country } = await params;
-
+/**
+ * Generate metadata for dynamic vertical pages.  The title and description
+ * reflect the specific vertical and country being viewed.  This function
+ * constructs Open Graph and Twitter metadata with an explicit canonical URL.
+ */
+export async function generateMetadata({ params }: { params: { vertical: Vertical; country: string } }): Promise<Metadata> {
+  const { vertical, country } = params;
   if (!VERTICALS.includes(vertical) || !country) {
     return { title: "Not found" };
   }
-
   const capVertical = vertical.charAt(0).toUpperCase() + vertical.slice(1);
   const capCountry = country.charAt(0).toUpperCase() + country.slice(1);
   const title = `${capCountry} – ${capVertical} Programs`;
   const description = `Discover ${vertical} programs available in ${capCountry}. Compare your options and find the right path.`;
   const canonicalPath = `/${vertical}/${country}`;
   const canonicalUrl = `https://www.xiphiasimmigration.com${canonicalPath}`;
-
   return {
     title,
     description,
