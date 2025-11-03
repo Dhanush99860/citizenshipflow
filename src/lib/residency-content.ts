@@ -10,7 +10,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import type { ReactNode } from "react";
 
 /* =========================
- * Types (compatible superset of your current usage)
+ * Types
  * =======================*/
 export type CountryMeta = {
   title: string;
@@ -82,7 +82,6 @@ export type ProgramMeta = {
   draft?: boolean;
 };
 
-/** Sections map returned by loadProgramPageSections */
 export type ProgramSections = Record<string, ReactNode>;
 
 /* =========================
@@ -107,18 +106,17 @@ const toTitle = (slug: string) =>
 
 const coerceNum = (v: unknown): number | undefined => {
   if (typeof v === "number") return v;
-  if (typeof v === "string" && v.trim() !== "" && !isNaN(Number(v)))
-    return Number(v);
+  if (typeof v === "string" && v.trim() !== "" && !isNaN(Number(v))) return Number(v);
   return undefined;
 };
 
-/** MDX options — NOTE: no `as const` so arrays aren't readonly */
+/** MDX options */
 const baseMdxOptions = {
   remarkPlugins: [remarkGfm],
   rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: "wrap" }]],
 };
 
-/** slugify section titles, e.g. "Why Choose Us?" -> "why-choose-us" */
+/** slugify section titles */
 function slugify(h: string) {
   return h
     .toLowerCase()
@@ -128,43 +126,49 @@ function slugify(h: string) {
     .replace(/\s+/g, "-");
 }
 
-/** Split MDX body by top-level `###` headings.
- *  - Keeps the `<h3>` line in each part so headings still render.
- *  - Deduplicates equal headings by suffixing `-2`, `-3`, ...
- **/
-function splitByH3(md: string): Record<string, string> {
+/**
+ * Split MDX by H2/H3 headings into named sections.
+ * - Supports "##" and "###".
+ * - Does NOT include the heading line inside the section to avoid
+ *   duplicating the UI wrapper titles.
+ * - Any content before the first heading becomes "overview".
+ * - Deduplicates equal headings by suffixing -2, -3, ...
+ */
+function splitByHeadings(md: string): Record<string, string> {
   const lines = md.split(/\r?\n/);
   const out: Record<string, string> = {};
-  let current: string | null = null;
+  let current = "overview";
   let buf: string[] = [];
   const counts = new Map<string, number>();
 
-  const nextKey = (base: string) => {
+  const nextKey = (raw: string) => {
+    const base = slugify(raw);
     const n = (counts.get(base) || 0) + 1;
     counts.set(base, n);
     return n === 1 ? base : `${base}-${n}`;
   };
 
   const flush = () => {
-    if (current) out[current] = buf.join("\n").trim();
+    const content = buf.join("\n").trim();
+    if (content) out[current] = content;
     buf = [];
   };
 
   for (const line of lines) {
-    const m = /^###\s+(.+?)\s*$/.exec(line);
+    const m = /^#{2,3}\s+(.+?)\s*$/.exec(line); // H2 or H3
     if (m) {
       flush();
-      current = nextKey(slugify(m[1]));
-      buf.push(line);
+      current = nextKey(m[1]);
+      // skip adding the heading line itself to prevent duplicate titles
     } else {
-      if (!current) {
-        current = nextKey("overview");
-        buf.push("### Overview");
-      }
       buf.push(line);
     }
   }
   flush();
+
+  // Guarantee an overview key exists (even if empty)
+  if (!("overview" in out)) out.overview = "";
+
   return out;
 }
 
@@ -177,8 +181,7 @@ type Cache = {
   mtimes?: Map<string, number>;
 };
 const _g = globalThis as any;
-if (!_g.__RESIDENCY_CACHE__)
-  _g.__RESIDENCY_CACHE__ = { mtimes: new Map() } as Cache;
+if (!_g.__RESIDENCY_CACHE__) _g.__RESIDENCY_CACHE__ = { mtimes: new Map() } as Cache;
 const CACHE: Cache = _g.__RESIDENCY_CACHE__;
 
 function mtime(file: string) {
@@ -202,15 +205,10 @@ function touchCacheForDir(dir: string) {
 /* =========================
  * Normalizers
  * =======================*/
-function normalizeCountry(
-  meta: Partial<CountryMeta>,
-  slug: string,
-): CountryMeta {
+function normalizeCountry(meta: Partial<CountryMeta>, slug: string): CountryMeta {
   const countrySlug = meta.countrySlug || slug;
   const country = meta.country || meta.title || toTitle(countrySlug);
-  const title =
-    meta.title ||
-    (typeof country === "string" ? country : toTitle(countrySlug));
+  const title = meta.title || (typeof country === "string" ? country : toTitle(countrySlug));
   const heroImage = meta.heroImage || `/images/${countrySlug}.jpg`;
   return {
     ...meta,
@@ -228,13 +226,16 @@ function normalizeProgram(
   pSlug: string,
 ): ProgramMeta {
   const meta: any = { ...metaIn };
+
+  // tolerate misspellings from content (e.g., "procesSteps")
+  if (meta.procesSteps && !meta.processSteps) meta.processSteps = meta.procesSteps;
+
   meta.programSlug = meta.programSlug || pSlug;
   meta.countrySlug = meta.countrySlug || cSlug;
   meta.category = "residency";
-  if (meta.minInvestment !== undefined)
-    meta.minInvestment = coerceNum(meta.minInvestment);
-  if (meta.timelineMonths !== undefined)
-    meta.timelineMonths = coerceNum(meta.timelineMonths);
+
+  if (meta.minInvestment !== undefined) meta.minInvestment = coerceNum(meta.minInvestment);
+  if (meta.timelineMonths !== undefined) meta.timelineMonths = coerceNum(meta.timelineMonths);
 
   if (Array.isArray(meta.prices)) {
     meta.prices = meta.prices.map((row: any) => ({
@@ -262,12 +263,10 @@ export function getResidencyCountrySlugs(): string[] {
   if (CACHE.countries && CACHE.mtimes?.get(cacheKey) === dirMtime) {
     return CACHE.countries.map((c) => c.countrySlug);
   }
-
   const slugs = fs
     .readdirSync(ROOT, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => d.name);
-
   CACHE.mtimes?.set(cacheKey, dirMtime);
   return slugs;
 }
@@ -282,11 +281,9 @@ export function getResidencyCountries(): CountryMeta[] {
   }
 
   const out: CountryMeta[] = [];
-
   for (const slug of getResidencyCountrySlugs()) {
     const file = path.join(ROOT, slug, "_country.mdx");
     if (!exists(file)) continue;
-
     const { data } = matter(fs.readFileSync(file, "utf8"));
     const meta = normalizeCountry(data as Partial<CountryMeta>, slug);
     if (!meta.draft) out.push(meta);
@@ -309,16 +306,11 @@ export function getResidencyProgramSlugs(countrySlug: string): string[] {
 }
 
 export function getResidencyPrograms(countrySlug?: string): ProgramMeta[] {
-  // Use cache of all programs if no country filter
   const dirMtime = touchCacheForDir(ROOT);
   const cacheKey = `${ROOT}::programsAll`;
   const cacheStamp = `${ROOT}::programs_dir_mtime`;
 
-  if (
-    !countrySlug &&
-    CACHE.programsAll &&
-    CACHE.mtimes?.get(cacheStamp) === dirMtime
-  ) {
+  if (!countrySlug && CACHE.programsAll && CACHE.mtimes?.get(cacheStamp) === dirMtime) {
     return CACHE.programsAll;
   }
 
@@ -353,42 +345,26 @@ export async function loadCountryPage(countrySlug: string) {
   const source = fs.readFileSync(f, "utf8");
   const { content, frontmatter } = await compileMDX<CountryMeta>({
     source,
-    options: {
-      parseFrontmatter: true,
-      mdxOptions: baseMdxOptions as any,
-    },
+    options: { parseFrontmatter: true, mdxOptions: baseMdxOptions as any },
   });
 
-  const meta = normalizeCountry(
-    frontmatter as Partial<CountryMeta>,
-    countrySlug,
-  );
+  const meta = normalizeCountry(frontmatter as Partial<CountryMeta>, countrySlug);
   return { content, meta };
 }
 
-export async function loadProgramPage(
-  countrySlug: string,
-  programSlug: string,
-) {
+export async function loadProgramPage(countrySlug: string, programSlug: string) {
   const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
   const source = fs.readFileSync(f, "utf8");
   const { content, frontmatter } = await compileMDX<ProgramMeta>({
     source,
-    options: {
-      parseFrontmatter: true,
-      mdxOptions: baseMdxOptions as any,
-    },
+    options: { parseFrontmatter: true, mdxOptions: baseMdxOptions as any },
   });
 
-  const meta = normalizeProgram(
-    frontmatter as Partial<ProgramMeta>,
-    countrySlug,
-    programSlug,
-  );
+  const meta = normalizeProgram(frontmatter as Partial<ProgramMeta>, countrySlug, programSlug);
   return { content, meta };
 }
 
-/* ========= Section-by-section renderer (non-breaking) ========= */
+/* ========= Section-by-section renderer ========= */
 export async function loadProgramPageSections(
   countrySlug: string,
   programSlug: string,
@@ -397,21 +373,14 @@ export async function loadProgramPageSections(
   const raw = fs.readFileSync(f, "utf8");
   const { data, content: body } = matter(raw);
 
-  const meta = normalizeProgram(
-    data as Partial<ProgramMeta>,
-    countrySlug,
-    programSlug,
-  );
-  const chunks = splitByH3(body);
+  const meta = normalizeProgram(data as Partial<ProgramMeta>, countrySlug, programSlug);
+  const chunks = splitByHeadings(body);
 
   const entries = await Promise.all(
     Object.entries(chunks).map(async ([key, md]) => {
       const { content } = await compileMDX({
         source: md,
-        options: {
-          parseFrontmatter: false,
-          mdxOptions: baseMdxOptions as any,
-        },
+        options: { parseFrontmatter: false, mdxOptions: baseMdxOptions as any },
       });
       return [key, content] as const;
     }),
@@ -424,17 +393,10 @@ export async function loadProgramPageSections(
 /* =========================
  * Frontmatter-only helpers
  * =======================*/
-export function getProgramFrontmatter(
-  countrySlug: string,
-  programSlug: string,
-) {
+export function getProgramFrontmatter(countrySlug: string, programSlug: string) {
   const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
   const { data } = matter(fs.readFileSync(f, "utf8"));
-  return normalizeProgram(
-    data as Partial<ProgramMeta>,
-    countrySlug,
-    programSlug,
-  );
+  return normalizeProgram(data as Partial<ProgramMeta>, countrySlug, programSlug);
 }
 
 export function getCountryFrontmatter(countrySlug: string) {
@@ -444,7 +406,7 @@ export function getCountryFrontmatter(countrySlug: string) {
 }
 
 /* =========================
- * Sitemap helper (no change)
+ * Sitemap helper
  * =======================*/
 export function getResidencyUrls() {
   const urls: { url: string }[] = [{ url: "/residency" }];

@@ -299,7 +299,7 @@ export default function Footer() {
                   <label htmlFor="footer-email" className="sr-only">Email address</label>
                   <div className="flex items-stretch rounded-full overflow-hidden ring-1 ring-white/20 focus-within:ring-2 focus-within:ring-white/40">
                     <input id="footer-email" name="email" type="email" inputMode="email" placeholder="you@email.com" required className="flex-1 min-w-0 px-3 h-10 bg-transparent text-white placeholder-white/70 outline-none" />
-                    <button type="submit" className="px-4 h-10 text-sm font-medium text-white bg-secondary focus-visible:outline-none">
+                    <button type="submit" className="px-4 h-10 text-sm font-medium text-black bg-secondary focus-visible:outline-none">
                       Subscribe
                     </button>
                   </div>

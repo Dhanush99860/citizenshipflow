@@ -8,15 +8,12 @@ import {
 } from "@/lib/citizenship-content";
 
 import HeroPremium from "@/components/Citizenship/HeroPremium";
-// Use dynamic imports for heavier, below-the-fold components to reduce initial JS
-// bundle size and improve Lighthouse performance【330944343751455†L23-L112】.
 import nextDynamic from "next/dynamic";
 
 const OurOffer = nextDynamic(() => import("@/components/Citizenship/OurOffer"));
 const TestimonialCarousel = nextDynamic(() => import("@/components/Citizenship/TestimonialCarousel"));
 const InsightsPreview = nextDynamic(() => import("@/components/Insights/InsightsPreview"));
 const ExploreGrid = nextDynamic(() => import("@/components/Citizenship/ExploreGrid"));
-// import Footer from "@/components/Layout/Footer";
 import { JsonLd } from "@/lib/seo";
 
 export const revalidate = 86400;
@@ -72,7 +69,6 @@ function pickTopProgramsForLd(all: ProgramMeta[], n = 5): ProgramMeta[] {
   return ranked.slice(0, n);
 }
 
-
 export default function CitizenshipPage() {
   const countries: CountryMeta[] = getCitizenshipCountries();
   const programs: ProgramMeta[] = getCitizenshipPrograms();
@@ -82,7 +78,7 @@ export default function CitizenshipPage() {
     "@context": "https://schema.org",
     "@type": "WebPage",
     name: "Citizenship Programs – Countries & Options",
-    url: "https://yourdomain.com/citizenship",
+    url: "https://www.xiphiasimmigration.com/citizenship",
     description:
       "Explore citizenship routes by country. Compare timelines, requirements and costs. Book a personal consultation.",
   };
@@ -93,7 +89,7 @@ export default function CitizenshipPage() {
     itemListElement: countries.map((c, idx) => ({
       "@type": "ListItem",
       position: idx + 1,
-      url: `https://yourdomain.com/citizenship/${c.countrySlug}`,
+      url: `https://www.xiphiasimmigration.com/citizenship/${c.countrySlug}`,
       name: c.title || c.country,
     })),
   };
@@ -104,7 +100,7 @@ export default function CitizenshipPage() {
     itemListElement: top5.map((p, idx) => ({
       "@type": "ListItem",
       position: idx + 1,
-      url: `https://yourdomain.com/citizenship/${p.countrySlug}/${p.programSlug}`,
+      url: `https://www.xiphiasimmigration.com/citizenship/${p.countrySlug}/${p.programSlug}`,
       name: p.title,
     })),
   };
@@ -123,26 +119,15 @@ export default function CitizenshipPage() {
           <OurOffer className="lg:col-span-2" />
           <TestimonialCarousel
             items={[
-              {
-                quote:
-                  "Flawless execution from due diligence to passport delivery.",
-                author: "Family Office, Dubai",
-              },
-              {
-                quote: "Transparent costs and genuinely vetted projects.",
-                author: "HNWI, Singapore",
-              },
-              {
-                quote: "Impressive compliance depth—exactly what we needed.",
-                author: "Private Banker, Zurich",
-              },
+              { quote: "Flawless execution from due diligence to passport delivery.", author: "Family Office, Dubai" },
+              { quote: "Transparent costs and genuinely vetted projects.", author: "HNWI, Singapore" },
+              { quote: "Impressive compliance depth—exactly what we needed.", author: "Private Banker, Zurich" },
             ]}
           />
         </div>
       </main>
 
       <InsightsPreview limit={6} />
-      {/* <Footer /> */}
     </>
   );
 }

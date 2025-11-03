@@ -9,9 +9,7 @@ import {
   getResidencyPrograms,
   loadProgramPageSections,
 } from "@/lib/residency-content";
-// Dynamically import heavy UI components to reduce the initial bundle size and
-// improve Total Blocking Time. Static imports for SEO utilities and MDX Prose
-// remain since they are lightweight.
+
 import nextDynamic from "next/dynamic";
 const MediaHero = nextDynamic(() => import("@/components/Residency/MediaHero"));
 const QuickFacts = nextDynamic(() => import("@/components/Residency/QuickFacts"));
@@ -25,8 +23,7 @@ import { Prose } from "@/components/ui/Prose";
 const EligibilityQuickCheck = nextDynamic(() => import("@/components/Residency/EligibilityQuickCheck"));
 const SocialProof = nextDynamic(() => import("@/components/Residency/SocialProof"));
 const Prices = nextDynamic(() => import("@/components/Residency/Prices"));
-// RiskCompliance is not used on residency pages; remove unused import to
-// reduce bundle size.
+
 /** Cache once/day */
 export const revalidate = 86400;
 export const dynamicParams = true;
@@ -48,10 +45,7 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
   const params = await props.params;
   try {
-    const { meta } = await loadProgramPageSections(
-      params.country,
-      params.program,
-    );
+    const { meta } = await loadProgramPageSections(params.country, params.program);
     const heroImage = (meta as any).heroImage as string | undefined;
     const title = (meta as any).seo?.title ?? meta.title;
     const description = (meta as any).seo?.description ?? (meta as any).tagline;
@@ -60,13 +54,12 @@ export async function generateMetadata(props: {
       (meta as any).seo?.keywords ?? [title, meta.country, ...tags].join(", ");
     const canonicalPath = `/residency/${params.country}/${params.program}`;
     const absoluteUrl = `https://www.xiphiasimmigration.com${canonicalPath}`;
+
     return {
       title,
       description,
       keywords,
-      alternates: {
-        canonical: canonicalPath,
-      },
+      alternates: { canonical: canonicalPath },
       openGraph: {
         title,
         description,
@@ -109,14 +102,7 @@ function similarityScore(
   });
   const b = base.title.toLowerCase();
   const c = cand.title.toLowerCase();
-  [
-    "startup",
-    "investor",
-    "entrepreneur",
-    "golden",
-    "visa",
-    "residency",
-  ].forEach((k) => {
+  ["startup", "investor", "entrepreneur", "golden", "visa", "residency"].forEach((k) => {
     if (b.includes(k) && c.includes(k)) score += 1;
   });
   return score;
@@ -127,11 +113,9 @@ export default async function ProgramPage(props: {
   params: Promise<{ country: string; program: string }>;
 }) {
   const params = await props.params;
+
   try {
-    const { meta, sections } = await loadProgramPageSections(
-      params.country,
-      params.program,
-    );
+    const { meta, sections } = await loadProgramPageSections(params.country, params.program);
 
     const videoSrc = (meta as any).heroVideo as string | undefined;
     const poster = (meta as any).heroPoster as string | undefined;
@@ -141,15 +125,9 @@ export default async function ProgramPage(props: {
       `/brochures/residency/${params.country}/${params.program}.pdf`;
 
     const processSteps: any[] = (meta as any).processSteps ?? [];
-    const quickCheck = (meta as any).quickCheck as any | undefined; // from MDX
+    const quickCheck = (meta as any).quickCheck as any | undefined;
     const prices = (meta as any).prices as
-      | {
-          label: string;
-          amount?: number;
-          currency?: string;
-          when?: string;
-          notes?: string;
-        }[]
+      | { label: string; amount?: number; currency?: string; when?: string; notes?: string }[]
       | undefined;
     const proofOfFunds = (meta as any).proofOfFunds as
       | { label?: string; amount: number; currency?: string; notes?: string }[]
@@ -178,15 +156,11 @@ export default async function ProgramPage(props: {
     for (const ctry of allCountrySlugs) {
       const progs = getResidencyPrograms(ctry);
       for (const p of progs) {
-        if (ctry === params.country && p.programSlug === params.program)
-          continue;
+        if (ctry === params.country && p.programSlug === params.program) continue;
         candidateTasks.push(
           (async () => {
             try {
-              const { meta: candMeta } = await loadProgramPageSections(
-                ctry,
-                p.programSlug,
-              );
+              const { meta: candMeta } = await loadProgramPageSections(ctry, p.programSlug);
               const score = similarityScore(
                 { title: meta.title, tags: (meta as any).tags },
                 { title: candMeta.title, tags: (candMeta as any).tags },
@@ -211,11 +185,10 @@ export default async function ProgramPage(props: {
       }
     }
 
-    const relatedRaw = (await Promise.all(candidateTasks)).filter(
-      Boolean,
-    ) as NonNullable<Awaited<(typeof candidateTasks)[number]>>[];
+    const relatedRaw = (await Promise.all(candidateTasks)).filter(Boolean) as NonNullable<
+      Awaited<(typeof candidateTasks)[number]>
+    >[];
 
-    // Sort first, then DEDUPE by URL (preserves order), then cap to 6 unique
     const relatedPrograms = Array.from(
       new Map(
         relatedRaw
@@ -243,29 +216,21 @@ export default async function ProgramPage(props: {
 
     const sectionsForNav: { id: string; label: string }[] = [
       { id: "quick-facts", label: "Quick Facts" },
-      { id: "overview", label: "Overview" },
-      { id: "investment", label: "Investment" },
-      ...(prices?.length || proofOfFunds?.length
-        ? [{ id: "prices", label: "Costs & Funds" }]
-        : []),
+      ...(sections[mdxKey.overview] ? [{ id: "overview", label: "Overview" }] : []),
+      ...(sections[mdxKey.investment] ? [{ id: "investment", label: "Investment" }] : []),
+      ...(prices?.length || proofOfFunds?.length ? [{ id: "prices", label: "Costs & Funds" }] : []),
       ...(((meta as any).requirements?.length ?? 0)
         ? [{ id: "requirements", label: "Eligibility" }]
         : []),
-      ...(((meta as any).benefits?.length ?? 0)
-        ? [{ id: "benefits", label: "Benefits" }]
-        : []),
+      ...(((meta as any).benefits?.length ?? 0) ? [{ id: "benefits", label: "Benefits" }] : []),
       ...(processSteps.length ? [{ id: "process", label: "Process" }] : []),
-      { id: "comparison", label: "Comparison" },
+      ...(sections[mdxKey.comparison] ? [{ id: "comparison", label: "Comparison" }] : []),
       ...(sections[mdxKey.whyCountry]
         ? [{ id: "why-country", label: `Why ${meta.country}` }]
         : []),
-      { id: "faq", label: "FAQ" },
-      ...(disqualifiers.length
-        ? [{ id: "not-a-fit", label: "Not a fit?" }]
-        : []),
-      ...(otherPrograms.length
-        ? [{ id: "other-programs", label: "Other Programs" }]
-        : []),
+      ...(Boolean((meta as any).faq?.length) ? [{ id: "faq", label: "FAQ" }] : []),
+      ...(disqualifiers.length ? [{ id: "not-a-fit", label: "Not a fit?" }] : []),
+      ...(otherPrograms.length ? [{ id: "other-programs", label: "Other Programs" }] : []),
       ...(relatedPrograms.length ? [{ id: "related", label: "Related" }] : []),
     ];
 
@@ -276,8 +241,7 @@ export default async function ProgramPage(props: {
             "@context": "https://schema.org",
             "@type": "HowTo",
             name: `${meta.title} Application Process`,
-            description:
-              (meta as any).seo?.description ?? (meta as any).tagline,
+            description: (meta as any).seo?.description ?? (meta as any).tagline,
             step: processSteps.map((step: any, index: number) => ({
               "@type": "HowToStep",
               position: index + 1,
@@ -293,9 +257,7 @@ export default async function ProgramPage(props: {
             "@context": "https://schema.org",
             "@type": "AggregateOffer",
             priceCurrency:
-              prices.find((p) => p.currency)?.currency ||
-              (meta as any).currency ||
-              "USD",
+              prices.find((p) => p.currency)?.currency || (meta as any).currency || "USD",
             offers: prices
               .filter((p) => typeof p.amount === "number")
               .map((p) => ({
@@ -310,11 +272,12 @@ export default async function ProgramPage(props: {
           }
         : null;
 
+    const canonicalPath = `/residency/${params.country}/${params.program}`;
     const webPageLd = {
       "@context": "https://schema.org",
       "@type": "WebPage",
       name: meta.title,
-      url: `https://yourdomain.com/residency/${params.country}/${params.program}`,
+      url: `https://www.xiphiasimmigration.com${canonicalPath}`,
       mainEntity: howToLdData ? { "@id": "#application-howto" } : undefined,
     };
 
@@ -323,10 +286,8 @@ export default async function ProgramPage(props: {
         className="
           relative container mx-auto px-4
           bg-light_bg dark:bg-dark_bg text-black dark:text-white
-          /* keep enough space for the floating mobile nav inside ProgramQuickNav */
           pb-32 sm:pb-16
         "
-        // important: no overflow hidden to avoid scroll stuck
         style={{ scrollBehavior: "smooth" } as React.CSSProperties}
       >
         {/* JSON-LD */}
@@ -334,18 +295,11 @@ export default async function ProgramPage(props: {
           data={breadcrumbLd([
             { name: "Residency", url: "/residency" },
             { name: meta.country, url: `/residency/${params.country}` },
-            {
-              name: meta.title,
-              url: `/residency/${params.country}/${params.program}`,
-            },
+            { name: meta.title, url: canonicalPath },
           ])}
         />
-        {(meta as any).faq?.length ? (
-          <JsonLd data={faqLd((meta as any).faq)!} />
-        ) : null}
-        {howToLdData ? (
-          <JsonLd data={{ ...howToLdData, "@id": "#application-howto" }} />
-        ) : null}
+        {(meta as any).faq?.length ? <JsonLd data={faqLd((meta as any).faq)!} /> : null}
+        {howToLdData ? <JsonLd data={{ ...howToLdData, "@id": "#application-howto" }} /> : null}
         <JsonLd data={webPageLd} />
         {offerLd ? <JsonLd data={offerLd} /> : null}
         {relatedPrograms.length ? (
@@ -357,7 +311,7 @@ export default async function ProgramPage(props: {
               itemListElement: relatedPrograms.map((r, idx) => ({
                 "@type": "ListItem",
                 position: idx + 1,
-                url: `https://yourdomain.com${r.url}`,
+                url: `https://www.xiphiasimmigration.com${r.url}`,
                 name: r.title,
               })),
             }}
@@ -390,19 +344,16 @@ export default async function ProgramPage(props: {
           </div>
           <Breadcrumb />
         </div>
+
         {/* IN-PAGE QUICK NAV */}
         <ProgramQuickNav sections={sectionsForNav} />
+
         {/* BODY */}
         <div className="flex flex-col gap-8 pt-5 pb-16 sm:px-6 lg:grid lg:grid-cols-12 lg:gap-8 lg:px-8">
           {/* MAIN */}
           <div className="order-2 lg:order-1 lg:col-span-8 xl:col-span-8 space-y-10">
-            {/* QUICK FACTS (neutral) */}
-            <section
-              id="quick-facts"
-              className="
-                scroll-mt-28
-              "
-            >
+            {/* QUICK FACTS */}
+            <section id="quick-facts" className="scroll-mt-28">
               <QuickFacts
                 minInvestment={meta.minInvestment}
                 currency={meta.currency}
@@ -411,7 +362,7 @@ export default async function ProgramPage(props: {
               />
             </section>
 
-            {/* MOBILE: Quick eligibility check should be near top */}
+            {/* MOBILE: Quick eligibility check near top */}
             {quickCheck?.questions?.length ? (
               <section
                 id="quick-check-mobile"
@@ -425,14 +376,9 @@ export default async function ProgramPage(props: {
               </section>
             ) : null}
 
-            {/* OVERVIEW (blue tint) */}
+            {/* OVERVIEW */}
             {sections[mdxKey.overview] && (
-              <section
-                id="overview"
-                className="
-                  scroll-mt-28
-                "
-              >
+              <section id="overview" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">Program overview</h2>
                 </header>
@@ -440,14 +386,9 @@ export default async function ProgramPage(props: {
               </section>
             )}
 
-            {/* INVESTMENT (cyan tint) */}
+            {/* INVESTMENT */}
             {sections[mdxKey.investment] && (
-              <section
-                id="investment"
-                className="
-                  scroll-mt-28
-                "
-              >
+              <section id="investment" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">Investment overview</h2>
                 </header>
@@ -455,18 +396,11 @@ export default async function ProgramPage(props: {
               </section>
             )}
 
-            {/* COSTS & FUNDS (rose tint) */}
+            {/* COSTS & FUNDS */}
             {prices?.length || proofOfFunds?.length ? (
-              <section
-                id="prices"
-                className="
-                  scroll-mt-28 overflow-visible
-                "
-              >
+              <section id="prices" className="scroll-mt-28 overflow-visible">
                 <header className="mb-3">
-                  <h2 className="text-xl font-semibold">
-                    Costs & proof of funds
-                  </h2>
+                  <h2 className="text-xl font-semibold">Costs & proof of funds</h2>
                 </header>
                 <div className="w-full overflow-visible">
                   <Prices
@@ -478,7 +412,7 @@ export default async function ProgramPage(props: {
               </section>
             ) : null}
 
-            {/* ELIGIBILITY (sky tint) */}
+            {/* ELIGIBILITY */}
             {(meta as any).requirements?.length ? (
               <section
                 id="requirements"
@@ -499,7 +433,7 @@ export default async function ProgramPage(props: {
               </section>
             ) : null}
 
-            {/* BENEFITS (emerald tint) */}
+            {/* BENEFITS */}
             {(meta as any).benefits?.length ? (
               <section
                 id="benefits"
@@ -520,14 +454,9 @@ export default async function ProgramPage(props: {
               </section>
             ) : null}
 
-            {/* PROCESS (indigo tint) */}
+            {/* PROCESS */}
             {processSteps.length > 0 && (
-              <section
-                id="process"
-                className="
-                  scroll-mt-28
-                "
-              >
+              <section id="process" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">Application process</h2>
                 </header>
@@ -535,14 +464,9 @@ export default async function ProgramPage(props: {
               </section>
             )}
 
-            {/* COMPARISON (violet tint) */}
+            {/* COMPARISON */}
             {sections[mdxKey.comparison] && (
-              <section
-                id="comparison"
-                className="
-                  scroll-mt-28
-                "
-              >
+              <section id="comparison" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">
                     Comparison with Provincial Entrepreneur Programs
@@ -552,14 +476,9 @@ export default async function ProgramPage(props: {
               </section>
             )}
 
-            {/* WHY COUNTRY (teal tint) */}
+            {/* WHY COUNTRY */}
             {sections[mdxKey.whyCountry] && (
-              <section
-                id="why-country"
-                className="
-                  scroll-mt-28 
-                "
-              >
+              <section id="why-country" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">Why {meta.country}</h2>
                 </header>
@@ -567,7 +486,7 @@ export default async function ProgramPage(props: {
               </section>
             )}
 
-            {/* NOT A FIT? (amber callout) */}
+            {/* NOT A FIT? */}
             {disqualifiers.length ? (
               <section
                 id="not-a-fit"
@@ -589,10 +508,7 @@ export default async function ProgramPage(props: {
                 </ul>
                 <p className="mt-3 text-[14px]">
                   Not a match? Explore{" "}
-                  <Link
-                    href={`/residency/${params.country}`}
-                    className="underline"
-                  >
+                  <Link href={`/residency/${params.country}`} className="underline">
                     other programs in {meta.country}
                   </Link>
                   .
@@ -600,38 +516,24 @@ export default async function ProgramPage(props: {
               </section>
             ) : null}
 
-            {/* FAQ (neutral tint) */}
+            {/* FAQ */}
             {(meta as any).faq?.length ? (
-              <section
-                id="faq"
-                className="
-                  scroll-mt-28
-                "
-              >
+              <section id="faq" className="scroll-mt-28">
                 <header className="mb-3">
-                  <h2 className="text-xl font-semibold">
-                    Frequently asked questions
-                  </h2>
+                  <h2 className="text-xl font-semibold">Frequently asked questions</h2>
                 </header>
                 <FAQAccordion faqs={(meta as any).faq} />
               </section>
             ) : null}
 
-            {/* OTHER PROGRAMS IN COUNTRY — refined */}
+            {/* OTHER PROGRAMS IN COUNTRY */}
             {otherPrograms.length ? (
-              <section
-                id="other-programs"
-                className="
-      scroll-mt-28
-    "
-              >
+              <section id="other-programs" className="scroll-mt-28">
                 <header className="mb-4 flex items-center gap-2">
                   <span className="inline-flex items-center rounded-md bg-slate-600/10 px-2 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Explore
                   </span>
-                  <h2 className="text-xl font-semibold">
-                    Other programs in {meta.country}
-                  </h2>
+                  <h2 className="text-xl font-semibold">Other programs in {meta.country}</h2>
                 </header>
 
                 <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -640,31 +542,28 @@ export default async function ProgramPage(props: {
                       <Link
                         href={`/residency/${params.country}/${prog.programSlug}`}
                         className="
-              group block rounded-xl p-4
-              ring-1 ring-neutral-200/80 dark:ring-neutral-800/80
-              bg-white/80 dark:bg-neutral-900/40
-              hover:-translate-y-0.5 hover:shadow-md transition
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50
-            "
+                          group block rounded-xl p-4
+                          ring-1 ring-neutral-200/80 dark:ring-neutral-800/80
+                          bg-white/80 dark:bg-neutral-900/40
+                          hover:-translate-y-0.5 hover:shadow-md transition
+                          focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50
+                        "
                         aria-label={`View ${prog.title}`}
                       >
                         <div className="flex items-center justify-between gap-3">
                           <div>
-                            <h3 className="text-base font-semibold leading-6">
-                              {prog.title}
-                            </h3>
+                            <h3 className="text-base font-semibold leading-6">{prog.title}</h3>
                             <p className="mt-0.5 text-xs opacity-70">
                               {meta.country} · same country
                             </p>
                           </div>
-                          {/* arrow */}
                           <span
                             className="
-                  inline-flex h-8 w-8 items-center justify-center rounded-full
-                  ring-1 ring-neutral-200 dark:ring-neutral-700
-                  bg-black/5 dark:bg-white/10
-                  transition group-hover:bg-black/10 group-hover:dark:bg-white/15
-                "
+                              inline-flex h-8 w-8 items-center justify-center rounded-full
+                              ring-1 ring-neutral-200 dark:ring-neutral-700
+                              bg-black/5 dark:bg-white/10
+                              transition group-hover:bg-black/10 group-hover:dark:bg-white/15
+                            "
                             aria-hidden
                           >
                             <svg
@@ -687,16 +586,14 @@ export default async function ProgramPage(props: {
               </section>
             ) : null}
 
-            {/* RELATED — richer cards with optional image, tags, and key stats */}
+            {/* RELATED */}
             {relatedPrograms.length ? (
-              <section id="related" className=" scroll-mt-28 ">
+              <section id="related" className="scroll-mt-28">
                 <header className="mb-4 flex items-center gap-2">
                   <span className="inline-flex items-center rounded-md bg-indigo-600/10 px-2 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
                     Related
                   </span>
-                  <h2 className="text-xl font-semibold">
-                    Programs similar to {meta.title}
-                  </h2>
+                  <h2 className="text-xl font-semibold">Programs similar to {meta.title}</h2>
                 </header>
 
                 <ul className="grid gap-5 sm:grid-cols-2">
@@ -706,23 +603,20 @@ export default async function ProgramPage(props: {
                       typeof r.minInvestment === "number"
                         ? `${r.currency ?? ""} ${r.minInvestment.toLocaleString()}`
                         : "No minimum";
-                    const time = r.timelineMonths
-                      ? `${r.timelineMonths} mo`
-                      : "Varies";
+                    const time = r.timelineMonths ? `${r.timelineMonths} mo` : "Varies";
                     return (
                       <li key={`${r.url}|${idx}`}>
                         <Link
                           href={r.url}
                           className="
-            group block overflow-hidden rounded-2xl
-            ring-1 ring-neutral-200/80 dark:ring-neutral-800/80
-            bg-white/80 dark:bg-neutral-900/40
-            hover:-translate-y-0.5 hover:shadow-md transition
-            focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50
-          "
+                            group block overflow-hidden rounded-2xl
+                            ring-1 ring-neutral-200/80 dark:ring-neutral-800/80
+                            bg-white/80 dark:bg-neutral-900/40
+                            hover:-translate-y-0.5 hover:shadow-md transition
+                            focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50
+                          "
                           aria-label={`View ${r.title}`}
                         >
-                          {/* Media */}
                           <div className="relative aspect-[16/9] overflow-hidden">
                             {hasImg ? (
                               // eslint-disable-next-line @next/next/no-img-element
@@ -733,38 +627,29 @@ export default async function ProgramPage(props: {
                               />
                             ) : (
                               <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-100 dark:from-neutral-800 dark:to-neutral-700 grid place-items-center">
-                                <span className="text-xs opacity-70">
-                                  {r.country}
-                                </span>
+                                <span className="text-xs opacity-70">{r.country}</span>
                               </div>
                             )}
-                            {/* subtle overlay on hover */}
                             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                           </div>
 
-                          {/* Body */}
                           <div className="p-4 sm:p-5">
                             <div className="flex items-start justify-between gap-3">
                               <div>
-                                <h3 className="text-base font-semibold leading-6">
-                                  {r.title}
-                                </h3>
-                                <p className="mt-0.5 text-xs opacity-70">
-                                  {r.country}
-                                </p>
+                                <h3 className="text-base font-semibold leading-6">{r.title}</h3>
+                                <p className="mt-0.5 text-xs opacity-70">{r.country}</p>
                               </div>
 
-                              {/* Tags (top 3) */}
                               {!!r.tags?.length && (
                                 <div className="hidden md:flex flex-wrap gap-1 max-w-[220px] justify-end">
                                   {r.tags.slice(0, 3).map((t, ti) => (
                                     <span
                                       key={`${r.url}-tag-${ti}-${t}`}
                                       className="
-                        inline-flex items-center rounded-full
-                        px-2 py-0.5 text-[11px] opacity-80
-                        ring-1 ring-neutral-200 dark:ring-neutral-700
-                      "
+                                        inline-flex items-center rounded-full
+                                        px-2 py-0.5 text-[11px] opacity-80
+                                        ring-1 ring-neutral-200 dark:ring-neutral-700
+                                      "
                                     >
                                       {t}
                                     </span>
@@ -773,33 +658,26 @@ export default async function ProgramPage(props: {
                               )}
                             </div>
 
-                            {/* Mini stats */}
                             <div className="mt-3 grid grid-cols-2 gap-2 text-[13px]">
                               <div
                                 className="
-                  rounded-xl p-2
-                  bg-black/5 dark:bg-white/10
-                  ring-1 ring-neutral-200 dark:ring-neutral-700
-                "
+                                  rounded-xl p-2
+                                  bg-black/5 dark:bg-white/10
+                                  ring-1 ring-neutral-200 dark:ring-neutral-700
+                                "
                               >
-                                <div className="font-medium tabular-nums">
-                                  {price}
-                                </div>
-                                <div className="text-[11px] opacity-70">
-                                  Minimum investment
-                                </div>
+                                <div className="font-medium tabular-nums">{price}</div>
+                                <div className="text-[11px] opacity-70">Minimum investment</div>
                               </div>
                               <div
                                 className="
-                  rounded-xl p-2
-                  bg-black/5 dark:bg-white/10
-                  ring-1 ring-neutral-200 dark:ring-neutral-700
-                "
+                                  rounded-xl p-2
+                                  bg-black/5 dark:bg-white/10
+                                  ring-1 ring-neutral-200 dark:ring-neutral-700
+                                "
                               >
                                 <div className="font-medium">{time}</div>
-                                <div className="text-[11px] opacity-70">
-                                  Timeline
-                                </div>
+                                <div className="text-[11px] opacity-70">Timeline</div>
                               </div>
                             </div>
                           </div>
@@ -815,7 +693,7 @@ export default async function ProgramPage(props: {
             <div className="sm:hidden h-24" aria-hidden="true" />
           </div>
 
-          {/* SIDEBAR (desktop) — keep sticky but light to avoid scroll lock */}
+          {/* SIDEBAR (desktop) */}
           <aside className="order-1 lg:order-2 lg:col-span-4 xl:col-span-4 space-y-6 self-start lg:sticky lg:top-24">
             {quickCheck?.questions?.length ? (
               <div className="hidden lg:block">
@@ -829,9 +707,7 @@ export default async function ProgramPage(props: {
 
             <div className="hidden lg:block rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 ring-1 ring-neutral-200/70 dark:ring-neutral-800/70 p-6">
               <h3 className="text-base font-semibold">Brochure</h3>
-              <p className="text-sm opacity-80 mt-1">
-                Full details, requirements, and timelines.
-              </p>
+              <p className="text-sm opacity-80 mt-1">Full details, requirements, and timelines.</p>
               <a
                 href={brochure}
                 download

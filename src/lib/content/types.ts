@@ -20,6 +20,7 @@ export type ProgramDoc = {
   body: string; // MDX raw
   path: string; // fs path
   url: string; // canonical url
+  tagline?: string; // ✅ add this
 };
 
 export type HubKind = "blog" | "news" | "article";

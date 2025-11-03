@@ -9,9 +9,8 @@ import {
   getCitizenshipCountries,
 } from "@/lib/citizenship-content";
 import { JsonLd, breadcrumbLd } from "@/lib/seo";
-// Dynamically import heavy UI sections.  Splitting these into separate
-// chunks reduces initial JS payload and improves Lighthouse performance【330944343751455†L23-L112】.
 import nextDynamic from "next/dynamic";
+
 const MediaHero = nextDynamic(() => import("@/components/Residency/MediaHero"));
 const ContactForm = nextDynamic(() => import("@/components/ContactForm"));
 const Breadcrumb = nextDynamic(() => import("@/components/Common/Breadcrumb"));
@@ -26,24 +25,16 @@ const FAQSection = nextDynamic(() => import("@/components/Residency/Country/FAQS
 const MDXDetailsSection = nextDynamic(() => import("@/components/Residency/Country/MDXDetailsSection"));
 const RelatedCountriesSection = nextDynamic(() => import("@/components/Residency/Country/RelatedCountriesSection"));
 
-// Only include what you actually need. Examples:
-export const runtime = "nodejs"; // or 'edge'
-export const dynamic = "force-static"; // or 'force-dynamic'
-export const revalidate = 86400; // 24h — must be a literal number
-// export const preferredRegion = ['iad1'];  // if you used it before
+export const runtime = "nodejs";
+export const dynamic = "force-static";
+export const revalidate = 86400;
 
 /** SSG params */
 export async function generateStaticParams() {
   return getCitizenshipCountrySlugs().map((slug) => ({ country: slug }));
 }
 
-/**
- * SEO metadata for citizenship country pages.
- *
- * We include a fully qualified canonical URL and detailed Open Graph tags
- * (title, description, URL, site name, locale, type, image dimensions, alt
- * text) so that search engines and social networks generate rich previews.
- */
+/** SEO metadata */
 export async function generateMetadata(props: {
   params: Promise<{ country: string }>;
 }): Promise<Metadata> {
@@ -54,9 +45,6 @@ export async function generateMetadata(props: {
   const description = (meta as any).seo?.description ?? meta.summary;
   const keywords = (meta as any).seo?.keywords as string[] | undefined;
 
-  // Build an absolute URL using the known domain.  The layout's metadataBase
-  // will resolve the canonical path correctly on Vercel, but we explicitly
-  // specify the full URL for OpenGraph to satisfy Lighthouse SEO rules.
   const canonicalPath = `/citizenship/${params.country}`;
   const absoluteUrl = `https://www.xiphiasimmigration.com${canonicalPath}`;
 
@@ -115,7 +103,7 @@ export default async function CountryPage(props: {
   const poster = (meta as any).heroPoster as string | undefined;
   const heroImage = (meta as any).heroImage as string | undefined;
 
-  // Country-level stats from MDX (you added these in _country.mdx)
+  // Country-level stats from MDX
   const visaFreeCount = (meta as any).visaFreeCount as number | undefined;
   const passportRank = (meta as any).passportRank as number | undefined;
 
@@ -174,11 +162,7 @@ export default async function CountryPage(props: {
           poster={poster}
           imageSrc={heroImage}
           actions={[
-            {
-              href: "/personal-booking",
-              label: "Book Consultation",
-              variant: "primary",
-            },
+            { href: "/personal-booking", label: "Book Consultation", variant: "primary" },
           ]}
         />
       </section>
@@ -233,7 +217,6 @@ export default async function CountryPage(props: {
 }
 
 /* ----------------- Small UI helpers ----------------- */
-
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl bg-white ring-1 ring-neutral-200 p-4 dark:bg-neutral-950 dark:ring-neutral-800">

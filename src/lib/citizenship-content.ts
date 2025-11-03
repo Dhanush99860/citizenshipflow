@@ -179,11 +179,11 @@ const toAbsolute = (p: string | undefined, fallback: string) => {
   return `/${p.replace(/^\.?\/*/, "")}`;
 };
 
-/** MDX options — NOTE: no `as const` so arrays aren't readonly */
+/** MDX options */
 const baseMdxOptions = {
   remarkPlugins: [remarkGfm],
   rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: "wrap" }]],
-};
+} as const;
 
 /** slugify section titles, e.g. "Why Choose Us?" -> "why-choose-us" */
 function slugify(h: string) {
@@ -195,44 +195,54 @@ function slugify(h: string) {
     .replace(/\s+/g, "-");
 }
 
-/** Split MDX body by top-level `###` headings (keeps the h3 line) */
-function splitByH3(md: string): Record<string, string> {
+/** Strip disallowed ESM from MDX body: remove any `import ...` or `export ...` lines */
+function sanitizeMdxBody(src: string): string {
+  return src
+    .split(/\r?\n/)
+    .filter((line) => !/^\s*(import|export)\b/.test(line))
+    .join("\n");
+}
+
+/**
+ * Split MDX by H2/H3 headings into named sections.
+ * - Supports "##" and "###".
+ * - DOES NOT include the heading line inside the section (prevents duplicate UI headings).
+ * - Any content before the first heading becomes "overview".
+ * - Deduplicates equal headings by suffixing -2, -3, ...
+ */
+function splitByHeadings(md: string): Record<string, string> {
   const lines = md.split(/\r?\n/);
   const out: Record<string, string> = {};
-  let current: string | null = null;
+  let current = "overview";
   let buf: string[] = [];
   const counts = new Map<string, number>();
 
-  const nextKey = (base: string) => {
+  const nextKey = (raw: string) => {
+    const base = slugify(raw);
     const n = (counts.get(base) || 0) + 1;
     counts.set(base, n);
     return n === 1 ? base : `${base}-${n}`;
   };
 
   const flush = () => {
-    if (current) out[current] = buf.join("\n").trim();
+    const content = buf.join("\n").trim();
+    out[current] = content;
     buf = [];
   };
 
   for (const line of lines) {
-    const m = /^###\s+(.+?)\s*$/.exec(line);
+    const m = /^#{2,3}\s+(.+?)\s*$/.exec(line);
     if (m) {
       flush();
-      current = nextKey(slugify(m[1]));
-      buf.push(line);
+      current = nextKey(m[1]);
+      // do NOT push the heading line (UI provides H2s)
     } else {
-      // If we haven't started a section yet, skip leading blank lines.
-      if (!current) {
-        if (line.trim() === "") continue; // <-- new: don't start a section on blanks
-        // First real content line is not an H3 -> wrap it into an "Overview" section
-        current = nextKey("overview");
-        buf.push("### Overview");
-      }
       buf.push(line);
     }
-    
   }
   flush();
+
+  if (!("overview" in out)) out.overview = "";
   return out;
 }
 
@@ -279,7 +289,6 @@ function sanitizeStringArray(a?: unknown): string[] | undefined {
       .map((v) => {
         if (typeof v === "string") return v;
         if (v && typeof v === "object") {
-          // Convert accidental YAML mapping/object into a readable string
           const entries = Object.entries(v as Record<string, unknown>).map(
             ([k, val]) => `${k}: ${String(val)}`,
           );
@@ -333,8 +342,6 @@ function normalizeCountry(
   // Images: enforce root-absolute; fallback to a sensible poster path
   const fallbackPoster = `/images/countries/${countrySlug}-hero-poster.jpg`;
   meta.heroImage = toAbsolute(meta.heroImage, fallbackPoster);
-  // before: if (meta.heroPoster) meta.heroPoster = ...
-  // after (unconditional):
   meta.heroPoster = toAbsolute(meta.heroPoster, fallbackPoster);
 
   return {
@@ -352,6 +359,13 @@ function normalizeProgram(
   pSlug: string,
 ): ProgramMeta {
   const meta: any = { ...metaIn };
+
+  // tolerate common content typos
+  if (meta.procesSteps && !meta.processSteps) meta.processSteps = meta.procesSteps;
+  if (meta.governmentfees && !meta.governmentFees) meta.governmentFees = meta.governmentfees;
+  if (meta.risknotes && !meta.riskNotes) meta.riskNotes = meta.risknotes;
+  if (meta.compliancenotes && !meta.complianceNotes) meta.complianceNotes = meta.compliancenotes;
+
   meta.programSlug = meta.programSlug || pSlug;
   meta.countrySlug = meta.countrySlug || cSlug;
   meta.category = "citizenship";
@@ -444,7 +458,8 @@ export function getCitizenshipCountries(): CountryMeta[] {
   for (const slug of getCitizenshipCountrySlugs()) {
     const file = path.join(ROOT, slug, "_country.mdx");
     if (!exists(file)) continue;
-    const { data } = matter(fs.readFileSync(file, "utf8"));
+    const raw = fs.readFileSync(file, "utf8");
+    const { data } = matter(raw);
     const meta = normalizeCountry(data as Partial<CountryMeta>, slug);
     if (!meta.draft) out.push(meta);
   }
@@ -484,7 +499,8 @@ export function getCitizenshipPrograms(countrySlug?: string): ProgramMeta[] {
   for (const c of countries) {
     for (const p of getCitizenshipProgramSlugs(c)) {
       const f = path.join(ROOT, c, `${p}.mdx`);
-      const { data } = matter(fs.readFileSync(f, "utf8"));
+      const raw = fs.readFileSync(f, "utf8");
+      const { data } = matter(raw);
       const meta = normalizeProgram(data as Partial<ProgramMeta>, c, p);
       if (!meta?.draft) out.push(meta);
     }
@@ -507,20 +523,19 @@ export function getCitizenshipPrograms(countrySlug?: string): ProgramMeta[] {
  * =======================*/
 export async function loadCountryPage(countrySlug: string) {
   const f = path.join(ROOT, countrySlug, "_country.mdx");
-  const source = fs.readFileSync(f, "utf8");
-  const { content, frontmatter } = await compileMDX<CountryMeta>({
-    source,
-    options: {
-      parseFrontmatter: true,
-      mdxOptions: baseMdxOptions as any,
-    },
+  const raw = fs.readFileSync(f, "utf8");
+  const { data, content } = matter(raw);
+
+  const meta = normalizeCountry(data as Partial<CountryMeta>, countrySlug);
+
+  // sanitize MDX body to ensure no ESM imports/exports leak through
+  const body = sanitizeMdxBody(content);
+  const { content: compiled } = await compileMDX({
+    source: body,
+    options: { parseFrontmatter: false, mdxOptions: baseMdxOptions as any },
   });
 
-  const meta = normalizeCountry(
-    frontmatter as Partial<CountryMeta>,
-    countrySlug,
-  );
-  return { content, meta };
+  return { content: compiled, meta };
 }
 
 export async function loadProgramPage(
@@ -528,21 +543,23 @@ export async function loadProgramPage(
   programSlug: string,
 ) {
   const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
-  const source = fs.readFileSync(f, "utf8");
-  const { content, frontmatter } = await compileMDX<ProgramMeta>({
-    source,
-    options: {
-      parseFrontmatter: true,
-      mdxOptions: baseMdxOptions as any,
-    },
-  });
+  const raw = fs.readFileSync(f, "utf8");
+  const { data, content } = matter(raw);
 
   const meta = normalizeProgram(
-    frontmatter as Partial<ProgramMeta>,
+    data as Partial<ProgramMeta>,
     countrySlug,
     programSlug,
   );
-  return { content, meta };
+
+  // sanitize MDX body
+  const body = sanitizeMdxBody(content);
+  const { content: compiled } = await compileMDX<ProgramMeta>({
+    source: body,
+    options: { parseFrontmatter: false, mdxOptions: baseMdxOptions as any },
+  });
+
+  return { content: compiled, meta };
 }
 
 /* ========= Section-by-section renderer (non-breaking) ========= */
@@ -552,14 +569,17 @@ export async function loadProgramPageSections(
 ): Promise<{ meta: ProgramMeta; sections: ProgramSections }> {
   const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
   const raw = fs.readFileSync(f, "utf8");
-  const { data, content: body } = matter(raw);
+  const { data, content: bodyRaw } = matter(raw);
 
   const meta = normalizeProgram(
     data as Partial<ProgramMeta>,
     countrySlug,
     programSlug,
   );
-  const chunks = splitByH3(body);
+
+  // sanitize + split
+  const body = sanitizeMdxBody(bodyRaw);
+  const chunks = splitByHeadings(body);
 
   const entries = await Promise.all(
     Object.entries(chunks).map(async ([key, md]) => {

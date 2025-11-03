@@ -79,7 +79,7 @@ export default function Hero() {
               <Link
                 href="/eligibility"
                 aria-label="Check your visa eligibility"
-                className="inline-flex items-center justify-center rounded-lg border border-secondary bg-secondary px-5 py-2.5 text-base font-medium text-white transition hover:bg-transparent hover:text-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                className="inline-flex items-center justify-center rounded-lg border border-secondary bg-secondary px-5 py-2.5 text-base font-medium text-black transition hover:bg-transparent hover:text-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               >
                 Check your Eligibility
               </Link>
@@ -87,7 +87,7 @@ export default function Hero() {
               <Link
                 href="/images/residency/xiphias-corporate-mobility.pdf"
                 aria-label="Download immigration guide (PDF)"
-                className="inline-flex items-center justify-center rounded-lg border border-secondary bg-transparent px-5 py-2.5 text-base font-medium text-white transition hover:bg-secondary hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                className="inline-flex items-center justify-center rounded-lg border border-secondary bg-transparent px-5 py-2.5 text-base font-medium text-white transition hover:bg-secondary hover:text-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               >
                 Download Guide
               </Link>

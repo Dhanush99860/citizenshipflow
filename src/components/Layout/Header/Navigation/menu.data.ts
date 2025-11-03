@@ -30,7 +30,25 @@ const residencyCountries: HeaderItem[] = [
     // @ts-ignore
     meta: { code: 'CA' },
     submenu: [
-      { label: 'Startup Visa', href: '/residency/canada/startupvisa' },
+      { label: 'Alberta Self Employed farmer', href: '/residency/canada/alberta-self-employed-farmer' },
+      { label: 'British Columbia Entrepreneur Base', href: '/residency/canada/british-columbia-entrepreneur-base' },
+      { label: 'British Columbia Regional Pilot', href: '/residency/canada/british-columbia-regional-pilot' },
+      { label: 'Federal Self Employed', href: '/residency/canada/federal-self-employed' },
+      { label: 'Federal Start Up Visa', href: '/residency/canada/federal-start-up-visa' },
+      { label: 'Manitoba Entrepreneur', href: '/residency/canada/manitoba-entrepreneur' },
+      { label: 'New Brunswick Business-immigration', href: '/residency/canada/new-brunswick-business-immigration' },
+      { label: 'New Brunswick Entrepreneur Program', href: '/residency/canada/new-brunswick-entrepreneur-program' },
+      { label: 'Newfoundland Entrepreneur', href: '/residency/canada/newfoundland-entrepreneur' },
+      { label: 'Newfoundland International Entrepreneur', href: '/residency/canada/newfoundland-international-entrepreneur' },
+      { label: 'Northwest Territories Business', href: '/residency/canada/northwest-territories-business' },
+      { label: 'Nova scotia Business Immigration', href: '/residency/canada/nova-scotia-business-immigration' },
+      { label: 'Nova Scotia Entrepreneur Stream', href: '/residency/canada/nova-scotia-entrepreneur-stream' },
+      { label: 'Ontario Entrepreneur', href: '/residency/canada/ontario-entrepreneur' },
+      { label: 'Pei Work Permit', href: '/residency/canada/pei-work-permit' },
+      { label: 'SaskatChewan Entrepreneur', href: '/residency/canada/saskatchewan-entrepreneur' },
+      { label: 'saskatchewan Farm Owner', href: '/residency/canada/saskatchewan-farm-owner' },
+      { label: 'Canada Startup Visa', href: '/residency/canada/canada-start-up-visa' },
+      { label: 'Yukon Business', href: '/residency/canada/yukon-business' },
     ],
   },
   {
@@ -301,7 +319,74 @@ export const headerMenu: HeaderItem[] = [
         // @ts-ignore
         meta: { code: 'SG' },
         submenu: [
-          { label: 'EP – Company Setup', href: '/corporate/singapore/ep' },
+          { label: 'EP', href: '/corporate/singapore/ep' },
+        ],
+      },
+      {
+        label: 'Canada',
+        href: '/corporate/canada',
+        // @ts-ignore
+        meta: { code: 'Ca' },
+        submenu: [
+          { label: 'Intra Company Transfer', href: '/corporate/canada/intra-company-transfer' },
+        ],
+      },
+      {
+        label: 'Cyprus',
+        href: '/corporate/cyprus',
+        // @ts-ignore
+        meta: { code: 'Ca' },
+        submenu: [
+          { label: 'Company Setup', href: '/corporate/cyprus/company-setup' },
+        ],
+      },
+      {
+        label: 'Portugal',
+        href: '/corporate/portugal',
+        // @ts-ignore
+        meta: { code: 'Ca' },
+        submenu: [
+          { label: 'Portugal D2 Visa', href: '/corporate/portugal/portugal-d2-visa' },
+        ],
+      },
+      {
+        label: 'Spain',
+        href: '/corporate/spain',
+        // @ts-ignore
+        meta: { code: 'Ca' },
+        submenu: [
+          { label: 'Entrepreneur Company Formation', href: '/corporate/spain/entrepreneur-company-formation' },
+        ],
+      },
+      {
+        label: 'UAE',
+        href: '/corporate/uae',
+        // @ts-ignore
+        meta: { code: 'Ca' },
+        submenu: [
+          { label: 'Dubai Freezone Visa', href: '/corporate/uae/dubai-freezone-visa' },
+          { label: 'Dubai Investor Visa', href: '/corporate/uae/dubai-investor-visa' },
+          { label: 'Dubai Mainland Employment Visa', href: '/corporate/uae/dubai-mainland-employment-visa' },
+        ],
+      },
+      {
+        label: 'United Kingdom',
+        href: '/corporate/united-kingdom',
+        // @ts-ignore
+        meta: { code: 'Ca' },
+        submenu: [
+          { label: 'Expansion Worker Visa', href: '/corporate/united-kingdom/expansion-worker-visa' },
+          { label: 'Self Sponsorship Visa', href: '/corporate/united-kingdom/self-sponsorship-visa' },
+        ],
+      },
+      {
+        label: 'USA',
+        href: '/corporate/usa',
+        // @ts-ignore
+        meta: { code: 'Ca' },
+        submenu: [
+          { label: 'L1 Corporate Transfer Visa', href: '/corporate/usa/l1-corporate-transfer-visa' },
+          { label: 'O1 Entrepreneur Visa', href: '/corporate/usa/o1-entrepreneur-visa' },
         ],
       },
     ],
@@ -318,9 +403,12 @@ export const headerMenu: HeaderItem[] = [
         // @ts-ignore
         meta: { code: 'AU' },
         submenu: [
-          { label: 'Global Talent', href: '/skilled/australia/global-talent' },
+          { label: 'Employer Nomination Scheme-186', href: '/skilled/australia/employer-nomination-scheme-186' },
+          { label: 'Global Talent Visa 858', href: '/skilled/australia/global-talent-visa-858' },
+          { label: 'Regional Sponsored Migration 187', href: '/skilled/australia/regional-sponsored-migration-187' },
           { label: 'Skilled Independent 189', href: '/skilled/australia/skilled-independent-189' },
           { label: 'Skilled Nominated 190', href: '/skilled/australia/skilled-nominated-190' },
+          { label: 'Skilled Work Regional 491', href: '/skilled/australia/skilled-nominated-190' },
         ],
       },
       {
@@ -329,8 +417,62 @@ export const headerMenu: HeaderItem[] = [
         // @ts-ignore
         meta: { code: 'CA' },
         submenu: [
-          { label: 'Express Entry', href: '/skilled/canada/express-entry' },
-          { label: 'Provincial Nominee', href: '/skilled/canada/provincial-nominee' },
+          { label: 'Canadian Experience Class', href: '/skilled/canada/canadian-experience-class' },
+          { label: 'express-entry', href: '/skilled/canada/Express Entry' },
+          { label: 'Federal Skilled Trades', href: '/skilled/canada/federal-skilled-trades' },
+          { label: 'Global Talent Stream', href: '/skilled/canada/global-talent-stream' },
+          { label: 'Provincial Nominee Program', href: '/skilled/canada/provincial-nominee-program' },
+        ],
+      },
+      {
+        label: 'Germany',
+        href: '/skilled/germany',
+        // @ts-ignore
+        meta: { code: 'GR' },
+        submenu: [
+          { label: 'Germany Job Seeker Visa', href: '/skilled/germany/germany-job-seeker-visa' },
+        ],
+      },
+      {
+        label: 'Italy',
+        href: '/skilled/italy',
+        // @ts-ignore
+        meta: { code: 'IT' },
+        submenu: [
+          { label: 'Italy Digital Nomad Visa', href: '/skilled/italy/italy-digital-nomad-visa' },
+        ],
+      },
+      {
+        label: 'Spain',
+        href: '/skilled/spain',
+        // @ts-ignore
+        meta: { code: 'SP' },
+        submenu: [
+          { label: 'Spain Digital Nomad Visa', href: '/skilled/spain/spain-digital-nomad-visa' },
+        ],
+      },
+      {
+        label: 'United Kingdom',
+        href: '/skilled/united-kingdom',
+        // @ts-ignore
+        meta: { code: 'UK' },
+        submenu: [
+          { label: 'UK Global Talent Visa', href: '/skilled/united-kingdom/uk-global-talent-visa' },
+        ],
+      },
+      {
+        label: 'USA',
+        href: '/skilled/usa',
+        // @ts-ignore
+        meta: { code: 'USA' },
+        submenu: [
+          { label: 'Eb1a Extraordinary Ability', href: '/skilled/usa/eb1a-extraordinary-ability' },
+          { label: 'Eb1b Outstanding Professors', href: '/skilled/usa/eb1b-outstanding-professors' },
+          { label: 'Eb1c Executive Manager', href: '/skilled/usa/eb1c-executive-manager' },
+          { label: 'Eb2 National Interest Waiver', href: '/skilled/usa/eb2-national-interest-waiver' },
+          { label: 'Eb3 Employment Based Green Card', href: '/skilled/usa/eb3-employment-based-green-card' },
+          { label: 'H1b Specialty Occupation', href: '/skilled/usa/h1b-specialty-occupation' },
+          { label: 'J1 Exchange Visitor Program', href: '/skilled/usa/uk-global-talent-visa' },
         ],
       },
     ],
@@ -341,10 +483,14 @@ export const headerMenu: HeaderItem[] = [
     label: 'Resources',
     href: '/#resources',
     submenu: [
-      { label: 'Blog', href: '/blog' },
-      { label: 'Insights', href: '/insights' },
+      { label: 'Guide', href: '/guide' },
+      { label: 'Free Eligibility Check', href: '/eligibility-check' },
       { label: 'Media', href: '/media' },
       { label: 'News', href: '/news' },
+      { label: 'Blog', href: '/blog' },
+      { label: 'Insights', href: '/insights' },
+      { label: 'Articles', href: '/articles' },
+      { label: 'Careers', href: '/careers' },
     ],
   },
 
