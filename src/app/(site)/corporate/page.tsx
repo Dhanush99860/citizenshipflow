@@ -1,4 +1,3 @@
-// src/app/(site)/corporate/page.tsx
 import type { Metadata } from "next";
 import {
   getCorporateCountries,
@@ -8,7 +7,6 @@ import {
 } from "@/lib/corporate-content";
 
 import dynamic from "next/dynamic";
-// Dynamically import heavier components to split the bundle and improve performance.
 const CorporateHero = dynamic(() => import("@/components/Corporate/CorporateHero"));
 const SkilledOffer = dynamic(() => import("@/components/Skilled/Overoffer"));
 const SkilledTestimonialCarousel = dynamic(() => import("@/components/Skilled/TestimonialCarousel"));
@@ -31,14 +29,7 @@ export const metadata: Metadata = {
     siteName: "XIPHIAS Immigration",
     locale: "en_US",
     type: "website",
-    images: [
-      {
-        url: "/og.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Corporate Setup & Employment Visas – XIPHIAS Immigration",
-      },
-    ],
+    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "Corporate Setup & Employment Visas – XIPHIAS Immigration" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -49,24 +40,18 @@ export const metadata: Metadata = {
   },
 };
 
-/** Server ranker for JSON-LD only (same logic as other verticals) */
+/** Server ranker for JSON-LD only */
 function pickTopProgramsForLd(all: ProgramMeta[], n = 5): ProgramMeta[] {
-  const key = (x: ProgramMeta) =>
-    `${x?.title ?? ""} ${x?.country ?? ""}`.trim();
-
+  const key = (x: ProgramMeta) => `${x?.title ?? ""} ${x?.country ?? ""}`.trim();
   const ranked = [...all].sort((a, b) => {
     const tA = a.timelineMonths ?? Number.MAX_SAFE_INTEGER;
     const tB = b.timelineMonths ?? Number.MAX_SAFE_INTEGER;
     if (tA !== tB) return tA - tB;
-
     const iA = a.minInvestment ?? Number.MAX_SAFE_INTEGER;
     const iB = b.minInvestment ?? Number.MAX_SAFE_INTEGER;
     if (iA !== iB) return iA - iB;
-
-    // fixed locale to avoid SSR/CSR differences
     return key(a).localeCompare(key(b), "en", { sensitivity: "base" });
   });
-
   return ranked.slice(0, n);
 }
 
@@ -79,7 +64,7 @@ export default function CorporatePage() {
     "@context": "https://schema.org",
     "@type": "WebPage",
     name: "Corporate Setup & Employment Visas — Countries & Options",
-    url: "https://yourdomain.com/corporate",
+    url: "https://www.xiphiasimmigration.com/corporate",
     description:
       "Explore corporate routes by country: free zone & mainland company formation, investor/entrepreneur options, employment/work permits, and residence sponsorship. Compare timelines, eligibility, and fees.",
   };
@@ -90,7 +75,7 @@ export default function CorporatePage() {
     itemListElement: countries.map((c, idx) => ({
       "@type": "ListItem",
       position: idx + 1,
-      url: `https://yourdomain.com/corporate/${c.countrySlug}`,
+      url: `https://www.xiphiasimmigration.com/corporate/${c.countrySlug}`,
       name: c.title || c.country,
     })),
   };
@@ -101,7 +86,7 @@ export default function CorporatePage() {
     itemListElement: top5.map((p, idx) => ({
       "@type": "ListItem",
       position: idx + 1,
-      url: `https://yourdomain.com/corporate/${p.countrySlug}/${p.programSlug}`,
+      url: `https://www.xiphiasimmigration.com/corporate/${p.countrySlug}/${p.programSlug}`,
       name: p.title,
     })),
   };
@@ -113,10 +98,9 @@ export default function CorporatePage() {
       <JsonLd data={topProgramsLd} />
 
       <main className="max-w-screen-2xl mx-auto px-4 py-10 text-black dark:text-white">
-        {/* Temporary hero using shared MediaHero (we can replace with CorporateHero later) */}
         <CorporateHero className="mb-6" />
-        {/* Corporate grid (countries + best program stats) */}
         <CorporateExploreGrid countries={countries} programs={programs} />
+
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
           <SkilledOffer className="lg:col-span-2" />
           <SkilledTestimonialCarousel
@@ -127,7 +111,7 @@ export default function CorporatePage() {
             ]}
           />
         </div>
-        {/* Right now we keep the same Insights rail; we’ll swap to corporate-specific promos later */}
+
         <div className="mt-10">
           <InsightsPreview limit={6} />
         </div>

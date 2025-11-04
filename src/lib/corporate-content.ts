@@ -1,4 +1,3 @@
-// src/lib/corporate-content.ts
 import "server-only";
 import fs from "node:fs";
 import path from "node:path";
@@ -13,17 +12,7 @@ import { rehypeFixInvalidLinkChildren } from "@/lib/mdx-plugins";
 /* =========================
  * Types (corporate)
  * =======================*/
-type CurrencyCode =
-  | "USD"
-  | "EUR"
-  | "AED"
-  | "INR"
-  | "CAD"
-  | "GBP"
-  | "XCD"
-  | "CHF"
-  | "AUD"
-  | "SGD";
+type CurrencyCode = "USD" | "EUR" | "AED" | "INR" | "CAD" | "GBP" | "XCD" | "CHF" | "AUD" | "SGD";
 
 export type FAQ = { q: string; a: string };
 export type Step = { title: string; description?: string };
@@ -45,25 +34,11 @@ export type ProofOfFundsRow = {
 
 export type QuickCheckConfig = {
   title?: string;
-  questions?: {
-    id: string;
-    label: string;
-    type: "boolean" | "select" | "number" | "text";
-    options?: string[];
-  }[];
-  ctas?: {
-    primaryHref?: string;
-    primaryText?: string;
-    secondaryHref?: string;
-    secondaryText?: string;
-  };
+  questions?: { id: string; label: string; type: "boolean" | "select" | "number" | "text"; options?: string[] }[];
+  ctas?: { primaryHref?: string; primaryText?: string; secondaryHref?: string; secondaryText?: string };
 };
 
-export type DocumentChecklistGroup = {
-  group: string;
-  documents: string[];
-  notes?: string;
-};
+export type DocumentChecklistGroup = { group: string; documents: string[]; notes?: string };
 
 export type FamilyMatrixConfig = {
   childrenUpTo?: number;
@@ -76,19 +51,14 @@ export type LanguageMin =
   | {
       test?: string;
       overall?: number;
-      bands?: {
-        listening?: number;
-        reading?: number;
-        writing?: number;
-        speaking?: number;
-      };
+      bands?: { listening?: number; reading?: number; writing?: number; speaking?: number };
     }
   | undefined;
 
 export type LanguageRequirements =
   | {
       tests?: string[];
-      minLevel?: string; // human-readable, e.g., "CLB 5" / "Competent"
+      minLevel?: string; // human-readable
     }
   | undefined;
 
@@ -109,11 +79,9 @@ export type CountryMeta = {
   seo?: { title?: string; description?: string; keywords?: string[] };
   draft?: boolean;
 
-  // Optional extras used by some pages
   region?: string;
   lastUpdated?: string; // ISO
 
-  // Rich content used by country page (parity with skilled/residency)
   overview?: string;
   keyPoints?: string[];
   facts?: Record<string, unknown>;
@@ -145,33 +113,24 @@ export type ProgramMeta = {
   disqualifiers?: string[];
   quickCheck?: QuickCheckConfig;
 
-  // Rich sections & sidebar helpers (shared components)
   documentChecklist?: DocumentChecklistGroup[];
   familyMatrix?: FamilyMatrixConfig;
 
-  // Language / sponsorship (for corp programs that require it)
   languageRequirements?: LanguageRequirements;
   languageMin?: LanguageMin;
   jobOfferRequired?: boolean;
   jobOfferNote?: string;
-  jobOffer?: {
-    required?: boolean;
-    note?: string;
-  };
+  jobOffer?: { required?: boolean; note?: string };
 
-  // Media
   heroImage?: string;
   heroVideo?: string;
   heroPoster?: string;
 
-  // Testimonials (carousel at bottom)
   testimonials?: Testimonial[];
 
-  // SEO
   seo?: { title?: string; description?: string; keywords?: string[] };
   draft?: boolean;
 
-  // Program-specific optional fields
   governmentFees?: {
     label: string;
     amount?: number;
@@ -208,8 +167,7 @@ const toTitle = (slug: string) =>
 
 const coerceNum = (v: unknown): number | undefined => {
   if (typeof v === "number" && Number.isFinite(v)) return v;
-  if (typeof v === "string" && v.trim() !== "" && !isNaN(Number(v)))
-    return Number(v);
+  if (typeof v === "string" && v.trim() !== "" && !isNaN(Number(v))) return Number(v);
   return undefined;
 };
 
@@ -220,9 +178,7 @@ const sanitizeStringArray = (a?: unknown): string[] | undefined => {
       .map((v) => {
         if (typeof v === "string") return v;
         if (v && typeof v === "object") {
-          const entries = Object.entries(v as Record<string, unknown>).map(
-            ([k, val]) => `${k}: ${String(val)}`,
-          );
+          const entries = Object.entries(v as Record<string, unknown>).map(([k, val]) => `${k}: ${String(val)}`);
           return entries.join(", ");
         }
         return String(v);
@@ -239,14 +195,10 @@ const toAbsolute = (p: string | undefined, fallback: string) => {
   return `/${p.replace(/^\.?\/*/, "")}`;
 };
 
-/** MDX options — NOTE: no `as const` to avoid readonly arrays */
+/** MDX options — no `components` (prevents TS2353) */
 const baseMdxOptions = {
   remarkPlugins: [remarkGfm],
-  rehypePlugins: [
-    rehypeSlug,
-    [rehypeAutolinkHeadings, { behavior: "wrap" }],
-    rehypeFixInvalidLinkChildren,
-  ],
+  rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: "wrap" }], rehypeFixInvalidLinkChildren],
 };
 
 /** slugify section titles, e.g. "Why Choose Us?" -> "why-choose-us" */
@@ -259,7 +211,11 @@ function slugify(h: string) {
     .replace(/\s+/g, "-");
 }
 
-/** Split MDX body by top-level `###` headings (keeps the h3 line) */
+/**
+ * Split MDX by top-level `###` headings only.
+ * - Content before the first heading becomes "overview" (we seed it).
+ * - We do NOT split on `##`, so authors can freely use H2 inside sections.
+ */
 function splitByH3(md: string): Record<string, string> {
   const lines = md.split(/\r?\n/);
   const out: Record<string, string> = {};
@@ -283,17 +239,29 @@ function splitByH3(md: string): Record<string, string> {
     if (m) {
       flush();
       current = nextKey(slugify(m[1]));
-      buf.push(line);
+      // we intentionally DO NOT push the H3 line; page components add their own headings
     } else {
       if (!current) {
+        // seed an "overview" section
         current = nextKey("overview");
-        buf.push("### Overview");
       }
       buf.push(line);
     }
   }
   flush();
+  if (!("overview" in out)) out.overview = "";
   return out;
+}
+
+/** Strip a redundant "Program Overview" heading at the top of a chunk */
+function stripLeadingProgramOverview(md: string): string {
+  const lines = md.split(/\r?\n/);
+  if (lines.length === 0) return md;
+  const first = lines[0].trim();
+  if (/^#{2,3}\s*program\s+overview\b/i.test(first)) {
+    return lines.slice(1).join("\n").trim();
+  }
+  return md;
 }
 
 /* ============== Robust cache stamp (recursive) ============== */
@@ -303,8 +271,7 @@ type Cache = {
   mtimes?: Map<string, number>;
 };
 const _g = globalThis as any;
-if (!_g.__CORPORATE_CACHE__)
-  _g.__CORPORATE_CACHE__ = { mtimes: new Map() } as Cache;
+if (!_g.__CORPORATE_CACHE__) _g.__CORPORATE_CACHE__ = { mtimes: new Map() } as Cache;
 const CACHE: Cache = _g.__CORPORATE_CACHE__;
 
 /** Recursively get the newest mtime under the corporate content tree. */
@@ -332,30 +299,20 @@ function dirStamp(rootDir: string): number {
 /* =========================
  * Normalizers (defensive)
  * =======================*/
-function normalizeCountry(
-  metaIn: Partial<CountryMeta>,
-  slug: string,
-): CountryMeta {
+function normalizeCountry(metaIn: Partial<CountryMeta>, slug: string): CountryMeta {
   const meta: any = { ...metaIn };
   const countrySlug = meta.countrySlug || slug;
   const country = meta.country || meta.title || toTitle(countrySlug);
-  const title =
-    meta.title ||
-    (typeof country === "string" ? country : toTitle(countrySlug));
+  const title = meta.title || (typeof country === "string" ? country : toTitle(countrySlug));
 
-  // Clean array-ish fields
   meta.introPoints = sanitizeStringArray(meta.introPoints);
   meta.tags = sanitizeStringArray(meta.tags);
   meta.keyPoints = sanitizeStringArray(meta.keyPoints);
   meta.requirements = sanitizeStringArray(meta.requirements);
 
-  // Images: enforce root-absolute; keep sensible fallbacks
   const fallbackHero = `/images/${countrySlug}.jpg`;
   meta.heroImage = toAbsolute(meta.heroImage, fallbackHero);
-  meta.heroPoster = toAbsolute(
-    meta.heroPoster,
-    `/images/${countrySlug}-hero-poster.jpg`,
-  );
+  meta.heroPoster = toAbsolute(meta.heroPoster, `/images/${countrySlug}-hero-poster.jpg`);
 
   return {
     ...meta,
@@ -366,52 +323,43 @@ function normalizeCountry(
   } as CountryMeta;
 }
 
-function normalizeProgram(
-  metaIn: Partial<ProgramMeta>,
-  cSlug: string,
-  pSlug: string,
-): ProgramMeta {
+function normalizeBadgeTone(t?: string): "indigo" | "emerald" | "amber" | "slate" {
+  if (!t) return "indigo";
+  const k = String(t).toLowerCase();
+  if (k === "blue") return "indigo";
+  if (k === "green" || k === "emerald") return "emerald";
+  if (k === "yellow" || k === "amber") return "amber";
+  if (k === "gray" || k === "slate") return "slate";
+  return "indigo";
+}
+
+function normalizeProgram(metaIn: Partial<ProgramMeta>, cSlug: string, pSlug: string): ProgramMeta {
   const meta: any = { ...metaIn };
   meta.programSlug = meta.programSlug || pSlug;
   meta.countrySlug = meta.countrySlug || cSlug;
   meta.category = "corporate";
 
-  // numbers
-  if (meta.minInvestment !== undefined)
-    meta.minInvestment = coerceNum(meta.minInvestment);
-  if (meta.timelineMonths !== undefined)
-    meta.timelineMonths = coerceNum(meta.timelineMonths);
+  if (meta.minInvestment !== undefined) meta.minInvestment = coerceNum(meta.minInvestment);
+  if (meta.timelineMonths !== undefined) meta.timelineMonths = coerceNum(meta.timelineMonths);
+
   if (Array.isArray(meta.prices)) {
-    meta.prices = meta.prices.map((row: any) => ({
-      ...row,
-      amount: coerceNum(row?.amount),
-    }));
+    meta.prices = meta.prices.map((row: any) => ({ ...row, amount: coerceNum(row?.amount) }));
   }
   if (Array.isArray(meta.proofOfFunds)) {
-    meta.proofOfFunds = meta.proofOfFunds.map((row: any) => ({
-      ...row,
-      amount: coerceNum(row?.amount) ?? 0,
-    }));
+    meta.proofOfFunds = meta.proofOfFunds.map((row: any) => ({ ...row, amount: coerceNum(row?.amount) ?? 0 }));
   }
   if (Array.isArray(meta.governmentFees)) {
-    meta.governmentFees = meta.governmentFees.map((row: any) => ({
-      ...row,
-      amount: coerceNum(row?.amount),
-    }));
+    meta.governmentFees = meta.governmentFees.map((row: any) => ({ ...row, amount: coerceNum(row?.amount) }));
   }
 
-  // arrays cleanup
   meta.tags = sanitizeStringArray(meta.tags);
   meta.benefits = sanitizeStringArray(meta.benefits);
   meta.requirements = sanitizeStringArray(meta.requirements);
   meta.disqualifiers = sanitizeStringArray(meta.disqualifiers);
 
-  // language normalization (keep both shapes supported)
   if (meta.languageRequirements && typeof meta.languageRequirements === "object") {
     const lr = meta.languageRequirements as any;
-    if (lr.tests && !Array.isArray(lr.tests)) {
-      lr.tests = [String(lr.tests)].filter(Boolean);
-    }
+    if (lr.tests && !Array.isArray(lr.tests)) lr.tests = [String(lr.tests)].filter(Boolean);
     if (lr.minLevel != null) lr.minLevel = String(lr.minLevel);
   }
   if (meta.languageMin && typeof meta.languageMin === "object") {
@@ -426,7 +374,7 @@ function normalizeProgram(
     }
   }
 
-  // sponsorship
+  // sponsorship/job-offer normalization
   if (typeof meta.jobOfferRequired === "string") {
     meta.jobOfferRequired = /^(true|yes|1)$/i.test(meta.jobOfferRequired);
   }
@@ -439,17 +387,24 @@ function normalizeProgram(
     }
   }
 
-  // media paths: enforce absolute; fallback to country image
+  // authority notes tone normalization
+  if (Array.isArray(meta.authorityNotes)) {
+    meta.authorityNotes = meta.authorityNotes.map((n: any) => ({
+      ...n,
+      badgeTone: normalizeBadgeTone(n?.badgeTone),
+    }));
+  }
+
+  // Merge top-level `ctas` into quickCheck.ctas if present
+  if (meta.ctas && (!meta.quickCheck || !meta.quickCheck.ctas)) {
+    meta.quickCheck = { ...(meta.quickCheck || {}), ctas: meta.ctas };
+  }
+
   const fallbackHero = `/images/${cSlug}.jpg`;
   meta.heroImage = toAbsolute(meta.heroImage, fallbackHero);
-  if (meta.heroPoster)
-    meta.heroPoster = toAbsolute(
-      meta.heroPoster,
-      `/images/${cSlug}-hero-poster.jpg`,
-    );
+  if (meta.heroPoster) meta.heroPoster = toAbsolute(meta.heroPoster, `/images/${cSlug}-hero-poster.jpg`);
   if (meta.brochure) meta.brochure = toAbsolute(meta.brochure, meta.brochure);
 
-  // testimonials shape guard
   if (Array.isArray(meta.testimonials)) {
     meta.testimonials = meta.testimonials
       .map((t: any) => {
@@ -476,7 +431,6 @@ export function getCorporateCountrySlugs(): string[] {
   const stampKey = `${ROOT}::stamp`;
   const stamp = dirStamp(ROOT);
 
-  // warm path: only compute slugs when structure changes
   if (CACHE.countries && CACHE.mtimes?.get(stampKey) === stamp) {
     return CACHE.countries.map((c) => c.countrySlug);
   }
@@ -529,11 +483,7 @@ export function getCorporatePrograms(countrySlug?: string): ProgramMeta[] {
   const cacheKey = `${ROOT}::programsAll`;
 
   const stamp = dirStamp(ROOT);
-  if (
-    !countrySlug &&
-    CACHE.programsAll &&
-    CACHE.mtimes?.get(stampKey) === stamp
-  ) {
+  if (!countrySlug && CACHE.programsAll && CACHE.mtimes?.get(stampKey) === stamp) {
     return CACHE.programsAll;
   }
 
@@ -549,9 +499,7 @@ export function getCorporatePrograms(countrySlug?: string): ProgramMeta[] {
     }
   }
 
-  const sorted = out.sort((a, b) =>
-    (a.countrySlug + a.title).localeCompare(b.countrySlug + b.title),
-  );
+  const sorted = out.sort((a, b) => (a.countrySlug + a.title).localeCompare(b.countrySlug + b.title));
 
   if (!countrySlug) {
     CACHE.programsAll = sorted;
@@ -570,38 +518,22 @@ export async function loadCountryPage(countrySlug: string) {
   const source = fs.readFileSync(f, "utf8");
   const { content, frontmatter } = await compileMDX<CountryMeta>({
     source,
-    options: {
-      parseFrontmatter: true,
-      mdxOptions: baseMdxOptions as any,
-    },
+    options: { parseFrontmatter: true, mdxOptions: baseMdxOptions as any },
   });
 
-  const meta = normalizeCountry(
-    frontmatter as Partial<CountryMeta>,
-    countrySlug,
-  );
+  const meta = normalizeCountry(frontmatter as Partial<CountryMeta>, countrySlug);
   return { content, meta };
 }
 
-export async function loadProgramPage(
-  countrySlug: string,
-  programSlug: string,
-) {
+export async function loadProgramPage(countrySlug: string, programSlug: string) {
   const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
   const source = fs.readFileSync(f, "utf8");
   const { content, frontmatter } = await compileMDX<ProgramMeta>({
     source,
-    options: {
-      parseFrontmatter: true,
-      mdxOptions: baseMdxOptions as any,
-    },
+    options: { parseFrontmatter: true, mdxOptions: baseMdxOptions as any },
   });
 
-  const meta = normalizeProgram(
-    frontmatter as Partial<ProgramMeta>,
-    countrySlug,
-    programSlug,
-  );
+  const meta = normalizeProgram(frontmatter as Partial<ProgramMeta>, countrySlug, programSlug);
   return { content, meta };
 }
 
@@ -614,21 +546,19 @@ export async function loadProgramPageSections(
   const raw = fs.readFileSync(f, "utf8");
   const { data, content: body } = matter(raw);
 
-  const meta = normalizeProgram(
-    data as Partial<ProgramMeta>,
-    countrySlug,
-    programSlug,
-  );
+  const meta = normalizeProgram(data as Partial<ProgramMeta>, countrySlug, programSlug);
   const chunks = splitByH3(body);
+
+  // Normalize/alias: ensure "overview" has meaningful content and no duplicate heading
+  if (typeof chunks.overview === "string") {
+    chunks.overview = stripLeadingProgramOverview(chunks.overview);
+  }
 
   const entries = await Promise.all(
     Object.entries(chunks).map(async ([key, md]) => {
       const { content } = await compileMDX({
         source: md,
-        options: {
-          parseFrontmatter: false,
-          mdxOptions: baseMdxOptions as any,
-        },
+        options: { parseFrontmatter: false, mdxOptions: baseMdxOptions as any },
       });
       return [key, content] as const;
     }),
@@ -641,17 +571,10 @@ export async function loadProgramPageSections(
 /* =========================
  * Frontmatter-only helpers
  * =======================*/
-export function getProgramFrontmatter(
-  countrySlug: string,
-  programSlug: string,
-) {
+export function getProgramFrontmatter(countrySlug: string, programSlug: string) {
   const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
   const { data } = matter(fs.readFileSync(f, "utf8"));
-  return normalizeProgram(
-    data as Partial<ProgramMeta>,
-    countrySlug,
-    programSlug,
-  );
+  return normalizeProgram(data as Partial<ProgramMeta>, countrySlug, programSlug);
 }
 
 export function getCountryFrontmatter(countrySlug: string) {

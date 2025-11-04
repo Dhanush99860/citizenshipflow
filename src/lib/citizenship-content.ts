@@ -195,6 +195,15 @@ function slugify(h: string) {
     .replace(/\s+/g, "-");
 }
 
+/** Normalize explicit {#id} values to safe keys */
+function normalizeIdKey(id: string) {
+  return id
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 /** Strip disallowed ESM from MDX body: remove any `import ...` or `export ...` lines */
 function sanitizeMdxBody(src: string): string {
   return src
@@ -206,6 +215,7 @@ function sanitizeMdxBody(src: string): string {
 /**
  * Split MDX by H2/H3 headings into named sections.
  * - Supports "##" and "###".
+ * - Honors explicit anchors like: "### Heading {#my-id}" using "my-id" as key.
  * - DOES NOT include the heading line inside the section (prevents duplicate UI headings).
  * - Any content before the first heading becomes "overview".
  * - Deduplicates equal headings by suffixing -2, -3, ...
@@ -217,8 +227,8 @@ function splitByHeadings(md: string): Record<string, string> {
   let buf: string[] = [];
   const counts = new Map<string, number>();
 
-  const nextKey = (raw: string) => {
-    const base = slugify(raw);
+  const nextKey = (baseRaw: string) => {
+    const base = baseRaw;
     const n = (counts.get(base) || 0) + 1;
     counts.set(base, n);
     return n === 1 ? base : `${base}-${n}`;
@@ -231,10 +241,21 @@ function splitByHeadings(md: string): Record<string, string> {
   };
 
   for (const line of lines) {
-    const m = /^#{2,3}\s+(.+?)\s*$/.exec(line);
+    const m = /^(#{2,3})\s+(.+?)\s*$/.exec(line);
     if (m) {
       flush();
-      current = nextKey(m[1]);
+      let raw = m[2].trim();
+
+      // Allow explicit MDX anchor: "### Title {#my-id}"
+      const anchor = /\{#([A-Za-z0-9_-]+)\}\s*$/.exec(raw);
+      if (anchor) {
+        // drop the "{#id}" from any trailing text and prefer the explicit id as key
+        raw = raw.replace(/\s*\{#[^}]+\}\s*$/, "").trim();
+        const idKey = normalizeIdKey(anchor[1]);
+        current = nextKey(idKey);
+      } else {
+        current = nextKey(slugify(raw));
+      }
       // do NOT push the heading line (UI provides H2s)
     } else {
       buf.push(line);

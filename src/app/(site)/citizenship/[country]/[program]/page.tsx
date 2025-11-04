@@ -37,7 +37,39 @@ const GovernmentFees = nextDynamic(() => import("@/components/Citizenship/Govern
 export const revalidate = 86400;
 export const dynamicParams = true;
 
-/** SSG params */
+/** ---------- small helpers (kept local; no flow changes) ---------- */
+// Slug helper that mirrors the one used when splitting MDX
+function toSlug(s: string) {
+  return s
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+}
+
+/**
+ * Find the best-matching section key from compiled MDX sections.
+ * - Tries exact string keys first
+ * - Then tries regex match (first found wins)
+ */
+function findSectionKey(
+  sections: Record<string, unknown>,
+  ...candidates: (string | RegExp)[]
+): string | undefined {
+  const keys = Object.keys(sections);
+  for (const c of candidates) {
+    if (typeof c === "string") {
+      if (keys.includes(c)) return c;
+    } else {
+      const k = keys.find((k) => c.test(k));
+      if (k) return k;
+    }
+  }
+  return undefined;
+}
+
+/** ---------- SSG params ---------- */
 export async function generateStaticParams() {
   const countries = getCitizenshipCountrySlugs();
   return countries.flatMap((c) =>
@@ -48,7 +80,7 @@ export async function generateStaticParams() {
   );
 }
 
-/** SEO metadata */
+/** ---------- SEO metadata ---------- */
 export async function generateMetadata(props: {
   params: Promise<{ country: string; program: string }>;
 }): Promise<Metadata> {
@@ -106,7 +138,9 @@ function similarityScore(
   const baseTags = new Set((base.tags ?? []).map((t) => t.toLowerCase()));
   const candTags = new Set((cand.tags ?? []).map((t) => t.toLowerCase()));
   let score = 0;
-  candTags.forEach((t) => { if (baseTags.has(t)) score += 3; });
+  candTags.forEach((t) => {
+    if (baseTags.has(t)) score += 3;
+  });
   const b = base.title.toLowerCase();
   const c = cand.title.toLowerCase();
   ["citizenship", "investment", "naturalization", "golden", "visa"].forEach((k) => {
@@ -115,7 +149,7 @@ function similarityScore(
   return score;
 }
 
-/** Page */
+/** ---------- Page ---------- */
 export default async function ProgramPage(props: {
   params: Promise<{ country: string; program: string }>;
 }) {
@@ -145,7 +179,11 @@ export default async function ProgramPage(props: {
 
     // Program-level extras (all optional)
     const routeType = (meta as any).routeType as
-      | "donation" | "real-estate" | "bond" | "naturalisation" | undefined;
+      | "donation"
+      | "real-estate"
+      | "bond"
+      | "naturalisation"
+      | undefined;
 
     const holdingPeriodMonths = (meta as any).holdingPeriodMonths as number | undefined;
 
@@ -178,9 +216,15 @@ export default async function ProgramPage(props: {
     /** RELATED (parallelized + capped) */
     const allCountrySlugs = getCitizenshipCountrySlugs();
     const candidateTasks: Promise<{
-      url: string; title: string; country: string;
-      minInvestment?: number; currency?: string; timelineMonths?: number;
-      tags?: string[]; heroImage?: string; score: number;
+      url: string;
+      title: string;
+      country: string;
+      minInvestment?: number;
+      currency?: string;
+      timelineMonths?: number;
+      tags?: string[];
+      heroImage?: string;
+      score: number;
     } | null>[] = [];
 
     for (const ctry of allCountrySlugs) {
@@ -218,9 +262,7 @@ export default async function ProgramPage(props: {
     const relatedRaw = (await Promise.all(candidateTasks)).filter(Boolean) as NonNullable<
       Awaited<(typeof candidateTasks)[number]>
     >[];
-    const relatedPrograms = Array.from(
-      new Map(relatedRaw.map((r) => [r.url, r])).values(),
-    )
+    const relatedPrograms = Array.from(new Map(relatedRaw.map((r) => [r.url, r])).values())
       .sort((a, b) => {
         if (a.score !== b.score) return b.score - a.score;
         const ta = a.timelineMonths ?? Number.MAX_SAFE_INTEGER;
@@ -232,13 +274,43 @@ export default async function ProgramPage(props: {
       })
       .slice(0, 6);
 
-    /** In-page Quick Nav IDs — ordered to match on-page content */
+    /** ---------- MDX section keys (robust to headings/anchors) ---------- */
+    const countrySlugFromMeta = toSlug((meta as any).country || "");
+    const overviewKey =
+      findSectionKey(sections, "overview") ??
+      findSectionKey(sections, /^introduction$/i);
+    const investmentKey =
+      findSectionKey(sections, "investment-overview", "investment") ??
+      findSectionKey(sections, /^investment/);
+    const comparisonKey =
+      findSectionKey(
+        sections,
+        "comparison",
+        /^comparison(-|$)/,
+        /^comparison-of-/,
+        /(^|-)vs(-|$)/,
+        /(^|-)versus(-|$)/,
+        /(^|-)compare(d|s)?(-|$)/,
+      ) ?? undefined;
+    // Prefer "Why {country}" (not "Why choose...")
+    const whyCountryKey =
+      findSectionKey(
+        sections,
+        new RegExp(`^why-${countrySlugFromMeta}$`),
+        new RegExp(`^why-${countrySlugFromMeta.split("-").slice(0, 3).join("-")}`),
+        /^why-(?!choose)/, // any "why-" that is not "why-choose..."
+      ) ?? undefined;
+    // Kept for future use; not necessarily rendered on this page
+    const whyUsKey =
+      findSectionKey(sections, "why-choose-us") ??
+      findSectionKey(sections, /^why-choose/);
+
     const mdxKey = {
-      overview: "overview",
-      investment: "investment-overview",
-      comparison: "comparison-with-provincial-entrepreneur-programs",
-      whyCountry: `why-${params.country}`,
-      whyUs: "why-choose-us",
+      overview: overviewKey,
+      investment: investmentKey,
+      comparison: comparisonKey,
+      whyCountry: whyCountryKey,
+      whyUs: whyUsKey,
     } as const;
 
     const hasSpecifics = !!(routeType || typeof holdingPeriodMonths === "number" || lastUpdated);
@@ -250,8 +322,8 @@ export default async function ProgramPage(props: {
     const hasDeps = !!familyMatrix;
     const hasProcess = processSteps.length > 0;
     const hasCompliance = !!(riskNotes?.length || complianceNotes?.length);
-    const hasComparison = !!sections[mdxKey.comparison];
-    const hasWhyCountry = !!sections[mdxKey.whyCountry];
+    const hasComparison = !!(mdxKey.comparison && sections[mdxKey.comparison]);
+    const hasWhyCountry = !!(mdxKey.whyCountry && sections[mdxKey.whyCountry]);
     const hasProjects = !!projectList?.length;
     const hasEstimator = !!(meta as any).costEstimator?.baseOptions?.length;
     const hasFAQ = !!(meta as any).faq?.length;
@@ -261,8 +333,8 @@ export default async function ProgramPage(props: {
     const sectionsForNav: { id: string; label: string }[] = [
       { id: "quick-facts", label: "Quick facts" },
       ...(hasSpecifics ? [{ id: "specifics", label: "Program specifics" }] : []),
-      ...(sections[mdxKey.overview] ? [{ id: "overview", label: "Overview" }] : []),
-      ...(sections[mdxKey.investment] ? [{ id: "investment", label: "Investment" }] : []),
+      ...(mdxKey.overview ? [{ id: "overview", label: "Overview" }] : []),
+      ...(mdxKey.investment ? [{ id: "investment", label: "Investment" }] : []),
       ...(hasPrices ? [{ id: "prices", label: "Costs & funds" }] : []),
       ...(hasGovFees ? [{ id: "gov-fees", label: "Government fees" }] : []),
       ...(hasRequirements ? [{ id: "requirements", label: "Eligibility" }] : []),
@@ -304,7 +376,8 @@ export default async function ProgramPage(props: {
         ? {
             "@context": "https://schema.org",
             "@type": "AggregateOffer",
-            priceCurrency: prices.find((p) => p.currency)?.currency || (meta as any).currency || "USD",
+            priceCurrency:
+              prices.find((p) => p.currency)?.currency || (meta as any).currency || "USD",
             offers: prices
               .filter((p) => typeof p.amount === "number")
               .map((p) => ({
@@ -402,8 +475,14 @@ export default async function ProgramPage(props: {
                   role="group"
                   aria-label="Key program parameters"
                 >
-                  <span aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full bg-sky-500/5 blur-2xl" />
-                  <span aria-hidden className="pointer-events-none absolute -left-10 -bottom-12 h-40 w-40 rounded-full bg-indigo-500/5 blur-2xl" />
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full bg-sky-500/5 blur-2xl"
+                  />
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute -left-10 -bottom-12 h-40 w-40 rounded-full bg-indigo-500/5 blur-2xl"
+                  />
 
                   <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
                     {/* Route type */}
@@ -436,7 +515,9 @@ export default async function ProgramPage(props: {
                             {holdingPeriodMonths} {holdingPeriodMonths === 1 ? "month" : "months"}
                           </time>
                           {holdingPeriodMonths >= 12 ? (
-                            <span className="ml-2 text-sm font-normal opacity-80">({approxYears(holdingPeriodMonths)})</span>
+                            <span className="ml-2 text-sm font-normal opacity-80">
+                              ({approxYears(holdingPeriodMonths)})
+                            </span>
                           ) : null}
                         </dd>
                         <dd className="text-xs opacity-70">Minimum asset retention</dd>
@@ -480,7 +561,7 @@ export default async function ProgramPage(props: {
             ) : null}
 
             {/* OVERVIEW */}
-            {sections[mdxKey.overview] && (
+            {mdxKey.overview && sections[mdxKey.overview] && (
               <section id="overview" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">Program overview</h2>
@@ -490,7 +571,7 @@ export default async function ProgramPage(props: {
             )}
 
             {/* INVESTMENT */}
-            {sections[mdxKey.investment] && (
+            {mdxKey.investment && sections[mdxKey.investment] && (
               <section id="investment" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">Investment overview</h2>
@@ -506,7 +587,11 @@ export default async function ProgramPage(props: {
                   <h2 className="text-xl font-semibold">Costs & proof of funds</h2>
                 </header>
                 <div className="w-full overflow-visible">
-                  <Prices items={prices ?? []} proofOfFunds={proofOfFunds ?? []} defaultCurrency={(meta as any).currency} />
+                  <Prices
+                    items={prices ?? []}
+                    proofOfFunds={proofOfFunds ?? []}
+                    defaultCurrency={(meta as any).currency}
+                  />
                 </div>
               </section>
             ) : null}
@@ -514,12 +599,15 @@ export default async function ProgramPage(props: {
             {/* GOV FEES — anchor for quick-nav */}
             {hasGovFees ? (
               <section id="gov-fees" className="scroll-mt-28">
-                <GovernmentFees fees={governmentFees} defaultCurrency={(meta as any).currency || "USD"} />
+                <GovernmentFees
+                  fees={governmentFees}
+                  defaultCurrency={(meta as any).currency || "USD"}
+                />
               </section>
             ) : null}
 
             {/* === Eligibility + Benefits === */}
-            {(hasRequirements || hasBenefits) ? (
+            {hasRequirements || hasBenefits ? (
               <div className="grid gap-6 lg:grid-cols-2">
                 {hasRequirements ? (
                   <section
@@ -528,10 +616,14 @@ export default async function ProgramPage(props: {
                     className="scroll-mt-28 rounded-2xl bg-sky-50 dark:bg-sky-950/30 ring-1 ring-sky-200/60 dark:ring-sky-900/50 p-6"
                   >
                     <header className="mb-3">
-                      <h2 id="eligibility-title" className="text-xl font-semibold">Eligibility</h2>
+                      <h2 id="eligibility-title" className="text-xl font-semibold">
+                        Eligibility
+                      </h2>
                     </header>
                     <ul className="list-disc pl-5 space-y-2 text-[15px] leading-7">
-                      {(meta as any).requirements.map((r: string) => <li key={r}>{r}</li>)}
+                      {(meta as any).requirements.map((r: string) => (
+                        <li key={r}>{r}</li>
+                      ))}
                     </ul>
                   </section>
                 ) : null}
@@ -543,10 +635,14 @@ export default async function ProgramPage(props: {
                     className="scroll-mt-28 rounded-2xl bg-emerald-50 dark:bg-emerald-950/25 ring-1 ring-emerald-200/60 dark:ring-emerald-900/40 p-6"
                   >
                     <header className="mb-3">
-                      <h2 id="benefits-title" className="text-xl font-semibold">Key benefits</h2>
+                      <h2 id="benefits-title" className="text-xl font-semibold">
+                        Key benefits
+                      </h2>
                     </header>
                     <ul className="list-disc pl-5 space-y-2 text-[15px] leading-7">
-                      {(meta as any).benefits.map((b: string) => <li key={b}>{b}</li>)}
+                      {(meta as any).benefits.map((b: string) => (
+                        <li key={b}>{b}</li>
+                      ))}
                     </ul>
                   </section>
                 ) : null}
@@ -581,12 +677,15 @@ export default async function ProgramPage(props: {
             {/* Risk & Compliance */}
             {hasCompliance ? (
               <section id="compliance" className="scroll-mt-28">
-                <RiskCompliance riskNotes={riskNotes ?? []} complianceNotes={complianceNotes ?? []} />
+                <RiskCompliance
+                  riskNotes={riskNotes ?? []}
+                  complianceNotes={complianceNotes ?? []}
+                />
               </section>
             ) : null}
 
             {/* COMPARISON */}
-            {sections[mdxKey.comparison] && (
+            {hasComparison && mdxKey.comparison && (
               <section id="comparison" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">Comparison</h2>
@@ -596,7 +695,7 @@ export default async function ProgramPage(props: {
             )}
 
             {/* WHY COUNTRY */}
-            {sections[mdxKey.whyCountry] && (
+            {hasWhyCountry && mdxKey.whyCountry && (
               <section id="why-country" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">Why {meta.country}</h2>
@@ -610,11 +709,16 @@ export default async function ProgramPage(props: {
               <section id="projects" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">Approved projects</h2>
-                  <p className="text-sm opacity-80">Government-approved developments vetted for eligibility and exit horizons.</p>
+                  <p className="text-sm opacity-80">
+                    Government-approved developments vetted for eligibility and exit horizons.
+                  </p>
                 </header>
                 <ul className="grid gap-4 sm:grid-cols-2">
                   {projectList!.map((p) => (
-                    <li key={p.name} className="overflow-hidden rounded-2xl ring-1 ring-neutral-200/80 dark:ring-neutral-800/80 bg-white/80 dark:bg-neutral-900/40">
+                    <li
+                      key={p.name}
+                      className="overflow-hidden rounded-2xl ring-1 ring-neutral-200/80 dark:ring-neutral-800/80 bg-white/80 dark:bg-neutral-900/40"
+                    >
                       <div className="relative aspect-[16/9] overflow-hidden">
                         {p.image ? (
                           // eslint-disable-next-line @next/next/no-img-element
@@ -631,7 +735,8 @@ export default async function ProgramPage(props: {
                           <div className="rounded-lg bg-black/5 dark:bg-white/10 ring-1 ring-neutral-200 dark:ring-neutral-700 p-2">
                             <div className="opacity-70 text-[11px]">Min buy-in</div>
                             <div className="font-medium tabular-nums">
-                              {typeof p.minBuyIn === "number" ? p.minBuyIn.toLocaleString() : "—"} {(meta as any).currency || ""}
+                              {typeof p.minBuyIn === "number" ? p.minBuyIn.toLocaleString() : "—"}{" "}
+                              {(meta as any).currency || ""}
                             </div>
                           </div>
                           <div className="rounded-lg bg-black/5 dark:bg-white/10 ring-1 ring-neutral-200 dark:ring-neutral-700 p-2">
@@ -647,7 +752,10 @@ export default async function ProgramPage(props: {
                   ))}
                 </ul>
                 <div className="mt-4">
-                  <a href="/personal-booking" className="inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700">
+                  <a
+                    href="/personal-booking"
+                    className="inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
+                  >
                     Discuss vetted projects
                   </a>
                 </div>
@@ -683,13 +791,16 @@ export default async function ProgramPage(props: {
                   </h2>
                 </header>
                 <ul className="list-disc pl-5 text-[15px] leading-7 text-amber-900/90 dark:text-amber-100/90">
-                  {disqualifiers.map((d) => <li key={d}>{d}</li>)}
+                  {disqualifiers.map((d) => (
+                    <li key={d}>{d}</li>
+                  ))}
                 </ul>
                 <p className="mt-3 text-[14px]">
                   Not a match? Explore{" "}
                   <Link href={`/citizenship/${params.country}`} className="underline">
                     other programs in {meta.country}
-                  </Link>.
+                  </Link>
+                  .
                 </p>
               </section>
             ) : null}
@@ -730,7 +841,15 @@ export default async function ProgramPage(props: {
                             className="inline-flex h-8 w-8 items-center justify-center rounded-full ring-1 ring-neutral-200 dark:ring-neutral-700 bg-black/5 dark:bg-white/10 transition group-hover:bg-black/10 group-hover:dark:bg-white/15"
                             aria-hidden
                           >
-                            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <svg
+                              viewBox="0 0 24 24"
+                              className="h-4 w-4"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
                               <path d="M5 12h14M13 5l7 7-7 7" />
                             </svg>
                           </span>
@@ -790,7 +909,10 @@ export default async function ProgramPage(props: {
                               {!!r.tags?.length && (
                                 <div className="hidden md:flex flex-wrap gap-1 max-w-[220px] justify-end">
                                   {r.tags.slice(0, 3).map((t) => (
-                                    <span key={t} className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] opacity-80 ring-1 ring-neutral-200 dark:ring-neutral-700">
+                                    <span
+                                      key={t}
+                                      className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] opacity-80 ring-1 ring-neutral-200 dark:ring-neutral-700"
+                                    >
                                       {t}
                                     </span>
                                   ))}

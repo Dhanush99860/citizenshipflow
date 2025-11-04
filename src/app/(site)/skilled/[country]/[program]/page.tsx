@@ -1,4 +1,4 @@
-// Skilled detail page — skilled-only UX (no investment/cost blocks), plus Insights & Related.
+// Skilled detail page — skilled-only UX (no investment/cost blocks), Related only (no Insights)
 
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -10,7 +10,6 @@ import {
   getSkilledCountrySlugs,
   getSkilledPrograms,
   loadProgramPageSections,
-  getInsightsForProgram, // insights helper exported in lib
 } from "@/lib/skilled-content";
 import { baseFromCategory, pickSectionKey } from "@/lib/section-helpers";
 
@@ -19,7 +18,7 @@ import { JsonLd, breadcrumbLd, faqLd } from "@/lib/seo";
 
 // Dynamically import heavy UI sections to reduce the main bundle size.
 // Using next/dynamic helps lower Total Blocking Time and improves
-// Lighthouse performance【330944343751455†L23-L112】.
+// Lighthouse performance.
 import nextDynamic from "next/dynamic";
 
 const MediaHero = nextDynamic(() => import("@/components/Skilled/MediaHero"));
@@ -61,10 +60,21 @@ export async function generateStaticParams() {
   return params;
 }
 
+/** simple slug helper (null/undefined/number-safe) */
+const toSlug = (s: unknown) =>
+  String(s ?? "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+
 /** SEO */
 export async function generateMetadata(
-  { params }: { params: { country: string; program: string } }
+  props: { params: Promise<{ country: string; program: string }> }
 ): Promise<Metadata> {
+  const params = await props.params;
+
   try {
     const { meta } = await loadProgramPageSections(params.country, params.program);
     const heroImage = (meta as any).heroImage as string | undefined;
@@ -146,15 +156,6 @@ type RelatedItem = {
   tags?: string[];
   heroImage?: string;
   score: number;
-};
-
-type InsightItem = {
-  title: string;
-  url: string;
-  source?: string;
-  date?: string; // ISO
-  tag?: string;
-  excerpt?: string;
 };
 
 function SkilledFacts({
@@ -268,7 +269,11 @@ function SkilledFacts({
   );
 }
 
-export default async function ProgramPage({ params }: { params: { country: string; program: string } }) {
+export default async function ProgramPage(
+  props: { params: Promise<{ country: string; program: string }> }
+) {
+  const params = await props.params;
+
   try {
     const { meta, sections } = await loadProgramPageSections(params.country, params.program);
 
@@ -330,19 +335,6 @@ export default async function ProgramPage({ params }: { params: { country: strin
         sourceLabel?: string;
         sourceUrl?: string;
       }[] | undefined;
-
-    // Insights (from skilled-content wrapper around insights-content)
-    let insights: InsightItem[] = [];
-    try {
-      insights =
-        (await getInsightsForProgram({
-          country: params.country,
-          program: params.program,
-          tags: ((meta as any).tags ?? []) as string[],
-        })) ?? [];
-    } catch {
-      // safe no-op
-    }
 
     const otherProgramsRaw = await getSkilledPrograms(params.country);
     const otherPrograms = (otherProgramsRaw as any[])
@@ -412,11 +404,10 @@ export default async function ProgramPage({ params }: { params: { country: strin
       "alternatives",
       "comparison-with-provincial-entrepreneur-programs",
     ]);
+
+    const countryKey = toSlug((meta as any).country ?? params.country);
     const whyCountryKey = pickSectionKey(sections, [
-      `why-${params.country.toLowerCase()}`,
-      `${(meta as any).country?.toLowerCase?.() ?? ""}`.startsWith("why-")
-        ? (meta as any).country?.toLowerCase?.()
-        : `why-${(meta as any).country?.toLowerCase?.() ?? ""}`,
+      `why-${countryKey}`,
       "why-country",
     ]);
 
@@ -434,9 +425,8 @@ export default async function ProgramPage({ params }: { params: { country: strin
     const hasQuickCheck = !!quickCheck?.questions?.length;
     const hasDocs = !!documentChecklist?.length;
     const hasDeps = !!familyMatrix;
-    const hasInsights = insights.length > 0;
 
-    // QuickNav: mirrors on-page order (no Prices / Investment)
+    // QuickNav: mirrors on-page order (no Prices / Investment, and NO Insights)
     const sectionsForNav: { id: string; label: string }[] = [
       { id: "quick-facts", label: "Quick facts" },
       ...(hasPoints ? [{ id: "points", label: "Points grid" }] : []),
@@ -457,7 +447,6 @@ export default async function ProgramPage({ params }: { params: { country: strin
       ...(disqualifiers.length ? [{ id: "not-a-fit", label: "Not a fit?" }] : []),
       ...(hasFAQ ? [{ id: "faq", label: "FAQ" }] : []),
       ...(hasRelated ? [{ id: "related", label: "Related" }] : []),
-      ...(hasInsights ? [{ id: "insights", label: "Insights" }] : []),
     ];
 
     // JSON-LD (HowTo only; no AggregateOffer for skilled pages)
@@ -742,35 +731,6 @@ export default async function ProgramPage({ params }: { params: { country: strin
               </section>
             ) : null}
 
-            {/* Insights */}
-            {hasInsights ? (
-              <section id="insights" className="scroll-mt-28">
-                <header className="mb-3">
-                  <h2 className="text-xl font-semibold">Insights</h2>
-                  <p className="text-sm opacity-80">
-                    News, media, blogs & articles relevant to this program.
-                  </p>
-                </header>
-                <div className="space-y-3">
-                  {insights.map((it) => (
-                    <a
-                      key={it.url}
-                      href={it.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block rounded-xl ring-1 ring-neutral-200 dark:ring-neutral-800 p-4 hover:bg-neutral-50 dark:hover:bg-neutral-900/40"
-                    >
-                      <div className="text-base font-medium">{it.title}</div>
-                      <div className="text-xs opacity-70 mt-0.5">
-                        {it.source ?? ""}{it.source && it.date ? " • " : ""}{it.date ?? ""}
-                      </div>
-                      {it.excerpt ? <p className="text-sm mt-2 opacity-90">{it.excerpt}</p> : null}
-                    </a>
-                  ))}
-                </div>
-              </section>
-            ) : null}
-
             {/* Related programs */}
             {hasRelated ? (
               <section id="related" className="scroll-mt-28">
@@ -862,6 +822,7 @@ export default async function ProgramPage({ params }: { params: { country: strin
       </main>
     );
   } catch (e) {
+    // Keep a single concise error; page will 404
     console.error("[Skilled ProgramPage] load error", e);
     notFound();
   }

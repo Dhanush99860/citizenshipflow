@@ -23,7 +23,7 @@ export default function HeroPremium({
   subtitle = "Concierge guidance across donation and real-estate routes. Transparent costs, rigorous compliance, and end-to-end execution.",
   primaryHref = "/personal-booking",
   primaryText = "Book a Free Consultation",
-  secondaryHref = "/images/citizenship/Brochure/projectbrochure.pdf",
+  secondaryHref = "/images/citizenship/antigua/xiphias-immigration.pdf",
   secondaryText = "Download Guide",
   className = "",
   badge = "Private Client Service",

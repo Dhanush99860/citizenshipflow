@@ -7,14 +7,12 @@ import {
   getCorporateCountries,
 } from "@/lib/corporate-content";
 import { JsonLd, breadcrumbLd } from "@/lib/seo";
-// Alias dynamic import to avoid name collision with the `export const dynamic` config below.
 import nextDynamic from "next/dynamic";
 
-// Dynamically import heavy components to split the bundle and improve TBT
 const MediaHero = nextDynamic(() => import("@/components/Residency/MediaHero"));
 const ContactForm = nextDynamic(() => import("@/components/ContactForm"));
 const Breadcrumb = nextDynamic(() => import("@/components/Common/Breadcrumb"));
-/* Same modular sections you use for Residency */
+
 const SidebarStatsPanel = nextDynamic(() => import("@/components/Residency/Country/SidebarStatsPanel"));
 const SidebarProgramsList = nextDynamic(() => import("@/components/Residency/Country/SidebarProgramsList"));
 const SidebarHighlights = nextDynamic(() => import("@/components/Residency/Country/SidebarHighlights"));
@@ -23,16 +21,10 @@ const WhyCountrySection = nextDynamic(() => import("@/components/Residency/Count
 const ProcessSteps = nextDynamic(() => import("@/components/Residency/Country/ProcessSteps"));
 const EligibilityRequirements = nextDynamic(() => import("@/components/Residency/Country/EligibilityRequirements"));
 const FAQSection = nextDynamic(() => import("@/components/Residency/Country/FAQSection"));
-// MDXDetailsSection is unused on this page, so it's not imported.
 const RelatedCountriesSection = nextDynamic(() => import("@/components/Residency/Country/RelatedCountriesSection"));
 
-// Runtime configuration: opt in to the Node.js runtime.  Revalidate the
-// static page once per day.  We omit the `dynamic` export to avoid
-// naming collisions with the `next/dynamic` helper; Next.js will
-// automatically infer static generation from the absence of `dynamic`.
-export const runtime = "nodejs"; // or 'edge'
-export const revalidate = 86400; // 24h — must be a literal number
-// export const preferredRegion = ['iad1'];  // if you used it before
+export const runtime = "nodejs";
+export const revalidate = 86400;
 
 /** SSG params */
 export async function generateStaticParams() {
@@ -87,7 +79,7 @@ export default async function CountryPage(props: {
   params: Promise<{ country: string }>;
 }) {
   const params = await props.params;
-  const { meta, content } = await loadCountryPage(params.country);
+  const { meta } = await loadCountryPage(params.country);
   const programs = getCorporatePrograms(params.country);
 
   // Hero media
@@ -105,9 +97,7 @@ export default async function CountryPage(props: {
 
   const minInvestmentRange =
     minInvestments.length && programs[0]?.currency
-      ? `${Math.min(...minInvestments).toLocaleString()}–${Math.max(
-          ...minInvestments,
-        ).toLocaleString()} ${programs[0].currency}`
+      ? `${Math.min(...minInvestments).toLocaleString()}–${Math.max(...minInvestments).toLocaleString()} ${programs[0].currency}`
       : "Varies";
 
   const timelineRange = timelines.length
@@ -115,15 +105,8 @@ export default async function CountryPage(props: {
     : "Varies";
 
   // Optional fields from frontmatter
-  const {
-    overview,
-    keyPoints,
-    facts,
-    applicationProcess,
-    requirements,
-    faq,
-    introPoints,
-  } = meta as any;
+  const { overview, keyPoints, facts, applicationProcess, requirements, faq, introPoints } =
+    meta as any;
 
   // Related countries (simple: any other 2)
   const related = getCorporateCountries()
@@ -149,13 +132,7 @@ export default async function CountryPage(props: {
           videoSrc={videoSrc}
           poster={poster}
           imageSrc={heroImage}
-          actions={[
-            {
-              href: "/personal-booking",
-              label: "Book Consultation",
-              variant: "primary",
-            },
-          ]}
+          actions={[{ href: "/personal-booking", label: "Book Consultation", variant: "primary" }]}
         />
       </section>
 
@@ -181,11 +158,7 @@ export default async function CountryPage(props: {
 
         {/* Main content */}
         <div className="md:col-span-8 space-y-8">
-          <AboutCountrySection
-            country={meta.country}
-            overview={overview}
-            facts={facts}
-          />
+          <AboutCountrySection country={meta.country} overview={overview} facts={facts} />
           <WhyCountrySection country={meta.country} points={keyPoints} />
           <ProcessSteps steps={applicationProcess} />
           <EligibilityRequirements items={requirements} />

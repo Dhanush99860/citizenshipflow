@@ -41,10 +41,10 @@ const DEFAULT_VERDICT: VerdictText = {
   cautionText: "Some answers need review. There may be alternative routes.",
 };
 const DEFAULT_CTAS: Required<QuickCheckCTAs> = {
-  primaryHref: "/personal-booking",
-  primaryText: "Book a Free Consultation",
-  secondaryHref: "/eligibility",
-  secondaryText: "Full eligibility checker",
+  primaryHref: "/eligibility",
+  primaryText: "Check Eligibility",
+  secondaryHref: "/contact",
+  secondaryText: "Get free Consultation",
 };
 
 /* ---------------- Component ---------------- */
@@ -266,16 +266,6 @@ export default function EligibilityQuickCheck({
 
         {/* User controls (no layout-jump) */}
         <div className="flex items-center gap-2">
-          <label className="inline-flex items-center gap-2 text-[12px] ring-1 ring-neutral-200 dark:ring-neutral-800 rounded-full px-3 py-1 bg-white/80 dark:bg-neutral-900/70">
-            <input
-              type="checkbox"
-              className="h-3.5 w-3.5 accent-sky-600"
-              checked={autoAdvance}
-              onChange={(e) => setAutoAdvance(e.target.checked)}
-              aria-label="Toggle auto-advance to next question"
-            />
-            Auto-advance
-          </label>
           <button
             type="button"
             onClick={reset}

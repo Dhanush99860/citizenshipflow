@@ -38,7 +38,7 @@ export default function OurOffer({
   ],
   primaryHref = "/personal-booking",
   primaryText = "Speak to an Advisor",
-  secondaryHref = "/images/citizenship/Brochure/projectbrochure.pdf",
+  secondaryHref = "/images/citizenship/antigua/xiphias-immigration.pdf",
   secondaryText = "Download Checklist",
   title = "Why work with us",
   subtitle = "A private-client approach to second citizenship: transparent costs, rigorous compliance, and execution without friction.",

@@ -11,10 +11,6 @@ import {
 
 import { JsonLd, breadcrumbLd, faqLd } from "@/lib/seo";
 import { Prose } from "@/components/ui/Prose";
-
-// Dynamically import heavier components to reduce initial JS payload.  Using
-// next/dynamic here splits these modules into separate chunks and helps
-// lower Total Blocking Time, which improves Lighthouse performance【330944343751455†L23-L112】.
 import nextDynamic from "next/dynamic";
 
 const MediaHero = nextDynamic(() => import("@/components/Residency/MediaHero"));
@@ -28,7 +24,7 @@ const EligibilityQuickCheck = nextDynamic(() => import("@/components/Residency/E
 const SocialProof = nextDynamic(() => import("@/components/Residency/SocialProof"));
 const GovernmentFees = nextDynamic(() => import("@/components/Citizenship/GovernmentFees"));
 
-// 🔥 NEW corporate components – dynamically imported
+// Corporate-specific
 const CompanySnapshot = nextDynamic(() => import("@/components/Corporate/CompanySnapshot"));
 const SponsorshipRules = nextDynamic(() => import("@/components/Corporate/SponsorshipRules"));
 const PostSetupChecklist = nextDynamic(() => import("@/components/Corporate/PostSetupChecklist"));
@@ -55,18 +51,13 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
   const params = await props.params;
   try {
-    const { meta } = await loadProgramPageSections(
-      params.country,
-      params.program,
-    );
+    const { meta } = await loadProgramPageSections(params.country, params.program);
     const heroImage = (meta as any).heroImage as string | undefined;
     const title = (meta as any).seo?.title ?? meta.title;
     const description = (meta as any).seo?.description ?? (meta as any).tagline;
     const tags: string[] = (meta as any).tags ?? [];
-    const keywords =
-      (meta as any).seo?.keywords ?? [title, meta.country, ...tags].join(", ");
-    // Build an absolute canonical URL for SEO.  When `metadataBase` is
-    // configured in layout.tsx, relative canonicals will resolve correctly.
+    const keywords = (meta as any).seo?.keywords ?? [title, meta.country, ...tags].join(", ");
+
     const canonicalPath = `/corporate/${params.country}/${params.program}`;
     const canonicalUrl = `https://www.xiphiasimmigration.com${canonicalPath}`;
 
@@ -74,9 +65,7 @@ export async function generateMetadata(props: {
       title,
       description,
       keywords,
-      alternates: {
-        canonical: canonicalPath,
-      },
+      alternates: { canonical: canonicalPath },
       openGraph: {
         title,
         description,
@@ -119,19 +108,11 @@ function similarityScore(
   });
   const b = base.title.toLowerCase();
   const c = cand.title.toLowerCase();
-  // corporate keywords
-  [
-    "company",
-    "business",
-    "entrepreneur",
-    "work",
-    "permit",
-    "visa",
-    "corporate",
-    "ep",
-  ].forEach((k) => {
-    if (b.includes(k) && c.includes(k)) score += 1;
-  });
+  ["company", "business", "entrepreneur", "work", "permit", "visa", "corporate", "ep"].forEach(
+    (k) => {
+      if (b.includes(k) && c.includes(k)) score += 1;
+    },
+  );
   return score;
 }
 
@@ -141,10 +122,7 @@ export default async function ProgramPage(props: {
 }) {
   const params = await props.params;
   try {
-    const { meta, sections } = await loadProgramPageSections(
-      params.country,
-      params.program,
-    );
+    const { meta, sections } = await loadProgramPageSections(params.country, params.program);
 
     const videoSrc = (meta as any).heroVideo as string | undefined;
     const poster = (meta as any).heroPoster as string | undefined;
@@ -156,7 +134,6 @@ export default async function ProgramPage(props: {
     const processSteps: any[] = (meta as any).processSteps ?? [];
     const quickCheck = (meta as any).quickCheck as any | undefined;
 
-    /* Govt fees kept (corporate-relevant) */
     const governmentFees =
       ((meta as any).governmentFees as
         | {
@@ -168,7 +145,7 @@ export default async function ProgramPage(props: {
           }[]
         | undefined) ?? [];
 
-    /* NEW: optional corporate-frontmatter blocks (all defensive) */
+    // optional corporate blocks
     const snapshot = (meta as any).snapshot as
       | {
           structure?: string;
@@ -188,9 +165,7 @@ export default async function ProgramPage(props: {
         }
       | undefined;
 
-    const postSetup = (meta as any).postSetup as
-      | { title?: string; items?: string[] }
-      | undefined;
+    const postSetup = (meta as any).postSetup as { title?: string; items?: string[] } | undefined;
 
     const authorityNotes = (meta as any).authorityNotes as
       | Array<{ authority: string; points: string[]; badgeTone?: "indigo" | "emerald" | "amber" | "slate" }>
@@ -220,15 +195,11 @@ export default async function ProgramPage(props: {
     for (const ctry of allCountrySlugs) {
       const progs = getCorporatePrograms(ctry);
       for (const p of progs) {
-        if (ctry === params.country && p.programSlug === params.program)
-          continue;
+        if (ctry === params.country && p.programSlug === params.program) continue;
         candidateTasks.push(
           (async () => {
             try {
-              const { meta: candMeta } = await loadProgramPageSections(
-                ctry,
-                p.programSlug,
-              );
+              const { meta: candMeta } = await loadProgramPageSections(ctry, p.programSlug);
               const score = similarityScore(
                 { title: meta.title, tags: (meta as any).tags },
                 { title: candMeta.title, tags: (candMeta as any).tags },
@@ -253,9 +224,9 @@ export default async function ProgramPage(props: {
       }
     }
 
-    const relatedRaw = (await Promise.all(candidateTasks)).filter(
-      Boolean,
-    ) as NonNullable<Awaited<(typeof candidateTasks)[number]>>[];
+    const relatedRaw = (await Promise.all(candidateTasks)).filter(Boolean) as NonNullable<
+      Awaited<(typeof candidateTasks)[number]>
+    >[];
     const relatedPrograms = relatedRaw
       .sort((a, b) => {
         if (a.score !== b.score) return b.score - a.score;
@@ -277,12 +248,13 @@ export default async function ProgramPage(props: {
       .trim()
       .replace(/\s+/g, "-");
     const whyKey = `why-${countrySlugFromTitle}`;
+
     const comparisonKey =
       "comparison-with-provincial-entrepreneur-programs" in sections
         ? "comparison-with-provincial-entrepreneur-programs"
         : "comparison" in sections
-          ? "comparison"
-          : null;
+        ? "comparison"
+        : null;
 
     /** Quick Nav — corporate */
     const sectionsForNav: { id: string; label: string }[] = [
@@ -293,26 +265,16 @@ export default async function ProgramPage(props: {
         ? [{ id: "sponsorship", label: "Sponsorship" }]
         : []),
       ...(governmentFees?.length ? [{ id: "gov-fees", label: "Govt. Fees" }] : []),
-      ...(((meta as any).requirements?.length ?? 0)
-        ? [{ id: "requirements", label: "Eligibility" }]
-        : []),
-      ...(((meta as any).benefits?.length ?? 0)
-        ? [{ id: "benefits", label: "Benefits" }]
-        : []),
+      ...(((meta as any).requirements?.length ?? 0) ? [{ id: "requirements", label: "Eligibility" }] : []),
+      ...(((meta as any).benefits?.length ?? 0) ? [{ id: "benefits", label: "Benefits" }] : []),
       ...(postSetup?.items?.length ? [{ id: "post-setup", label: "Post-setup" }] : []),
       ...(processSteps.length ? [{ id: "process", label: "Process" }] : []),
       ...(comparisonKey ? [{ id: "comparison", label: "Comparison" }] : []),
-      ...(sections[whyKey]
-        ? [{ id: "why-country", label: `Why ${meta.country}` }]
-        : []),
+      ...(sections[whyKey] ? [{ id: "why-country", label: `Why ${meta.country}` }] : []),
       ...(authorityNotes?.length ? [{ id: "authority-notes", label: "Authority notes" }] : []),
       { id: "faq", label: "FAQ" },
-      ...(disqualifiers.length
-        ? [{ id: "not-a-fit", label: "Not a fit?" }]
-        : []),
-      ...(otherPrograms.length
-        ? [{ id: "other-programs", label: "Other Programs" }]
-        : []),
+      ...(disqualifiers.length ? [{ id: "not-a-fit", label: "Not a fit?" }] : []),
+      ...(otherPrograms.length ? [{ id: "other-programs", label: "Other Programs" }] : []),
       ...(relatedPrograms.length ? [{ id: "related", label: "Related" }] : []),
     ];
 
@@ -323,8 +285,7 @@ export default async function ProgramPage(props: {
             "@context": "https://schema.org",
             "@type": "HowTo",
             name: `${meta.title} Application Process`,
-            description:
-              (meta as any).seo?.description ?? (meta as any).tagline,
+            description: (meta as any).seo?.description ?? (meta as any).tagline,
             step: processSteps.map((step: any, index: number) => ({
               "@type": "HowToStep",
               position: index + 1,
@@ -334,11 +295,12 @@ export default async function ProgramPage(props: {
           }
         : null;
 
+    const canonicalPath = `/corporate/${params.country}/${params.program}`;
     const webPageLd = {
       "@context": "https://schema.org",
       "@type": "WebPage",
       name: meta.title,
-      url: `https://yourdomain.com/corporate/${params.country}/${params.program}`,
+      url: `https://www.xiphiasimmigration.com${canonicalPath}`,
       mainEntity: howToLdData ? { "@id": "#application-howto" } : undefined,
     };
 
@@ -356,18 +318,11 @@ export default async function ProgramPage(props: {
           data={breadcrumbLd([
             { name: "Corporate", url: "/corporate" },
             { name: meta.country, url: `/corporate/${params.country}` },
-            {
-              name: meta.title,
-              url: `/corporate/${params.country}/${params.program}`,
-            },
+            { name: meta.title, url: canonicalPath },
           ])}
         />
-        {(meta as any).faq?.length ? (
-          <JsonLd data={faqLd((meta as any).faq)!} />
-        ) : null}
-        {howToLdData ? (
-          <JsonLd data={{ ...howToLdData, "@id": "#application-howto" }} />
-        ) : null}
+        {(meta as any).faq?.length ? <JsonLd data={faqLd((meta as any).faq)!} /> : null}
+        {howToLdData ? <JsonLd data={{ ...howToLdData, "@id": "#application-howto" }} /> : null}
         <JsonLd data={webPageLd} />
 
         {/* HERO */}
@@ -380,17 +335,8 @@ export default async function ProgramPage(props: {
               poster={poster}
               imageSrc={heroImage}
               actions={[
-                {
-                  href: "/personal-booking",
-                  label: "Book a Free Consultation",
-                  variant: "primary",
-                },
-                {
-                  href: brochure,
-                  label: "Download Brochure",
-                  variant: "ghost",
-                  download: true,
-                },
+                { href: "/personal-booking", label: "Book a Free Consultation", variant: "primary" },
+                { href: brochure, label: "Download Brochure", variant: "ghost", download: true },
               ]}
             />
           </div>
@@ -440,7 +386,6 @@ export default async function ProgramPage(props: {
                   bankReady={snapshot?.bankReady}
                   highlights={snapshot?.highlights}
                 />
-
               </section>
             )}
 
@@ -471,10 +416,7 @@ export default async function ProgramPage(props: {
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">Government fees</h2>
                 </header>
-                <GovernmentFees
-                  fees={governmentFees}
-                  defaultCurrency={(meta as any).currency || "USD"}
-                />
+                <GovernmentFees fees={governmentFees} defaultCurrency={(meta as any).currency || "USD"} />
               </section>
             ) : null}
 
@@ -488,9 +430,7 @@ export default async function ProgramPage(props: {
                   <h2 className="text-xl font-semibold">Eligibility</h2>
                 </header>
                 <ul className="list-disc pl-5 space-y-2 text-[15px] leading-7">
-                  {(meta as any).requirements.map((r: string) => (
-                    <li key={r}>{r}</li>
-                  ))}
+                  {(meta as any).requirements.map((r: string) => <li key={r}>{r}</li>)}
                 </ul>
               </section>
             ) : null}
@@ -505,9 +445,7 @@ export default async function ProgramPage(props: {
                   <h2 className="text-xl font-semibold">Key benefits</h2>
                 </header>
                 <ul className="list-disc pl-5 space-y-2 text-[15px] leading-7">
-                  {(meta as any).benefits.map((b: string) => (
-                    <li key={b}>{b}</li>
-                  ))}
+                  {(meta as any).benefits.map((b: string) => <li key={b}>{b}</li>)}
                 </ul>
               </section>
             ) : null}
@@ -515,10 +453,7 @@ export default async function ProgramPage(props: {
             {/* POST-SETUP CHECKLIST */}
             {postSetup?.items?.length ? (
               <section id="post-setup" className="scroll-mt-28">
-                <PostSetupChecklist
-                  title={postSetup?.title}
-                  items={postSetup.items}
-                />
+                <PostSetupChecklist title={postSetup?.title} items={postSetup.items} />
               </section>
             ) : null}
 
@@ -573,24 +508,16 @@ export default async function ProgramPage(props: {
                 className="scroll-mt-28 rounded-2xl bg-amber-50 dark:bg-amber-950/20 ring-1 ring-amber-200/60 dark:ring-amber-900/40 p-6"
               >
                 <header className="mb-2">
-                  <h2 className="text-lg font-semibold text-amber-900 dark:text-amber-300">
-                    Who this program is NOT for
-                  </h2>
+                  <h2 className="text-lg font-semibold text-amber-900 dark:text-amber-300">Who this program is NOT for</h2>
                 </header>
                 <ul className="list-disc pl-5 text-[15px] leading-7 text-amber-900/90 dark:text-amber-100/90">
-                  {disqualifiers.map((d) => (
-                    <li key={d}>{d}</li>
-                  ))}
+                  {disqualifiers.map((d) => <li key={d}>{d}</li>)}
                 </ul>
                 <p className="mt-3 text-[14px]">
                   Not a match? Explore{" "}
-                  <Link
-                    href={`/corporate/${params.country}`}
-                    className="underline"
-                  >
+                  <Link href={`/corporate/${params.country}`} className="underline">
                     other programs in {meta.country}
-                  </Link>
-                  .
+                  </Link>.
                 </p>
               </section>
             ) : null}
@@ -599,9 +526,7 @@ export default async function ProgramPage(props: {
             {(meta as any).faq?.length ? (
               <section id="faq" className="scroll-mt-28">
                 <header className="mb-3">
-                  <h2 className="text-xl font-semibold">
-                    Frequently asked questions
-                  </h2>
+                  <h2 className="text-xl font-semibold">Frequently asked questions</h2>
                 </header>
                 <FAQAccordion faqs={(meta as any).faq} />
               </section>
@@ -614,9 +539,7 @@ export default async function ProgramPage(props: {
                   <span className="inline-flex items-center rounded-md bg-slate-600/10 px-2 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Explore
                   </span>
-                  <h2 className="text-xl font-semibold">
-                    Other programs in {meta.country}
-                  </h2>
+                  <h2 className="text-xl font-semibold">Other programs in {meta.country}</h2>
                 </header>
                 <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {otherPrograms.map((prog) => (
@@ -628,26 +551,14 @@ export default async function ProgramPage(props: {
                       >
                         <div className="flex items-center justify-between gap-3">
                           <div>
-                            <h3 className="text-base font-semibold leading-6">
-                              {prog.title}
-                            </h3>
-                            <p className="mt-0.5 text-xs opacity-70">
-                              {meta.country} · same country
-                            </p>
+                            <h3 className="text-base font-semibold leading-6">{prog.title}</h3>
+                            <p className="mt-0.5 text-xs opacity-70">{meta.country} · same country</p>
                           </div>
                           <span
                             className="inline-flex h-8 w-8 items-center justify-center rounded-full ring-1 ring-neutral-200 dark:ring-neutral-700 bg-black/5 dark:bg-white/10 transition group-hover:bg-black/10 group-hover:dark:bg-white/15"
                             aria-hidden
                           >
-                            <svg
-                              viewBox="0 0 24 24"
-                              className="h-4 w-4"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
+                            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M5 12h14M13 5l7 7-7 7" />
                             </svg>
                           </span>
@@ -666,9 +577,7 @@ export default async function ProgramPage(props: {
                   <span className="inline-flex items-center rounded-md bg-indigo-600/10 px-2 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
                     Related
                   </span>
-                  <h2 className="text-xl font-semibold">
-                    Programs similar to {meta.title}
-                  </h2>
+                  <h2 className="text-xl font-semibold">Programs similar to {meta.title}</h2>
                 </header>
 
                 <ul className="grid gap-5 sm:grid-cols-2">
@@ -678,9 +587,7 @@ export default async function ProgramPage(props: {
                       typeof r.minInvestment === "number"
                         ? `${r.currency ?? ""} ${r.minInvestment.toLocaleString()}`
                         : "No minimum";
-                    const time = r.timelineMonths
-                      ? `${r.timelineMonths} mo`
-                      : "Varies";
+                    const time = r.timelineMonths ? `${r.timelineMonths} mo` : "Varies";
                     return (
                       <li key={r.url}>
                         <Link
@@ -688,7 +595,6 @@ export default async function ProgramPage(props: {
                           className="group block overflow-hidden rounded-2xl ring-1 ring-neutral-200/80 dark:ring-neutral-800/80 bg-white/80 dark:bg-neutral-900/40 hover:-translate-y-0.5 hover:shadow-md transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                           aria-label={`View ${r.title}`}
                         >
-                          {/* Media */}
                           <div className="relative aspect-[16/9] overflow-hidden">
                             {hasImg ? (
                               // eslint-disable-next-line @next/next/no-img-element
@@ -699,24 +605,17 @@ export default async function ProgramPage(props: {
                               />
                             ) : (
                               <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-100 dark:from-neutral-800 dark:to-neutral-700 grid place-items-center">
-                                <span className="text-xs opacity-70">
-                                  {r.country}
-                                </span>
+                                <span className="text-xs opacity-70">{r.country}</span>
                               </div>
                             )}
                             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                           </div>
 
-                          {/* Body */}
                           <div className="p-4 sm:p-5">
                             <div className="flex items-start justify-between gap-3">
                               <div>
-                                <h3 className="text-base font-semibold leading-6">
-                                  {r.title}
-                                </h3>
-                                <p className="mt-0.5 text-xs opacity-70">
-                                  {r.country}
-                                </p>
+                                <h3 className="text-base font-semibold leading-6">{r.title}</h3>
+                                <p className="mt-0.5 text-xs opacity-70">{r.country}</p>
                               </div>
 
                               {!!r.tags?.length && (
@@ -733,21 +632,14 @@ export default async function ProgramPage(props: {
                               )}
                             </div>
 
-                            {/* Mini stats */}
                             <div className="mt-3 grid grid-cols-2 gap-2 text-[13px]">
                               <div className="rounded-xl p-2 bg-black/5 dark:bg-white/10 ring-1 ring-neutral-200 dark:ring-neutral-700">
-                                <div className="font-medium tabular-nums">
-                                  {price}
-                                </div>
-                                <div className="text-[11px] opacity-70">
-                                  Minimum investment
-                                </div>
+                                <div className="font-medium tabular-nums">{price}</div>
+                                <div className="text-[11px] opacity-70">Minimum investment</div>
                               </div>
                               <div className="rounded-xl p-2 bg-black/5 dark:bg-white/10 ring-1 ring-neutral-200 dark:ring-neutral-700">
                                 <div className="font-medium">{time}</div>
-                                <div className="text-[11px] opacity-70">
-                                  Timeline
-                                </div>
+                                <div className="text-[11px] opacity-70">Timeline</div>
                               </div>
                             </div>
                           </div>
@@ -777,9 +669,7 @@ export default async function ProgramPage(props: {
 
             <div className="hidden lg:block rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 ring-1 ring-neutral-200/70 dark:ring-neutral-800/70 p-6">
               <h3 className="text-base font-semibold">Brochure</h3>
-              <p className="text-sm opacity-80 mt-1">
-                Full details, requirements, and timelines.
-              </p>
+              <p className="text-sm opacity-80 mt-1">Full details, requirements, and timelines.</p>
               <a
                 href={brochure}
                 download
