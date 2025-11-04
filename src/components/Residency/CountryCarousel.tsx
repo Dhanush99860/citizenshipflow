@@ -337,7 +337,6 @@ function FeatureList({
   </div>
 </div>
 
-
       {/* Grid: Left 60% | Right 40% */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-start">
         {/* LEFT (hero + 2 small) */}

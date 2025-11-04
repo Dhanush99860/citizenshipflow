@@ -8,7 +8,7 @@ import {
 } from "@/lib/residency-content";
 import { JsonLd, breadcrumbLd } from "@/lib/seo";
 // Dynamically import heavy UI sections.  Splitting these into separate
-// chunks reduces initial JS payload and improves Lighthouse performance【330944343751455†L23-L112】.
+// chunks reduces initial JS payload and improves Lighthouse performance.
 import nextDynamic from "next/dynamic";
 const MediaHero = nextDynamic(() => import("@/components/Residency/MediaHero"));
 const ContactForm = nextDynamic(() => import("@/components/ContactForm"));
@@ -27,10 +27,9 @@ const MDXDetailsSection = nextDynamic(() => import("@/components/Residency/Count
 const RelatedCountriesSection = nextDynamic(() => import("@/components/Residency/Country/RelatedCountriesSection"));
 
 // Only include what you actually need. Examples:
-export const runtime = "nodejs"; // or 'edge'
-export const dynamic = "force-static"; // or 'force-dynamic'
-export const revalidate = 86400; // 24h — must be a literal number
-// export const preferredRegion = ['iad1'];  // if you used it before
+export const runtime = "nodejs";
+export const dynamic = "force-static";
+export const revalidate = 86400;
 
 /** SSG params */
 export async function generateStaticParams() {

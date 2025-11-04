@@ -111,7 +111,7 @@ const coerceNum = (v: unknown): number | undefined => {
 };
 
 /** MDX options */
-const baseMdxOptions = {
+const baseMdxOptions: any = {
   remarkPlugins: [remarkGfm],
   rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: "wrap" }]],
 };
@@ -129,10 +129,8 @@ function slugify(h: string) {
 /**
  * Split MDX by H2/H3 headings into named sections.
  * - Supports "##" and "###".
- * - Does NOT include the heading line inside the section to avoid
- *   duplicating the UI wrapper titles.
- * - Any content before the first heading becomes "overview".
- * - Deduplicates equal headings by suffixing -2, -3, ...
+ * - Content before first heading becomes "overview".
+ * - Deduplicates equal headings with -2, -3, ...
  */
 function splitByHeadings(md: string): Record<string, string> {
   const lines = md.split(/\r?\n/);
@@ -159,16 +157,14 @@ function splitByHeadings(md: string): Record<string, string> {
     if (m) {
       flush();
       current = nextKey(m[1]);
-      // skip adding the heading line itself to prevent duplicate titles
+      // skip the heading line itself
     } else {
       buf.push(line);
     }
   }
   flush();
 
-  // Guarantee an overview key exists (even if empty)
   if (!("overview" in out)) out.overview = "";
-
   return out;
 }
 
@@ -182,7 +178,7 @@ type Cache = {
 };
 const _g = globalThis as any;
 if (!_g.__RESIDENCY_CACHE__) _g.__RESIDENCY_CACHE__ = { mtimes: new Map() } as Cache;
-const CACHE: Cache = _g.__RESIDENCY_CACHE__;
+const CACHE: Cache = _g.__RESIDENCY_CACHE__ as Cache;
 
 function mtime(file: string) {
   try {
@@ -343,9 +339,13 @@ export function getResidencyPrograms(countrySlug?: string): ProgramMeta[] {
 export async function loadCountryPage(countrySlug: string) {
   const f = path.join(ROOT, countrySlug, "_country.mdx");
   const source = fs.readFileSync(f, "utf8");
+
   const { content, frontmatter } = await compileMDX<CountryMeta>({
     source,
-    options: { parseFrontmatter: true, mdxOptions: baseMdxOptions as any },
+    options: {
+      parseFrontmatter: true,
+      mdxOptions: baseMdxOptions,
+    },
   });
 
   const meta = normalizeCountry(frontmatter as Partial<CountryMeta>, countrySlug);
@@ -355,9 +355,13 @@ export async function loadCountryPage(countrySlug: string) {
 export async function loadProgramPage(countrySlug: string, programSlug: string) {
   const f = path.join(ROOT, countrySlug, `${programSlug}.mdx`);
   const source = fs.readFileSync(f, "utf8");
+
   const { content, frontmatter } = await compileMDX<ProgramMeta>({
     source,
-    options: { parseFrontmatter: true, mdxOptions: baseMdxOptions as any },
+    options: {
+      parseFrontmatter: true,
+      mdxOptions: baseMdxOptions,
+    },
   });
 
   const meta = normalizeProgram(frontmatter as Partial<ProgramMeta>, countrySlug, programSlug);
@@ -380,7 +384,10 @@ export async function loadProgramPageSections(
     Object.entries(chunks).map(async ([key, md]) => {
       const { content } = await compileMDX({
         source: md,
-        options: { parseFrontmatter: false, mdxOptions: baseMdxOptions as any },
+        options: {
+          parseFrontmatter: false,
+          mdxOptions: baseMdxOptions,
+        },
       });
       return [key, content] as const;
     }),

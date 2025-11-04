@@ -314,15 +314,6 @@ export const headerMenu: HeaderItem[] = [
     href: '/#corporate',
     submenu: [
       {
-        label: 'Singapore',
-        href: '/corporate/singapore',
-        // @ts-ignore
-        meta: { code: 'SG' },
-        submenu: [
-          { label: 'EP', href: '/corporate/singapore/ep' },
-        ],
-      },
-      {
         label: 'Canada',
         href: '/corporate/canada',
         // @ts-ignore
@@ -472,7 +463,7 @@ export const headerMenu: HeaderItem[] = [
           { label: 'Eb2 National Interest Waiver', href: '/skilled/usa/eb2-national-interest-waiver' },
           { label: 'Eb3 Employment Based Green Card', href: '/skilled/usa/eb3-employment-based-green-card' },
           { label: 'H1b Specialty Occupation', href: '/skilled/usa/h1b-specialty-occupation' },
-          { label: 'J1 Exchange Visitor Program', href: '/skilled/usa/uk-global-talent-visa' },
+          { label: 'J1 Exchange Visitor Program', href: '/skilled/usa/j1-exchange-visitor-program' },
         ],
       },
     ],

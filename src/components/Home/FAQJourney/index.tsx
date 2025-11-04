@@ -101,16 +101,32 @@ export default function FAQSectionXiphas({
       className={`py-10 sm:py-12 md:py-14 ${className}`}
     >
       <div className="container mx-auto lg:max-w-screen-2xl px-4 sm:px-6 lg:px-8 overflow-x-clip">
-        <header className="mb-6 sm:mb-8 md:mb-10">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-950 dark:text-white break-words">
-            {title}
-          </h2>
-          {subtitle && (
-            <p className="mt-2 max-w-3xl text-sm sm:text-base text-zinc-700 dark:text-zinc-300 break-words">
-              {subtitle}
-            </p>
-          )}
-        </header>
+      <header className="mb-6 sm:mb-8 md:mb-10">
+  <div className="relative overflow-hidden rounded-2xl border border-[var(--c-border)] bg-[var(--c-card)] p-4 sm:p-5 md:p-6 shadow-sm ring-1 ring-black/[0.03] dark:ring-white/10">
+    {/* soft background accents (clipped inside) */}
+    <div aria-hidden className="pointer-events-none absolute inset-0">
+      <div className="absolute -top-20 -left-24 h-56 w-56 rounded-full bg-blue-300/20 blur-3xl dark:bg-blue-700/10" />
+      <div className="absolute -bottom-24 -right-20 h-64 w-64 rounded-full bg-indigo-300/20 blur-3xl dark:bg-indigo-700/10" />
+      <div className="absolute inset-0 opacity-40 dark:opacity-20 [mask-image:radial-gradient(70%_70%_at_10%_10%,black,transparent_75%)]">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.06)_1px,transparent_1px)] bg-[size:22px_22px]" />
+      </div>
+    </div>
+
+    {/* content */}
+    <div className="relative">
+      <div className="min-w-0">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-950 dark:text-white break-words">
+          {title}
+        </h2>
+        {subtitle && (
+          <p className="mt-2 max-w-3xl text-sm sm:text-base text-zinc-700 dark:text-zinc-300 break-words">
+            {subtitle}
+          </p>
+        )}
+      </div>
+    </div>
+  </div>
+</header>
 
         {/* Simple, clean accordion */}
         <div className="overflow-hidden rounded-2xl bg-white ring-1 ring-zinc-200 shadow-sm dark:bg-white/5 dark:ring-white/10 divide-y divide-zinc-200 dark:divide-white/10">

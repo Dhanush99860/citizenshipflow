@@ -108,6 +108,31 @@ function similarityScore(
   return score;
 }
 
+// Small local helper to slugify labels (mirrors lib behavior)
+const slug = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+
+// Try to find a section key by exact match or "starts with"
+function findSectionKey(sections: Record<string, React.ReactNode>, ...candidates: string[]) {
+  const keys = Object.keys(sections);
+  // exact first
+  for (const c of candidates) {
+    if (c && keys.includes(c)) return c;
+  }
+  // starts-with fallback
+  for (const c of candidates) {
+    if (!c) continue;
+    const found = keys.find((k) => k === c || k.startsWith(`${c}-`));
+    if (found) return found;
+  }
+  return undefined;
+}
+
 /** Page */
 export default async function ProgramPage(props: {
   params: Promise<{ country: string; program: string }>;
@@ -205,34 +230,15 @@ export default async function ProgramPage(props: {
       ).values(),
     ).slice(0, 6);
 
-    /** In-page Quick Nav IDs — FINAL ORDER: mobile & desktop consistent */
-    const mdxKey = {
-      overview: "overview",
-      investment: "investment-overview",
-      comparison: "comparison-with-provincial-entrepreneur-programs",
-      whyCountry: "why-canada",
-      whyUs: "why-choose-us",
-    } as const;
-
-    const sectionsForNav: { id: string; label: string }[] = [
-      { id: "quick-facts", label: "Quick Facts" },
-      ...(sections[mdxKey.overview] ? [{ id: "overview", label: "Overview" }] : []),
-      ...(sections[mdxKey.investment] ? [{ id: "investment", label: "Investment" }] : []),
-      ...(prices?.length || proofOfFunds?.length ? [{ id: "prices", label: "Costs & Funds" }] : []),
-      ...(((meta as any).requirements?.length ?? 0)
-        ? [{ id: "requirements", label: "Eligibility" }]
-        : []),
-      ...(((meta as any).benefits?.length ?? 0) ? [{ id: "benefits", label: "Benefits" }] : []),
-      ...(processSteps.length ? [{ id: "process", label: "Process" }] : []),
-      ...(sections[mdxKey.comparison] ? [{ id: "comparison", label: "Comparison" }] : []),
-      ...(sections[mdxKey.whyCountry]
-        ? [{ id: "why-country", label: `Why ${meta.country}` }]
-        : []),
-      ...(Boolean((meta as any).faq?.length) ? [{ id: "faq", label: "FAQ" }] : []),
-      ...(disqualifiers.length ? [{ id: "not-a-fit", label: "Not a fit?" }] : []),
-      ...(otherPrograms.length ? [{ id: "other-programs", label: "Other Programs" }] : []),
-      ...(relatedPrograms.length ? [{ id: "related", label: "Related" }] : []),
-    ];
+    /** Dynamic section keys derived from MDX */
+    const overviewKey = "overview"; // result of "## Overview"
+    const investmentKey = "investment-overview"; // result of "## Investment Overview"
+    const comparisonKey = findSectionKey(sections, "comparison"); // any "comparison*" heading
+    const whyCountryKey =
+      findSectionKey(sections, `why-${slug(meta.country)}`, "why-country") ||
+      Object.keys(sections).find(
+        (k) => k.startsWith("why-") && k.includes(slug(meta.country)),
+      );
 
     /** JSON-LD */
     const howToLdData =
@@ -280,6 +286,25 @@ export default async function ProgramPage(props: {
       url: `https://www.xiphiasimmigration.com${canonicalPath}`,
       mainEntity: howToLdData ? { "@id": "#application-howto" } : undefined,
     };
+
+    /** In-page Quick Nav IDs — FINAL ORDER: mobile & desktop consistent */
+    const sectionsForNav: { id: string; label: string }[] = [
+      { id: "quick-facts", label: "Quick Facts" },
+      ...(sections[overviewKey] ? [{ id: "overview", label: "Overview" }] : []),
+      ...(sections[investmentKey] ? [{ id: "investment", label: "Investment" }] : []),
+      ...(prices?.length || proofOfFunds?.length ? [{ id: "prices", label: "Costs & Funds" }] : []),
+      ...(((meta as any).requirements?.length ?? 0)
+        ? [{ id: "requirements", label: "Eligibility" }]
+        : []),
+      ...(((meta as any).benefits?.length ?? 0) ? [{ id: "benefits", label: "Benefits" }] : []),
+      ...(processSteps.length ? [{ id: "process", label: "Process" }] : []),
+      ...(comparisonKey ? [{ id: "comparison", label: "Comparison" }] : []),
+      ...(whyCountryKey ? [{ id: "why-country", label: `Why ${meta.country}` }] : []),
+      ...(Boolean((meta as any).faq?.length) ? [{ id: "faq", label: "FAQ" }] : []),
+      ...(disqualifiers.length ? [{ id: "not-a-fit", label: "Not a fit?" }] : []),
+      ...(otherPrograms.length ? [{ id: "other-programs", label: "Other Programs" }] : []),
+      ...(relatedPrograms.length ? [{ id: "related", label: "Related" }] : []),
+    ];
 
     return (
       <main
@@ -377,22 +402,22 @@ export default async function ProgramPage(props: {
             ) : null}
 
             {/* OVERVIEW */}
-            {sections[mdxKey.overview] && (
+            {sections[overviewKey] && (
               <section id="overview" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">Program overview</h2>
                 </header>
-                <Prose>{sections[mdxKey.overview]}</Prose>
+                <Prose>{sections[overviewKey]}</Prose>
               </section>
             )}
 
             {/* INVESTMENT */}
-            {sections[mdxKey.investment] && (
+            {sections[investmentKey] && (
               <section id="investment" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">Investment overview</h2>
                 </header>
-                <Prose>{sections[mdxKey.investment]}</Prose>
+                <Prose>{sections[investmentKey]}</Prose>
               </section>
             )}
 
@@ -465,24 +490,22 @@ export default async function ProgramPage(props: {
             )}
 
             {/* COMPARISON */}
-            {sections[mdxKey.comparison] && (
+            {comparisonKey && (
               <section id="comparison" className="scroll-mt-28">
                 <header className="mb-3">
-                  <h2 className="text-xl font-semibold">
-                    Comparison with Provincial Entrepreneur Programs
-                  </h2>
+                  <h2 className="text-xl font-semibold">Comparison</h2>
                 </header>
-                <Prose>{sections[mdxKey.comparison]}</Prose>
+                <Prose>{sections[comparisonKey]}</Prose>
               </section>
             )}
 
             {/* WHY COUNTRY */}
-            {sections[mdxKey.whyCountry] && (
+            {whyCountryKey && (
               <section id="why-country" className="scroll-mt-28">
                 <header className="mb-3">
                   <h2 className="text-xl font-semibold">Why {meta.country}</h2>
                 </header>
-                <Prose>{sections[mdxKey.whyCountry]}</Prose>
+                <Prose>{sections[whyCountryKey]}</Prose>
               </section>
             )}
 

@@ -24,14 +24,14 @@ const BottomContactBar = dynamic(() => import("@/components/Common/BottomContact
 export const revalidate = 86400; // seconds
 
 export const metadata: Metadata = {
-  title: "XIPHIAS Immigration – Global Residency & Citizenship Solutions",
+  title: "Best Immigration Consultants in India - XIPHIAS Immigration",
   description:
-    "XIPHIAS Immigration is a leading immigration consultancy offering Residency by Investment, Citizenship by Investment, Business, and Skilled Migration solutions.",
+    "XIPHIAS Immigration is India’s leading immigration consultancy offering Citizenship & Residency by Investment, Business, and Skilled Migration solutions worldwide.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "XIPHIAS Immigration – Global Residency & Citizenship Solutions",
+    title: "Best Immigration Consultants in India – XIPHIAS Immigration",
     description:
-      "Explore Residency and Citizenship by Investment programs with XIPHIAS Immigration. Trusted by entrepreneurs, investors, and professionals worldwide.",
+      "Leading consultants for residency, citizenship, and skilled migration. Build your global future with XIPHIAS",
     url: "https://www.xiphiasimmigration.com",
     siteName: "XIPHIAS Immigration",
     locale: "en_US",
@@ -40,9 +40,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "XIPHIAS Immigration – Global Residency & Citizenship Solutions",
+    title: "Best Immigration Consultants in India – XIPHIAS Immigration",
     description:
-      "Leading consultants for Residency & Citizenship by Investment. Build your global future with XIPHIAS Immigration.",
+      "Build your global future with XIPHIAS Immigration — experts in residency, citizenship, and migration",
     images: ["/og.jpg"],
   },
 };
@@ -59,8 +59,6 @@ export default function Home() {
           <WhyChooseUs />
           <CitizenshipPreview />
           <ResidencyPreview />
-
-          {/* ADVISOR SPOTLIGHT (component) */}
           <section className="scroll-mt-28 mx-auto lg:max-w-screen-2xl sm:px-6 lg:px-4">
           <AdvisorConsultationCard bookingHref="/booking?book=paid" />
           </section>
