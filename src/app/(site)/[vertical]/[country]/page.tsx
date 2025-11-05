@@ -5,26 +5,47 @@ import type { Vertical, ProgramDoc } from "@/lib/content/types";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 export const runtime = "nodejs";
 
 const VERTICALS: Vertical[] = ["residency", "citizenship", "skilled", "corporate"];
 
-export function generateStaticParams() {
-  const docs = getAllContentCached();
-  const combos = new Set<string>();
-  for (const d of docs) {
-    if ((d as any).kind === "program") {
-      const p = d as ProgramDoc;
-      if (VERTICALS.includes(p.vertical) && p.country) {
-        combos.add(`${p.vertical}__${p.country}`);
+// Build the list of (vertical,country) pairs from the filesystem only.
+// This avoids any hidden assumptions in getAllContentCached during prerender on Vercel.
+export async function generateStaticParams() {
+  const root = path.join(process.cwd(), "content");
+  const out: Array<{ vertical: string; country: string }> = [];
+
+  for (const vertical of VERTICALS) {
+    const vDir = path.join(root, vertical);
+
+    let entries: Array<{ name: string; isDirectory: () => boolean }> = [];
+    try {
+      const dirents = await fs.readdir(vDir, { withFileTypes: true });
+      entries = dirents.filter((e) => e.isDirectory());
+    } catch {
+      // vertical folder may not exist yet in content/ — skip gracefully
+      continue;
+    }
+
+    for (const entry of entries) {
+      const country = entry.name;
+      try {
+        const files = await fs.readdir(path.join(vDir, country));
+        // Only include countries that actually have at least one .mdx program file
+        if (files.some((f) => f.endsWith(".mdx"))) {
+          out.push({ vertical, country });
+        }
+      } catch {
+        // no files or unreadable; skip
+        continue;
       }
     }
   }
-  return Array.from(combos).map((key) => {
-    const [vertical, country] = key.split("__");
-    return { vertical, country };
-  });
+
+  return out;
 }
 
 export const dynamicParams = false;
