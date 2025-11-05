@@ -85,8 +85,8 @@ export default function PrivacyPolicyPage() {
     city: "Bengaluru",
     state: "Karnataka",
     country: "India",
-    privacyEmail: "privacy@xiphiasimmigration.com",
-    grievanceEmail: "grievance@xiphiasimmigration.com",
+    privacyEmail: "support@immigration.in",
+    grievanceEmail: "support@xiphiasimmigration.in",
     site: "https://xiphiasimmigration.com",
   } as const;
 

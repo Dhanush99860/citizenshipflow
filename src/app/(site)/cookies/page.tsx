@@ -57,7 +57,7 @@ export default function CookiesPage() {
   const company = {
     name: "XIPHIAS Immigration Private Limited",
     site: "https://xiphiasimmigration.com",
-    privacyEmail: "privacy@xiphiasimmigration.com",
+    privacyEmail: "support@immigration.in",
   } as const;
 
   const toc = [

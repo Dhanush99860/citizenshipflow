@@ -19,8 +19,8 @@ export default function TopBar() {
         >
           {/* Contact chips */}
           <div className="flex items-center gap-2 xl:gap-3">
-            <Chip href="tel:+919876543210" label="+91 98765 43210" ariaLabel="Call +91 98765 43210" />
-            <Chip href="mailto:info@example.com" label="info@example.com" ariaLabel="Email info@example.com" />
+            <Chip href="tel:+919876543210" label="+91 9019400500" ariaLabel="Call +91 9019400500" />
+            <Chip href="mailto:immigration@xiphias.in" label="immigration@xiphias.in" ariaLabel="Email immigration@xiphias.in" />
           </div>
 
           {/* Center: GlobalSearch trigger (real, pill-style) */}

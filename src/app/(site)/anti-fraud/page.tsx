@@ -60,7 +60,7 @@ export default function AntiFraudPage() {
     state: "Karnataka",
     country: "India",
     site: "https://xiphiasimmigration.com",
-    contact: "privacy@xiphiasimmigration.com",
+    contact: "support@immigration.in",
     report: "report-fraud@xiphiasimmigration.com",
     domain: "xiphiasimmigration.com",
   } as const;

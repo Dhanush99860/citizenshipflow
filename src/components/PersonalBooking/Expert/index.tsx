@@ -33,14 +33,14 @@ const HAS_VIDEO: boolean =
 
 // Keep copy neutral (no unverified claims)
 const BIO: string =
-  "Varun leads the advisory practice at XIPHIAS Immigration, focusing on compliant, transparent pathways in residency and citizenship planning for entrepreneurs, professionals, and families.";
+  "Varun Singh is a Fellow of the Investment Migration Council (FIMC) and a Certified Investment Migration Consultant (Cert IM). As Managing Director of XIPHIAS Immigration (established 2009), he advises HNIs, family offices, and senior professionals on residency‑by‑investment strategies—covering UAE Golden Visa and select EU residency programs—delivered with strict compliance, due diligence, and transparent process.";
 
 const HIGHLIGHTS: Highlight[] = [
   {
     icon: <Award className="w-5 h-5 text-primary relative z-10" />,
     text: (
       <>
-        <span className="font-semibold">Leadership in immigration advisory</span>
+        <span className="font-semibold">IMC credentials</span>: FIMC & Cert IM
       </>
     ),
   },
@@ -48,7 +48,7 @@ const HIGHLIGHTS: Highlight[] = [
     icon: <Globe className="w-5 h-5 text-primary relative z-10" />,
     text: (
       <>
-        Exposure to multiple <span className="font-semibold">destination programs</span>
+        <span className="font-semibold">UAE Golden Visa</span> & select EU residency pathways
       </>
     ),
   },
@@ -56,7 +56,7 @@ const HIGHLIGHTS: Highlight[] = [
     icon: <Sparkles className="w-5 h-5 text-primary relative z-10" />,
     text: (
       <>
-        <span className="font-semibold">Process-led</span> and client-first
+        Tailored for <span className="font-semibold">HNIs & family offices</span>
       </>
     ),
   },
@@ -64,7 +64,7 @@ const HIGHLIGHTS: Highlight[] = [
     icon: <ShieldCheck className="w-5 h-5 text-primary relative z-10" />,
     text: (
       <>
-        Strong emphasis on <span className="font-semibold">ethics & compliance</span>
+        <span className="font-semibold">Compliance-first</span>: eligibility, source‑of‑funds, risk review
       </>
     ),
   },
@@ -72,7 +72,9 @@ const HIGHLIGHTS: Highlight[] = [
 
 const FACTS: Fact[] = [
   { label: "Role", value: "Managing Director" },
-  { label: "Approach", value: "Transparent & process-led" },
+  { label: "Credentials", value: "FIMC (IMC Fellow), Cert IM" },
+  { label: "Focus", value: "HNIs • Residency-by-investment" },
+  { label: "Programs", value: "UAE Golden Visa • EU residency" },
 ];
 
 /* ----------------------------- Component ----------------------------- */
@@ -144,25 +146,7 @@ export default function Expert() {
               {BIO}
             </p>
 
-            {/* Pill list */}
-            <ul className="grid grid-cols-2 gap-3 text-sm text-slate-700 dark:text-slate-200">
-              <li className="flex items-center justify-center gap-2 md:justify-start">
-                <Sparkles className="h-4 w-4 text-primary" />
-                Mission-driven
-              </li>
-              <li className="flex items-center justify-center gap-2 md:justify-start">
-                <User className="h-4 w-4 text-primary" />
-                Client-first
-              </li>
-              <li className="flex items-center justify-center gap-2 md:justify-start">
-                <Globe className="h-4 w-4 text-primary" />
-                Global programs
-              </li>
-              <li className="flex items-center justify-center gap-2 md:justify-start">
-                <ShieldCheck className="h-4 w-4 text-primary" />
-                Ethics & compliance
-              </li>
-            </ul>
+            
 
             {/* Highlights */}
             <h3 className="pt-1 text-lg font-semibold text-slate-800 dark:text-slate-200 sm:text-xl">

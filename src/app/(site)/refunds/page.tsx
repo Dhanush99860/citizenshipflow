@@ -60,7 +60,7 @@ export default function RefundsPage() {
     state: "Karnataka",
     country: "India",
     site: "https://xiphiasimmigration.com",
-    contact: "privacy@xiphiasimmigration.com",
+    contact: "support@immigration.in",
   } as const;
 
   const toc = [

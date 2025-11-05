@@ -24,6 +24,43 @@ export function AwardsMarquee({
 
   return (
     <section className={className}>
+
+      {/* Header (card-style, keeps your structure & CTA) */}
+<div className="mb-6 md:mb-8">
+  <div className="relative overflow-hidden rounded-2xl border border-[var(--c-border)] bg-[var(--c-card)] p-4 sm:p-5 md:p-6 shadow-sm ring-1 ring-black/[0.03] dark:ring-white/10">
+    {/* soft background accents (clipped inside) */}
+    <div aria-hidden className="pointer-events-none absolute inset-0">
+      <div className="absolute -top-20 -left-24 h-56 w-56 rounded-full bg-blue-300/20 blur-3xl dark:bg-blue-700/10" />
+      <div className="absolute -bottom-24 -right-20 h-64 w-64 rounded-full bg-indigo-300/20 blur-3xl dark:bg-indigo-700/10" />
+      <div className="absolute inset-0 opacity-40 dark:opacity-20 [mask-image:radial-gradient(70%_70%_at_10%_10%,black,transparent_75%)]">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.06)_1px,transparent_1px)] bg-[size:22px_22px]" />
+      </div>
+    </div>
+
+    {/* content: responsive flex with title + CTA */}
+    <div className="relative flex flex-wrap items-center justify-between gap-3">
+      <h2
+        id="insights-top6-title"
+        className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-950 dark:text-white break-words"
+      >
+        testing
+      </h2>
+
+      <div className="shrink-0">
+        <Link
+          href={hrefAll}
+          className="inline-flex items-center gap-2 rounded-full border border-slate-300/70 dark:border-slate-600/60 bg-white/70 dark:bg-slate-800/70 px-3.5 py-2 text-sm font-medium text-slate-900 dark:text-slate-50 shadow-sm hover:bg-white/90 dark:hover:bg-slate-800/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-300 transition"
+        >
+          View all
+          <svg aria-hidden viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
+      </div>
+    </div>
+  </div>
+</div>
+
       <div className="relative overflow-hidden">
         <div
           className="flex w-max gap-3 md:gap-4 animate-marquee"
@@ -36,19 +73,6 @@ export function AwardsMarquee({
 
         <div className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white to-transparent dark:from-slate-950/80" />
         <div className="pointer-events-none absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-white to-transparent dark:from-slate-950/80" />
-      </div>
-
-      <div className="mt-4 flex items-center justify-end">
-        <Link
-          href={hrefAll}
-          prefetch={false}
-          className="inline-flex items-center gap-2 rounded-xl bg-white/90 px-4 py-2.5 text-blue-700 ring-1 ring-blue-300 hover:bg-blue-50 dark:bg-white/5 dark:text-blue-200 dark:ring-blue-800/60 dark:hover:bg-blue-950/20"
-        >
-          View all Awards & Recognition
-          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4">
-            <path fill="currentColor" d="M5 12.75h11.19l-3.72 3.72a.75.75 0 1 0 1.06 1.06l5.25-5.25a.75.75 0 0 0 0-1.06L13.53 5.97a.75.75 0 1 0-1.06 1.06l3.72 3.72H5a.75.75 0 0 0 0 1.5z"/>
-          </svg>
-        </Link>
       </div>
 
       <style jsx>{`

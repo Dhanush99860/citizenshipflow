@@ -59,7 +59,7 @@ export default function AccessibilityPage() {
     state: "Karnataka",
     country: "India",
     site: "https://xiphiasimmigration.com",
-    email: "privacy@xiphiasimmigration.com",
+    email: "support@immigration.in",
     altEmail: "accessibility@xiphiasimmigration.com",
   } as const;
 
