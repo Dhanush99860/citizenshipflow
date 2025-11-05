@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -36,7 +37,7 @@ const DEFAULT_POLICY: Policy = { type: "all" };
 const DEFAULT_VERDICT: VerdictText = {
   successTitle: "Looks eligible",
   successText:
-    "You seem to meet the key criteria — talk to an advisor to confirm.",
+    "You seem to meet the key criteria â€” talk to an advisor to confirm.",
   cautionTitle: "May be eligible",
   cautionText: "Some answers need review. There may be alternative routes.",
 };
@@ -335,7 +336,7 @@ export default function EligibilityQuickCheck({
                   {idx + 1}
                 </span>
                 <span className="sr-only">
-                  Question {idx + 1} of {questions.length} —{" "}
+                  Question {idx + 1} of {questions.length} â€”{" "}
                 </span>
                 {q.label}
               </legend>
@@ -444,7 +445,7 @@ export default function EligibilityQuickCheck({
       {/* Footer */}
       <footer className="relative z-10 mt-4 flex items-center justify-between gap-3">
         <p className="text-xs opacity-70">
-          We respect your privacy — answers stay in your browser.
+          We respect your privacy â€” answers stay in your browser.
         </p>
         <Link
           href="/contact"
@@ -520,3 +521,4 @@ function toItemListLd(name: string, questions: Question[]) {
     })),
   } as const;
 }
+

@@ -1,4 +1,5 @@
-'use client';
+﻿"use client";
+
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -26,7 +27,7 @@ export default function TopBar() {
           {/* Center: GlobalSearch trigger (real, pill-style) */}
           <div className="flex justify-center">
             <div className="w-full max-w-xl">
-              <GlobalSearch placeholder="Search…" />
+              <GlobalSearch placeholder="Searchâ€¦" />
             </div>
           </div>
 
@@ -102,3 +103,4 @@ function CircleLink({
     </a>
   );
 }
+

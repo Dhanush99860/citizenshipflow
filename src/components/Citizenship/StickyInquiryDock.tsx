@@ -1,5 +1,6 @@
+﻿"use client";
+
 // src/components/Shared/StickyInquiryDock.tsx
-"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -269,3 +270,4 @@ function toJsonLd(bookingUrl: string, brochureUrl: string) {
     ],
   };
 }
+

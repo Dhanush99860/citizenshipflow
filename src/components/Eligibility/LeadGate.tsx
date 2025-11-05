@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import * as React from "react";
 import { useMemo, useState, useCallback } from "react";
@@ -190,7 +191,7 @@ export function LeadGate({
           </h3>
 
           <p className="mt-2 text-sm sm:text-base">
-            <span className="font-semibold">{result.tier}</span> — {result.summary}
+            <span className="font-semibold">{result.tier}</span> â€” {result.summary}
           </p>
 
           <div className="mt-4 group relative rounded-xl ring-1 ring-black/10 dark:ring-white/10 p-4">
@@ -375,7 +376,7 @@ export function LeadGate({
               >
                 {submitting ? (
                   <>
-                    <Spinner /> Unlocking…
+                    <Spinner /> Unlockingâ€¦
                   </>
                 ) : (
                   <>
@@ -390,3 +391,4 @@ export function LeadGate({
     </>
   );
 }
+

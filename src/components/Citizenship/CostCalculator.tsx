@@ -1,6 +1,7 @@
-﻿import { Heading } from "@/components/ui/heading/Heading"
+﻿"use client";
+
+import { Heading } from "@/components/ui/heading/Heading"
 // src/components/Shared/CostCalculator.tsx
-"use client";
 
 import React from "react";
 
@@ -586,4 +587,5 @@ function MinusIcon({ className = "" }: { className?: string }) {
     </svg>
   );
 }
+
 

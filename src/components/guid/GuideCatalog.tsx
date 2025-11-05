@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
@@ -147,7 +148,7 @@ export default function GuideCatalog({
 
   return (
     <div className="mt-0">
-      {/* Controls — single row, scroll if overflow */}
+      {/* Controls â€” single row, scroll if overflow */}
       <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap py-1">
         <input
           id="q"
@@ -184,7 +185,7 @@ export default function GuideCatalog({
         </select>
       </div>
 
-      {/* Top scrollbar — only when needed */}
+      {/* Top scrollbar â€” only when needed */}
       {needsScroll && (
         <div
           ref={topScrollRef}
@@ -196,7 +197,7 @@ export default function GuideCatalog({
         </div>
       )}
 
-      {/* Table — one line per row, chips always visible, sticky Actions on right */}
+      {/* Table â€” one line per row, chips always visible, sticky Actions on right */}
       <div
         ref={wrapRef}
         onScroll={onTableScroll}
@@ -246,7 +247,7 @@ export default function GuideCatalog({
                   </div>
                 </td>
 
-                {/* Sticky right — chip buttons, always visible, one row */}
+                {/* Sticky right â€” chip buttons, always visible, one row */}
                 <td className="sticky right-0 z-10 bg-white px-2.5 py-1.5 dark:bg-zinc-900">
                   <div className="flex flex-nowrap items-center gap-1.5">
                     <Link
@@ -297,3 +298,4 @@ export default function GuideCatalog({
     </div>
   );
 }
+

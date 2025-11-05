@@ -1,5 +1,6 @@
 ﻿"use client";
 
+
 import * as React from "react";
 import { useMemo, useRef, useState, useEffect } from "react";
 import Link from "next/link";
@@ -402,4 +403,5 @@ function Background() {
     </div>
   );
 }
+
 

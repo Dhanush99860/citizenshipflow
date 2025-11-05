@@ -1,5 +1,6 @@
+﻿"use client";
+
 // src/components/Skilled/OccupationLists.tsx
-"use client";
 
 import React from "react";
 import { Briefcase, Search, ChevronDown, Hash } from "lucide-react";
@@ -84,7 +85,7 @@ export default function OccupationLists({ lists, codes, className = "" }: Props)
             />
             <input
               type="search"
-              placeholder="Search occupations…"
+              placeholder="Search occupationsâ€¦"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="w-full pl-8 pr-3 py-1.5 text-sm rounded-md ring-1 ring-neutral-300 dark:ring-neutral-700 bg-white dark:bg-neutral-900 outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600"
@@ -161,3 +162,4 @@ export default function OccupationLists({ lists, codes, className = "" }: Props)
     </section>
   );
 }
+

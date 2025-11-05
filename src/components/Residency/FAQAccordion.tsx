@@ -1,12 +1,13 @@
+﻿"use client";
+
 // Elegant, accessible FAQ accordion...
-"use client";
 
 import * as React from "react";
 
 type FAQ = { q: string; a: string };
 
 export default function FAQSection({ faqs }: { faqs?: FAQ[] }) {
-  // ❗ Never put hooks after an early return
+  // â— Never put hooks after an early return
   const [openIndex, setOpenIndex] = React.useState<number | null>(null);
 
   // Stable slugs for #hash deep links
@@ -50,7 +51,7 @@ export default function FAQSection({ faqs }: { faqs?: FAQ[] }) {
     [slugs],
   );
 
-  // Now it’s safe to bail out
+  // Now itâ€™s safe to bail out
   if (!faqs?.length) return null;
 
   return (
@@ -157,3 +158,4 @@ function buildFaqLd(faqs: FAQ[]) {
     })),
   };
 }
+

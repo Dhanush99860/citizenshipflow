@@ -1,7 +1,8 @@
+﻿"use client";
+
 // ============================
 // src/components/Contact/MapCard.tsx
 // ============================
-"use client";
 
 import * as React from "react";
 
@@ -206,3 +207,4 @@ function HandIcon() {
     </svg>
   );
 }
+

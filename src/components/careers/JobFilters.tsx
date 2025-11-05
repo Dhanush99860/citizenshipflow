@@ -1,5 +1,6 @@
 ﻿"use client";
 
+
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -140,4 +141,5 @@ export default function JobFilters({ depts }: Props) {
     </form>
   );
 }
+
 

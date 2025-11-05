@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import Link from "next/link";
 import { useMemo } from "react";
@@ -158,8 +159,8 @@ export default function JobList({ jobs }: { jobs: Job[] }) {
             <h3 className="text-base font-extrabold leading-6">{job.title}</h3>
             <p className="mt-1 text-sm">
               {job.location}
-              {job.employmentType ? ` • ${job.employmentType}` : ""}
-              {job.postedAt ? ` • ${fmtDate(job.postedAt)}` : ""}
+              {job.employmentType ? ` â€¢ ${job.employmentType}` : ""}
+              {job.postedAt ? ` â€¢ ${fmtDate(job.postedAt)}` : ""}
             </p>
             {job.summary && (
               <p className="mt-2 line-clamp-2 text-sm">{job.summary}</p>
@@ -186,3 +187,4 @@ export default function JobList({ jobs }: { jobs: Job[] }) {
     </ul>
   );
 }
+

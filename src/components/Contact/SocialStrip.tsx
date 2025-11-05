@@ -1,5 +1,6 @@
+﻿"use client";
+
 // src/components/Contact/SocialStrip.tsx
-"use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -320,7 +321,7 @@ function normalizeDigits(s: string) {
 }
 function buildWhatsApp(n: string) {
   const digits = normalizeDigits(n).replace(/^\+/, "");
-  const text = encodeURIComponent("Hello! I’d like to talk to an immigration expert.");
+  const text = encodeURIComponent("Hello! Iâ€™d like to talk to an immigration expert.");
   return `https://wa.me/${digits}?text=${text}`;
 }
 
@@ -381,3 +382,4 @@ function ExternalIcon({ className = "h-4 w-4" }: { className?: string }) {
 function SocialDot({ className = "h-2 w-2" }: { className?: string }) {
   return <span aria-hidden className={`inline-block rounded-full bg-blue-500 ${className}`} />;
 }
+

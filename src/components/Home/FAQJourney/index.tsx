@@ -1,5 +1,6 @@
+﻿"use client";
+
 // FILE: src/components/Common/FAQSectionXiphas.tsx
-"use client";
 
 import * as React from "react";
 
@@ -8,7 +9,7 @@ type FAQ = { q: string; a: string };
 const DEFAULT_FAQS: FAQ[] = [
   {
     q: "How does my journey with XIPHIAS start?",
-    a: "With a private discovery call (20–30 mins). We clarify your goals—relocation, work, investment, family, or a second home—along with timelines and budget. You leave with a shortlist of routes and a first roadmap tailored to your profile.",
+    a: "With a private discovery call (20â€“30 mins). We clarify your goalsâ€”relocation, work, investment, family, or a second homeâ€”along with timelines and budget. You leave with a shortlist of routes and a first roadmap tailored to your profile.",
   },
   {
     q: "What happens after the consultation?",
@@ -20,7 +21,7 @@ const DEFAULT_FAQS: FAQ[] = [
   },
   {
     q: "How long does the process usually take?",
-    a: "It varies by country and route. Fast-track visas: ~1–3 months. Investment PR/Golden Visa: ~3–9 months. Some citizenship-by-exception routes: ~4–8 months. We keep a milestone tracker and update you if authorities request more evidence.",
+    a: "It varies by country and route. Fast-track visas: ~1â€“3 months. Investment PR/Golden Visa: ~3â€“9 months. Some citizenship-by-exception routes: ~4â€“8 months. We keep a milestone tracker and update you if authorities request more evidence.",
   },
   {
     q: "Can my family be included in the same file?",
@@ -28,13 +29,13 @@ const DEFAULT_FAQS: FAQ[] = [
   },
   {
     q: "What support do I get post-approval and on landing?",
-    a: "We guide visa stamping, landing formalities, IDs/tax numbers, and local registrations. Our relocation desk coordinates housing, schools, banking, insurance and—on business routes—entity setup and light compliance so you can settle quickly.",
+    a: "We guide visa stamping, landing formalities, IDs/tax numbers, and local registrations. Our relocation desk coordinates housing, schools, banking, insurance andâ€”on business routesâ€”entity setup and light compliance so you can settle quickly.",
   },
 ];
 
 export default function FAQSectionXiphas({
   faqs = DEFAULT_FAQS,
-  title = "Your journey with XIPHIAS — Top FAQs",
+  title = "Your journey with XIPHIAS â€” Top FAQs",
   subtitle = "A quick overview from first consultation to post-landing support.",
   className = "",
   hashMode = "replace", // "replace" | "push"
@@ -181,7 +182,7 @@ export default function FAQSectionXiphas({
         </div>
 
         <p className="mt-6 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
-          Still curious? Book a private consultation—we’ll map your best options, documents and timelines.
+          Still curious? Book a private consultationâ€”weâ€™ll map your best options, documents and timelines.
         </p>
       </div>
 
@@ -249,3 +250,4 @@ function scrollToSlug(slug: string) {
     /* no-op */
   }
 }
+

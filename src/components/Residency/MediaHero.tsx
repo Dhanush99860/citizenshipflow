@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
@@ -158,3 +159,4 @@ export default function MediaHero({
     </header>
   );
 }
+

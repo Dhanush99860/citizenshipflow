@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import Link from "next/link";
 import * as React from "react";
@@ -26,7 +27,7 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
   // Guard: ensure shape is always safe to render
   const safeResult: Result = {
     tier: result?.tier ?? "Borderline",
-    summary: result?.summary ?? "We couldn’t render the full summary. You can still download the PDF or talk to an expert.",
+    summary: result?.summary ?? "We couldnâ€™t render the full summary. You can still download the PDF or talk to an expert.",
     programs: Array.isArray(result?.programs) ? result.programs : [],
   };
 
@@ -41,7 +42,7 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
 
   const handleDownload = async () => {
     try {
-      setStatus("Preparing your PDF…");
+      setStatus("Preparing your PDFâ€¦");
       setDownloading(true);
       const res = await fetch("/api/eligibility/report", {
         method: "POST",
@@ -61,7 +62,7 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
       trackEvent("pdf_download", { track });
       setStatus("Download started.");
     } catch {
-      setStatus("Sorry — couldn’t generate the PDF. Please try again.");
+      setStatus("Sorry â€” couldnâ€™t generate the PDF. Please try again.");
     } finally {
       setDownloading(false);
       // auto-clear the status after a moment
@@ -120,7 +121,7 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
       </div>
 
       <p className="mt-2 text-sm sm:text-base">
-        <span className="font-semibold">{safeResult.tier}</span> — {safeResult.summary}
+        <span className="font-semibold">{safeResult.tier}</span> â€” {safeResult.summary}
       </p>
 
       {/* Programs */}
@@ -144,7 +145,7 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
           ))
         ) : (
           <div className="rounded-xl ring-1 ring-black/10 dark:ring-white/10 p-4 text-sm">
-            We didn’t detect a clear recommended program from your answers. You can still download
+            We didnâ€™t detect a clear recommended program from your answers. You can still download
             the PDF or talk to an expert.
           </div>
         )}
@@ -189,7 +190,7 @@ export function ResultCard({ track, result, name, answers, onBackAction }: Props
         >
           {downloading ? (
             <>
-              <Spinner /> Preparing PDF…
+              <Spinner /> Preparing PDFâ€¦
             </>
           ) : (
             <>
@@ -303,3 +304,4 @@ function Spinner() {
 function capitalize(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
+

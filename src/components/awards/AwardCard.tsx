@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import React from "react";
 import Link from "next/link";
@@ -17,7 +18,7 @@ export function AwardCard({ award, compact = false }: Props) {
         "aw-card group relative block rounded-3xl focus:outline-none h-full", // <-- stretch
         compact ? "w-[300px]" : "",
       ].join(" ")}
-      aria-label={`${award.tag} — ${award.year}`}
+      aria-label={`${award.tag} â€” ${award.year}`}
     >
       {/* frame */}
       <div className="aw-frame rounded-3xl p-[1.25px] h-full"> {/* <-- stretch */}
@@ -140,3 +141,4 @@ function Arrow({ className = "" }: { className?: string }) {
     </svg>
   );
 }
+

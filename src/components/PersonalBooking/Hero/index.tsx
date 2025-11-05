@@ -1,5 +1,6 @@
+﻿"use client";
+
 // src/components/PersonalBooking/Hero/index.tsx
-"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -33,9 +34,9 @@ export default function HeroPremium({
   secondaryHref = "/images/residency/xiphias-corporate-mobility.pdf",
   secondaryText = "Investment Programs Guide (PDF)",
   className = "",
-  badge = "Private Client • Investment Migration",
+  badge = "Private Client â€¢ Investment Migration",
   features = [
-    "IMC Fellow–led, ethics & compliance first",
+    "IMC Fellowâ€“led, ethics & compliance first",
     "Primary + contingency program shortlist",
     "DD-ready SoF narrative & KYC/AML pack",
     "Escrow / subscription docs: counsel coordination",
@@ -43,8 +44,8 @@ export default function HeroPremium({
     "Jurisdiction comparisons with policy notes",
   ],
   align = "left",
-  microNote = "Confidential • NDA on request",
-  priceNote = "Paid strategy call • 45–60 mins • Credited on engagement",
+  microNote = "Confidential â€¢ NDA on request",
+  priceNote = "Paid strategy call â€¢ 45â€“60 mins â€¢ Credited on engagement",
 }: Props) {
   const isPdf =
     typeof secondaryHref === "string" &&
@@ -67,7 +68,7 @@ export default function HeroPremium({
             className,
           ].join(" ")}
         >
-          {/* Subtle décor */}
+          {/* Subtle dÃ©cor */}
           <div aria-hidden className="pointer-events-none absolute inset-0">
             <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-blue-300/20 blur-3xl dark:bg-blue-700/10" />
             <div className="absolute -bottom-28 -left-10 h-72 w-72 rounded-full bg-indigo-300/20 blur-3xl dark:bg-indigo-700/10" />
@@ -235,3 +236,4 @@ function Dot({ className = "" }: { className?: string }) {
     />
   );
 }
+

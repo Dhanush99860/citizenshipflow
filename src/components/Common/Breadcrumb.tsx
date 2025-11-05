@@ -1,9 +1,10 @@
-"use client";
+﻿"use client";
+
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useMemo } from "react";
-import { ChevronRight } from "lucide-react"; // ✅ modern icon
+import { ChevronRight } from "lucide-react"; // âœ… modern icon
 
 const formatSegment = (segment: string) => {
   return segment.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -62,7 +63,7 @@ export default function Breadcrumb() {
 }
 
 /**
- * ✅ SEO helper to auto-generate meta tags
+ * âœ… SEO helper to auto-generate meta tags
  */
 export function useBreadcrumbSEO(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
@@ -75,3 +76,4 @@ export function useBreadcrumbSEO(pathname: string) {
 
   return { title, description };
 }
+

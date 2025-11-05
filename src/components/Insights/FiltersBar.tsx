@@ -1,5 +1,6 @@
+﻿"use client";
+
 // FILE: src/components/Insights/FiltersBar.tsx
-"use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -163,7 +164,7 @@ export default function FiltersBar({
   /* --------------------------------- render -------------------------------- */
   return (
     <>
-      {/* Toolbar (desktop/tablet ≥ sm) */}
+      {/* Toolbar (desktop/tablet â‰¥ sm) */}
       <section
         aria-label="Filters"
         className="
@@ -520,3 +521,4 @@ export default function FiltersBar({
     </>
   );
 }
+

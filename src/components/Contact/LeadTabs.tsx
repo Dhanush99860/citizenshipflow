@@ -1,7 +1,8 @@
+﻿"use client";
+
 // ============================
 // src/components/Contact/LeadTabs.tsx
 // ============================
-"use client";
 
 import * as React from "react";
 import SectionCard from "@/components/Contact/SectionCard";
@@ -34,7 +35,7 @@ export default function LeadTabs({
           How would you like to connect?
         </h2>
         <p className="mt-0.5 text-xs md:text-sm text-black/70 dark:text-white/70">
-          Choose one. We’ll route you to the right expert.
+          Choose one. Weâ€™ll route you to the right expert.
         </p>
 
         {/* Tabs: dense chips; no extra margins */}
@@ -113,7 +114,7 @@ function CallbackForm({ emailTo, phoneFallback }: { emailTo: string; phoneFallba
     try {
       const fd = new FormData(e.currentTarget);
       await fetch("/api/callback", { method: "POST", body: fd });
-      alert("Thanks! We’ll call you back soon.");
+      alert("Thanks! Weâ€™ll call you back soon.");
       e.currentTarget.reset();
     } finally {
       setSending(false);
@@ -136,9 +137,9 @@ function CallbackForm({ emailTo, phoneFallback }: { emailTo: string; phoneFallba
           <option value="" disabled>
             Select a slot (IST)
           </option>
-          <option>09:00–12:00</option>
-          <option>12:00–15:00</option>
-          <option>15:00–18:00</option>
+          <option>09:00â€“12:00</option>
+          <option>12:00â€“15:00</option>
+          <option>15:00â€“18:00</option>
         </select>
       </div>
       <div className="sm:col-span-2">
@@ -152,7 +153,7 @@ function CallbackForm({ emailTo, phoneFallback }: { emailTo: string; phoneFallba
           disabled={sending}
           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white ring-1 ring-blue-700/20 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 disabled:opacity-60"
         >
-          {sending ? "Sending…" : "Request callback"}
+          {sending ? "Sendingâ€¦" : "Request callback"}
         </button>
       </div>
     </form>
@@ -160,7 +161,7 @@ function CallbackForm({ emailTo, phoneFallback }: { emailTo: string; phoneFallba
 }
 
 function WhatsAppPanel({ numberHint }: { numberHint?: string }) {
-  const [msg, setMsg] = React.useState("Hello! I’d like to talk to an immigration expert.");
+  const [msg, setMsg] = React.useState("Hello! Iâ€™d like to talk to an immigration expert.");
   const digits = (numberHint || "").replace(/[^\d+]/g, "").replace(/^\+/, "");
   const canOpen = digits.length >= 8;
   const wa = canOpen ? `https://wa.me/${digits}?text=${encodeURIComponent(msg)}` : undefined;
@@ -207,3 +208,4 @@ function Label({ children }: { children: React.ReactNode }) {
 function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={[INPUT_CLS, props.className].filter(Boolean).join(" ")} />;
 }
+

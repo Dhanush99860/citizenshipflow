@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import React from "react";
 import type { Award } from "./awards.data";
@@ -7,7 +8,7 @@ export function MiniAwardCard({ award }: { award: Award }) {
   return (
     <div
       className="mini group relative w-[240px] md:w-[260px] h-[176px] md:h-[184px] rounded-2xl p-[1px]"
-      aria-label={`${award.tag} — ${award.year}`}
+      aria-label={`${award.tag} â€” ${award.year}`}
     >
       <div className="inner relative h-full rounded-[calc(1rem-1px)] p-3 flex flex-col">
         <span aria-hidden className="beam absolute inset-0 rounded-[calc(1rem-1px)]" />
@@ -51,3 +52,4 @@ export function MiniAwardCard({ award }: { award: Award }) {
     </div>
   );
 }
+

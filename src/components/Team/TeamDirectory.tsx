@@ -1,7 +1,8 @@
+﻿"use client";
+
 // ==============================================
-// components/team/TeamDirectory.tsx – search + tag filter
+// components/team/TeamDirectory.tsx â€“ search + tag filter
 // ==============================================
-"use client";
 import React, { useMemo, useState } from "react";
 import { Person } from "@/components/Team/team";
 import { Avatar } from "@/components/Team/Avatar";
@@ -37,7 +38,7 @@ export function TeamDirectory({ people }: { people: Person[] }) {
         <div className="mt-4 md:mt-0 flex gap-3">
           <label className="flex items-center gap-2 rounded-xl ring-1 ring-blue-200 bg-white/70 px-3 py-2 text-sm backdrop-blur dark:bg-white/5 dark:ring-blue-800">
             <SearchIcon className="h-4 w-4" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search team…" className="bg-transparent outline-none placeholder:text-zinc-400" aria-label="Search team" />
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search teamâ€¦" className="bg-transparent outline-none placeholder:text-zinc-400" aria-label="Search team" />
           </label>
           <select value={tag} onChange={(e) => setTag(e.target.value as any)} aria-label="Filter by tag" className="rounded-xl ring-1 ring-blue-200 bg-white/70 px-3 py-2 text-sm backdrop-blur dark:bg-white/5 dark:ring-blue-800">
             <option value="all">All disciplines</option>
@@ -68,3 +69,4 @@ export function TeamDirectory({ people }: { people: Person[] }) {
     </section>
   );
 }
+

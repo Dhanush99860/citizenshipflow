@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Grid } from "swiper/modules";
@@ -43,13 +44,13 @@ export default function AwardSection() {
               className="award-prev w-12 h-12 flex items-center justify-center rounded-full bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-300/50 dark:border-neutral-700/50 shadow-sm hover:shadow-lg hover:scale-105 transition"
               aria-label="Previous awards"
             >
-              ◀
+              â—€
             </button>
             <button
               className="award-next w-12 h-12 flex items-center justify-center rounded-full bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-300/50 dark:border-neutral-700/50 shadow-sm hover:shadow-lg hover:scale-105 transition"
               aria-label="Next awards"
             >
-              ▶
+              â–¶
             </button>
           </div>
         </div>
@@ -150,3 +151,4 @@ export default function AwardSection() {
     </section>
   );
 }
+

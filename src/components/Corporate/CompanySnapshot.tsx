@@ -1,5 +1,6 @@
+﻿"use client";
+
 // src/components/Corporate/CompanySnapshot.tsx
-"use client";
 
 import * as React from "react";
 import {
@@ -52,7 +53,7 @@ type SnapshotProps = {
 function fmt(v: Value): React.ReactNode {
   if (React.isValidElement(v)) return v;
   if (typeof v === "boolean") return v ? "Yes" : "No";
-  if (v === null || v === undefined) return "—";
+  if (v === null || v === undefined) return "â€”";
   return String(v);
 }
 
@@ -183,3 +184,4 @@ export default function CompanySnapshot({
     </section>
   );
 }
+

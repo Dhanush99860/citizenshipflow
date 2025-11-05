@@ -1,9 +1,10 @@
+﻿"use client";
+
 // ============================
 // FILE: src/components/Layout/Footer/index.tsx
-// Final compact footer — App QR kept, ONE newsletter, multi-office support
+// Final compact footer â€” App QR kept, ONE newsletter, multi-office support
 // Tailwind-only, accessible, NO <section> tags
 // ============================
-"use client";
 
 import React, { useId, useState } from "react";
 import Link from "next/link";
@@ -46,7 +47,7 @@ const LEGAL = [
   { label: "Accessibility", href: "/accessibility" },
 ];
 
-// Add as many offices as you want — UI wraps automatically
+// Add as many offices as you want â€” UI wraps automatically
 const OFFICES = [
   {
     name: "Bengaluru HQ",
@@ -54,7 +55,7 @@ const OFFICES = [
     city: "Bengaluru",
     postal: "560034",
     country: "India",
-    hours: "Mon–Sat, 9:30–18:30",
+    hours: "Monâ€“Sat, 9:30â€“18:30",
     phone: "+91 90194 00500",
     maps: "https://maps.google.com/?q=Aurbis+Prime+Kaveri+Regent+Coronet+Koramangala+Bengaluru+560034",
   },
@@ -64,7 +65,7 @@ const OFFICES = [
     city: "Gurugram",
     postal: "122002",
     country: "India",
-    hours: "Mon–Sat, 9:30–18:30",
+    hours: "Monâ€“Sat, 9:30â€“18:30",
     phone: "+91 96675 20211",
     maps: "https://maps.google.com/?q=Augusta+Point+Golf+Course+Road+DLF+Phase+5+Sector+53+Gurugram+122002",
   },
@@ -74,7 +75,7 @@ const OFFICES = [
     city: "Dubai",
     postal: "",
     country: "UAE",
-    hours: "Sun–Thu, 9:00–18:00",
+    hours: "Sunâ€“Thu, 9:00â€“18:00",
     phone: "+971 521 021 001",
     maps: "https://maps.google.com/?q=Platinum+Tower+JLT+Dubai",
   },
@@ -85,7 +86,7 @@ const OFFICES = [
     city: "Doha",
     postal: "",
     country: "Qatar",
-    hours: "Sun–Thu, 9:00–18:00",
+    hours: "Sunâ€“Thu, 9:00â€“18:00",
     phone: "+974 4476 0562",
     maps: "https://maps.google.com/?q=Al+Jazeera+Tower+West+Bay+Doha",
   },
@@ -95,7 +96,7 @@ const OFFICES = [
     city: "Melbourne",
     postal: "VIC 3149",
     country: "Australia",
-    hours: "Mon–Fri, 9:00–17:00",
+    hours: "Monâ€“Fri, 9:00â€“17:00",
     phone: "+61 481 180 072",
     maps: "https://maps.google.com/?q=19+McLochlan+St+Mount+Waverley+VIC+3149",
   },
@@ -105,7 +106,7 @@ const OFFICES = [
     city: "Waterloo, ON",
     postal: "N2J 3G9",
     country: "Canada",
-    hours: "Mon–Fri, 9:00–17:00",
+    hours: "Monâ€“Fri, 9:00â€“17:00",
     phone: "+1 438 379 9101",
     maps: "https://maps.google.com/?q=3-133+Weber+St+N+Suite+514+Waterloo+ON+N2J+3G9",
   },
@@ -279,12 +280,12 @@ export default function Footer() {
               <ul className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-white/90 text-[12px]">
                 <li className="inline-flex items-center gap-1">
                   <Icon icon="mdi:star" className="w-4 h-4" />
-                  <strong>4.8/5</strong> · 1,200+ reviews{" "}
+                  <strong>4.8/5</strong> Â· 1,200+ reviews{" "}
                   <Link href="https://g.page/r/CTH8DQwm1lYnEAE/review" className="underline underline-offset-4 hover:text-white">
                     (Google)
                   </Link>
                 </li>
-                <li className="opacity-75">•</li>
+                <li className="opacity-75">â€¢</li>
                 <li className="inline-flex items-center gap-1">
                   <Icon icon="mdi:shield-check" className="w-4 h-4" /> Secure payments
                 </li>
@@ -388,7 +389,7 @@ export default function Footer() {
               className="rounded-xl border border-white/15 bg-white/10 backdrop-blur-md p-3.5"
             >
               <div className="flex items-center gap-3">
-                {/* Make QR clickable → app landing */}
+                {/* Make QR clickable â†’ app landing */}
                 <a
                   href="/app"
                   className="h-16 w-16 shrink-0 rounded-lg bg-white/20 flex items-center justify-center ring-1 ring-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
@@ -406,13 +407,13 @@ export default function Footer() {
 
                 <div className="min-w-0">
                   <p className="text-sm text-white/95 font-medium">
-                    XIPHIAS App — track docs &amp; case status
+                    XIPHIAS App â€” track docs &amp; case status
                   </p>
 
                   <div className="mt-1 flex items-center gap-1 text-[12px] text-white/90">
                     <Icon icon="mdi:star" className="w-4 h-4" />
                     <strong>4.8</strong>
-                    <span className="text-white/70">· 1,200+ reviews</span>
+                    <span className="text-white/70">Â· 1,200+ reviews</span>
                   </div>
 
                   {/* Store badges (open in new tab) */}
@@ -456,7 +457,7 @@ export default function Footer() {
 
                   {/* Optional deep-link row (hidden from layout; useful for crawlers) */}
                   <span className="sr-only">
-                    iOS: apps.apple.com/app/id0000000000 — Android: play.google.com/store/apps/details?id=com.xiphias.app
+                    iOS: apps.apple.com/app/id0000000000 â€” Android: play.google.com/store/apps/details?id=com.xiphias.app
                   </span>
                 </div>
               </div>
@@ -485,7 +486,7 @@ export default function Footer() {
                 ))}
               </div>
               <address className="not-italic text-white/85 text-[13px]" itemScope itemType="https://schema.org/PostalAddress">
-                <span className="block text-white/70 text-[12px] mt-1">Mon–Sat, 9:30–6:30</span>
+                <span className="block text-white/70 text-[12px] mt-1">Monâ€“Sat, 9:30â€“6:30</span>
               </address>
             </div>
           </div>
@@ -494,7 +495,7 @@ export default function Footer() {
         {/* ===== Offices (multi) + Trust & Compliance ===== */}
         <div className="py-6 border-b border-white/15">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-            {/* Offices — auto-wrap for any number */}
+            {/* Offices â€” auto-wrap for any number */}
             <div className="lg:col-span-7 rounded-xl border border-white/15 bg-white/10 backdrop-blur-md p-3.5" aria-label="Offices">
               <h3 className="text-white/95 text-sm font-semibold mb-2">Offices</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
@@ -530,7 +531,7 @@ export default function Footer() {
                     <Icon icon="mdi:certificate-outline" className="h-5 w-5 mt-0.5" />
                     <div>
                       <strong className="text-[13.5px]">Accreditations</strong>
-                      <p className="text-[13px] text-white/85">RCIC R516194 • MARA 0854840</p>
+                      <p className="text-[13px] text-white/85">RCIC R516194 â€¢ MARA 0854840</p>
                     </div>
                   </div>
                 </li>
@@ -540,7 +541,7 @@ export default function Footer() {
                     <Icon icon="mdi:star-circle-outline" className="h-5 w-5 mt-0.5" />
                     <div>
                       <strong className="text-[13.5px]">Reviews</strong>
-                      <p className="text-[13px] text-white/85">4.8/5 on Google • <Link id="reviews" href="https://g.page/r/CTH8DQwm1lYnEAE/review" className="underline">Read reviews</Link></p>
+                      <p className="text-[13px] text-white/85">4.8/5 on Google â€¢ <Link id="reviews" href="https://g.page/r/CTH8DQwm1lYnEAE/review" className="underline">Read reviews</Link></p>
                     </div>
                   </div>
                 </li>
@@ -563,7 +564,7 @@ export default function Footer() {
 
                 <li className="rounded-lg border border-white/10 bg-white/5 p-3">
                   <p className="text-[12px] text-white/75 leading-relaxed">
-                    We provide immigration consulting and documentation support—<strong>not a law firm</strong>.
+                    We provide immigration consulting and documentation supportâ€”<strong>not a law firm</strong>.
                     Information is general guidance only and not legal advice. Availability, costs, and timelines may change.
                   </p>
                 </li>
@@ -642,8 +643,8 @@ export default function Footer() {
         {/* ===== Bottom Legal Bar ===== */}
         <div className="py-5 border-t border-white/15">
           <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <p className="text-[11.5px] text-white/80">©2011–{year} XIPHIAS Immigration. All rights reserved.</p>
-            <p className="text-[11.5px] text-white/75">Registered in India • CIN: U74900KA2015PTC078396 • Jurisdiction: Bengaluru, Karnataka</p>
+            <p className="text-[11.5px] text-white/80">Â©2011â€“{year} XIPHIAS Immigration. All rights reserved.</p>
+            <p className="text-[11.5px] text-white/75">Registered in India â€¢ CIN: U74900KA2015PTC078396 â€¢ Jurisdiction: Bengaluru, Karnataka</p>
           </div>
         </div>
       </div>
@@ -653,3 +654,4 @@ export default function Footer() {
     </footer>
   );
 }
+

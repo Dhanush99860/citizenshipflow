@@ -1,5 +1,6 @@
-﻿import { Heading } from "@/components/ui/heading/Heading"
-"use client";
+﻿"use client";
+
+import { Heading } from "@/components/ui/heading/Heading"
 import * as React from "react";
 
 type FAQ = { q: string; a: string };
@@ -144,4 +145,5 @@ function Chevron({ className }: { className?: string }) {
     </svg>
   );
 }
+
 

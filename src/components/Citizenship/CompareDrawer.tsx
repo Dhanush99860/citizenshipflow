@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import React from "react";
 import Link from "next/link";
@@ -174,7 +175,7 @@ export default function CompareDrawer({
       position: i + 1,
       item: {
         "@type": "Service",
-        name: `${it.title} – ${it.country}`,
+        name: `${it.title} â€“ ${it.country}`,
         areaServed: "Worldwide",
         ...(it.href ? { url: it.href } : {}),
         offers: it.minInvestment
@@ -307,7 +308,7 @@ export default function CompareDrawer({
                   >
                     <meta
                       itemProp="name"
-                      content={`${it.title} – ${it.country}`}
+                      content={`${it.title} â€“ ${it.country}`}
                     />
                     <div className="flex items-center gap-3">
                       <SquareThumb item={it} />
@@ -353,7 +354,7 @@ export default function CompareDrawer({
                         <dd className="tabular-nums">
                           {typeof it.minInvestment === "number"
                             ? toCurrency(it.minInvestment, it.currency ?? "USD")
-                            : "—"}
+                            : "â€”"}
                         </dd>
                       </div>
                       <div className="rounded-lg bg-white/90 dark:bg-white/5 px-2 py-1 ring-1 ring-blue-100/80 dark:ring-blue-900/40">
@@ -416,7 +417,7 @@ export default function CompareDrawer({
                         <td className="p-2 text-right tabular-nums">
                           {typeof it.minInvestment === "number"
                             ? toCurrency(it.minInvestment, it.currency ?? "USD")
-                            : "—"}
+                            : "â€”"}
                         </td>
                         <td className="p-2 text-right tabular-nums">
                           {it.timelineMonths
@@ -458,3 +459,4 @@ export default function CompareDrawer({
     </>
   );
 }
+

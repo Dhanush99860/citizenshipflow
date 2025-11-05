@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import * as React from "react";
 
@@ -230,7 +231,7 @@ export default function LocationsDirectory({
       city: "Lisbon, Portugal",
       company: "XIPHIAS IMMIGRATION PVT LTD (Represented by Partners)",
       regionKey: "europe",
-      address: ["Rua do Mar Vermelho, nº 2, 2.1, 1990-152 Lisboa"],
+      address: ["Rua do Mar Vermelho, nÂº 2, 2.1, 1990-152 Lisboa"],
       phones: ["+351-218 954 290"],
       fax: "+351-218 943 244",
       email: "info@xiphiasimmigration.com",
@@ -247,10 +248,10 @@ export default function LocationsDirectory({
     },
     {
       id: "eu-spain",
-      city: "València, Spain",
+      city: "ValÃ¨ncia, Spain",
       company: "XIPHIAS IMMIGRATION PVT LTD (Represented by Partners)",
       regionKey: "europe",
-      address: ["Plaza del Ayuntamiento 19, Office 3G, València"],
+      address: ["Plaza del Ayuntamiento 19, Office 3G, ValÃ¨ncia"],
       whatsapp: "+34 960 730 029",
       email: "info@xiphiasimmigration.com",
     },
@@ -336,7 +337,7 @@ export default function LocationsDirectory({
       <div className="rounded-2xl ring-1 ring-blue-100/80 bg-white/80 p-4 shadow-sm dark:ring-blue-900/40 dark:bg-white/[0.03]">
         <h2 className="text-lg font-semibold md:text-xl">Worldwide locations</h2>
         <p className="mt-1 text-xs md:text-sm text-black/70 dark:text-white/70">
-          Jump to a region and contact the nearest office. No maps or images—just essentials.
+          Jump to a region and contact the nearest office. No maps or imagesâ€”just essentials.
         </p>
 
         {/* Jump nav */}
@@ -405,7 +406,7 @@ export default function LocationsDirectory({
           href="#"
           className="inline-flex items-center gap-2 rounded-md border border-blue-200 bg-white px-3 py-1.5 text-xs text-blue-700 hover:bg-blue-50 dark:border-blue-800/60 dark:bg-white/5 dark:text-blue-200"
         >
-          ↑ Back to top
+          â†‘ Back to top
         </a>
       </div>
     </section>
@@ -531,3 +532,4 @@ function OfficeRow({ office: o }: { office: Office }) {
     </article>
   );
 }
+

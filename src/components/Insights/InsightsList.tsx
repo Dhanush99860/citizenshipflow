@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import * as React from "react";
 import InsightCard from "./InsightCard";
@@ -104,7 +105,7 @@ export default function InsightsList({
   );
 }
 
-/* ───────── Toolbar ───────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€ Toolbar â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 function Toolbar({
   countText,
@@ -135,7 +136,7 @@ function Toolbar({
             >
               <option value="new">Newest</option>
               <option value="popular">Most popular</option>
-              <option value="az">A–Z</option>
+              <option value="az">Aâ€“Z</option>
             </select>
           </label>
         )}
@@ -163,7 +164,7 @@ function Toolbar({
   );
 }
 
-/* ───────── List Row (image left; badge = type; whole row is a link) ───────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€ List Row (image left; badge = type; whole row is a link) â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function Row({ item }: { item: InsightMeta }) {
   const any = item as any;
   const cover = getCover(any);
@@ -220,14 +221,14 @@ function Row({ item }: { item: InsightMeta }) {
         )}
 
         <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
-          {readStr ? `${readStr} · ` : ""}{any.date ?? ""}
+          {readStr ? `${readStr} Â· ` : ""}{any.date ?? ""}
         </p>
       </div>
     </a>
   );
 }
 
-/* ───────── Empty & Skeletons ───────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€ Empty & Skeletons â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 function EmptyState({ onResetFiltersAction }: { onResetFiltersAction?: () => void }) {
   return (
@@ -269,7 +270,7 @@ function SkeletonRow() {
   );
 }
 
-/* ───────── Helpers ───────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 function getCover(any: any): string | undefined {
   return (
@@ -309,7 +310,7 @@ function getTypeBadge(any: any): "news" | "blog" | "media" | "article" {
   if (tags.includes("media") || tags.includes("press")) return "media";
   if (tags.includes("article") || tags.includes("insight") || tags.includes("guide")) return "article";
 
-  return "article"; // default – ensures badge renders
+  return "article"; // default â€“ ensures badge renders
 }
 
 function badgeClasses(type: string): string {
@@ -338,7 +339,7 @@ function getReadTime(item: InsightMeta): string | undefined {
   return undefined;
 }
 
-/* ───────── Icons ───────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€ Icons â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 function GridIcon({ className = "" }: { className?: string }) {
   return <svg viewBox="0 0 20 20" fill="currentColor" className={className} aria-hidden>
@@ -361,3 +362,4 @@ function SearchIcon({ className = "" }: { className?: string }) {
 function RotateIcon({ className = "" }: { className?: string }) {
   return <svg viewBox="0 0 20 20" fill="currentColor" className={className}><path d="M10 2a8 8 0 017.937 7H16l3.5 3.5L23 9h-2.063A8.001 8.001 0 112 10a1 1 0 102 0 6 6 0 106 6 1 1 0 100-2 4 4 0 110-8 1 1 0 100-2z" /></svg>;
 }
+

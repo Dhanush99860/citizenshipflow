@@ -1,5 +1,6 @@
+﻿"use client";
+
 // src/components/PersonalBooking/ProblemSolution/index.tsx
-"use client";
 
 import * as React from "react";
 import Link from "next/link";
@@ -65,7 +66,7 @@ const PAIRS: Pair[] = [
     solution: {
       title: "Forensic SoF narrative & DD-ready pack",
       desc:
-        "A coherent funds trail (audited statements, SPAs, distributions, trust deeds) plus PEP/adverse-media screening upfront—presented in regulator-friendly structure.",
+        "A coherent funds trail (audited statements, SPAs, distributions, trust deeds) plus PEP/adverse-media screening upfrontâ€”presented in regulator-friendly structure.",
       note: "Built to AML expectations; reduces back-and-forth.",
       icon: <FileCheck2 className="h-5 w-5 text-emerald-600" />,
     },
@@ -83,7 +84,7 @@ const PAIRS: Pair[] = [
       title: "Curated, policy-compliant routes & risk brief",
       desc:
         "We align the route with current program policy, summarize key risks (governance, liquidity, fees), and co-ordinate counsel for subscription/escrow document checks.",
-      note: "We do not provide investment advice—process & compliance only.",
+      note: "We do not provide investment adviceâ€”process & compliance only.",
       icon: <Scale className="h-5 w-5 text-emerald-600" />,
     },
   },
@@ -167,7 +168,7 @@ const PAIRS: Pair[] = [
     solution: {
       title: "IMC-certified leadership & transparent scope",
       desc:
-        "Engagements are documented with clear scope, compliant marketing, and ethics-first guidance under IMC’s code of conduct.",
+        "Engagements are documented with clear scope, compliant marketing, and ethics-first guidance under IMCâ€™s code of conduct.",
       note: "Led by a Fellow Certified Investment Migration Consultant (FIMC).",
       icon: <BadgeCheck className="h-5 w-5 text-emerald-600" />,
     },
@@ -203,10 +204,10 @@ export default function ProblemSolutionCompare({ className = "" }: { className?:
             <span className="bg-gradient-to-r from-primary/70 to-primary bg-clip-text text-transparent">
               HNI families & leaders
             </span>
-            : problems we solve—side by side
+            : problems we solveâ€”side by side
           </h2>
           <p className="mt-3 text-base md:text-lg text-slate-600 dark:text-slate-300">
-            A compliance-first pathway under IMC standards—clear strategy, due-diligence-ready
+            A compliance-first pathway under IMC standardsâ€”clear strategy, due-diligence-ready
             documentation, and coordinated execution from discovery to landing.
           </p>
         </div>
@@ -359,3 +360,4 @@ function DeliverablesBox() {
     </div>
   );
 }
+

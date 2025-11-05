@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import * as React from "react";
 import Image from "next/image";
@@ -14,7 +15,7 @@ import { TESTIMONIALS_PRO, type Testimonial } from "@/app/api/testimonials";
    TestimonialCarouselMarquee
    - Uniform cards (all equal)
    - No read-more, no pause/play, no arrows/dots
-   - Auto + slow marquee-style movement (right → left)
+   - Auto + slow marquee-style movement (right â†’ left)
    - Reusable: uses imported data by default; can accept items prop
    - NEW: Initials-only by default (no images needed). Toggle with showInitialsOnly.
    ============================================================================= */
@@ -62,7 +63,7 @@ export default function TestimonialCarouselMarquee({
           </p>
         </div>
 
-        {/* Marquee-style slider: slow, continuous, right → left */}
+        {/* Marquee-style slider: slow, continuous, right â†’ left */}
         <Swiper
           modules={[A11y, Autoplay, FreeMode]}
           a11y={{ enabled: true }}
@@ -128,7 +129,7 @@ function Card({ item: t, showInitialsOnly }: { item: Testimonial; showInitialsOn
       </div>
 
       {/* Quote */}
-      <p className="text-neutral-800 dark:text-neutral-200 leading-relaxed">“{t.text}”</p>
+      <p className="text-neutral-800 dark:text-neutral-200 leading-relaxed">â€œ{t.text}â€</p>
 
       {/* Person */}
       <div className="mt-5 flex items-center gap-3">
@@ -193,3 +194,4 @@ function initials(name: string): string {
   const parts = name.trim().split(/\s+/).slice(0, 2);
   return parts.map((p) => p[0]?.toUpperCase() ?? "").join("") || "U";
 }
+

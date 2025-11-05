@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
@@ -39,3 +40,4 @@ export default function BookingRouteClient({ plan }: { plan: "free" | "paid" }) 
     />
   );
 }
+

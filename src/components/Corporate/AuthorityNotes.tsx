@@ -1,5 +1,6 @@
+﻿"use client";
+
 // components/Corporate/AuthorityNotes.tsx
-"use client";
 
 import * as React from "react";
 
@@ -47,3 +48,4 @@ export default function AuthorityNotes({
     </section>
   );
 }
+

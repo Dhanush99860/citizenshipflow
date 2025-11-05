@@ -1,4 +1,5 @@
-'use client';
+﻿"use client";
+
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -233,7 +234,7 @@ export default function Header() {
 
               {/* CENTER (mobile only): GlobalSearch trigger */}
               <div className="absolute inset-x-0 flex justify-center lg:hidden px-12 pointer-events-none">
-                <GlobalSearch className="max-w-[520px]" placeholder="Search…" />
+                <GlobalSearch className="max-w-[520px]" placeholder="Searchâ€¦" />
               </div>
 
               {/* Desktop navigation */}
@@ -281,7 +282,7 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Backdrop — click outside to close */}
+        {/* Backdrop â€” click outside to close */}
         {drawerOpen && (
           <div
             className="fixed inset-0 z-[49] bg-black/50 backdrop-blur-[2px] lg:hidden"
@@ -372,3 +373,4 @@ export default function Header() {
     </>
   );
 }
+

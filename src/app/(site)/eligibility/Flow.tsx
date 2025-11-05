@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import * as React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -131,7 +132,7 @@ export default function Flow() {
   }, [questions.length, stepIndex]);
 
   const etaText = useMemo(() => {
-    if (!questions.length) return "2–4 min";
+    if (!questions.length) return "2â€“4 min";
     const remaining = Math.max(questions.length - stepIndex, 1);
     const mins = Math.max(1, Math.round((remaining * 12) / 60));
     return `${mins} min left`;
@@ -189,7 +190,7 @@ export default function Flow() {
     scrollShellIntoView();
   }, [router, resetState, clearAutosave, scrollShellIntoView]);
 
-  // URL sync (don’t auto-start while on "select")
+  // URL sync (donâ€™t auto-start while on "select")
   useEffect(() => {
     const urlTrack = search.get("track") as Track | null;
     if (stage === "select") return;
@@ -348,7 +349,7 @@ export default function Flow() {
                       className="text-xs md:text-sm opacity-80"
                       aria-live="polite"
                     >
-                      {progressText} • {etaText}
+                      {progressText} â€¢ {etaText}
                     </span>
                   </TopBar>
 
@@ -530,3 +531,4 @@ function TopBar({
     </div>
   );
 }
+

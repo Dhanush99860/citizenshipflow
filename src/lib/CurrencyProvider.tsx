@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 import * as React from "react";
 
 type Currency = "INR" | "USD" | "AED" | "EUR";
@@ -56,3 +57,4 @@ export function CurrencyProvider({
 export function useCurrency() {
   return React.useContext(CurrencyCtx);
 }
+

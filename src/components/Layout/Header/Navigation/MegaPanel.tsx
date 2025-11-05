@@ -1,5 +1,6 @@
+﻿"use client";
+
 // FILE: src/components/Layout/Header/Navigation/MegaPanel.tsx
-'use client';
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -19,9 +20,9 @@ const SHOW_FLAGS = true;
 
 /** ---- Flags ---- */
 function flagEmojiFromCode(code?: string) {
-  if (!code) return '🏳️';
+  if (!code) return 'ðŸ³ï¸';
   const cc = code.trim().toUpperCase();
-  if (cc.length !== 2) return '🏳️';
+  if (cc.length !== 2) return 'ðŸ³ï¸';
   const base = 127397;
   return (
     String.fromCodePoint(cc.charCodeAt(0) + base) +
@@ -196,7 +197,7 @@ export default function MegaPanel({ rootLabel, columns, open, onClose }: MegaPan
                   <input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Filter by country or program…"
+                    placeholder="Filter by country or programâ€¦"
                     className={cx(
                       'w-[min(80vw,340px)] sm:w-80 rounded-lg border px-3 py-2 text-xs shadow-inner',
                       'bg-white/85 backdrop-blur-sm border-black/10 placeholder:text-zinc-500 text-zinc-900',

@@ -1,5 +1,6 @@
+﻿"use client";
+
 // src/components/gallery/GalleryGrid.tsx
-"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
@@ -141,7 +142,7 @@ export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
         </div>
       )}
 
-      {/* Lightbox (lazy‑loaded via dynamic import) */}
+      {/* Lightbox (lazyâ€‘loaded via dynamic import) */}
       {lightbox && (
         <Lightbox
           items={lightbox.list}
@@ -152,3 +153,4 @@ export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
     </>
   );
 }
+

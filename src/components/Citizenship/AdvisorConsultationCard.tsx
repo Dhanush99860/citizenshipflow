@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import Image from "next/image";
 import Link from "next/link";
@@ -66,14 +67,14 @@ function money(amount: number, currency: string) {
 /* -------------------------------- Component ------------------------------- */
 export default function AdvisorConsultationCard({
   advisorName = "Varun Singh",
-  role = "CBI & RBI — Caribbean",
+  role = "CBI & RBI â€” Caribbean",
   avatarSrc = "/images/avtar/varun-singh.png",
-  credentials = "Ex-Big4 • 12+ yrs CBI/RBI",
-  languages = "English • Hindi • Arabic",
+  credentials = "Ex-Big4 â€¢ 12+ yrs CBI/RBI",
+  languages = "English â€¢ Hindi â€¢ Arabic",
   timezone = "Gulf / IST friendly",
 
   title = "Talk to a senior CBI advisor",
-  subtitle = "Personal, paid session on eligibility, timelines, and project selection — fully confidential.",
+  subtitle = "Personal, paid session on eligibility, timelines, and project selection â€” fully confidential.",
 
   rating = 4.9,
   reviewsCount = 312,
@@ -94,8 +95,8 @@ export default function AdvisorConsultationCard({
   onBookAction,
   brochureUrl,
 
-  paymentNote = "UPI • Cards • Bank Wire",
-  guaranteeNote = "If we can’t help, we’ll say so — no upsell.",
+  paymentNote = "UPI â€¢ Cards â€¢ Bank Wire",
+  guaranteeNote = "If we canâ€™t help, weâ€™ll say so â€” no upsell.",
   complianceNote = "Advisory only; not legal/financial advice. Subject to KYC & eligibility.",
 
   className = "",
@@ -151,7 +152,7 @@ export default function AdvisorConsultationCard({
               </h3>
               <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">{subtitle}</p>
               <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                {advisorName} — {role}
+                {advisorName} â€” {role}
               </p>
             </div>
           </div>
@@ -162,7 +163,7 @@ export default function AdvisorConsultationCard({
             <Chip icon={<GlobeIcon className="h-3.5 w-3.5" />}>{languages}</Chip>
             <Chip icon={<ClockIcon className="h-3.5 w-3.5" />}>{timezone}</Chip>
             <Chip tone="success" icon={<StarIcon className="h-3.5 w-3.5" />}>
-              {rating.toFixed(1)} · {reviewsCount.toLocaleString()} reviews
+              {rating.toFixed(1)} Â· {reviewsCount.toLocaleString()} reviews
             </Chip>
             <Chip icon={<UsersIcon className="h-3.5 w-3.5" />}>
               {clientsServed.toLocaleString()}+ clients served

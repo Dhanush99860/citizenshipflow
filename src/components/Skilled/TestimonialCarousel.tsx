@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import React from "react";
 import Script from "next/script";
@@ -160,7 +161,7 @@ export default function TestimonialCarousel({
             className="text-[15px] leading-7 md:text-base transition-opacity duration-300 ease-out"
             aria-live="polite"
           >
-            “{t.quote}”
+            â€œ{t.quote}â€
           </blockquote>
         </div>
 
@@ -171,7 +172,7 @@ export default function TestimonialCarousel({
             <div className="text-sm font-medium truncate">{t.author}</div>
             {(t.role || t.organization) && (
               <div className="text-xs text-zinc-600 dark:text-zinc-300 truncate">
-                {[t.role, t.organization].filter(Boolean).join(" • ")}
+                {[t.role, t.organization].filter(Boolean).join(" â€¢ ")}
               </div>
             )}
           </div>
@@ -319,3 +320,4 @@ function CarouselButton({
     </button>
   );
 }
+

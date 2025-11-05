@@ -1,7 +1,8 @@
+﻿"use client";
+
 // ============================
 // src/components/Contact/ContactChannels.tsx
 // ============================
-"use client";
 
 import * as React from "react";
 import SectionCard from "@/components/Contact/SectionCard";
@@ -184,7 +185,7 @@ function Row({ icon, label, children }: { icon: React.ReactNode; label: string; 
 
 function toWhatsApp(n: string) {
   const digits = n.replace(/[^\d+]/g, "").replace(/^\+/, "");
-  const text = encodeURIComponent("Hello! I’d like to talk to an immigration expert.");
+  const text = encodeURIComponent("Hello! Iâ€™d like to talk to an immigration expert.");
   return `https://wa.me/${digits}?text=${text}`;
 }
 
@@ -236,3 +237,4 @@ function ClockIcon({ className = "h-4 w-4" }: { className?: string }) {
 function Dot() {
   return <span aria-hidden className="inline-block h-2 w-2 rounded-full bg-blue-500" />;
 }
+

@@ -1,5 +1,6 @@
+﻿"use client";
+
 // FILE: src/components/Layout/Header/Navigation/HeaderLink.tsx
-'use client';
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -8,10 +9,10 @@ import MegaPanel from './MegaPanel';
 import type { HeaderItem } from '../menu.types';
 
 /**
- * HeaderLink — advanced, accessible, intent-aware trigger for MegaPanel
+ * HeaderLink â€” advanced, accessible, intent-aware trigger for MegaPanel
  *
  * - Desktop default = click to open; hover intent only on pointer=fine
- * - Touch: first tap opens, second tap (≤600ms) navigates
+ * - Touch: first tap opens, second tap (â‰¤600ms) navigates
  * - Keyboard: Enter/Space/ArrowDown open; Esc closes and returns focus
  * - Outside click + route change close; respects reduced motion
  * - Stable, SSR-safe media query hook prevents "change in order of Hooks" errors

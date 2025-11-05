@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import * as React from "react";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
@@ -74,7 +75,7 @@ export function QuestionCard({ question, value, onSubmitAction, onBackAction }: 
     }
   }, [disabled, submitting, local, question.type, onSubmitAction]);
 
-  // Keyboard helpers (Enter submit, Esc/← back, arrows cycle radios/yesno)
+  // Keyboard helpers (Enter submit, Esc/â† back, arrows cycle radios/yesno)
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -140,7 +141,7 @@ export function QuestionCard({ question, value, onSubmitAction, onBackAction }: 
               value={local}
               onChange={(e) => setLocal(e.target.value)}
               onBlur={() => setTouched(true)}
-              placeholder="Type your answer…"
+              placeholder="Type your answerâ€¦"
               autoComplete="off"
               aria-labelledby={fieldId}
               aria-describedby={[question.helper ? helperId : null, touched && isEmpty(local) ? hintId : null].filter(Boolean).join(" ") || undefined}
@@ -260,7 +261,7 @@ export function QuestionCard({ question, value, onSubmitAction, onBackAction }: 
                 aria-describedby={touched && !local ? hintId : undefined}
               >
                 <option value="" disabled>
-                  Select…
+                  Selectâ€¦
                 </option>
                 {(question.options ?? []).map((o, i) => (
                   <option key={`${String(o.value)}-${i}`} value={String(o.value)}>
@@ -414,3 +415,4 @@ function Spinner() {
     </svg>
   );
 }
+

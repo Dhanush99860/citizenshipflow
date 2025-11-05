@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import { useState } from "react";
 
@@ -121,9 +122,9 @@ export default function QuickApplyForm({ defaultRole }: { defaultRole?: string }
           disabled={submitting || !!fileError}
           className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-60"
         >
-          {submitting ? "Submitting…" : "Submit"}
+          {submitting ? "Submittingâ€¦" : "Submit"}
         </button>
-        <p className="text-xs">We usually respond within 1–2 weeks.</p>
+        <p className="text-xs">We usually respond within 1â€“2 weeks.</p>
       </div>
 
       <p className="mt-1 text-[11px] opacity-80">
@@ -132,3 +133,4 @@ export default function QuickApplyForm({ defaultRole }: { defaultRole?: string }
     </form>
   );
 }
+

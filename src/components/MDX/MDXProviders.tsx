@@ -1,5 +1,6 @@
+﻿"use client";
+
 // src/components/MDX/MDXProviders.tsx
-"use client";
 
 /**
  * Minimal provider: safe drop-in replacement for the old Articles MDXProviders.
@@ -12,3 +13,4 @@ export default function MDXProviders({
 }) {
   return <>{children}</>;
 }
+

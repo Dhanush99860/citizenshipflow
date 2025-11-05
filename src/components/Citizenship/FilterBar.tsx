@@ -1,5 +1,6 @@
-﻿// src/components/Citizenship/FilterBar.tsx
-"use client";
+﻿"use client";
+
+// src/components/Citizenship/FilterBar.tsx
 
 import React from "react";
 
@@ -283,4 +284,5 @@ function ChevronDownIcon({ className = "" }: { className?: string }) {
     </svg>
   );
 }
+
 

@@ -1,5 +1,6 @@
+﻿"use client";
+
 // FILE: src/components/Layout/Header/Navigation/MobileHeaderLink.tsx
-'use client';
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -132,7 +133,7 @@ const Node = ({ item, depth, path, closeMenuAction, reduced }: NodeProps) => {
         className="flex items-stretch justify-between"
         style={{ paddingLeft: padLeft, paddingRight: 12 }}
       >
-        {/* Label link — if leaf, closes menu on click */}
+        {/* Label link â€” if leaf, closes menu on click */}
         <Link
           id={`${baseId}-label`}
           href={item.href}
@@ -144,7 +145,7 @@ const Node = ({ item, depth, path, closeMenuAction, reduced }: NodeProps) => {
           <span className="truncate">{item.label}</span>
         </Link>
 
-        {/* Chevron button — toggles accordion; separate from link */}
+        {/* Chevron button â€” toggles accordion; separate from link */}
         {hasKids && (
           <button
             type="button"
@@ -202,10 +203,11 @@ export default function MobileHeaderLink({
   item: HeaderItem;
   closeMenuAction?: () => void;
 }) {
-  const reduced = useReducedMotionStable(); // single call — passed down to all Nodes
+  const reduced = useReducedMotionStable(); // single call â€” passed down to all Nodes
   return (
     <ul role="list" className="m-0 p-0">
       <Node item={item} depth={0} path="0" closeMenuAction={closeMenuAction} reduced={reduced} />
     </ul>
   );
 }
+

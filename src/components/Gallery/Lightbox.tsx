@@ -1,5 +1,6 @@
+﻿"use client";
+
 // src/components/gallery/Lightbox.tsx
-"use client";
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
@@ -93,7 +94,7 @@ export default function Lightbox({
                     day: "numeric",
                     year: "numeric",
                   })}
-                {it.date ? " • " : ""}
+                {it.date ? " â€¢ " : ""}
                 {String(it.category).charAt(0).toUpperCase() + String(it.category).slice(1)}
               </p>
             )}
@@ -105,7 +106,7 @@ export default function Lightbox({
               aria-label="Previous image"
               className="rounded-full bg-white/10 px-3 py-2 text-sm ring-1 ring-white/20 backdrop-blur hover:bg-white/15 disabled:opacity-40"
             >
-              ←
+              â†
             </button>
             <button
               onClick={goNext}
@@ -113,7 +114,7 @@ export default function Lightbox({
               aria-label="Next image"
               className="rounded-full bg-white/10 px-3 py-2 text-sm ring-1 ring-white/20 backdrop-blur hover:bg-white/15 disabled:opacity-40"
             >
-              →
+              â†’
             </button>
             <button
               onClick={onClose}
@@ -128,3 +129,4 @@ export default function Lightbox({
     </div>
   );
 }
+

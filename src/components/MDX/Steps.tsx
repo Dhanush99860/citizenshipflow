@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import * as React from "react";
 import clsx from "clsx";
@@ -32,7 +33,7 @@ export function Step({ title, children, number }: StepProps) {
   return (
     <li className="ms-6">
       <span className="absolute -start-3 flex h-6 w-6 items-center justify-center rounded-full bg-primary-600 text-white text-xs font-semibold">
-        {typeof number === "number" ? number : "•"}
+        {typeof number === "number" ? number : "â€¢"}
       </span>
       <h3 className="text-lg font-semibold">{title}</h3>
       {children && (
@@ -43,3 +44,4 @@ export function Step({ title, children, number }: StepProps) {
     </li>
   );
 }
+

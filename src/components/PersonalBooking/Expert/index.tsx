@@ -1,5 +1,6 @@
+﻿"use client";
+
 // src/components/PersonalBooking/Expert/index.tsx
-"use client";
 
 import * as React from "react";
 import Link from "next/link";
@@ -33,7 +34,7 @@ const HAS_VIDEO: boolean =
 
 // Keep copy neutral (no unverified claims)
 const BIO: string =
-  "Varun Singh is a Fellow of the Investment Migration Council (FIMC) and a Certified Investment Migration Consultant (Cert IM). As Managing Director of XIPHIAS Immigration (established 2009), he advises HNIs, family offices, and senior professionals on residency‑by‑investment strategies—covering UAE Golden Visa and select EU residency programs—delivered with strict compliance, due diligence, and transparent process.";
+  "Varun Singh is a Fellow of the Investment Migration Council (FIMC) and a Certified Investment Migration Consultant (Cert IM). As Managing Director of XIPHIAS Immigration (established 2009), he advises HNIs, family offices, and senior professionals on residencyâ€‘byâ€‘investment strategiesâ€”covering UAE Golden Visa and select EU residency programsâ€”delivered with strict compliance, due diligence, and transparent process.";
 
 const HIGHLIGHTS: Highlight[] = [
   {
@@ -64,7 +65,7 @@ const HIGHLIGHTS: Highlight[] = [
     icon: <ShieldCheck className="w-5 h-5 text-primary relative z-10" />,
     text: (
       <>
-        <span className="font-semibold">Compliance-first</span>: eligibility, source‑of‑funds, risk review
+        <span className="font-semibold">Compliance-first</span>: eligibility, sourceâ€‘ofâ€‘funds, risk review
       </>
     ),
   },
@@ -73,8 +74,8 @@ const HIGHLIGHTS: Highlight[] = [
 const FACTS: Fact[] = [
   { label: "Role", value: "Managing Director" },
   { label: "Credentials", value: "FIMC (IMC Fellow), Cert IM" },
-  { label: "Focus", value: "HNIs • Residency-by-investment" },
-  { label: "Programs", value: "UAE Golden Visa • EU residency" },
+  { label: "Focus", value: "HNIs â€¢ Residency-by-investment" },
+  { label: "Programs", value: "UAE Golden Visa â€¢ EU residency" },
 ];
 
 /* ----------------------------- Component ----------------------------- */
@@ -248,3 +249,4 @@ export default function Expert() {
     </div>
   );
 }
+

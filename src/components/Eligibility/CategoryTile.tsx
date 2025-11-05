@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import * as React from "react";
 import { motion, useReducedMotion } from "framer-motion";
@@ -57,7 +58,7 @@ export function CategoryTile({
       whileTap={reduceMotion || !isInteractive ? undefined : { scale: 0.985 }}
       transition={reduceMotion ? undefined : SPRING}
       className={[
-        // 👇 ensure ONE per row on mobile, then 2-up at sm, 1-up or 4-up as your grid dictates
+        // ðŸ‘‡ ensure ONE per row on mobile, then 2-up at sm, 1-up or 4-up as your grid dictates
         "col-span-full sm:col-span-2 md:col-span-1",
         // container
         "group relative w-full min-w-0 overflow-hidden rounded-3xl",
@@ -76,7 +77,7 @@ export function CategoryTile({
       ].join(" ")}
       data-state={loading ? "loading" : isInteractive ? "ready" : "disabled"}
     >
-      {/* Decorative bg — keep grid, hide heavy glows on phones */}
+      {/* Decorative bg â€” keep grid, hide heavy glows on phones */}
       <span aria-hidden className="pointer-events-none absolute inset-0">
         <span className="hidden md:block absolute -top-24 -right-24 h-56 w-56 rounded-full bg-blue-300/20 blur-3xl dark:bg-blue-700/10" />
         <span className="hidden md:block absolute -bottom-24 -left-12 h-64 w-64 rounded-full bg-indigo-300/20 blur-3xl dark:bg-indigo-700/10" />
@@ -207,3 +208,4 @@ function Dot({ className = "" }: { className?: string }) {
     <span className={`inline-block h-1.5 w-1.5 rounded-full bg-blue-600 dark:bg-blue-400 ${className}`} />
   );
 }
+

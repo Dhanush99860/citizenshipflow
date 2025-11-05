@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import React, { useId } from "react";
 
@@ -26,7 +27,7 @@ export default function PlanStep({
   onNextAction,
 }: Props) {
   const isPaid = value === "paid";
-  const displayPrice = isPaid ? `₹${(priceCents / 100).toLocaleString("en-IN")}` : "₹0";
+  const displayPrice = isPaid ? `â‚¹${(priceCents / 100).toLocaleString("en-IN")}` : "â‚¹0";
   const displayDur = `${durationMin}m`;
 
   // Arrow-key navigation across the two radio cards
@@ -55,7 +56,7 @@ export default function PlanStep({
           title="Free Discovery Call"
           subtitle="Understand fit, timelines & next steps (Team)"
           badge="Quick intro"
-          price="₹0"
+          price="â‚¹0"
           duration="15m"
           onSelectAction={() => onChangePlanAction("free")}
         />
@@ -65,7 +66,7 @@ export default function PlanStep({
           title="Strategy Consultation"
           subtitle="Senior advisor deep-dive & action plan (Varun Singh .  Fellow, IMC)"
           badge="Most thorough"
-          price="₹25,500"
+          price="â‚¹25,500"
           duration="90m"
           onSelectAction={() => onChangePlanAction("paid")}
         />
@@ -78,9 +79,9 @@ export default function PlanStep({
           <strong className="text-zinc-950 dark:text-white">
             {isPaid ? "Paid (90m)" : "Free (15m)"}
           </strong>
-          <span className="ml-2 text-zinc-500 dark:text-zinc-400">·</span>
+          <span className="ml-2 text-zinc-500 dark:text-zinc-400">Â·</span>
           <span className="ml-2 text-zinc-700 dark:text-zinc-300">Duration {displayDur}</span>
-          <span className="ml-2 text-zinc-500 dark:text-zinc-400">·</span>
+          <span className="ml-2 text-zinc-500 dark:text-zinc-400">Â·</span>
           <span className="ml-2 text-zinc-700 dark:text-zinc-300">Total {displayPrice}</span>
         </div>
 
@@ -100,7 +101,7 @@ export default function PlanStep({
 
       {/* Micro reassurance */}
       <p className="text-xs text-zinc-600 dark:text-zinc-400">
-        Discreet & confidential · No obligation
+        Discreet & confidential Â· No obligation
       </p>
     </div>
   );
@@ -181,7 +182,7 @@ function PlanCard({
 
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-zinc-700 dark:text-zinc-300">
             <Pill>{duration}</Pill>
-            <span className="text-zinc-400 dark:text-zinc-500">•</span>
+            <span className="text-zinc-400 dark:text-zinc-500">â€¢</span>
             <span>{price}</span>
           </div>
         </div>

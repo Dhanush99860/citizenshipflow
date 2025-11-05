@@ -1,5 +1,6 @@
-﻿// src/components/Corporate/FilterBar.tsx
-"use client";
+﻿"use client";
+
+// src/components/Corporate/FilterBar.tsx
 
 import React from "react";
 
@@ -286,4 +287,5 @@ Parent should apply the filters/sort to your corporate programs list.
 - sort = "visafriendly": bubble programs with easier/fast employment
   sponsorship first (your heuristic / tag-based)
 ----------------------------------------------------------- */
+
 

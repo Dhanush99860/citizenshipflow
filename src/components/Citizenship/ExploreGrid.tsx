@@ -1,9 +1,10 @@
+﻿"use client";
+
 // src/components/Citizenship/ExploreGrid.tsx
-"use client";
 
 import React from "react";
 import Link from "next/link";
-// ⬇️ removed next/image import (we'll use <img> for bullet-proof fallbacks)
+// â¬‡ï¸ removed next/image import (we'll use <img> for bullet-proof fallbacks)
 import type { ProgramMeta, CountryMeta } from "@/lib/citizenship-content";
 import CountryCardPro from "@/components/Citizenship/CountryCardPro";
 import CompareDrawer, {
@@ -148,7 +149,7 @@ export default function ExploreGrid({
         label: "Strongest passport",
         hint: "Best rank first",
       },
-      { value: "alpha", label: "A–Z country", hint: "Alphabetical" },
+      { value: "alpha", label: "Aâ€“Z country", hint: "Alphabetical" },
     ],
     [],
   );
@@ -320,7 +321,7 @@ export default function ExploreGrid({
             <FilterInput
               value={q}
               onChange={setQ}
-              placeholder="Search by country, program or tag…"
+              placeholder="Search by country, program or tagâ€¦"
             />
           </div>
 
@@ -444,7 +445,7 @@ export default function ExploreGrid({
                   <FilterInput
                     value={q}
                     onChange={setQ}
-                    placeholder="Search by country, program or tag…"
+                    placeholder="Search by country, program or tagâ€¦"
                   />
                 </div>
 
@@ -559,7 +560,7 @@ export default function ExploreGrid({
             {sortedCountries.map(
               ({ c, minInvestment, currency, timelineMonths }, idx) => (
                 <li
-                  key={`${c.countrySlug}-${idx}`}   // <-- ✅ make the key unique
+                  key={`${c.countrySlug}-${idx}`}   // <-- âœ… make the key unique
                   className="contents"
                   itemProp="itemListElement"
                   itemScope
@@ -746,7 +747,7 @@ function FancySelect({
   value,
   onChange,
   options,
-  placeholder = "Select…",
+  placeholder = "Selectâ€¦",
 }: {
   label: string;
   value: string;
@@ -908,3 +909,4 @@ function FancySelect({
     </div>
   );
 }
+

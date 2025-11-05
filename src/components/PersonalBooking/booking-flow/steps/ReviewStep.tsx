@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import React from "react";
 import type { BookingInput } from "../connectors";
@@ -6,7 +7,7 @@ import type { BookingInput } from "../connectors";
 type Props = {
   data: BookingInput;
   loading: boolean;
-  /** ✅ Next 15-safe names */
+  /** âœ… Next 15-safe names */
   onBackAction: () => void;
   onConfirmAction: () => void;
 };
@@ -31,7 +32,7 @@ export default function ReviewStep({ data, loading, onBackAction, onConfirmActio
                   {data.plan === "free" ? "Discovery Call (15m)" : "Strategy Consultation (60m)"}
                 </div>
                 <div className="text-sm text-zinc-700 dark:text-zinc-300">
-                  {appt || "—"}
+                  {appt || "â€”"}
                 </div>
                 <div className="text-xs text-zinc-600 dark:text-zinc-400">Timezone: {data.timezone}</div>
               </div>
@@ -44,9 +45,9 @@ export default function ReviewStep({ data, loading, onBackAction, onConfirmActio
               <UserIcon />
               <div className="min-w-0">
                 <div className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Contact</div>
-                <div className="mt-1 font-medium">{data.fullName || "—"}</div>
+                <div className="mt-1 font-medium">{data.fullName || "â€”"}</div>
                 <div className="text-sm text-zinc-700 dark:text-zinc-300 break-all">
-                  <MailIcon className="mr-1 inline-block align-[-2px]" /> {data.email || "—"}
+                  <MailIcon className="mr-1 inline-block align-[-2px]" /> {data.email || "â€”"}
                 </div>
                 {data.phone ? (
                   <div className="text-sm text-zinc-700 dark:text-zinc-300 break-all">
@@ -86,7 +87,7 @@ export default function ReviewStep({ data, loading, onBackAction, onConfirmActio
             <div className="text-2xl font-semibold">{priceDisplay}</div>
             {data.priceCents > 0 ? (
               <div className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400">
-                Secure payment via Razorpay • UPI / Cards / Netbanking
+                Secure payment via Razorpay â€¢ UPI / Cards / Netbanking
               </div>
             ) : (
               <div className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400">
@@ -110,7 +111,7 @@ export default function ReviewStep({ data, loading, onBackAction, onConfirmActio
             {loading ? (
               <>
                 <Spinner />
-                <span>Processing…</span>
+                <span>Processingâ€¦</span>
               </>
             ) : data.priceCents > 0 ? (
               <>
@@ -137,7 +138,7 @@ export default function ReviewStep({ data, loading, onBackAction, onConfirmActio
           Back
         </button>
         <span className="text-xs text-zinc-700 dark:text-zinc-400">
-          You’ll receive an email confirmation immediately.
+          Youâ€™ll receive an email confirmation immediately.
         </span>
       </div>
     </div>
@@ -147,7 +148,7 @@ export default function ReviewStep({ data, loading, onBackAction, onConfirmActio
 /* ------------------------------ helpers/ui ------------------------------- */
 
 function formatINR(cents: number) {
-  if (!cents || cents <= 0) return "₹0";
+  if (!cents || cents <= 0) return "â‚¹0";
   return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(
     Math.round(cents / 100)
   );

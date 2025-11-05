@@ -1,5 +1,6 @@
+﻿"use client";
+
 // FILE: src/components/Insights/ShareBar.tsx
-"use client";
 
 import {
   useCallback,
@@ -230,7 +231,7 @@ export default function ShareBar({
             {/* Header */}
             <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-slate-200 dark:border-slate-700">
               <h3 id="share-title" className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">
-                Share “{title}”
+                Share â€œ{title}â€
               </h3>
               <button
                 ref={closeBtnRef}
@@ -348,3 +349,4 @@ function MailIconGlyph(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+

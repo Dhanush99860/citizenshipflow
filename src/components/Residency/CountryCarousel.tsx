@@ -1,5 +1,6 @@
-﻿import { Heading } from "@/components/ui/heading/Heading"
-"use client";
+﻿"use client";
+
+import { Heading } from "@/components/ui/heading/Heading"
 
 import Image from "next/image";
 import Link from "next/link";
@@ -710,5 +711,6 @@ export default function CountryCarousel({
     </section>
   );
 }
+
 
 

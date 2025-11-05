@@ -1,5 +1,6 @@
+﻿"use client";
+
 // src/components/Insights/FAQSection.tsx
-"use client";
 
 import * as React from "react";
 
@@ -199,3 +200,4 @@ function buildFaqLd(faqs: FAQ[] = []) {
     })),
   };
 }
+

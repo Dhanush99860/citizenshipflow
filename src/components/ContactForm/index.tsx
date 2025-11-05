@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import React, { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -127,8 +128,8 @@ export default function ContactForm({
 
       toast.success(
         isFull
-          ? "Your message has been sent. We’ll be in touch soon."
-          : "Callback request received. We’ll call you shortly."
+          ? "Your message has been sent. Weâ€™ll be in touch soon."
+          : "Callback request received. Weâ€™ll call you shortly."
       );
 
       // Clear form & local state
@@ -150,7 +151,7 @@ export default function ContactForm({
     subheading ??
     (isFull
       ? "Tell us a bit about your case. An advisor will respond within 24 hours."
-      : "Share your name and phone — we’ll call you back soon.");
+      : "Share your name and phone â€” weâ€™ll call you back soon.");
 
   return (
     <section
@@ -250,7 +251,7 @@ export default function ContactForm({
             name="message"
             label="Your message"
             icon={<FiMessageSquare />}
-            placeholder="Share a few details about your situation…"
+            placeholder="Share a few details about your situationâ€¦"
             defaultValue={defaults?.message}
             onBlur={() => markTouched("message")}
             onInput={(n) => setMsgLen(n)}
@@ -521,3 +522,4 @@ function CardBG() {
     </div>
   );
 }
+

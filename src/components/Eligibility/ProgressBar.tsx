@@ -1,9 +1,10 @@
-"use client";
+﻿"use client";
+
 
 import * as React from "react";
 
 type Props = {
-  /** 0–100 */
+  /** 0â€“100 */
   value: number;
   /** e.g. "Step 2 of 6" */
   text?: string;
@@ -29,7 +30,7 @@ export function ProgressBar({ value, text, onBackAction }: Props) {
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
             ].join(" ")}
             aria-label="Go back"
-            title="Back (Esc or ←)"
+            title="Back (Esc or â†)"
           >
             <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
               <path
@@ -90,3 +91,4 @@ export function ProgressBar({ value, text, onBackAction }: Props) {
     </div>
   );
 }
+

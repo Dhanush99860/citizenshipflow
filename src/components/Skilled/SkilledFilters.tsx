@@ -1,5 +1,6 @@
-﻿// src/components/Skilled/FilterBar.tsx
-"use client";
+﻿"use client";
+
+// src/components/Skilled/FilterBar.tsx
 
 import React from "react";
 
@@ -282,4 +283,5 @@ Usage notes (same as your Citizenship FilterBar):
   - "salary": ascending by `minSalary ?? minInvestment` (undefined last)
   - "joboffer": items with `jobOfferRequired === false` first
 ----------------------------------------------------------- */
+
 

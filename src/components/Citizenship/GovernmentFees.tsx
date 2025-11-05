@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import * as React from "react";
 import { Landmark } from "lucide-react";
@@ -25,7 +26,7 @@ export default function GovernmentFees({
   if (!hasFees) return null;
 
   const fmt = (amt?: number, cur?: string) => {
-    if (typeof amt !== "number" || Number.isNaN(amt)) return "—";
+    if (typeof amt !== "number" || Number.isNaN(amt)) return "â€”";
     const c = (cur || defaultCurrency).toUpperCase();
     const hasDecimals = Math.abs(amt % 1) > 0;
     try {
@@ -118,7 +119,7 @@ export default function GovernmentFees({
                     {row.notes}
                   </p>
                 ) : (
-                  <p className="mt-1 text-[12.5px] leading-6 opacity-60">—</p>
+                  <p className="mt-1 text-[12.5px] leading-6 opacity-60">â€”</p>
                 )}
               </div>
               <div className="ml-2 shrink-0 text-[15px] font-semibold tabular-nums whitespace-nowrap">
@@ -133,7 +134,7 @@ export default function GovernmentFees({
                     />
                   </>
                 ) : (
-                  "—"
+                  "â€”"
                 )}
               </div>
             </div>
@@ -195,12 +196,12 @@ export default function GovernmentFees({
                         />
                       </>
                     ) : (
-                      "—"
+                      "â€”"
                     )}
                   </td>
                   <td className="py-3 pr-0 align-top">
                     <p className="text-[13px] leading-6 text-slate-700 dark:text-slate-300 break-words">
-                      {row.notes || "—"}
+                      {row.notes || "â€”"}
                     </p>
                   </td>
                 </tr>
@@ -210,10 +211,11 @@ export default function GovernmentFees({
 
           <p className="mt-3 text-[12px] opacity-70">
             Government fees are set by the issuing authority and may change
-            without notice. We’ll confirm current rates during onboarding.
+            without notice. Weâ€™ll confirm current rates during onboarding.
           </p>
         </div>
       </div>
     </section>
   );
 }
+

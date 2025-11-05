@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import { useTheme } from "next-themes";
 
@@ -42,3 +43,4 @@ const ThemeToggler = () => {
 };
 
 export default ThemeToggler;
+

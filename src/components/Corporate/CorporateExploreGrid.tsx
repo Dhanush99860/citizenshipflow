@@ -1,5 +1,6 @@
+﻿"use client";
+
 // src/components/Corporate/SkilledExploreGrid.tsx
-"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -177,7 +178,7 @@ export default function ExploreGrid({
         label: "100% ownership first",
         hint: "Free zone & no-local-partner first",
       },
-      { value: "alpha", label: "A–Z country", hint: "Alphabetical" },
+      { value: "alpha", label: "Aâ€“Z country", hint: "Alphabetical" },
     ],
     [],
   );
@@ -359,7 +360,7 @@ export default function ExploreGrid({
             <FilterInput
               value={q}
               onChange={setQ}
-              placeholder="Search by country, program or tag…"
+              placeholder="Search by country, program or tagâ€¦"
             />
           </div>
 
@@ -486,7 +487,7 @@ export default function ExploreGrid({
                   <FilterInput
                     value={q}
                     onChange={setQ}
-                    placeholder="Search by country, program or tag…"
+                    placeholder="Search by country, program or tagâ€¦"
                   />
                 </div>
 
@@ -785,7 +786,7 @@ function FancySelect({
   value,
   onChange,
   options,
-  placeholder = "Select…",
+  placeholder = "Selectâ€¦",
 }: {
   label: string;
   value: string;
@@ -949,3 +950,4 @@ function FancySelect({
     </div>
   );
 }
+

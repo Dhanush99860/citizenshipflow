@@ -1,7 +1,8 @@
+﻿"use client";
+
 // ==============================================
-// components/team/Hero.tsx – styled like your HeroPremium
+// components/team/Hero.tsx â€“ styled like your HeroPremium
 // ==============================================
-"use client";
 import React from "react";
 import Link from "next/link";
 import { ArrowRight, Download, Open, Dot } from "@/components/Team/Icons";
@@ -34,7 +35,7 @@ export function Hero({ title, subtitle, primaryHref, primaryText, secondaryHref,
           ) : (
             <Link href={secondaryHref} prefetch={false} className="inline-flex items-center gap-2 rounded-xl bg-white/90 px-4 py-2.5 text-blue-700 ring-1 ring-blue-300 hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 dark:bg-white/5 dark:text-blue-200 dark:ring-blue-800/60 dark:hover:bg-blue-950/20 transition" aria-label={secondaryText}><Open />{secondaryText}</Link>
           )}
-          <span className="ml-0 md:ml-2 text-xs text-zinc-500 dark:text-zinc-400">No obligation · Response within 24 hours</span>
+          <span className="ml-0 md:ml-2 text-xs text-zinc-500 dark:text-zinc-400">No obligation Â· Response within 24 hours</span>
         </div>
       </div>
     </section>

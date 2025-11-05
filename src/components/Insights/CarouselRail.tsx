@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import React, {
   forwardRef,
@@ -106,7 +107,7 @@ const CarouselRail = forwardRef<CarouselRailHandle, Props>(
         window.removeEventListener("mousemove", onMove);
         el.removeEventListener("keydown", onKey);
       };
-      // ⛔ no deps -> runs exactly once after mount
+      // â›” no deps -> runs exactly once after mount
     }, []);
 
     // helpers exposed to parent
@@ -165,3 +166,4 @@ const CarouselRail = forwardRef<CarouselRailHandle, Props>(
 
 CarouselRail.displayName = "CarouselRail";
 export default CarouselRail;
+

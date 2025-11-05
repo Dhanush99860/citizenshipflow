@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import React, { useMemo, useState } from "react";
 
@@ -175,7 +176,7 @@ export default function DetailsStep({
       </div>
 
       <p className="text-xs text-zinc-700 dark:text-zinc-400">
-        We’ll never share your details. Discreet & confidential.
+        Weâ€™ll never share your details. Discreet & confidential.
       </p>
     </form>
   );
@@ -244,3 +245,4 @@ const textareaClass =
   "bg-white text-zinc-950 placeholder:text-zinc-400 " +
   "dark:bg-zinc-900/40 dark:text-zinc-100 dark:placeholder:text-zinc-500 " +
   "border-zinc-300 ring-1 ring-transparent focus:ring-blue-500 dark:border-white/10 dark:focus:ring-blue-500";
+

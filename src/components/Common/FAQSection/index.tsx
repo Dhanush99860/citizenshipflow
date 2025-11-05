@@ -1,5 +1,6 @@
+﻿"use client";
+
 // src/components/FAQWithForm/index.tsx
-"use client";
 
 import * as React from "react";
 import { ChevronDown } from "lucide-react";
@@ -32,7 +33,7 @@ const DEFAULT_FAQS: FAQ[] = [
   {
     question: "How long does the process take?",
     answer:
-      "Timelines vary by country and program. Typical ranges are 4–24 weeks. We’ll share a tailored timeline after your assessment.",
+      "Timelines vary by country and program. Typical ranges are 4â€“24 weeks. Weâ€™ll share a tailored timeline after your assessment.",
   },
   {
     question: "Do you work with clients outside India?",
@@ -49,8 +50,8 @@ const DEFAULT_FAQS: FAQ[] = [
 /* ----------------------------- Component --------------------------- */
 export default function FAQWithForm({
   title = "Your journey with XIPHIAS",
-  highlight = "We’re here to help.",
-  subtitle = "Quick answers to common questions. If you don’t see yours, send us a message.",
+  highlight = "Weâ€™re here to help.",
+  subtitle = "Quick answers to common questions. If you donâ€™t see yours, send us a message.",
   faqs = DEFAULT_FAQS,
   defaultOpen = 0,
   // hover open removed; prop ignored to keep API stable
@@ -150,3 +151,4 @@ export default function FAQWithForm({
     </section>
   );
 }
+

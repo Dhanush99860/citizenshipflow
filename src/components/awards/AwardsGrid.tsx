@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import React from "react";
 import type { Award } from "./awards.data";
@@ -28,3 +29,4 @@ export function AwardsGrid({ items }: { items: Award[] }) {
     </div>
   );
 }
+

@@ -1,5 +1,6 @@
+﻿"use client";
+
 // src/components/Insights/InsightCard.tsx
-"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -18,7 +19,7 @@ function formatDateUTC(input?: string) {
   }).format(d);
 }
 
-/* ───────── field pickers (support multiple keys from MDX) ───────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€ field pickers (support multiple keys from MDX) â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function pickImage(a: any): string | null {
   return (
     a?.hero ??
@@ -38,7 +39,7 @@ function pickSummary(a: any): string | null {
   return a?.summary ?? a?.excerpt ?? a?.description ?? null;
 }
 
-/* ───────── kind UI (unchanged) ───────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€ kind UI (unchanged) â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 type KindKey = NonNullable<InsightMeta["kind"]> | "default";
 
 const KIND_UI: Record<
@@ -106,7 +107,7 @@ export default function InsightCard({
   return (
     <Link
       href={item.url}
-      aria-label={`Open ${ui.label.toLowerCase()} “${item.title}”`}
+      aria-label={`Open ${ui.label.toLowerCase()} â€œ${item.title}â€`}
       className="block focus:outline-none"
     >
       <article
@@ -171,7 +172,7 @@ export default function InsightCard({
             {author && (
               <>
                 <span aria-hidden className="text-neutral-300 dark:text-neutral-600">
-                  •
+                  â€¢
                 </span>
                 <span className="truncate">{author}</span>
               </>
@@ -179,7 +180,7 @@ export default function InsightCard({
             {typeof item.readingTimeMins === "number" && (
               <>
                 <span aria-hidden className="text-neutral-300 dark:text-neutral-600">
-                  •
+                  â€¢
                 </span>
                 <span className="whitespace-nowrap">
                   {item.readingTimeMins} min read
@@ -214,3 +215,4 @@ export default function InsightCard({
     </Link>
   );
 }
+

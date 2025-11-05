@@ -1,4 +1,6 @@
-﻿import { Heading } from "@/components/ui/heading/Heading"
+﻿"use client";
+
+import { Heading } from "@/components/ui/heading/Heading"
 // src/components/ProcessSteps.tsx
 // Professional, immigration-siteâ€“ready process timeline.
 // - Clean, authoritative UI with primary accents (light/dark)
@@ -6,7 +8,6 @@
 // - A11y: clear semantics, headings, focus rings, readable labels
 // - SEO: schema.org HowTo JSON-LD + anchor URLs per step
 // - Backward-compatible signature & single-string fallback
-"use client";
 
 import React, { useId } from "react";
 import { Clock, FileText, CheckCircle2 } from "lucide-react";
@@ -439,4 +440,5 @@ function toISODuration(input: string): string | undefined {
       return undefined;
   }
 }
+
 

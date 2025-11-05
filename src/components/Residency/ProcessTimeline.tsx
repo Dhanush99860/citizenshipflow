@@ -1,5 +1,6 @@
-﻿import { Heading } from "@/components/ui/heading/Heading"
-"use client";
+﻿"use client";
+
+import { Heading } from "@/components/ui/heading/Heading"
 
 import React, { useId } from "react";
 import { Clock, FileText, CheckCircle2 } from "lucide-react";
@@ -217,4 +218,5 @@ function paletteByIndex(i: number) {
       };
   }
 }
+
 

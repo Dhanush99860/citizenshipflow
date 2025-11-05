@@ -1,5 +1,6 @@
+﻿"use client";
+
 // src/components/Insights/MediaHero.tsx
-"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -466,7 +467,7 @@ export default function MediaHero({
         </div>
       </div>
 
-      {/* mobile CTA bar — removed per request */}
+      {/* mobile CTA bar â€” removed per request */}
       {/* <MobileCTABar actions={actions} /> */}
     </header>
   );

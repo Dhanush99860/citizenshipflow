@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import { useEffect, useRef, useState } from "react";
 
@@ -68,13 +69,13 @@ export default function ReadingProgress({
     };
   }, [targetId]);
 
-  // Color shifts: 0% (red) → 50% (amber) → 100% (green)
-  // We’ll compute an H (hue) from ~0 to ~135 and pass as CSS var.
+  // Color shifts: 0% (red) â†’ 50% (amber) â†’ 100% (green)
+  // Weâ€™ll compute an H (hue) from ~0 to ~135 and pass as CSS var.
   const hue = Math.round((progress / 100) * 135); // 0=red, 135=green
   const pctClamp = Math.max(0, Math.min(progress, 100));
   const pctScale = pctClamp / 100;
 
-  // Badge positioning — keep it inside screen bounds
+  // Badge positioning â€” keep it inside screen bounds
   const badgeTranslate = `calc(${pctClamp}% - 18px)`; // center ~36px wide badge
 
   const milestones = [25, 50, 75, 100];
@@ -84,7 +85,7 @@ export default function ReadingProgress({
       aria-hidden
       className={[
         "pointer-events-none fixed inset-x-0",
-        // keep under the browser’s safe area
+        // keep under the browserâ€™s safe area
         zIndexClassName,
       ].join(" ")}
       style={{
@@ -221,3 +222,4 @@ export default function ReadingProgress({
     </div>
   );
 }
+

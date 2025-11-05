@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -243,7 +244,7 @@ export default function InsightsPreviewClient({
               <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-600 dark:text-slate-300">
                 {hero.team && <span>{hero.team}</span>}
                 {hero.time && (
-                  <span>• {typeof hero.time === "number" ? `${hero.time} min read` : hero.time}</span>
+                  <span>â€¢ {typeof hero.time === "number" ? `${hero.time} min read` : hero.time}</span>
                 )}
               </div>
 
@@ -301,7 +302,7 @@ export default function InsightsPreviewClient({
                           </span>
                           {when && <span>{when}</span>}
                           {time && (
-                            <span>• {typeof time === "number" ? `${time} min read` : time}</span>
+                            <span>â€¢ {typeof time === "number" ? `${time} min read` : time}</span>
                           )}
                         </div>
                         <h3 className="mt-1 text-[15px] sm:text-base font-semibold text-slate-900 dark:text-white line-clamp-2">
@@ -338,3 +339,4 @@ export default function InsightsPreviewClient({
     </section>
   );
 }
+

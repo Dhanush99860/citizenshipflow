@@ -1,6 +1,7 @@
-﻿import { Heading } from "@/components/ui/heading/Heading"
+﻿"use client";
+
+import { Heading } from "@/components/ui/heading/Heading"
 // src/components/Residency/Prices.tsx
-"use client";
 
 import * as React from "react";
 import { Banknote, Wallet, Info, CalendarDays, FileText } from "lucide-react";
@@ -607,4 +608,5 @@ function BackgroundGraphics() {
     </>
   );
 }
+
 

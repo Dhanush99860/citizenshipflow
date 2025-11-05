@@ -1,5 +1,6 @@
+﻿"use client";
+
 // components/Residency/ProgramQuickNav.tsx
-"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -235,7 +236,7 @@ export default function ProgramQuickNav({ sections }: { sections: Section[] }) {
         </div>
       </nav>
 
-      {/* Sticky Top Tabs (mobile) — previously floating bottom */}
+      {/* Sticky Top Tabs (mobile) â€” previously floating bottom */}
       <nav
         id="program-mobile-top-nav"
         aria-label="Section navigation"
@@ -318,3 +319,4 @@ export default function ProgramQuickNav({ sections }: { sections: Section[] }) {
     </>
   );
 }
+

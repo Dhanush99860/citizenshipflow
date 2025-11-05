@@ -1,5 +1,6 @@
+﻿"use client";
+
 // FILE: src/components/Insights/InsightTOC.tsx
-"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Heading } from "@/types/insights";
@@ -187,3 +188,4 @@ export default function InsightTOC({
     </nav>
   );
 }
+

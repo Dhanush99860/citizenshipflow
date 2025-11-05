@@ -1,9 +1,10 @@
-"use client";
+﻿"use client";
+
 
 import React, { useEffect, useRef, useState } from "react";
 
 type Props = {
-  /** ✅ Next 15-safe prop name */
+  /** âœ… Next 15-safe prop name */
   onCloseAction: () => void;
   /** Optional reference/id you return from the backend */
   draftId?: string;
@@ -23,7 +24,7 @@ export default function ConfirmationStep({
   joinUrl,
   icsUrl,
   title = "You're booked!",
-  message = "We’ve emailed your confirmation and meeting details.",
+  message = "Weâ€™ve emailed your confirmation and meeting details.",
   calendarLabel = "Add to Calendar",
 }: Props) {
   const [copied, setCopied] = useState<"ref" | "join" | null>(null);
@@ -156,7 +157,7 @@ export default function ConfirmationStep({
           <Dot /> You can reschedule or cancel using the link inside the email.
         </li>
         <li className="inline-flex items-start gap-2">
-          <Dot /> Please join 2–3 minutes early to verify audio/video.
+          <Dot /> Please join 2â€“3 minutes early to verify audio/video.
         </li>
       </ul>
 

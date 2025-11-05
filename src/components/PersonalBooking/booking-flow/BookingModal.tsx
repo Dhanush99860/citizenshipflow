@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { BookingInput } from "./connectors";
@@ -14,13 +15,13 @@ import ConfirmationStep from "./steps/ConfirmationStep";
 /* -------------------------------------------------------------------------- */
 
 type Props = {
-  /** ✅ Next 15-safe name */
+  /** âœ… Next 15-safe name */
   onCloseAction: () => void;
   initialPlan?: "free" | "paid";
   defaultTimezone: string;
 };
 
-const paidDefaults = { durationMin: 90, priceCents: 2550000 }; // ₹25,500
+const paidDefaults = { durationMin: 90, priceCents: 2550000 }; // â‚¹25,500
 const freeDefaults = { durationMin: 15, priceCents: 0 };
 
 type Step = "plan" | "calendar" | "details" | "review" | "done";
@@ -183,7 +184,7 @@ export default function BookingModal({
               className="ml-3 inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 hover:bg-white/80 hover:text-black ring-1 ring-transparent hover:ring-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               aria-label="Close dialog"
             >
-              <span className="text-xl leading-none">×</span>
+              <span className="text-xl leading-none">Ã—</span>
             </button>
           </div>
 

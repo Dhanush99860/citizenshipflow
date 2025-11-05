@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { createPortal } from "react-dom";
@@ -29,7 +30,7 @@ const popularSuggestions: RichUIItem[] = [
 
 export default function GlobalSearch({
   className = "",
-  placeholder = "Search…",
+  placeholder = "Searchâ€¦",
 }: GlobalSearchProps) {
   const router = useRouter();
 
@@ -348,7 +349,7 @@ export default function GlobalSearch({
                         type="text"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Search by country, visa type, service, article…"
+                        placeholder="Search by country, visa type, service, articleâ€¦"
                         className={[
                           "flex-1 bg-transparent px-2 sm:px-3 text-[15px] text-gray-900 dark:text-gray-100 placeholder-gray-400",
                           "outline-none ring-0 focus:outline-none focus:ring-0",
@@ -391,7 +392,7 @@ export default function GlobalSearch({
                     id={listboxId}
                   >
                     <div className="text-[11px] text-gray-400 dark:text-gray-500 m-1.5 px-2 text-center">
-                      ↑/↓ navigate • Enter open • Tab autocomplete • Esc close
+                      â†‘/â†“ navigate â€¢ Enter open â€¢ Tab autocomplete â€¢ Esc close
                     </div>
 
                     {!hasQuery && (
@@ -430,7 +431,7 @@ export default function GlobalSearch({
                   </div>
 
                   <div className="mt-2 text-[11px] text-center text-gray-400 md:hidden">
-                    Enter opens • Esc closes
+                    Enter opens â€¢ Esc closes
                   </div>
                 </motion.div>
               </motion.div>
@@ -441,3 +442,4 @@ export default function GlobalSearch({
     </>
   );
 }
+

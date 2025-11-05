@@ -1,7 +1,8 @@
+﻿"use client";
+
 // ==============================================
-// app/team/page.tsx – main page
+// app/team/page.tsx â€“ main page
 // ==============================================
-"use client";
 import React from "react";
 import Head from "next/head";
 import Link from "next/link";
@@ -32,10 +33,10 @@ export default function TeamPage(){
   return (
     <>
       <Head>
-        <title>Leadership & Team – {ORG.name}</title>
+        <title>Leadership & Team â€“ {ORG.name}</title>
         <meta name="description" content="Meet the leadership and team powering customer-obsessed execution. Lightweight UX, transparent delivery, and measurable outcomes." />
         <meta name="robots" content="index,follow" />
-        <meta property="og:title" content={`Leadership & Team – ${ORG.name}`} />
+        <meta property="og:title" content={`Leadership & Team â€“ ${ORG.name}`} />
         <meta property="og:description" content="Meet the people behind the work." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`${ORG.url}/team`} />
@@ -62,7 +63,7 @@ export default function TeamPage(){
         <Events items={EVENTS} />
         <CTA />
 
-        {/* Breadcrumb – swap with your Breadcrumb component if desired */}
+        {/* Breadcrumb â€“ swap with your Breadcrumb component if desired */}
         <nav aria-label="Breadcrumb" className="mt-8">
           <ol className="flex flex-wrap items-center gap-2 text-sm">
             <li><Link href="/" className="text-blue-700 dark:text-blue-300">Home</Link></li>

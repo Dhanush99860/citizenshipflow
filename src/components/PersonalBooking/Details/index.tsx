@@ -1,5 +1,6 @@
+﻿"use client";
+
 // src/components/PersonalBooking/Sections/index.tsx
-"use client";
 
 import { useEffect, useMemo, useState } from "react";
 // (Removed framer-motion imports)
@@ -226,7 +227,7 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
         <Expert />
       </section>
 
-      {/* Problem & Solution — unchanged */}
+      {/* Problem & Solution â€” unchanged */}
       <section id="problem" className="mt-10 scroll-mt-28">
         <ProblemSolutionCompare />
       </section>
@@ -265,3 +266,4 @@ export default function Sections({ articles }: { articles: ArticleMeta[] }) {
     </div>
   );
 }
+

@@ -1,5 +1,6 @@
+﻿"use client";
+
 // src/components/Home/Hero/slider.tsx
-"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
@@ -25,7 +26,7 @@ const FALLBACK_IMG =
     `<svg xmlns='http://www.w3.org/2000/svg' width='300' height='160'><rect width='100%' height='100%' fill='#eef2f7'/></svg>`
   );
 
-/* ─ helpers ─ */
+/* â”€ helpers â”€ */
 
 function getKind(item: Item): "News" | "Article" | "Media" | "Blog" {
   const raw = (item?.kind || (item as any)?.type || "").toString().toLowerCase();
@@ -96,7 +97,7 @@ function buildHighlights(src: Item[], minSlides = 10) {
   return { items, topKind };
 }
 
-/* ─ component ─ */
+/* â”€ component â”€ */
 
 export default function HighlightsRail() {
   const [raw, setRaw] = useState<Item[]>([]);
@@ -173,7 +174,7 @@ export default function HighlightsRail() {
         </div>
 
         <span className="ml-1 text-[13px] font-bold text-neutral-400 group-hover:text-neutral-700 dark:group-hover:text-neutral-200">
-          →
+          â†’
         </span>
       </Link>
     );
@@ -255,3 +256,4 @@ export default function HighlightsRail() {
     </section>
   );
 }
+

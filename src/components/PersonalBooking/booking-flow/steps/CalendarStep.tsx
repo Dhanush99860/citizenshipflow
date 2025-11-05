@@ -1,4 +1,5 @@
-"use client";
+﻿"use client";
+
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { addDays, formatISODate } from "../utils/time";
@@ -10,13 +11,13 @@ type Props = {
   timezone: string;
   dateISO?: string;
   timeISO?: string;
-  /** ✅ Next 15-safe names */
+  /** âœ… Next 15-safe names */
   onBackAction: () => void;
   onNextAction: (patch: { dateISO: string; timeISO: string }) => void;
 };
 
 /** ------------------------------------------------------------------------
- * Policy: 5 fixed slots across a 9–6 workday.
+ * Policy: 5 fixed slots across a 9â€“6 workday.
  * You can change these once in the array below without touching any logic.
  * --------------------------------------------------------------------- */
 const DEFAULT_SLOTS: string[] = ["09:00", "11:00", "13:00", "15:00", "17:00"];
@@ -40,7 +41,7 @@ export default function CalendarStep({
     return Array.from({ length: DAYS_AHEAD }, (_, i) => formatISODate(addDays(start, i + 1)));
   }, []);
 
-  /** fixed 5 slots (9–6 policy) */
+  /** fixed 5 slots (9â€“6 policy) */
   const times = DEFAULT_SLOTS;
 
   // refs for simple keyboard navigation
@@ -211,12 +212,12 @@ export default function CalendarStep({
 
           <div className="mt-3 flex items-center justify-between text-xs text-zinc-700 dark:text-zinc-300">
             <span>
-              Business hours: <strong>09:00–18:00</strong> · Timezone:{" "}
+              Business hours: <strong>09:00â€“18:00</strong> Â· Timezone:{" "}
               <strong className="font-medium">{timezone}</strong>
             </span>
             {loading ? (
               <span className="inline-flex items-center gap-1">
-                <Spinner /> <span>Checking availability…</span>
+                <Spinner /> <span>Checking availabilityâ€¦</span>
               </span>
             ) : null}
           </div>

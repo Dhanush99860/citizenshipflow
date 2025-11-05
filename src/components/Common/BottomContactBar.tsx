@@ -1,23 +1,24 @@
-"use client";
+﻿"use client";
+
 
 import * as React from "react";
 import Link from "next/link";
 import { useId, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Home, PhoneCall, BookOpen, X } from "lucide-react";
-import ContactForm from "@/components/ContactForm"; // ✅ reuse your existing form
+import ContactForm from "@/components/ContactForm"; // âœ… reuse your existing form
 import {
   CONTACT_API_ENDPOINT,
   CONTACT_SUCCESS_REDIRECT,
 } from "@/lib/contactConfig"
 
 /**
- * BottomContactBar — floating, app-like quick navigation & connect bar
+ * BottomContactBar â€” floating, app-like quick navigation & connect bar
  * -------------------------------------------------------------------
- * • Always-on floating dock at the bottom on mobile (can optionally show on desktop)
- * • Actions: Home, Quick Connect (opens bottom sheet with ContactForm "quick"), Guide
- * • Uses the SAME backend endpoint as your main ContactForm (configured in contactConfig.ts)
- * • Safe-area padding for iOS, strong a11y, smooth Framer Motion animations
+ * â€¢ Always-on floating dock at the bottom on mobile (can optionally show on desktop)
+ * â€¢ Actions: Home, Quick Connect (opens bottom sheet with ContactForm "quick"), Guide
+ * â€¢ Uses the SAME backend endpoint as your main ContactForm (configured in contactConfig.ts)
+ * â€¢ Safe-area padding for iOS, strong a11y, smooth Framer Motion animations
  *
  * How to use globally (App Router):
  * - Add <BottomContactBar /> inside your root layout (e.g., src/app/layout.tsx)
@@ -157,7 +158,7 @@ const BottomContactBar: React.FC<Props> = ({
                   Request a quick callback
                 </h2>
 
-                {/* ✅ Reuse the SAME form (no changes to its file) */}
+                {/* âœ… Reuse the SAME form (no changes to its file) */}
                 <ContactForm
                   variant="quick"
                   apiEndpoint={endpoint}                // single place to configure
@@ -173,3 +174,4 @@ const BottomContactBar: React.FC<Props> = ({
 };
 
 export default BottomContactBar;
+

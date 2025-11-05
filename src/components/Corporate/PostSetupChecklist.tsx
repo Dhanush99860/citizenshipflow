@@ -1,5 +1,6 @@
+﻿"use client";
+
 // components/Corporate/PostSetupChecklist.tsx
-"use client";
 
 import * as React from "react";
 import { CheckCircle2 } from "lucide-react";
@@ -45,3 +46,4 @@ export default function PostSetupChecklist({
     </section>
   );
 }
+
