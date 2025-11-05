@@ -1,3 +1,16 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript", "plugin:@next/next/recommended"]
+  "extends": [
+    "next/core-web-vitals",
+    "next/typescript",
+    "plugin:@next/next/recommended"
+  ],
+  "rules": {
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "JSXOpeningElement[name.name=/^h[2-6]$/]",
+        "message": "Use <Heading level={N}> (+ optional <HeadingLevel>/<Section>) or keep a single real <h1> in Hero."
+      }
+    ]
+  }
 }
