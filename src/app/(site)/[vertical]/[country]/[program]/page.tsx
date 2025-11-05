@@ -1,5 +1,6 @@
-// src/app/(site)/[vertical]/[country]/[program]/page.tsx
-import compileMDX from "next-mdx-remote/rsc";
+// ✅ src/app/(site)/[vertical]/[country]/[program]/page.tsx
+// Program page: renders MDX content
+import { compileMDX } from "next-mdx-remote/rsc"; // ← fixed: named import
 import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
@@ -14,14 +15,16 @@ import { notFound } from "next/navigation";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const VERTICALS: Vertical[] = ["residency", "citizenship", "skilled", "corporate"];
+export const runtime = "nodejs"; // ensure Node.js runtime on Vercel
+
+const VERTICALS3: Vertical[] = ["residency", "citizenship", "skilled", "corporate"];
 
 /** Build params ONLY from folder names; ignore front-matter completely. */
 export async function generateStaticParams() {
   const root = path.join(process.cwd(), "content");
   const out: Array<{ vertical: string; country: string; program: string }> = [];
 
-  for (const vertical of VERTICALS) {
+  for (const vertical of VERTICALS3) {
     const vDir = path.join(root, vertical);
 
     // Skip missing vertical directories cleanly
@@ -56,14 +59,15 @@ export async function generateStaticParams() {
 export const dynamicParams = false;
 
 /**
- * Generate SEO metadata for MDX program pages.  We derive the title,
- * description and keywords from the cached ProgramDoc and construct a full
- * canonical URL and rich Open Graph/Twitter metadata.  If the doc
- * cannot be found (e.g. during pre-render), we return a fallback title.
+ * Generate SEO metadata for MDX program pages.
  */
-export async function generateMetadata({ params }: { params: { vertical: Vertical; country: string; program: string } }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: { vertical: Vertical; country: string; program: string };
+}): Promise<Metadata> {
   const { vertical, country, program } = params;
-  if (!VERTICALS.includes(vertical)) {
+  if (!VERTICALS3.includes(vertical)) {
     return { title: "Program not found" };
   }
   const doc = getAllContentCached().find(
@@ -71,7 +75,7 @@ export async function generateMetadata({ params }: { params: { vertical: Vertica
       d.kind === "program" &&
       d.vertical === vertical &&
       d.country === country &&
-      d.program === program,
+      d.program === program
   );
   if (!doc) {
     return { title: "Program not found" };
@@ -85,7 +89,7 @@ export async function generateMetadata({ params }: { params: { vertical: Vertica
     title,
     description,
     keywords,
-    alternates: { canonical: canonicalPath },
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title,
       description,
@@ -118,7 +122,7 @@ export default async function ProgramPage({
 }) {
   const { vertical, country, program } = params;
 
-  if (!VERTICALS.includes(vertical) || !country || !program) return notFound();
+  if (!VERTICALS3.includes(vertical) || !country || !program) return notFound();
 
   const doc = getAllContentCached().find(
     (d): d is ProgramDoc =>
@@ -134,7 +138,7 @@ export default async function ProgramPage({
     options: {
       mdxOptions: {
         remarkPlugins: [remarkGfm],
-        rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
+        rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: "wrap" }]],
       },
     },
   });
@@ -150,7 +154,7 @@ export default async function ProgramPage({
       { "@type": "ListItem", position: 3, name: doc.country, item: `/${doc.vertical}/${doc.country}` },
       { "@type": "ListItem", position: 4, name: doc.title, item: doc.url },
     ],
-  };
+  } as const;
 
   return (
     <main className="mx-auto max-w-6xl p-6 grid lg:grid-cols-[2fr_1fr] gap-8">

@@ -1,76 +1,41 @@
-// src/app/(site)/[vertical]/page.tsx
+// ✅ src/app/(site)/[vertical]/[country]/page.tsx
+// Country index: lists programs in a country for the given vertical
 import { getAllContentCached } from "@/lib/content";
-import type { Metadata } from "next";
 import type { Vertical, ProgramDoc } from "@/lib/content/types";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
+export const runtime = "nodejs";
 
 const VERTICALS: Vertical[] = ["residency", "citizenship", "skilled", "corporate"];
 
 export function generateStaticParams() {
-  return VERTICALS.map((v) => ({ vertical: v }));
+  const docs = getAllContentCached();
+  const combos = new Set<string>();
+  for (const d of docs) {
+    if ((d as any).kind === "program") {
+      const p = d as ProgramDoc;
+      if (VERTICALS.includes(p.vertical) && p.country) {
+        combos.add(`${p.vertical}__${p.country}`);
+      }
+    }
+  }
+  return Array.from(combos).map((key) => {
+    const [vertical, country] = key.split("__");
+    return { vertical, country };
+  });
 }
 
 export const dynamicParams = false;
 
-export default function VerticalPage({ params }: { params: { vertical: Vertical } }) {
-  const { vertical } = params;
-
-  // Extra guard (shouldn’t hit with dynamicParams=false, but keeps Vercel logs clean)
-  if (!VERTICALS.includes(vertical)) return notFound();
-
-  const docs = getAllContentCached();
-
-  // Narrow AnyDoc -> ProgramDoc
-  const programs = docs.filter(
-    (d): d is ProgramDoc => d.kind === "program" && d.vertical === vertical
-  );
-
-  // Aggregate counts by country
-  const byCountry = new Map<string, number>();
-  for (const p of programs) {
-    if (!p.country) continue; // safety
-    byCountry.set(p.country, (byCountry.get(p.country) ?? 0) + 1);
-  }
-
-  const countries = [...byCountry.entries()].sort((a, b) =>
-    a[0].localeCompare(b[0])
-  );
-
-  return (
-    <main className="mx-auto max-w-6xl space-y-6 p-6">
-      <h1 className="text-3xl font-semibold capitalize">{vertical}</h1>
-
-      {countries.length === 0 ? (
-        <p className="text-neutral-600">No programs available yet.</p>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {countries.map(([country, count]) => (
-            <Link
-              key={country}
-              href={`/${vertical}/${country}`}
-              className="rounded-2xl border p-5 transition hover:bg-gray-50"
-            >
-              <div className="text-xl font-medium capitalize">{country}</div>
-              <div className="text-sm opacity-70">{count} programs</div>
-            </Link>
-          ))}
-        </div>
-      )}
-    </main>
-  );
-}
-
-/**
- * Generate metadata for dynamic vertical pages.  The title and description
- * reflect the specific vertical and country being viewed.  This function
- * constructs Open Graph and Twitter metadata with an explicit canonical URL.
- */
-export async function generateMetadata({ params }: { params: { vertical: Vertical; country: string } }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: { vertical: Vertical; country: string };
+}): Promise<Metadata> {
   const { vertical, country } = params;
-  if (!VERTICALS.includes(vertical) || !country) {
-    return { title: "Not found" };
-  }
+  if (!VERTICALS.includes(vertical) || !country) return { title: "Not found" };
   const capVertical = vertical.charAt(0).toUpperCase() + vertical.slice(1);
   const capCountry = country.charAt(0).toUpperCase() + country.slice(1);
   const title = `${capCountry} – ${capVertical} Programs`;
@@ -80,7 +45,7 @@ export async function generateMetadata({ params }: { params: { vertical: Vertica
   return {
     title,
     description,
-    alternates: { canonical: canonicalPath },
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title,
       description,
@@ -104,4 +69,48 @@ export async function generateMetadata({ params }: { params: { vertical: Vertica
       images: ["/og.jpg"],
     },
   };
+}
+
+export default function CountryPage({
+  params,
+}: {
+  params: { vertical: Vertical; country: string };
+}) {
+  const { vertical, country } = params;
+  if (!VERTICALS.includes(vertical) || !country) return notFound();
+
+  const docs = getAllContentCached();
+  const programs = docs.filter(
+    (d): d is ProgramDoc =>
+      (d as any).kind === "program" &&
+      (d as ProgramDoc).vertical === vertical &&
+      (d as ProgramDoc).country === country
+  );
+
+  return (
+    <main className="mx-auto max-w-6xl space-y-6 p-6">
+      <h1 className="text-3xl font-semibold capitalize">
+        {country} – {vertical}
+      </h1>
+
+      {programs.length === 0 ? (
+        <p className="text-neutral-600">No programs available yet.</p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {programs.map((p) => (
+            <Link
+              key={p.url}
+              href={`/${p.vertical}/${p.country}/${p.program}`}
+              className="rounded-2xl border p-5 transition hover:bg-gray-50"
+            >
+              <div className="text-xl font-medium">{p.title}</div>
+              {p.summary ? (
+                <div className="text-sm opacity-70 mt-1">{p.summary}</div>
+              ) : null}
+            </Link>
+          ))}
+        </div>
+      )}
+    </main>
+  );
 }
