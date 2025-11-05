@@ -1,22 +1,23 @@
+﻿import { Heading } from "@/components/ui/heading/Heading"
 // src/components/Shared/CostCalculator.tsx
 "use client";
 
 import React from "react";
 
 /**
- * CostCalculator — professional, readable blue theme
+ * CostCalculator â€” professional, readable blue theme
  * -------------------------------------------------
  * UX
- *  • Clear 3-part flow: Base option → Family size → Add-ons → Summary.
- *  • White cards with neutral text; blue only for emphasis (AA contrast).
- *  • Accessible steppers, radios and checkboxes; keyboard & screen-reader friendly.
- *  • Sticky total bar on small screens; print-friendly layout.
+ *  â€¢ Clear 3-part flow: Base option â†’ Family size â†’ Add-ons â†’ Summary.
+ *  â€¢ White cards with neutral text; blue only for emphasis (AA contrast).
+ *  â€¢ Accessible steppers, radios and checkboxes; keyboard & screen-reader friendly.
+ *  â€¢ Sticky total bar on small screens; print-friendly layout.
  *
  * SEO
- *  • Outputs JSON-LD (Offer + PriceSpecification) for the computed estimate.
+ *  â€¢ Outputs JSON-LD (Offer + PriceSpecification) for the computed estimate.
  *
  * Notes
- *  • No external UI/icon libs; only Tailwind + inline SVGs.
+ *  â€¢ No external UI/icon libs; only Tailwind + inline SVGs.
  */
 
 type BaseOption = { id: string; label: string; amount: number };
@@ -80,7 +81,7 @@ export default function CostCalculator({
     () =>
       baseOptions.find((b) => b.id === selectedBase) ?? {
         id: "",
-        label: "—",
+        label: "â€”",
         amount: 0,
       },
     [selectedBase, baseOptions],
@@ -196,12 +197,12 @@ export default function CostCalculator({
       {/* FLOW: Base options */}
       {baseOptions.length > 0 ? (
         <section aria-labelledby="cc-base" className="relative">
-          <h4
+          <Heading level={3}
             id="cc-base"
             className="text-sm font-semibold text-neutral-900 dark:text-neutral-100"
           >
             Choose a base option
-          </h4>
+          </Heading>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {baseOptions.map((b) => {
               const checked = selectedBase === b.id;
@@ -242,12 +243,12 @@ export default function CostCalculator({
 
       {/* FLOW: Family size */}
       <section aria-labelledby="cc-family" className="relative mt-5">
-        <h4
+        <Heading level={3}
           id="cc-family"
           className="text-sm font-semibold text-neutral-900 dark:text-neutral-100"
         >
           Family size
-        </h4>
+        </Heading>
 
         <div className="mt-3 grid grid-cols-2 gap-3">
           <Stepper
@@ -273,12 +274,12 @@ export default function CostCalculator({
       {addons.length ? (
         <section aria-labelledby="cc-addons" className="relative mt-6">
           <div className="flex items-center justify-between">
-            <h4
+            <Heading level={3}
               id="cc-addons"
               className="text-sm font-semibold text-neutral-900 dark:text-neutral-100"
             >
               Government & due-diligence fees
-            </h4>
+            </Heading>
             <button
               type="button"
               onClick={() =>
@@ -329,7 +330,7 @@ export default function CostCalculator({
                         id={`cc-addon-per-${a.id}`}
                         className="text-neutral-500 dark:text-neutral-400"
                       >
-                        · per {a.per}
+                        Â· per {a.per}
                       </span>
                     ) : null}
                   </label>
@@ -339,7 +340,7 @@ export default function CostCalculator({
                       {fmt(a.amount)}
                     </div>
                     <div className="text-[11px] text-neutral-500 dark:text-neutral-400">
-                      {qty} × {fmt(a.amount)} ={" "}
+                      {qty} Ã— {fmt(a.amount)} ={" "}
                       <span className="font-medium text-neutral-800 dark:text-neutral-200">
                         {fmt(lineTotal)}
                       </span>
@@ -354,12 +355,12 @@ export default function CostCalculator({
 
       {/* SUMMARY */}
       <section aria-labelledby="cc-summary" className="relative mt-6">
-        <h4
+        <Heading level={3}
           id="cc-summary"
           className="text-sm font-semibold text-neutral-900 dark:text-neutral-100"
         >
           Summary
-        </h4>
+        </Heading>
 
         <div className="mt-3 rounded-2xl ring-1 ring-neutral-200 dark:ring-neutral-800 bg-white dark:bg-neutral-900 overflow-hidden">
           {/* table-like list for clarity & printability */}
@@ -383,7 +384,7 @@ export default function CostCalculator({
                     {r.label}
                   </div>
                   <div className="text-[11px] text-neutral-500 dark:text-neutral-400">
-                    {r.per ? `per ${r.per}` : "fixed"} • Qty {r.qty}
+                    {r.per ? `per ${r.per}` : "fixed"} â€¢ Qty {r.qty}
                   </div>
                 </div>
                 <div
@@ -517,7 +518,7 @@ function toJsonLd(
           "@type": "PropertyValue",
           name: r.label,
           value: r.total,
-          description: `${r.qty} × ${r.unit}${r.per ? `, per ${r.per}` : ""}`,
+          description: `${r.qty} Ã— ${r.unit}${r.per ? `, per ${r.per}` : ""}`,
         })),
     ],
   } as const;
@@ -585,3 +586,4 @@ function MinusIcon({ className = "" }: { className?: string }) {
     </svg>
   );
 }
+

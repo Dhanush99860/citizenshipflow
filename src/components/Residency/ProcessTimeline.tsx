@@ -1,3 +1,4 @@
+﻿import { Heading } from "@/components/ui/heading/Heading"
 "use client";
 
 import React, { useId } from "react";
@@ -6,7 +7,7 @@ import { Clock, FileText, CheckCircle2 } from "lucide-react";
 type Step = { title: string; description?: string };
 
 /**
- * ProcessTimeline — refined, readable, “premium” timeline.
+ * ProcessTimeline â€” refined, readable, â€œpremiumâ€ timeline.
  * - Minimal cards (soft ring + subtle tint), strong type hierarchy
  * - Vertical rail on all screens (no jumpy grids), perfect for scanning
  * - Numbered markers with connecting line (no JS)
@@ -104,13 +105,13 @@ export default function ProcessTimeline({
                   aria-hidden
                 />
 
-                <h4
+                <Heading level={3}
                   id={`${stepId}-title`}
                   className="mt-2 text-base font-semibold leading-6"
                 >
                   <span className="sr-only">Step {i + 1}: </span>
                   {step.title}
-                </h4>
+                </Heading>
 
                 {step.description ? (
                   <p className="mt-2 text-[15px] leading-7 text-black/80 dark:text-gray-200">
@@ -143,7 +144,7 @@ export default function ProcessTimeline({
                       Guided
                     </Chip>
                     <Chip icon={<Clock className="h-3.5 w-3.5" />}>
-                      Avg. 2–4 weeks
+                      Avg. 2â€“4 weeks
                     </Chip>
                   </div>
                 )}
@@ -216,3 +217,4 @@ function paletteByIndex(i: number) {
       };
   }
 }
+

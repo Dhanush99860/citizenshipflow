@@ -1,3 +1,4 @@
+﻿import { Heading } from "@/components/ui/heading/Heading"
 "use client";
 import * as React from "react";
 
@@ -71,7 +72,7 @@ export default function FAQSection({ faqs }: { faqs?: FAQ[] }) {
               <h3 className="sr-only" id={`${panelId}-title`}>
                 Question {i + 1}
               </h3>
-              <h4>
+              <Heading level={3}>
                 <button
                   id={buttonId}
                   aria-expanded={isOpen}
@@ -92,7 +93,7 @@ export default function FAQSection({ faqs }: { faqs?: FAQ[] }) {
                     <Chevron className="h-4 w-4" />
                   </span>
                 </button>
-              </h4>
+              </Heading>
 
               <div
                 id={panelId}
@@ -143,3 +144,4 @@ function Chevron({ className }: { className?: string }) {
     </svg>
   );
 }
+

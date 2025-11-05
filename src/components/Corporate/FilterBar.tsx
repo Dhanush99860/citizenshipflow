@@ -1,4 +1,4 @@
-// src/components/Corporate/FilterBar.tsx
+﻿// src/components/Corporate/FilterBar.tsx
 "use client";
 
 import React from "react";
@@ -27,7 +27,7 @@ type Props = {
 };
 
 /**
- * CorporateFilterBar — 3 controls: Search | Route type | Sort
+ * CorporateFilterBar â€” 3 controls: Search | Route type | Sort
  * - Debounced search (300ms), Clear search button, Reset all
  * - Corporate-specific route & sort options
  * - Emerald/teal palette to match Corporate UI
@@ -98,7 +98,7 @@ export default function CorporateFilterBar({ initial, onChange, className = "" }
 
       {/* Form */}
       <form
-        role="search"
+        role="group"
         aria-labelledby={sectionId}
         onSubmit={(e) => e.preventDefault()}
         className="grid gap-3 sm:grid-cols-[1fr,auto,auto]"
@@ -118,7 +118,7 @@ export default function CorporateFilterBar({ initial, onChange, className = "" }
             id="corp-filter-q"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search by country, program or tag…"
+            placeholder="Search by country, program or tagâ€¦"
             autoComplete="off"
             enterKeyHint="search"
             className="
@@ -286,3 +286,4 @@ Parent should apply the filters/sort to your corporate programs list.
 - sort = "visafriendly": bubble programs with easier/fast employment
   sponsorship first (your heuristic / tag-based)
 ----------------------------------------------------------- */
+

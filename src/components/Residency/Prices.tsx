@@ -1,3 +1,4 @@
+﻿import { Heading } from "@/components/ui/heading/Heading"
 // src/components/Residency/Prices.tsx
 "use client";
 
@@ -5,7 +6,7 @@ import * as React from "react";
 import { Banknote, Wallet, Info, CalendarDays, FileText } from "lucide-react";
 
 /**
- * Prices (Residency) — blue primary, WHITE surfaces, subtle light grid
+ * Prices (Residency) â€” blue primary, WHITE surfaces, subtle light grid
  * - Readability first: solid white cards, neutral text, restrained blue accents
  * - Background: very faint grid + soft neutral glows (non-distracting)
  * - UX: currency summary chips, stage timeline, sticky-first-col table, mobile scroll hint
@@ -44,7 +45,7 @@ export default function Prices({
 
   /* ---------- helpers ---------- */
   const fmt = (amt?: number, cur?: string) => {
-    if (typeof amt !== "number" || Number.isNaN(amt)) return "—";
+    if (typeof amt !== "number" || Number.isNaN(amt)) return "â€”";
     const c = (cur || defaultCurrency || "USD").toUpperCase();
     try {
       return new Intl.NumberFormat(undefined, {
@@ -131,7 +132,7 @@ export default function Prices({
       name: it.label,
       price: typeof it.amount === "number" ? it.amount : undefined,
       priceCurrency: (it.currency || defaultCurrency).toUpperCase(),
-      description: [it.when, it.notes].filter(Boolean).join(" — ") || undefined,
+      description: [it.when, it.notes].filter(Boolean).join(" â€” ") || undefined,
       availability: "https://schema.org/InStock",
     }));
     return {
@@ -304,7 +305,7 @@ export default function Prices({
             })}
           </ol>
           <p className="mt-3 text-[12px] text-neutral-600 dark:text-neutral-400">
-            Stages are inferred from each line item’s “When” note.
+            Stages are inferred from each line itemâ€™s â€œWhenâ€ note.
           </p>
         </nav>
       ) : null}
@@ -408,7 +409,7 @@ export default function Prices({
                         ) : null}
                       </td>
                       <td className="py-3 pr-4 text-neutral-700 dark:text-neutral-300">
-                        {it.when ?? "—"}
+                        {it.when ?? "â€”"}
                       </td>
 
                       <td className="py-3 pr-4 align-top">
@@ -421,7 +422,7 @@ export default function Prices({
                           </p>
                         ) : (
                           <span className="text-neutral-500 dark:text-neutral-400">
-                            —
+                            â€”
                           </span>
                         )}
                       </td>
@@ -449,7 +450,7 @@ export default function Prices({
             >
               <FileText className="h-3.5 w-3.5" />
               <span>
-                We’ll share a personalized cost sheet after your pre-screen.
+                Weâ€™ll share a personalized cost sheet after your pre-screen.
               </span>
             </div>
           </div>
@@ -472,9 +473,9 @@ export default function Prices({
               className="h-4 w-4 text-blue-700 dark:text-blue-300"
               aria-hidden
             />
-            <h4 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            <Heading level={3} className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
               Proof of funds
-            </h4>
+            </Heading>
           </div>
 
           <ul className="mt-4 grid gap-3 sm:grid-cols-2" role="list">
@@ -606,3 +607,4 @@ function BackgroundGraphics() {
     </>
   );
 }
+

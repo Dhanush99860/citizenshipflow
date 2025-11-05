@@ -1,5 +1,6 @@
+﻿import { Heading } from "@/components/ui/heading/Heading"
 // src/components/ProcessSteps.tsx
-// Professional, immigration-site–ready process timeline.
+// Professional, immigration-siteâ€“ready process timeline.
 // - Clean, authoritative UI with primary accents (light/dark)
 // - Mobile-first responsive layout, no layout shift
 // - A11y: clear semantics, headings, focus rings, readable labels
@@ -17,7 +18,7 @@ type Step =
       title: string;
       description?: string;
       /** Optional meta displayed as compact chips */
-      duration?: string; // e.g., "2–4 weeks", "10 days", "3 months"
+      duration?: string; // e.g., "2â€“4 weeks", "10 days", "3 months"
       docs?: string; // e.g., "Passport, Police certificate"
       outcome?: string; // e.g., "File submitted", "Approval granted"
     };
@@ -170,14 +171,14 @@ export default function ProcessSteps({
                 />
 
                 {/* Title */}
-                <h4
+                <Heading level={3}
                   id={`${stepId}-title`}
                   className="mt-2 text-[16px] sm:text-[18px] font-semibold leading-6 text-neutral-900 dark:text-neutral-100"
                   itemProp="name"
                 >
                   <span className="sr-only">Step {n}: </span>
                   {step.title}
-                </h4>
+                </Heading>
 
                 {/* Description */}
                 {step.description ? (
@@ -402,7 +403,7 @@ function buildHowToLd(
 /* ---------- Duration -> ISO 8601 (best-effort) ---------- */
 
 function toISODuration(input: string): string | undefined {
-  // Accepts patterns like "2–4 weeks", "3 months", "10 days", "90 minutes", "1-2 weeks"
+  // Accepts patterns like "2â€“4 weeks", "3 months", "10 days", "90 minutes", "1-2 weeks"
   if (!input) return undefined;
   // Pick the first numeric token for conservative ISO mapping
   const m = input
@@ -438,3 +439,4 @@ function toISODuration(input: string): string | undefined {
       return undefined;
   }
 }
+

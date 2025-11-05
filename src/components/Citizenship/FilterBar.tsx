@@ -1,4 +1,4 @@
-// src/components/Citizenship/FilterBar.tsx
+﻿// src/components/Citizenship/FilterBar.tsx
 "use client";
 
 import React from "react";
@@ -16,11 +16,11 @@ type Props = {
 };
 
 /**
- * FilterBar — professional, readable blue-accent filters
+ * FilterBar â€” professional, readable blue-accent filters
  * - White card on ultra-light grid; neutral text; blue only for emphasis
  * - A11y: form/labels, focus rings, keyboardable clear/reset
  * - UX: debounced search (300ms), clear button, reset all
- * - 100% responsive: 1col → 3col (search | route | sort)
+ * - 100% responsive: 1col â†’ 3col (search | route | sort)
  * - No external libs; server-safe props; client-only behavior
  */
 export default function FilterBar({
@@ -93,7 +93,7 @@ export default function FilterBar({
 
       {/* Form */}
       <form
-        role="search"
+        role="group"
         aria-labelledby={sectionId}
         onSubmit={(e) => e.preventDefault()}
         className="grid gap-3 sm:grid-cols-[1fr,auto,auto]"
@@ -113,7 +113,7 @@ export default function FilterBar({
             id="filter-q"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search country or program…"
+            placeholder="Search country or programâ€¦"
             autoComplete="off"
             enterKeyHint="search"
             className="
@@ -283,3 +283,4 @@ function ChevronDownIcon({ className = "" }: { className?: string }) {
     </svg>
   );
 }
+

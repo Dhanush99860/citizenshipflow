@@ -1,4 +1,4 @@
-// src/components/Skilled/FilterBar.tsx
+﻿// src/components/Skilled/FilterBar.tsx
 "use client";
 
 import React from "react";
@@ -25,7 +25,7 @@ type Props = {
 };
 
 /**
- * SkilledFilterBar — identical design to Citizenship/FilterBar
+ * SkilledFilterBar â€” identical design to Citizenship/FilterBar
  * - 3 controls: Search | Route type | Sort
  * - Debounced search (300ms), Clear search button, Reset all
  * - Skilled-specific route & sort options
@@ -96,7 +96,7 @@ export default function SkilledFilterBar({ initial, onChange, className = "" }: 
 
       {/* Form */}
       <form
-        role="search"
+        role="group"
         aria-labelledby={sectionId}
         onSubmit={(e) => e.preventDefault()}
         className="grid gap-3 sm:grid-cols-[1fr,auto,auto]"
@@ -116,7 +116,7 @@ export default function SkilledFilterBar({ initial, onChange, className = "" }: 
             id="skilled-filter-q"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search country or program…"
+            placeholder="Search country or programâ€¦"
             autoComplete="off"
             enterKeyHint="search"
             className="
@@ -282,3 +282,4 @@ Usage notes (same as your Citizenship FilterBar):
   - "salary": ascending by `minSalary ?? minInvestment` (undefined last)
   - "joboffer": items with `jobOfferRequired === false` first
 ----------------------------------------------------------- */
+

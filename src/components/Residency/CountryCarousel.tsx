@@ -1,3 +1,4 @@
+﻿import { Heading } from "@/components/ui/heading/Heading"
 "use client";
 
 import Image from "next/image";
@@ -57,7 +58,7 @@ function truncateWords(text = "", maxWords = 15) {
   const words = (text || "").trim().split(/\s+/);
   return words.length <= maxWords
     ? (text || "").trim()
-    : words.slice(0, maxWords).join(" ") + "…";
+    : words.slice(0, maxWords).join(" ") + "â€¦";
 }
 function normalizeImageSrc(src?: string, fallback = "/og.jpg") {
   const val = (src && src.trim()) || fallback;
@@ -97,7 +98,7 @@ const ThemeVars = () => (
 );
 
 /* =========================================================
-   FeatureList — separated so hooks are at the top (no errors)
+   FeatureList â€” separated so hooks are at the top (no errors)
    Layout: Left 60% (hero + 2 small) | Right 40% (7 rows)
    ========================================================= */
 function FeatureList({
@@ -222,17 +223,17 @@ function FeatureList({
           />
         </Link>
         <div className="flex-1 p-4">
-          <h4 className="text-base font-semibold leading-tight">
+          <Heading level={3} className="text-base font-semibold leading-tight">
             <Link href={href2} className="hover:underline focus:outline-none focus:ring-2 focus:ring-[var(--c-secondary)] rounded">
               {ctry}
             </Link>
-          </h4>
+          </Heading>
           <p className="mt-1 text-sm leading-6 line-clamp-2">
             {truncateWords(sum || `${noun} pathways in ${ctry}.`, 22)}
           </p>
           <div className="pt-3 mt-2 border-t border-[var(--c-border)]">
             <Link href={href2} className="inline-flex items-center text-sm font-bold tracking-wide">
-              <span>Explore</span><span className="ml-1">→</span>
+              <span>Explore</span><span className="ml-1">â†’</span>
             </Link>
           </div>
         </div>
@@ -270,7 +271,7 @@ function FeatureList({
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
               <h5 className="text-sm font-semibold truncate">{ctry}</h5>
-              <span className="text-base opacity-0 group-hover:opacity-100 transition">→</span>
+              <span className="text-base opacity-0 group-hover:opacity-100 transition">â†’</span>
             </div>
             <p className="mt-0.5 text-xs leading-5 line-clamp-2">
               {truncateWords(sum || `${noun} pathways in ${ctry}.`, 18)}
@@ -331,7 +332,7 @@ function FeatureList({
         href={viewAllHref}
         className="inline-flex items-center gap-2 rounded-xl border border-[var(--c-border)] bg-[var(--c-card)] px-5 py-2.5 text-sm font-semibold shadow-sm hover:bg-[var(--c-primary)] hover:text-[var(--c-invert)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--c-secondary)] transition"
       >
-        {ctaText} ({list.length}) <span>→</span>
+        {ctaText} ({list.length}) <span>â†’</span>
       </Link>
     </div>
   </div>
@@ -382,14 +383,14 @@ function FeatureList({
                   href={viewAllHref}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--c-border)] bg-[var(--c-card)] px-4 py-2.5 text-sm font-semibold hover:bg-[var(--c-primary)] hover:text-[var(--c-invert)]"
                 >
-                  {ctaText} ({list.length}) <span>→</span>
+                  {ctaText} ({list.length}) <span>â†’</span>
                 </Link>
               </div>
 
               <div className="pt-4 mt-3 border-t border-[var(--c-border)]">
                 <Link href={href} className="inline-flex items-center text-base font-bold tracking-wide">
                   <span>Explore {country} {ctaNoun}</span>
-                  <span className="ml-2">→</span>
+                  <span className="ml-2">â†’</span>
                 </Link>
               </div>
             </div>
@@ -404,7 +405,7 @@ function FeatureList({
         {/* RIGHT (search + rows) */}
         <aside className="md:col-span-2">
           <div
-            role="search"
+            role="group"
             aria-label="Country filters"
             className="rounded-2xl border border-[var(--c-border)] bg-[var(--c-card)] p-3 mb-4"
           >
@@ -422,7 +423,7 @@ function FeatureList({
                       ref={searchRef}
                       id="country-search"
                       aria-describedby="country-search-hint"
-                      placeholder="Search countries by name…"
+                      placeholder="Search countries by nameâ€¦"
                       className="w-full rounded-xl border border-[var(--c-border)] bg-[var(--c-input-bg)] pl-9 pr-9 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--c-secondary)]"
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
@@ -446,7 +447,7 @@ function FeatureList({
 
                   <div className="mt-1 flex items-center justify-between">
                     <p id="country-search-hint" className="text-[11px] tracking-wide opacity-75">
-                      Tip: type a few letters (e.g., “domi” for Dominica).
+                      Tip: type a few letters (e.g., â€œdomiâ€ for Dominica).
                     </p>
                     <div aria-hidden className="hidden sm:flex items-center gap-1 text-[11px] opacity-80">
                       <span className="rounded-md border border-[var(--c-border)] px-1.5 py-[2px]">Ctrl</span>
@@ -496,7 +497,7 @@ function FeatureList({
               href={viewAllHref}
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--c-border)] bg-[var(--c-card)] px-4 py-2.5 text-sm font-semibold hover:bg-[var(--c-primary)] hover:text-[var(--c-invert)]"
             >
-              {ctaText} ({list.length}) <span>→</span>
+              {ctaText} ({list.length}) <span>â†’</span>
             </Link>
           </div>
         </aside>
@@ -696,7 +697,7 @@ export default function CountryCarousel({
                   <div className="pt-4 mt-auto w-full border-t border-[var(--c-border)]">
                     <Link href={href} className="group w-full flex items-center text-base font-bold tracking-wide">
                       <span>Explore {country} {ctaNoun}</span>
-                      <span className="ml-2 inline-block transform transition-transform duration-300 group-hover:translate-x-1">→</span>
+                      <span className="ml-2 inline-block transform transition-transform duration-300 group-hover:translate-x-1">â†’</span>
                     </Link>
                   </div>
                 </div>
@@ -709,3 +710,5 @@ export default function CountryCarousel({
     </section>
   );
 }
+
+

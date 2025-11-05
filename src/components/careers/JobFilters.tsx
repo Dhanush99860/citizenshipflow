@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -76,7 +76,7 @@ export default function JobFilters({ depts }: Props) {
 
   return (
     <form
-      role="search"
+      role="group"
       aria-label="Filter jobs"
       onSubmit={onSubmit}
       className="flex w-full flex-wrap items-center gap-3 rounded-xl border border-black/20 bg-white/70 p-3 text-black ring-1 ring-black/5 backdrop-blur dark:border-white/20 dark:bg-white/5 dark:text-white dark:ring-white/5"
@@ -140,3 +140,4 @@ export default function JobFilters({ depts }: Props) {
     </form>
   );
 }
+

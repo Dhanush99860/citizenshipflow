@@ -1,11 +1,11 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { useMemo, useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, X } from "lucide-react";
 
-// ✅ Accept countries/programs from any vertical
+// âœ… Accept countries/programs from any vertical
 import type {
   CountryMeta as ResidencyCountry,
   ProgramMeta as ResidencyProgram,
@@ -169,7 +169,7 @@ export default function ResidencyLanding({
 
         {/* Mobile sticky search */}
         <div
-          role="search"
+          role="group"
           className="md:hidden sticky top-0 z-40 -mx-4 px-4 py-3 bg-white/95 dark:bg-neutral-950/95 backdrop-blur border-b border-neutral-200/70 dark:border-neutral-800/70"
           aria-label="Search countries"
         >
@@ -177,7 +177,7 @@ export default function ResidencyLanding({
             id="mobileCountrySearch"
             value={q}
             onChange={setQ}
-            placeholder="Type a country name…"
+            placeholder="Type a country nameâ€¦"
             srLabel="Search countries"
           />
           <CountBar current={filtered.length} total={countries.length} />
@@ -208,7 +208,7 @@ export default function ResidencyLanding({
       <aside className="order-2 lg:order-2 lg:sticky lg:top-6 h-max">
         <div className="rounded-2xl bg-white dark:bg-neutral-950 ring-1 ring-neutral-200/70 dark:ring-neutral-800/70 shadow-sm p-5">
           {/* Desktop search */}
-          <div className="hidden md:block" role="search">
+          <div className="hidden md:block" role="group">
             <label
               htmlFor="countrySearch"
               className="text-lg font-semibold text-neutral-900 dark:text-neutral-50"
@@ -221,7 +221,7 @@ export default function ResidencyLanding({
                 inputRef={inputRef}
                 value={q}
                 onChange={setQ}
-                placeholder="Type a country name…"
+                placeholder="Type a country nameâ€¦"
                 srLabel="Search countries"
               />
             </div>
@@ -402,3 +402,4 @@ function Background() {
     </div>
   );
 }
+
